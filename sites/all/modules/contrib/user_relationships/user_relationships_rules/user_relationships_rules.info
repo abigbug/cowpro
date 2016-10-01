@@ -1,0 +1,13 @@
+name = User Relationships Rules
+description = "Rules integration for User Relationships."
+package = "User Relationships"
+core = 7.x
+dependencies[] = user_relationships
+dependencies[] = rules
+
+; Information added by Drupal.org packaging script on 2015-09-20
+version = "7.x-1.0-alpha6+2-dev"
+core = "7.x"
+project = "user_relationships"
+datestamp = "1442757557"
+

@@ -1,0 +1,15 @@
+name = User Relationships Private Message
+description = "Send messages to relationships with the privatemsg module."
+package = "User Relationships"
+core = 7.x
+dependencies[] = privatemsg
+dependencies[] = user_relationships
+dependencies[] = user_relationships_ui
+files[]=user_relationship_privatemsg.test
+
+; Information added by Drupal.org packaging script on 2015-09-20
+version = "7.x-1.0-alpha6+2-dev"
+core = "7.x"
+project = "user_relationships"
+datestamp = "1442757557"
+

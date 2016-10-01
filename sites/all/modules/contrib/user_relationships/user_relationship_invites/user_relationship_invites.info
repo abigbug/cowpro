@@ -1,0 +1,14 @@
+name = User Relationships Invites
+description = "Gives users the option of specifying a relationship when inviting new users. Note this module is compatible with the 3.x branch of Invite only, if using 4.x see https://www.drupal.org/project/invite_user_relationships"
+dependencies[] = user_relationships
+dependencies[] = user_relationships_ui
+dependencies[] = invite (3.x)
+core = 7.x
+package = "User Relationships"
+
+; Information added by Drupal.org packaging script on 2015-09-20
+version = "7.x-1.0-alpha6+2-dev"
+core = "7.x"
+project = "user_relationships"
+datestamp = "1442757557"
+

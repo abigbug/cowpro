@@ -1,0 +1,26 @@
+name = User Relationships Views
+description = "Integrates User Relationships with Views"
+dependencies[] = user_relationships
+dependencies[] = views
+core = 7.x
+package = "User Relationships"
+files[] = user_relationship_views.views.inc
+files[] = user_relationship_views.views_default.inc
+files[] = views_handler_field_user_relationships_action.inc
+files[] = views_handler_field_user_relationships_name.inc
+files[] = views_handler_field_user_relationships_oneway.inc
+files[] = views_handler_field_user_relationships_requester.inc
+files[] = views_handler_field_user_relationships_requestee.inc
+files[] = views_handler_field_user_relationships_status.inc
+files[] = views_handler_field_user_relationships_status_link.inc
+files[] = views_handler_filter_user_relationships_requester_or_requestee_current_user.inc
+files[] = views_handler_filter_user_relationships_status.inc
+files[] = views_handler_filter_user_relationships_type.inc
+files[] = views_handler_filter_user_relationships_type_machine_name.inc
+
+; Information added by Drupal.org packaging script on 2015-09-20
+version = "7.x-1.0-alpha6+2-dev"
+core = "7.x"
+project = "user_relationships"
+datestamp = "1442757557"
+

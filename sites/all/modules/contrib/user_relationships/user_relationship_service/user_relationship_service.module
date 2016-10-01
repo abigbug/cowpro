@@ -1,0 +1,231 @@
+<?php
+
+/**
+ * @author Drupal 7 and Services 3.x port by Ed Zenisek <http://drupal.org/user/2410988>
+ * @author Adapted to Services 3.x by MD3 http://drupal.org/user/1714848
+ * @author Drupal 6 port by Darren Ferguson <http://drupal.org/user/70179>
+ * @author Written by scottgifford http://drupal.org/user/245699
+ * @file Link general user relationship functionalities to services module.
+ */
+
+/**
+ * Implementation of hook_help().
+ */
+function user_relationship_service_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#user_relationship_service':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The User Relationship Service module provides user relationship resources
+          to the Services module for user relationships. It requires Services 3.x.') . '</p>';
+      $output .= '<h3>' . t('Resources') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dt>' . t('List all relationship types') . '</dt>';
+      $output .= '<dd>' . t('<em>[GET] {endpoint}/relationships (optional) ?page=0&pagesize=20</em><br />
+          This lists all the relationships that are available in the system.  Access is allowed to logged
+          in users that are able to have an relationship of any type.') . '</dd>';
+      $output .= '<dt>' . t('List my relationships') . '</dt>';
+      $output .= '<dd>' . t('<em>[GET] {endpoint}/user/{uid}/relationships/ (optional) ?page=0&pagesize=20</em><br />
+          This lists all the relationships for the logged in user.  Access is allowed to logged
+          in users that are able to have an relationship of any type.') . '</dd>';
+      $output .= '<dt>' . t('List relationships for a user') . '</dt>';
+      $output .= '<dd>' . t('<em>[GET] {endpoint}/user/{uid}/relationshipsuser/ (optional) ?page=0&pagesize=20</em><br />
+          This lists all the relationships for the given user.  Access is allowed to logged
+          in users that are able view all relationships.') . '</dd>';
+      $output .= '<dt>' . t('Request a relationships with a user') . '</dt>';
+      $output .= '<dd>' . t('<em>[POST] {endpoint}/user/{uid}/relationship/{type}</em><br />
+          This requests a relationship of the specified type from the logged in user to the specified user.  Access is allowed to logged
+          in users that are able to request the specified relationship type.') . '</dd>';
+      $output .= '<dt>' . t('Approve a relationship') . '</dt>';
+      $output .= '<dd>' . t('<em>[POST] {endpoint}/relationships/approve</em><br />
+          This approves the request for a specified relationship.  Requires an array (data) containing the rid of the
+          relationship to approve. {"rid":"x"}  Access is allowed to logged
+          in users that are able to have the specified relationship type.') . '</dd>';
+      $output .= '<dt>' . t('Delete a relationship') . '</dt>';
+      $output .= '<dd>' . t('<em>[POST] {endpoint}/relationships/delete</em><br />
+          This deletes request or relationship for the specified relationship.  Requires an array (data) containing the rid of the
+          relationship to delete and a reason why the deletionn took place. {"rid":"x","reason","y"}  Access is allowed to logged
+          in users that are able to delete the specified relationship type.') . '</dd>';
+      return $output;
+    case 'admin/modules#description':
+      return t('Provides user relationship methods to services applications. Requires services.module.');
+  }
+}
+
+/**
+ * Implementation of hook_services_resources().
+ */
+function user_relationship_service_services_resources() {
+  $resources = array();
+  $resources += _user_relationship_service_definition();
+
+  return $resources;
+}
+
+function _user_relationship_service_definition() {
+  // [POST] {endpoint}/user/{uid}/relationship/{type}
+  $resources['user']['targeted_actions']['relationship'] = array(
+    'help' => t('Requests a relationship with another user'),
+    'callback' => 'user_relationship_service_request',
+    'file' => array('file' => 'inc', 'module' => 'user_relationship_service'),
+    'access callback' => 'user_relationships_user_access',
+    'access arguments' => array('can have @relationship relationships'),
+    'access arguments append' => FALSE,
+    'args' => array(
+      array(
+        'name' => 'uid',
+        'type' => 'int',
+        'description' => 'UID to request a relationship with',
+        'source' => array('path' => '0'),
+        'optional' => FALSE,
+      ),
+      array(
+        'name' => 'type',
+        'type' => 'string',
+        'description' => t('Name of relationship type to create'),
+        'source' => array('path' => '2'),
+        'optional' => FALSE,
+      ),
+    ),
+  );
+  // [GET] {endpoint}/user/{uid}/relationships/ (optional) ?page=0&pagesize=20
+  $resources['user']['relationships']['relationships'] = array(
+    'help' => t('Get a list of my relationships'),
+    'callback' => 'user_relationship_service_mine',
+    'file' => array('file' => 'inc', 'module' => 'user_relationship_service'),
+    'access callback' => 'user_relationships_user_access',
+    'access arguments' => array('view own @relationship relationships'),
+    'access arguments append' => FALSE,
+    'args' => array(
+      // The UID passed here is irrelevant because the callback uses the
+      // currently logged in user.  If we don't have this though, it fails.
+      array(
+        'name' => 'uid',
+        'type' => 'int',
+        'description' => 'UID to get a list of relationships from',
+        'source' => array('path' => '0'),
+        'optional' => FALSE,
+      ),
+      // This is left here for future purposes of being able to only show
+      // 20 relationships at a time, etc.
+      array(
+        'name' => 'page',
+        'optional' => TRUE,
+        'type' => 'int',
+        'description' => t('The zero-based index of the page to get, defaults to 0.'),
+        'default value' => 0,
+        'source' => array('param' => 'page'),
+      ),
+      array(
+        'name' => 'pagesize',
+        'optional' => TRUE,
+        'type' => 'init',
+        'description' => t('Number of records to get per page.'),
+        'default value' => variable_get('services_user_index_page_size', 20),
+        'source' => array('param' => 'pagesize'),
+      ),
+    ),
+  );
+  // [GET] {endpoint}/user/{uid}/relationshipsuser/ (optional) ?page=0&pagesize=20
+  $resources['user']['relationships']['relationshipsuser'] = array(
+    'help' => t('Get a list of relationships for a user'),
+    'callback' => 'user_relationship_service_user',
+    'file' => array('file' => 'inc', 'module' => 'user_relationship_service'),
+    'access callback' => 'user_relationships_user_access',
+    'access arguments' => array('view all @relationship relationships'),
+    'access arguments append' => FALSE,
+    'args' => array(
+      array(
+        'name' => 'uid',
+        'type' => 'int',
+        'description' => 'UID to get a list of relationships from',
+        'source' => array('path' => '0'),
+        'optional' => FALSE,
+      ),
+      // This is left here for future purposes of being able to only show
+      // 20 relationships at a time, etc.
+      array(
+        'name' => 'page',
+        'optional' => TRUE,
+        'type' => 'int',
+        'description' => t('The zero-based index of the page to get, defaults to 0.'),
+        'default value' => 0,
+        'source' => array('param' => 'page'),
+      ),
+      array(
+        'name' => 'pagesize',
+        'optional' => TRUE,
+        'type' => 'init',
+        'description' => t('Number of records to get per page.'),
+        'default value' => variable_get('services_user_index_page_size', 20),
+        'source' => array('param' => 'pagesize'),
+      ),
+    ),
+  );
+  // [GET] {endpoint}/relationships (optional) ?page=0&pagesize=20
+  $resources['relationships']['index'] = array(
+    'help' => t('Get a list of relationship types'),
+    'callback' => 'user_relationship_service_types',
+    'file' => array('file' => 'inc', 'module' => 'user_relationship_service'),
+    'access callback' => 'user_relationships_user_access',
+    'access arguments' => array('can have @relationship relationships'),
+    'access arguments append' => FALSE,
+    'args' => array(
+      // This is left here for future purposes of being able to only show
+      // 20 relationship types at a time, etc.
+      array(
+        'name' => 'page',
+        'optional' => TRUE,
+        'type' => 'int',
+        'description' => t('The zero-based index of the page to get, defaults to 0.'),
+        'default value' => 0,
+        'source' => array('param' => 'page'),
+      ),
+      array(
+        'name' => 'pagesize',
+        'optional' => TRUE,
+        'type' => 'init',
+        'description' => t('Number of records to get per page.'),
+        'default value' => variable_get('services_user_index_page_size', 20),
+        'source' => array('param' => 'pagesize'),
+      ),
+    ),
+  );
+  // [POST] {endpoint}/relationships/approve
+  $resources['relationships']['actions']['approve'] = array(
+    'help' => t('Approve a requested relationship'),
+    'callback' => 'user_relationship_service_approve',
+    'file' => array('file' => 'inc', 'module' => 'user_relationship_service'),
+    'access callback' => 'user_relationships_user_access',
+    'access arguments' => array('can have @relationship relationships'),
+    'access arguments append' => FALSE,
+    'args' => array(
+      array(
+        'name' => 'data',
+        'type' => 'array',
+        'description' => t('Relationship ID to approve'),
+        'source' => 'data',
+        'optional' => FALSE,
+      ),
+    ),
+  );
+  // [POST] {endpoint}/relationships/delete
+  $resources['relationships']['actions']['delete'] = array(
+    'help' => t('Delete an existing or pending relationship'),
+    'callback' => 'user_relationship_service_delete',
+    'file' => array('file' => 'inc', 'module' => 'user_relationship_service'),
+    'access callback' => 'user_relationships_user_access',
+    'access arguments' => array('delete @relationship relationships'),
+    'access arguments append' => FALSE,
+    'args' => array(
+      array(
+        'name' => 'data',
+        'type' => 'array',
+        'description' => t('Reason for deletion (cancel, disapprove, remove)'),
+        'source' => 'data',
+        'optional' => FALSE,
+      ),
+    ),
+  );
+  return $resources;
+}
