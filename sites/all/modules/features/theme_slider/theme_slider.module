@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the theme_slider feature.
+ */
+
+include_once 'theme_slider.features.inc';
