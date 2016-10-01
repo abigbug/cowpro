@@ -1,0 +1,12 @@
+name = Money More More
+description = 乾多多第三方托管
+package = _CowPro
+;dependencies[] = cowpro_customer
+;dependencies[] = cowpro_issuing
+configure = admin/cowpro/config_moneymoremore
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"
+

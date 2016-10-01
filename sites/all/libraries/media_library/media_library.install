@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Media Library module.
+ */
+
+/**
+ * Implements hook_schema_alter().
+ */
+function media_library_schema_alter(&$schema) {
+  $schema['file_managed']['fields']['library'] = array(
+    'description' => 'Boolean indicating whether the file should be included in the media library.',
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  $schema['file_managed']['indexes']['library'] = array('library');
+}
+
+/**
+ * Implements hook_install().
+ */
+function media_library_install() {
+  $schema = array();
+  media_library_schema_alter($schema);
+  $spec = $schema['file_managed']['fields']['library'];
+  $indexes_new = array('indexes' => $schema['file_managed']['indexes']);
+
+  // Add a 'library' column to the core {file_managed} table.
+  if (!db_field_exists('file_managed', 'library')) {
+    db_add_field('file_managed', 'library', $spec, $indexes_new);
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function media_library_uninstall() {
+  // Remove the added column to the core {file_managed} table.
+  db_drop_field('file_managed', 'library');
+}

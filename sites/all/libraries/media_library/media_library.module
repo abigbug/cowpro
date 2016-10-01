@@ -1,0 +1,197 @@
+<?php
+
+/**
+ * @file
+ * Restricts the media library to only designated files.
+ */
+
+// File is included in media library.
+define('EXCLUDE_FROM_LIBRARY', 0);
+
+// File is excluded from media library.
+define('INCLUDE_IN_LIBRARY', 1);
+
+/**
+ * Implements hook_menu_alter().
+ */
+function media_library_menu_alter(&$items) {
+  // Administrative screens for viewing the media library.
+  $items['admin/content/file/library'] = array(
+    'title' => 'Media Library',
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer files'),
+    'weight' => 20,
+  );
+  $items['admin/content/file/library'] = array(
+    'title' => 'Media Library',
+    'description' => 'Manage files in the media library.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('file_entity_admin_file'),
+    'access arguments' => array('administer files'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'file_entity.admin.inc',
+    'file path' => drupal_get_path('module', 'file_entity'),
+    'weight' => 20,
+  );
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function media_library_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  // Add action link to 'file/add' on 'admin/content/file' page.
+  if ($root_path == 'admin/content/file/library') {
+    $item = menu_get_item('file/add');
+
+    if (!empty($item['access'])) {
+      $data['actions']['output'][] = array(
+        '#theme' => 'menu_local_action',
+        '#link' => $item,
+        '#weight' => $item['weight'],
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_field_info_alter().
+ */
+function media_library_field_info_alter(&$info) {
+  // Add the 'include in library' instance setting to file and image fields.
+  foreach ($info as $field_type => &$field_type_info) {
+    if ($field_type == 'file' || $field_type == 'image') {
+      $field_type_info += array('instance_settings' => array());
+      $field_type_info['instance_settings'] += array(
+        'media_library_include_in_library' => FALSE,
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Add 'include in library' checkbox on 'edit field instance' form for file & image field types.
+ */
+function media_library_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
+  $instance = $form['#instance'];
+  $field_type = $form['#field']['type'];
+
+  // Restrict alterations to only file and image fields.
+  $allowed_field_types = array('file', 'image');
+
+  if (in_array($field_type, $allowed_field_types)) {
+    $form['instance']['settings']['media_library_include_in_library'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Include in media library'),
+      '#default_value' => $instance['settings']['media_library_include_in_library'],
+      // Display at the bottom of the form.
+      '#weight' => 50,
+    );
+  }
+}
+
+/**
+ * Implements hook_field_attach_presave().
+ */
+function media_library_field_attach_presave($entity_type, $entity) {
+  // Find the entity's bundle.
+  list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+
+  // Examine every field instance attached to this entity's bundle.
+  foreach (field_info_instances($entity_type, $bundle) as $field_name => $instance) {
+    // Load the instance's field info.
+    $field = field_info_field($instance['field_name']);
+
+    // Load the instance's field instance info.
+    $instance = field_info_instance($entity_type, $field_name, $bundle);
+
+    // Check if the instance is a file or image field.
+    if ($field['type'] == 'file' || $field['type'] == 'image') {
+      if (!empty($entity->{$field_name})) {
+        foreach ($entity->{$field_name} as $langcode => $items) {
+          foreach ($items as $delta => $item) {
+            // Add or remove the file from the media library depending on the
+            // field instance setting.
+            if (isset($instance['settings']['media_library_include_in_library'])) {
+              $file = file_load($item['fid']);
+              $file->library = $instance['settings']['media_library_include_in_library'];
+              file_save($file);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function media_library_form_file_entity_add_upload_alter(&$form, &$form_state, $form_id) {
+  if (!empty($form['#step']) && 4 === $form['#step']) {
+    $form['library'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Include in library'),
+      '#default_value' => EXCLUDE_FROM_LIBRARY,
+      '#weight' => 50,
+    );
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function media_library_form_file_entity_edit_alter(&$form, &$form_state, $form_id) {
+  $file = $form_state['file'];
+
+  $form['library_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Library settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'additional_settings',
+    '#attributes' => array(
+      'class' => array('file-form-library'),
+    ),
+    '#attached' => array(
+      'js' => array(
+        drupal_get_path('module', 'media_library') . '/media_library.js',
+      ),
+    ),
+    '#weight' => 90,
+  );
+
+  $form['library_settings']['library'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Include in library'),
+    '#default_value' => $file->library,
+    '#weight' => 50,
+  );
+}
+
+/**
+ * Implements hook_query_alter().
+ */
+function media_library_query_alter($query) {
+  // Restrict the files in the file list to only those which are included in the
+  // media library when on the library page .
+  if (!module_exists('admin_views')) {
+    if (current_path() == 'admin/content/file/library') {
+      $tables = $query->getTables();
+
+      if (!empty($tables['base']['table']) && $tables['base']['table'] == 'file_managed') {
+        $query->condition('library', INCLUDE_IN_LIBRARY, '=');
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function media_library_views_api() {
+  return array(
+    'api' => 3,
+  );
+}

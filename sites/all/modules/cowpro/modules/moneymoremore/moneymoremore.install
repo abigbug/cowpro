@@ -1,0 +1,51 @@
+<?php
+include_once 'includes/moneymoremore.const.inc';
+
+/**
+ * Implements hook_requirements().
+ */
+function moneymoremore_requirements($phase) {
+	$requirements = array();
+	$t = get_t();
+
+	if ($phase == 'runtime') {
+		// Check if OpenSSL extension is loaded.
+		$requirements['moneymoremore_openssl']['title'] = 'OpenSSL';
+		if (extension_loaded('openssl')) {
+			$requirements['moneymoremore_openssl']['value'] = OPENSSL_VERSION_TEXT;
+			$requirements['moneymoremore_openssl']['severity'] = REQUIREMENT_OK;
+		}
+		else {
+			$requirements['moneymoremore_openssl']['value'] = $t('Missing');
+			$requirements['moneymoremore_openssl']['description'] = '“乾多多”模块要求PHP环境加载"OPENSSL"扩展';
+			$requirements['moneymoremore_openssl']['severity'] = REQUIREMENT_ERROR;
+		}
+
+		//检查参数设置
+		$platform_account = variable_get(PLATFORM_ACCOUNT_ON_MONEYMOREMORE);
+		$public_key = variable_get(PUBLIC_KEY_ON_MONEYMOREMORE);
+		$private_key = variable_get(PRIVATE_KEY_ON_MONEYMOREMORE);
+		$missing = array();
+		if (is_null($platform_account)) {
+			$missing[] = '乾多多平台账户';
+		}
+		if (is_null($public_key)) {
+			$missing[] = '公钥';
+		}
+		if (is_null($private_key)) {
+			$missing[] = '私钥';
+		}
+		if (count($missing) > 0) {
+			$need = implode(',', $missing);
+			global $base_url;
+			$link = $base_url . '/admin/cowpro/config_moneymoremore';
+			$requirements['moneymoremore_config']['title'] = '乾多多服务器参数';
+			$requirements['moneymoremore_config']['value'] = $t('Missing');
+			$requirements['moneymoremore_config']['description'] = t('请<a href="!url">配置</a>“乾多多”的服务器参数(%need)', array('!url' => $link, '%need' => $need));
+			$requirements['moneymoremore_config']['severity'] = REQUIREMENT_WARNING;
+		}
+
+	}
+
+	return $requirements;
+}

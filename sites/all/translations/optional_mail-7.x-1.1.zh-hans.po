@@ -1,0 +1,28 @@
+# Chinese, Simplified translation of Optional mail on register (7.x-1.1)
+# Copyright (c) 2013 by the Chinese, Simplified translation team
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Optional mail on register (7.x-1.1)\n"
+"POT-Creation-Date: 2013-08-04 05:11+0000\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Language-Team: Chinese, Simplified\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+msgid "User Management"
+msgstr "用户管理"
+msgid "Disable the e-mail field in user register form."
+msgstr "在用户注册表单里禁用e-mail字段。"
+msgid "Disable the e-mail field in user profile edit form."
+msgstr "在用户资料编辑表单里禁用e-mail字段。"
+msgid "Hide the e-mail field in the user profile edit form."
+msgstr "在用户资料编辑表单里隐藏e-mail字段。"
+msgid "The email field in the user edit form is now optional."
+msgstr "用户编辑表单里的email字段现在已成为可选项。"
+msgid "New users need not enter a valid email address when registering."
+msgstr "注册时新用户不再需要输入一个有效的email地址。"
+msgid "Disable the user's contact form in all users"
+msgstr "禁用所有用户的联络表单"

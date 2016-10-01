@@ -1,0 +1,16 @@
+name = Optional mail on register
+description = New users need not enter a valid email address when registering.
+core = 7.x
+
+package = User Management
+files[] = optional_mail_on_register.info
+files[] = optional_mail_on_register.module
+files[] = optional_mail_on_register.js
+files[] = optional_mail_on_register.css
+
+; Information added by drupal.org packaging script on 2012-04-04
+version = "7.x-1.1"
+core = "7.x"
+project = "optional_mail"
+datestamp = "1333497970"
+

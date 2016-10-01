@@ -1,0 +1,345 @@
+<?php
+include_once 'includes/moneymoremore.const.inc';
+
+/**
+ * Implements hook_provider_info().
+ */
+function moneymoremore_provider_info() {
+	return array(
+			'moneymoremore' => array(
+					'name' => '乾多多',
+					'description' => '“乾多多”第三方托管平台',
+					'configure form' => 'moneymoremore_settings_form',
+			),
+	);
+}
+
+/**
+ * Implements hook_menu().
+ */
+function moneymoremore_menu() {
+	$items = array ();
+
+	/*
+	$items ['admin/cowpro/config_moneymoremore'] = array (
+			'title' => '乾多多参数设置',
+			'description' => '配置与“乾多多”第三方托管平台有关的参数',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'moneymoremore_settings_form'
+			),
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'file' => 'includes/moneymoremore.settings.inc'
+	);
+	*/
+
+	$items ['cowpro/moneymoremore'] = array (
+			'page callback' => 'node_page_default',
+			'access callback' => TRUE,
+			'type' => MENU_CALLBACK,
+	);
+
+	$items ['cowpro/moneymoremore/response/%'] = array (
+			'page callback' => 'moneymoremore_response',
+			'page arguments' => array (3),
+			'access callback' => TRUE,
+			'type' => MENU_CALLBACK,
+			'file' => 'includes/moneymoremore.fun.inc'
+	);
+
+	$items ['cowpro/moneymoremore/callback/%'] = array (
+			'page callback' => 'moneymoremore_callback',
+			'page arguments' => array (3),
+			'access callback' => TRUE,
+			'type' => MENU_CALLBACK,
+			'file' => 'includes/moneymoremore.fun.inc'
+	);
+
+	return $items;
+}
+
+function moneymoremore_settings_form($form, &$form_state) {
+	require_once 'includes/moneymoremore.settings.inc';
+	return _moneymoremore_settings_form($form, $form_state);
+}
+
+function moneymoremore_cowpro_customer_profile_moneymoremore_create($values) {
+	$values += array(
+			'mmm_account_number' => '',//乾多多数字账户(可用于登录)
+			'mmm_id' => '',//用户的乾多多标识(以m开头)
+			'mmm_auth_state' => '',//实名认证状态(1.未实名认证,2.快捷支付认证,3.其他认证)
+			'mmm_result_code' => '',//返回码(88表示成功,其它代码参考《乾多多自主清算系统接口参数说明.doc》)
+			'mmm_result_message' => '',//返回信息(与result_code对应的文字信息)
+			'mmm_authorize_type_1' => FALSE,//用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)
+			'mmm_authorize_type_2' => FALSE,//用户授权P2P平台可以对资金进行“还款”操作
+			'mmm_authorize_type_3' => FALSE,//用户授权P2P平台可以对资金进行“二次分配审核”操作
+	);
+	return $values;
+}
+
+function moneymoremore_cowpro_customer_profile_moneymoremore_save($profile) {
+	$data = array();
+	$data['mmm_account_number'] = $profile->mmm_account_number;
+	$data['mmm_id'] = $profile->mmm_id;
+	$data['mmm_auth_state'] = $profile->mmm_auth_state;
+	$data['mmm_result_code'] = $profile->mmm_result_code;
+	$data['mmm_result_message'] = $profile->mmm_result_message;
+	$data['mmm_authorize_type_1'] = $profile->mmm_authorize_type_1;
+	$data['mmm_authorize_type_2'] = $profile->mmm_authorize_type_2;
+	$data['mmm_authorize_type_3'] = $profile->mmm_authorize_type_3;
+	$profile->data = $data;
+	return $profile;
+}
+
+function moneymoremore_cowpro_customer_profile_moneymoremore_load($profile) {
+	$profile->mmm_account_number = $profile->data['mmm_account_number'];
+	$profile->mmm_id = $profile->data['mmm_id'];
+	$profile->mmm_auth_state = $profile->data['mmm_auth_state'];
+	$profile->mmm_result_code = $profile->data['mmm_result_code'];
+	$profile->mmm_result_message = $profile->data['mmm_result_message'];
+	$profile->mmm_authorize_type_1 = $profile->data['mmm_authorize_type_1'];
+	$profile->mmm_authorize_type_2 = $profile->data['mmm_authorize_type_2'];
+	$profile->mmm_authorize_type_3 = $profile->data['mmm_authorize_type_3'];
+	return $profile;
+}
+
+function moneymoremore_cowpro_customer_profile_moneymoremore_form($form, &$form_state, $profile) {
+	if ($profile->verified) {
+		$form['mmm_account_number'] = array(
+				'#type' => 'textfield',
+				'#title' => '乾多多数字账户(可用于登录)',
+				'#description' => '',
+				'#default_value' => $profile->mmm_account_number,
+				'#disabled' => TRUE,
+				'#maxlength' => 20,
+				'#weight' => 10,
+		);
+
+		$form['mmm_id'] = array(
+				'#type' => 'textfield',
+				'#title' => '用户的乾多多标识(以m开头)',
+				'#default_value' => $profile->mmm_id,
+				'#disabled' => TRUE,
+				'#maxlength' => 20,
+				'#weight' => 20,
+		);
+
+	} else {
+		$form['mmm_information'] = array(
+				'#markup' => '请点击按钮完成与“乾多多”托管帐户的同步操作',
+		);
+	}
+
+	return $form;
+}
+
+function moneymoremore_cowpro_customer_profile_moneymoremore_form_alter($form, &$form_state, $profile) {
+	if (! $profile->verified) {
+		$form['actions']['submit']['#value'] = MMM_OP_BIND_ACCOUNT;
+		$form['profile']['actions'] = $form['actions'];
+	} else if ((!$profile->mmm_authorize_type_1) || (!$profile->mmm_authorize_type_2) || (!$profile->mmm_authorize_type_1)) {
+		$form['actions']['submit']['#value'] = MMM_OP_AUTHORIZE;
+		$form['profile']['actions'] = $form['actions'];
+	} else {
+		$form['profile']['mmm_ok'] = array(
+			'#markup' => '<div>已关联、已授权</div>',
+			'#weight' => 50,
+		);
+	}
+	$form['profile_verified']['verified']['#disabled'] = TRUE;
+	unset($form['actions']);
+	return $form;
+}
+
+function moneymoremore_cowpro_customer_profile_moneymoremore_form_submit($form, &$form_state, &$profile) {
+	if ($form_state ['values'] ['op'] === MMM_OP_BIND_ACCOUNT) {
+		include_once 'includes/moneymoremore.createnewacct.inc';
+		$uid = $profile->uid;
+		$profile_real_name = cowpro_customer_profile_load_one_row_with_conditions($uid, 'real_name');
+		$profile_mobile = cowpro_customer_profile_load_one_row_with_conditions($uid, 'mobile');
+
+		if (is_null($profile_mobile) || (!property_exists($profile_mobile, 'mobile_number' ))) {
+			drupal_set_message('末进行手机认证', 'error');
+			return;
+		}
+		if (is_null($profile_real_name) || (!property_exists($profile_real_name, 'name' ))) {
+			drupal_set_message('末进行实名认证', 'error');
+			return;
+		}
+		if (is_null($profile_real_name) || (!property_exists($profile_real_name, 'id_no' ))) {
+			drupal_set_message('末进行实名认证', 'error');
+			return;
+		}
+
+		$u = array();
+		$u['uid'] = $uid;
+		$u['mobile_number'] = $profile_mobile->mobile_number;
+		$u['name'] = $profile_real_name->name;
+		$u['id_no'] = $profile_real_name->id_no;
+		moneymoremore_create_new_acct($u);
+	} else if ($form_state ['values'] ['op'] === MMM_OP_AUTHORIZE) {
+		include_once 'includes/moneymoremore.authorize.inc';
+		//$uid = $GLOBALS['user']->uid;
+		$uid = $profile->uid;
+		$u = array();
+		$u['uid'] = $uid;
+		$u['mmm_id'] = $profile->mmm_id;
+		moneymoremore_authorize($u);
+	}
+}
+
+function moneymoremore_cowpro_customer_profile_moneymoremore_extra_fields() {
+	$result = array(
+			'form' => array(
+					'mmm_account_number' => array(
+							'label' => '乾多多数字账户(可用于登录)',
+							'description' => '',
+							'weight' => -9,
+					),
+					'mmm_id' => array(
+							'label' => '用户的乾多多标识(以m开头)',
+							'description' => '',
+							'weight' => -8,
+					),
+					'mmm_auth_state' => array(
+							'label' => '实名认证状态',
+							'description' => '1.未实名认证,2.快捷支付认证,3.其他认证',
+							'weight' => -7,
+					),
+					'mmm_result_code' => array(
+							'label' => '返回码',
+							'description' => '88表示成功,其它代码参考《乾多多自主清算系统接口参数说明.doc》',
+							'weight' => -6,
+					),
+					'mmm_result_message' => array(
+							'label' => '返回信息',
+							'description' => '与“返回码”对应的文字信息',
+							'weight' => -5,
+					),
+					'mmm_authorize_type_1' => array(
+							'label' => '投标转账授权',
+							'description' => '用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)',
+							'weight' => 10,
+					),
+					'mmm_authorize_type_2' => array(
+							'label' => '还款转账授权',
+							'description' => '用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)',
+							'weight' => 20,
+					),
+					'mmm_authorize_type_3' => array(
+							'label' => '二次分配审核授权',
+							'description' => '用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)',
+							'weight' => 30,
+					),
+			),
+			'display' => array(
+					'mmm_account_number' => array(
+							'label' => '乾多多数字账户(可用于登录)',
+							'description' => '',
+							'weight' => -9,
+					),
+					'mmm_id' => array(
+							'label' => '用户的乾多多标识(以m开头)',
+							'description' => '',
+							'weight' => -8,
+					),
+					'mmm_auth_state' => array(
+							'label' => '实名认证状态',
+							'description' => '1.未实名认证,2.快捷支付认证,3.其他认证',
+							'weight' => -7,
+					),
+					'mmm_result_code' => array(
+							'label' => '返回码',
+							'description' => '88表示成功,其它代码参考《乾多多自主清算系统接口参数说明.doc》',
+							'weight' => -6,
+					),
+					'mmm_result_message' => array(
+							'label' => '返回信息',
+							'description' => '与“返回码”对应的文字信息',
+							'weight' => -5,
+					),
+					'mmm_authorize_type_1' => array(
+							'label' => '授权“投标”',
+							'description' => '用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)',
+							'weight' => 10,
+					),
+					'mmm_authorize_type_2' => array(
+							'label' => '授权“还款”',
+							'description' => '用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)',
+							'weight' => 20,
+					),
+					'mmm_authorize_type_3' => array(
+							'label' => '授权“二次分配审核”',
+							'description' => '用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)',
+							'weight' => 30,
+					),
+			),
+	);
+
+	return $result;
+}
+
+/**
+ * Implements hook_cowpro_customer_profile_type_info().
+ */
+function moneymoremore_cowpro_customer_profile_type_info() {
+	$profile_types = array();
+
+	$profile_types['moneymoremore'] = array(
+			'type' => 'moneymoremore',
+			'name' => '关联乾多多账户',
+			'description' => '在乾多多网站上开通第三方托管账户，并与我们P2P平台上的用户进行关联。',
+			'help' => '',
+			'weight' => 200,
+	);
+
+	return $profile_types;
+}
+
+function moneymoremore_cowpro_fund_topup($uid, $amount, $method, $journal_id) {
+	include_once 'includes/moneymoremore.topup.inc';
+	return moneymoremore_topup($uid, $amount, $method, $journal_id);
+}
+
+function moneymoremore_cowpro_fund_withdraw($uid, $amount, $bankcard, $journal_id) {
+	include_once 'includes/moneymoremore.withdraw.inc';
+	return moneymoremore_withdraw($uid, $amount, $bankcard, $journal_id);
+}
+
+function moneymoremore_cowpro_fund_bid($uid, $amount, $nid, $journal_id) {
+	include_once 'includes/moneymoremore.bid.inc';
+	return moneymoremore_bid($uid, $amount, $nid, $journal_id);
+}
+
+function moneymoremore_cowpro_fund_issuing_failing($nid) {
+	include_once 'includes/moneymoremore.issuingfailing.inc';
+	return moneymoremore_issuing_failing($nid);
+}
+
+function moneymoremore_cowpro_fund_make_loans_to($nid) {
+	include_once 'includes/moneymoremore.makeloans.inc';
+	return moneymoremore_make_loans_to($nid);
+}
+
+function moneymoremore_cowpro_fund_repayment($repayment_schedules) {
+	include_once 'includes/moneymoremore.repayment.inc';
+	return moneymoremore_repayment($repayment_schedules);
+}
+
+function moneymoremore_cowpro_fund_query_balance($uid) {
+	include_once 'includes/moneymoremore.querybalance.inc';
+	$balance = _moneymoremore_cowpro_fund_query_balance($uid);
+	if (! $balance ['status']) {
+		$result = $balance ['msg'];
+	}
+	$balance['success'] = $balance ['status'];
+	return $balance;
+}
+
+function moneymoremore_cowpro_fund_buy_creditor_assignment($amount, $issuing_id, $seller_uid, $buyer_uid) {
+	include_once 'includes/moneymoremore.creditorassignment.inc';
+	return moneymoremore_creditor_assignment($amount, $issuing_id, $seller_uid, $buyer_uid);
+}

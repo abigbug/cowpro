@@ -1,0 +1,10 @@
+name = Migrate from FANWE
+description = 从方维P2P V3.5 中迁移数据
+package = _CowPro
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"
+

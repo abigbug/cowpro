@@ -1,0 +1,13 @@
+name = Media Library
+description = Restricts the media library to only designated files.
+package = Media
+core = 7.x
+dependencies[] = file_entity
+files[] = media_library.test
+
+; Information added by Drupal.org packaging script on 2014-06-02
+version = "7.x-1.0"
+core = "7.x"
+project = "media_library"
+datestamp = "1401741240"
+

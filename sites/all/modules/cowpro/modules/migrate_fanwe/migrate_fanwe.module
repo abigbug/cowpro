@@ -1,0 +1,644 @@
+<?php
+/*
+ * 迁移方维P2P3.5的数据到COWPRO系统
+ * 要迁移的数据包括：用户信息、贷款申请表、投标记录、还款记录
+ */
+/**
+ * Implements hook_menu().
+ */
+function migrate_fanwe_menu() {
+	$items = array ();
+	$items ['admin/cowpro/config_migrate_fanwe'] = array (
+			'title' => '方维P2P数据库设置',
+			'description' => '设置方维P2P数据库参数',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'migrate_fanwe_settings_form'
+			),
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_NORMAL_ITEM
+	);
+	$items ['admin/cowpro/go_migrate_fanwe'] = array (
+			'title' => '迁移方维数据库',
+			'description' => '',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'migrate_fanwe_go_form'
+			),
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_NORMAL_ITEM
+	);
+
+	return $items;
+}
+function migrate_fanwe_settings_form($configuration) {
+	$configuration += array (
+			'fanwe_host' => variable_get ( 'fanwe_host', 'localhost' ),
+			'fanwe_database' => variable_get ( 'fanwe_database', '' ),
+			'fanwe_username' => variable_get ( 'fanwe_username', '' ),
+			'fanwe_password' => variable_get ( 'fanwe_password', '' ),
+	);
+	$form = array ();
+	$form ['fanwe_host'] = array (
+			'#title' => '主机名',
+			'#type' => 'textfield',
+			'#default_value' => $configuration ['fanwe_host']
+	);
+	$form ['fanwe_database'] = array (
+			'#title' => '数据库名',
+			'#type' => 'textfield',
+			'#default_value' => $configuration ['fanwe_database']
+	);
+	$form ['fanwe_username'] = array (
+			'#title' => '用户名',
+			'#type' => 'textfield',
+			'#default_value' => $configuration ['fanwe_username']
+	);
+	$form ['fanwe_password'] = array (
+			'#title' => '密码',
+			'#type' => 'textfield',
+			'#default_value' => $configuration ['fanwe_password']
+	);
+	$form ['help'] = array (
+			'#markup' => ''
+	);
+	$form = system_settings_form ( $form );
+	return $form;
+}
+function migrate_fanwe_go_form($form, &$form_state) {
+	$form ['description'] = array (
+			'#type' => 'markup',
+			'#markup' => t ( '将方维P2P数据库中的注册用户资料、贷款申请表、投标记录、还款记录等等，导入到CowPro数据库.<br/><br/>' )
+	);
+	$form ['submit'] = array (
+			'#type' => 'submit',
+			'#value' => 'Go'
+	);
+	return $form;
+}
+
+/**
+ * Submit handler.
+ *
+ * @param array $form
+ *        	Form API form.
+ * @param array $form_state
+ *        	Form API form.
+ */
+function migrate_fanwe_go_form_submit($form, &$form_state) {
+	migrate_fanwe_add_connection_info ();
+	$function = 'migrate_fanwe_go_batch';
+	$batch = $function ();
+	batch_set ( $batch );
+}
+function migrate_fanwe_go_batch() {
+	$lowest_uid = 0;
+	$highest_uid = 0;
+	migrate_fanwe_get_uid_range ( $lowest_uid, $highest_uid );
+	//$lowest_uid = 2;//强制跳过UID=1的用户，以避免导入过程中与DRUAPL中预制的AMDIN用户的记录冲突
+	drupal_set_message ( t ( '创建用户迁移操作，共  @num 项', array (
+			'@num' => $highest_uid
+	) ) );
+
+	$operations = array ();
+	for($uid = $lowest_uid; $uid <= $highest_uid; $uid ++) {
+		$operations [] = array (
+				'migrate_fanwe_batch_op_user',
+				array (
+						$uid,
+						t ( '(迁移用户，编号 @operation)', array (
+								'@operation' => $uid
+						) )
+				)
+		);
+	}
+
+	$lowest_dealid = 0;
+	$highest_dealid = 0;
+	migrate_fanwe_get_dealid_range ( $lowest_dealid, $highest_dealid );
+	drupal_set_message ( t ( '创建贷款申请表迁移操作，共  @num 项', array (
+			'@num' => $highest_dealid
+	) ) );
+	for($dealid = $lowest_dealid; $dealid <= $highest_dealid; $dealid ++) {
+		$operations [] = array (
+				'migrate_fanwe_batch_op_issuing',
+				array (
+						$dealid,
+						t ( '(迁移贷款申请表，编号 @operation)', array (
+								'@operation' => $dealid
+						) )
+				)
+		);
+	}
+
+	$batch = array (
+			'operations' => $operations,
+			'finished' => 'migrate_fanwe_batch_finished'
+	);
+	return $batch;
+}
+function migrate_fanwe_batch_op_issuing($fanwe_dealid, $operation_details, &$context) {
+	migrate_fanwe_add_connection_info ();
+	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'deal', 'd' )->fields ( 'd', array (
+			'id',
+			'name', //贷款名称
+			'user_id', //贷款人
+			'description', //贷款简介
+			'is_effect', //有效性控制？
+			'is_delete', //删除标识
+			'borrow_amount', //贷款总额
+			'min_loan_money', //最低投标额度
+			'repay_time', //贷款周期，（3，6，12个月）
+			'rate', //年化利率
+			'create_time', //添加时间（unix timestamp）
+			'buy_count', //投标人数
+			'start_time', //开始招标日期（unix timestamp）
+			'success_time', //成功日期（unix timestamp）
+			'repay_start_time', //开始还款日期（unix timestamp）
+			'enddate', //筹标期限（天）
+			'services_fee', //服务费率
+			'publish_wait', //是否发布（0：已发布）
+			'is_has_loans', //是否已放款给招标人
+			'loantype', //还款方式（0：等额本息；1：付息还款；2：到期本息）
+			'risk_security', //风控信息
+			'deal_sn', //贷款编号
+			'is_has_received', //流标是否已返还
+			'manage_fee', //借款者管理费
+			'user_loan_manage_fee', //投资者管理费
+			'manage_impose_fee_day1', //普通逾期管理费
+			'manage_impose_fee_day2', //严重逾期管理费
+			'impose_fee_day1', //普通逾期费率
+			'impose_fee_day2', //严重逾期费率
+			'user_load_transfer_fee', //债权转让管理费
+			'deal_status', //'0待等材料，1进行中，2满标，3流标，4还款中，5已还清
+			'repay_time_type', //'借款期限类型 0:按天还款  1:按月还款'
+			'repay_time', //贷款期限
+	) )->condition ( 'id', $fanwe_dealid );
+	$fanwe_deal = $select->execute ()->fetchObject ();
+
+	if ((!$fanwe_deal) || ($fanwe_deal->is_effect == 0) || ($fanwe_deal->is_delete == 1)) {
+		return;
+	}
+
+	// Optional message displayed under the progressbar.
+	$context ['message'] = t ( '迁移贷款申请表 "@title"', array (
+			'@title' => $fanwe_deal->name
+	) ) . ' ' . $operation_details;
+
+	$applicant_user = migrate_fanwe_user_load_by_fanwe_uid($fanwe_deal->user_id);
+
+	$issuing = new stdClass;
+	$issuing->type = 'cowpro_issuing';
+	$issuing->title = $fanwe_deal->name;
+	$issuing->status = 1;
+	$issuing->promote = 1;
+	$issuing->sticky = 0;
+	$issuing->language = 'zh-hans';
+	$issuing->created = $fanwe_deal->create_time;
+	$issuing->comment = 1;
+	$issuing->translate = 0;
+	$issuing->uid = $applicant_user->uid;
+	$issuing->body[LANGUAGE_NONE][0]['value'] = $fanwe_deal->description;
+	$issuing->body[LANGUAGE_NONE][0]['summary'] = '';
+	$issuing->body[LANGUAGE_NONE][0]['format'] = 'filtered_html';
+	$issuing->field_risk_management[LANGUAGE_NONE][0]['value'] = $fanwe_deal->risk_security;
+	$issuing->field_risk_management[LANGUAGE_NONE][0]['summary'] = '';
+	$issuing->field_risk_management[LANGUAGE_NONE][0]['format'] = 'filtered_html';
+	$issuing->field_applicant [LANGUAGE_NONE] [0] ['uid'] = $applicant_user->uid;
+	$issuing->field_category [LANGUAGE_NONE] [0] ['value'] = '企业流贷';
+	$issuing->field_contract_credit_assignment [LANGUAGE_NONE] [0] ['machine_name'] = 'UID03';
+	$issuing->field_contract_loan [LANGUAGE_NONE] [0] ['machine_name'] = 'UID01';
+	//$issuing->field_issuing [LANGUAGE_NONE] [0] ['issuing_start_time'] = $fanwe_deal->start_time;
+	$issuing->field_issuing[LANGUAGE_NONE][0]['data']['deal_service_fee'] = 0;
+	$issuing->field_issuing[LANGUAGE_NONE][0]['data']['borrower_management_fee'] = 0;
+	$issuing->field_issuing[LANGUAGE_NONE][0]['data']['investor_management_fee'] = 0;
+	$issuing->field_issuing[LANGUAGE_NONE][0]['data']['interest_management_fee'] = 0;
+	$issuing->field_issuing[LANGUAGE_NONE][0]['data']['charges_for_late_payments'] = 0;
+	$issuing->field_issuing[LANGUAGE_NONE][0]['data']['charges_for_serious_overdue'] = 0;
+	$issuing->field_issuing[LANGUAGE_NONE][0]['data']['assignment_of_credit_management_fee'] = 0;
+	$issuing->field_issuing[LANGUAGE_NONE][0]['data']['prepayment_penalty'] = 0;
+	$issuing->field_issuing[LANGUAGE_NONE][0]['data']['investor_rebate'] = 0;
+
+	switch ($fanwe_deal->deal_status) {
+		case 0://0待等材料
+			$issuing->field_issuing[LANGUAGE_NONE][0]['status'] = 'UNAUDITED';
+			break;
+		case 1://1进行中
+			$issuing->field_issuing[LANGUAGE_NONE][0]['status'] = 'INVITE_BIDS_START';
+			break;
+		case 2://2满标
+			$issuing->field_issuing[LANGUAGE_NONE][0]['status'] = 'INVITE_BIDS_SUCCEED';
+			break;
+		case 3://3流标
+			$issuing->field_issuing[LANGUAGE_NONE][0]['status'] = 'INVITE_BIDS_FAILED';
+			break;
+		case 4://4还款中
+			$issuing->field_issuing[LANGUAGE_NONE][0]['status'] = 'REPAYMENT';
+			break;
+		case 5://5已还清
+			$issuing->field_issuing[LANGUAGE_NONE][0]['status'] = 'FINISHED';
+			break;
+	}
+	switch ($fanwe_deal->loantype) {
+		case 0://还款方式（0：等额本息）
+			$issuing->field_issuing[LANGUAGE_NONE][0]['method_repayment'] = 'average_capital_plus_interest_method';
+			break;
+		case 1://还款方式（1：每月付息，到期还本）
+			$issuing->field_issuing[LANGUAGE_NONE][0]['method_repayment'] = 'balloon_loan';
+			break;
+		case 2://还款方式（2：到期还本息）
+			if ($fanwe_deal->deal_status == 5) {//已还清
+				return;
+			} else {
+				die('cowpro暂不支持的还款方式');
+			}
+			break;
+		case 3://还款方式（3：本金均摊，利息固定）
+			$issuing->field_issuing[LANGUAGE_NONE][0]['method_repayment'] = 'average_capital_method';
+			break;
+	}
+	switch ($fanwe_deal->repay_time_type) {
+		case 0://借款期限类型 0:按天还款
+			$issuing->field_issuing[LANGUAGE_NONE][0]['loan_term'] = $fanwe_deal->repay_time;
+			break;
+		case 1://借款期限类型 1:按月还款
+			$issuing->field_issuing[LANGUAGE_NONE][0]['loan_term'] = $fanwe_deal->repay_time * 30;
+			break;
+	}
+	$issuing->field_issuing[LANGUAGE_NONE][0]['loan_amounts'] = $fanwe_deal->borrow_amount;
+	$issuing->field_issuing[LANGUAGE_NONE][0]['annual_rate'] = $fanwe_deal->rate;
+	$issuing->field_issuing[LANGUAGE_NONE][0]['deadline'] = $fanwe_deal->enddate;
+	$issuing->field_issuing[LANGUAGE_NONE][0]['start_time'] = $fanwe_deal->start_time;
+	$issuing->field_issuing[LANGUAGE_NONE][0]['make_loans_time'] = $fanwe_deal->success_time;
+	node_save($issuing);
+
+	if ($fanwe_deal->deal_status == 1) {
+		return;
+	}
+
+	//迁移：投标记录
+	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'deal_load', 'd' )->fields ( 'd', array (
+			'user_id',
+			'user_name', //用户名
+			'money', //投标金额
+			'create_time', //投标时间
+			'is_repay', //流标是否已返还
+			'pP2PBillNo', //系统生成的唯一流水号
+	) )->condition ( 'deal_id', $fanwe_dealid );
+	$results = $select->execute ();
+	foreach ($results as $fanwe_deal_load) {
+		$journal_user = migrate_fanwe_user_load_by_fanwe_uid($fanwe_deal_load->user_id);
+		$entity_value = array(
+				'uid' => $journal_user->uid,
+				'status' => TRUE,
+				'type' => 'BID',
+				'amount' => $fanwe_deal_load->money,
+				'internal_reference_id' => 'ISSUING-' . $issuing->nid,
+				'external_reference_id' => $fanwe_deal_load->pP2PBillNo,
+				'created' => $fanwe_deal_load->create_time,
+		);
+		$entity = entity_create('cowpro_fund_journal', $entity_value);
+		entity_get_controller('cowpro_fund_journal')->save($entity);
+		if ($fanwe_deal_load->is_repay == 1) {
+			$entity_value_2 = array(
+				'uid' => $journal_user->uid,
+				'status' => TRUE,
+				'type' => 'ISSUING_FAILING',
+				'amount' => $fanwe_deal_load->money,
+				'internal_reference_id' => 'ISSUING-' . $issuing->nid,
+				'external_reference_id' => $fanwe_deal_load->pP2PBillNo,
+				'created' => $fanwe_deal_load->create_time,
+			);
+			$entity_2 = entity_create('cowpro_fund_journal', $entity_value_2);
+			entity_get_controller('cowpro_fund_journal')->save($entity_2);
+			$entity->status = 2;
+			entity_get_controller('cowpro_fund_journal')->save($entity);
+		}
+	}
+
+	//生成还款计划表
+	if (($fanwe_deal->deal_status == 4) || ($fanwe_deal->deal_status == 5)) {
+		include_once   drupal_get_path('module', 'cowpro_issuing') . '/includes/cowpro_issuing.loans.inc';
+		_cowpro_issuing_loans_finished(TRUE, $issuing->nid);
+	}
+
+	$query = db_select('cowpro_repayment_schedule', 's');
+	$query->addExpression('MAX(period_total)', 'max_period_total');
+	$query->condition('s.issuing_id', $issuing->nid, '=');
+	$period_total = $query->execute()->fetchField();
+
+	//更新债权转让记录
+	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'deal_load_transfer', 'd' )->fields ( 'd', array (
+			'user_id', //债权人ID
+			't_user_id', //承接人ID
+			'load_id', //债权编号
+			'transfer_amount', //转让价格
+			'load_money', //投标金额
+			'transfer_number', //转让期数
+			'transfer_time', //承接时间
+	) )->condition ( 'deal_id', $fanwe_dealid )->condition ( 'status', 1 );
+	$results = $select->execute ();
+	foreach ($results as $fanwe_deal_load_transfer) {
+
+		$seller_user = migrate_fanwe_user_load_by_fanwe_uid($fanwe_deal_load_transfer->user_id);
+		$buyer_user = migrate_fanwe_user_load_by_fanwe_uid($fanwe_deal_load_transfer->t_user_id);
+
+		$query = db_select('cowpro_repayment_schedule', 's');
+		$query->addField('s', 'schedule_id');
+		$query->addField('s', 'period');
+		$query->condition('s.issuing_id', $issuing->nid, '=');
+	  $query->condition('s.receiver_uid', $seller_user->uid, '=');
+	  $query->orderBy('period', 'DESC');
+	  $query->range(0, $fanwe_deal_load_transfer->transfer_number);
+	  $schedule = $query->execute();
+
+		foreach($schedule as $item) {
+			$repayment_schedule_data[] = array(
+					'serial' => 0,
+					'timestamp' => $fanwe_deal_load_transfer->transfer_time,
+					'operate' => 'buy_creditor_assignment',
+					'buyer' => $buyer_user->uid,
+					'seller' => $seller_user->uid,
+					'amount' => $fanwe_deal_load_transfer->transfer_amount,
+					'memo' => '从方维迁移数据',
+			);
+			$data = serialize($repayment_schedule_data);
+			$query = db_update ( 'cowpro_repayment_schedule' )->fields ( array (
+					'receiver_uid' => $buyer_user->uid,
+					'status' => 'WAITING_FOR',
+					'data' => $data,
+			) )->condition ( 'schedule_id', $item->schedule_id, '=' )->execute ();
+	  }
+	}
+
+	//更新还款记录
+	//迁移还款记录的过程中，未考虑同一个标的里面，一个用户已投了标，之后又受让了该标的其它投标用户的债权转让
+	//同一债权的多次转让，也没有考虑
+	//除了以上用例，可能还有其它一些用例没有考虑到，所以在数据迁移以后，要特别注意cowpro新平台中的业务数据的准确性
+	//末考虑部分还款(末全部还款)的情况
+	//当同一个用户在同一个标的上投资两次或两次以上，
+	//那么，在贷款人还款登记现金日记帐的时候
+	//多条日记帐的 internal_reference_id 字段会指向同一条 $repayment->schedule_id
+	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'deal_load_repay', 'd' )->fields ( 'd', array (
+			'deal_id', //借款（标识ID）
+			'user_id', //投标人ID
+			'repay_money', //应还款金额
+			'true_repay_money', //真实还款本金
+			'true_repay_time', //实际回款时间
+			'l_key', //还的是第几期
+			'load_id', //投标记录ID
+			't_user_id', //承接者会员ID
+	) )->condition ( 'deal_id', $fanwe_dealid )->condition ( 'has_repay', 1 );//has_repay==1,已还款
+	$results = $select->execute ();
+	foreach ($results as $fanwe_deal_load_repay) {
+		if ($fanwe_deal_load_repay->t_user_id != 0) {
+			$receiver_user = migrate_fanwe_user_load_by_fanwe_uid($fanwe_deal_load_repay->t_user_id);
+		} else {
+			$receiver_user = migrate_fanwe_user_load_by_fanwe_uid($fanwe_deal_load_repay->user_id);
+		}
+		$query = db_update ( 'cowpro_repayment_schedule' )->fields ( array (
+				'status' => 'COMPLETED',
+				'changed' => REQUEST_TIME,
+		) )->expression('paid_amount', 'payable_amount')
+		->expression('received_amount', 'receivable_amount')
+		->condition ( 'issuing_id', $issuing->nid, '=' )
+		->condition ( 'receiver_uid', $receiver_user->uid, '=' )
+		->condition ( 'period', $fanwe_deal_load_repay->l_key+1, '=' )
+		->execute ();
+
+		$repayment_query = db_select ( 'cowpro_repayment_schedule', 's');
+		$repayment_query->addField('s', 'schedule_id');
+		$repayment_query->addField('s', 'period_total');
+		$repayment_query->condition ( 'issuing_id', $issuing->nid, '=' );
+		$repayment_query->condition ( 'receiver_uid', $receiver_user->uid, '=' );
+		$repayment_query->condition ( 'period', $fanwe_deal_load_repay->l_key+1, '=' );
+		$repayment = $repayment_query->execute ()->fetchAssoc();
+
+		//登记债权人的收款流水帐
+		$issuing_id = $issuing->nid;
+		$period = $fanwe_deal_load_repay->l_key+1;
+		$internal_reference_id = 'ISSUING-' . $issuing_id . ';PERIOD-' . $period . '/' . $period_total;
+		$journal = array(
+				'uid' => $receiver_user->uid,
+				'status' => TRUE,
+				'type' => 'REPAYMENT_RECEIPTS',
+				'amount' => $fanwe_deal_load_repay->true_repay_money,
+				'internal_reference_id' => $internal_reference_id,
+				'external_reference_id' => '',
+				'created' => $fanwe_deal_load_repay->true_repay_time,
+		);
+		$entity = entity_create('cowpro_fund_journal', $journal);
+		entity_get_controller('cowpro_fund_journal')->save($entity);
+
+		//登记贷款人的付款流水帐
+		$journal = array(
+				'uid' => $repayment->payer_uid,
+				'status' => TRUE,
+				'type' => 'REPAYMENT_PAYMENTS',
+				'amount' => $fanwe_deal_load_repay->true_repay_money,
+				'internal_reference_id' => $internal_reference_id,
+				'external_reference_id' => '',
+				'created' => $fanwe_deal_load_repay->true_repay_time,
+		);
+		$entity = entity_create('cowpro_fund_journal', $journal);
+		entity_get_controller('cowpro_fund_journal')->save($entity);
+	}
+}
+function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) {
+	migrate_fanwe_add_connection_info ();
+	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'user', 'u' )->fields ( 'u', array (
+			'id',
+			'user_name', //用户名
+			'user_pwd',
+			'create_time',
+			'is_effect', //是否被禁用
+			'is_delete',
+			'email',
+			'idno', //身份证号码
+			'idcardpassed', //身份证是否审核通过
+			'real_name', //实名（idcardpassed==1的时候，这一项有效）
+			'mobile', //手机号码
+			'mobilepassed', //手机号码是否验证通过
+			'score', //积分
+			'pid', //推荐人ID
+			'paypassword', //支付密码
+			'ips_acct_no', //托管平台用户编号
+	) )->condition ( 'id', $fanwe_uid );
+	$fanwe_user = $select->execute ()->fetchObject ();
+
+	if ((!$fanwe_user) || ($fanwe_user->is_effect == 0) || ($fanwe_user->is_delete == 1)) {
+		return;
+	}
+
+	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'mmm_create_new_acct', 'm' )->fields ( 'm', array (
+			'account_number',
+			'mmm_id',
+			'auth_state',
+			'result_code',
+			'result_message',
+	) )->condition ( 'user_id', $fanwe_uid );
+	$fanwe_mmm = $select->execute ()->fetchObject ();
+
+	$role_debtor = user_role_load_by_name ( 'debtor' );
+	$role_lender = user_role_load_by_name ( 'lender' );
+
+	$new_user = array(
+			'name' => $fanwe_user->user_name,
+			'pass' => $fanwe_user->user_pwd,
+			'mail' => $fanwe_user->email,
+			'created' => $fanwe_user->create_time,
+			'status' => 1,
+			'init' => $fanwe_user->email,
+			'signature_format' => 'plain_text',
+			'roles' => array($role_lender->rid => $role_lender->name, $role_debtor->rid => $role_debtor->name),
+			//'field_custom_first_name' => array(LANGUAGE_NONE => array(array('value' => 'John'))), // This becomes $account->field_custom_first_name[LANGUAGE_NONE][0]['value']
+			//'field_custom_last_name' => array(LANGUAGE_NONE => array(array('value' => 'Doe'))),
+	);
+	$user = user_save(NULL, $new_user);
+	if (!$user) {
+		// Store some results for post-processing in the 'finished' callback.
+		// The contents of 'results' will be available as $results in the
+		// 'finished' function.
+		$context ['results'] [] = $fanwe_user->id . ' : ' . check_plain ( $fanwe_user->real_name ) . ' : 导入失败！';
+		return;
+	}
+
+	/*
+	 * 没有找到有效的方法来导入经过md5操作的密码到drupal7系统
+	 * 所以这些新导入的用户只能在登录drupal7的时候使用“重置密码”操作
+	//user_save在操作过程中，会对pass进行md5操作，但实际上从fanwe导入的pass就已经做了md5，所以这里需要对pass进行一次覆盖
+	Database::getConnection ( 'default', 'default' )->update('users')
+	->fields(array(
+			'pass' => '$P$' . $fanwe_user->user_pwd,
+	))->condition ( 'uid', $user->uid )
+	->execute();
+	*/
+
+	$profile = cowpro_customer_profile_new('real_name', $user->uid);
+	$profile->name = $fanwe_user->real_name;
+	$profile->id_no = $fanwe_user->idno;
+	$profile->scanning_copy_1 = '';
+	$profile->scanning_copy_2 = '';
+	$profile->verified = $fanwe_user->idcardpassed;
+	cowpro_customer_profile_save($profile);
+
+	$profile = cowpro_customer_profile_new('mobile', $user->uid);
+	$profile->mobile_number = $fanwe_user->mobile;
+	$profile->verified = $fanwe_user->mobilepassed;
+	cowpro_customer_profile_save($profile);
+
+	if ($fanwe_mmm && ($fanwe_mmm->result_code == '88')) {
+		$profile = cowpro_customer_profile_new('moneymoremore', $user->uid);
+		$profile->mmm_account_number =  $fanwe_mmm->account_number;
+		$profile->mmm_id = $fanwe_mmm->mmm_id;
+		$profile->mmm_auth_state = $fanwe_mmm->auth_state;
+		$profile->mmm_result_code = $fanwe_mmm->result_code;
+		$profile->mmm_result_message = $fanwe_mmm->result_message;
+		$profile->mmm_authorize_type_1 =  TRUE;
+		$profile->mmm_authorize_type_2 =  TRUE;
+		$profile->mmm_authorize_type_3 =  TRUE;
+		$profile->verified = TRUE;
+		cowpro_customer_profile_save($profile);
+	}
+
+	$profile = cowpro_customer_profile_new('payment_password', $user->uid);
+	$profile->password = $fanwe_user->paypassword;
+	$profile->plaintext = FALSE;
+	cowpro_customer_profile_save($profile);
+
+	if ($fanwe_user->score > 0) {
+		$params = array (
+				'uid' => $user->uid,
+				'points' => $fanwe_user->score,
+				'description' => '数据迁移',
+		);
+		userpoints_userpointsapi($params);
+	}
+
+	if ($fanwe_user->pid > 0) {//推荐人，referrer
+		$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'user', 'u' )->fields ( 'u', array (
+				'id',
+				'user_name', //用户名
+		) )->condition ( 'id', $fanwe_user->pid );
+		$fanwe_referrer = $select->execute ()->fetchObject ();
+		$referrer_user = user_load_by_name($fanwe_referrer->user_name);
+		if ($referrer_user) {
+			$op = 'approve';
+			$relationship_type = user_relationships_type_load(array('name' => '朋友'));
+    	$relationship = new stdClass;
+	    $relationship->requester_id = $user->uid;
+	    $relationship->requestee_id = $referrer_user->uid;
+	    $relationship->rtid = $relationship_type->rtid;
+			user_relationships_save_relationship($relationship, $op);
+		}
+	}
+
+	// Optional message displayed under the progressbar.
+	$context ['message'] = t ( '迁移用户 "@title"', array (
+			'@title' => $fanwe_user->real_name
+	) ) . ' ' . $operation_details;
+}
+function migrate_fanwe_batch_finished($success, $results, $operations) {
+	if ($success) {
+		// Here we could do something meaningful with the results.
+		// We just display the number of ojbect we processed...
+		/*
+		drupal_set_message ( t ( '共迁移用户 @count 个.', array (
+				'@count' => count ( $results )
+		) ) );
+		*/
+		drupal_set_message('迁移完成');
+	} else {
+		// An error occurred.
+		// $operations contains the operations that remained unprocessed.
+		$error_operation = reset ( $operations );
+		drupal_set_message ( t ( 'An error occurred while processing @operation with arguments : @args', array (
+				'@operation' => $error_operation [0],
+				'@args' => print_r ( $error_operation [0], TRUE )
+		) ), 'error' );
+	}
+}
+function migrate_fanwe_add_connection_info() {
+	$database_info = array (
+			'host' => variable_get ( 'fanwe_host', 'localhost' ),
+			'database' => variable_get ( 'fanwe_database', '' ),
+			'username' => variable_get ( 'fanwe_username', '' ),
+			'password' => variable_get ( 'fanwe_password', '' ),
+			'driver' => 'mysql'
+	);
+	Database::addConnectionInfo ( 'fanwe', 'default', $database_info );
+}
+function migrate_fanwe_get_uid_range(&$lowest_uid, &$highest_uid) {
+	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'user', 'u' )->fields ( 'u', array (
+			'id'
+	) )->orderBy ( 'u.id', 'ASC' )->extend ( 'PagerDefault' )->limit ( 1 );
+	$lowest_uid = $select->execute ()->fetchField ();
+	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'user', 'u' )->fields ( 'u', array (
+			'id'
+	) )->orderBy ( 'u.id', 'DESC' )->extend ( 'PagerDefault' )->limit ( 1 );
+	$highest_uid = $select->execute ()->fetchField ();
+	return;
+}
+function migrate_fanwe_get_dealid_range(&$lowest_dealid, &$highest_dealid) {
+	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'deal', 'd' )->fields ( 'd', array (
+			'id'
+	) )->orderBy ( 'd.id', 'ASC' )->extend ( 'PagerDefault' )->limit ( 1 );
+	$lowest_dealid = $select->execute ()->fetchField ();
+	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'deal', 'd' )->fields ( 'd', array (
+			'id'
+	) )->orderBy ( 'd.id', 'DESC' )->extend ( 'PagerDefault' )->limit ( 1 );
+	$highest_dealid = $select->execute ()->fetchField ();
+	return;
+}
+function migrate_fanwe_user_load_by_fanwe_uid($fanwe_uid) {
+	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'user', 'u' )->fields ( 'u', array (
+			'user_name', //用户名
+	) )->condition ( 'id', $fanwe_uid );
+	$fanwe_user = $select->execute ()->fetchObject ();
+	$user = user_load_by_name($fanwe_user->user_name);
+	return $user;
+}

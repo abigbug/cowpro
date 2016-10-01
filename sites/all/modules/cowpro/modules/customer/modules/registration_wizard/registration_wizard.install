@@ -1,0 +1,12 @@
+<?php
+
+/**
+ * Implements hook_uninstall().
+ *
+ * This removes the variable data when the module is uninstalled.
+ *
+ * @ingroup registration_wizard
+ */
+function registration_wizard_uninstall() {
+  variable_del('cowpro_registration_wizard');
+}

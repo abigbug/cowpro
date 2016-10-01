@@ -1,0 +1,23 @@
+<?php
+/*
+ * @file
+ * Install, update and uninstall functions for the optional mail on
+ * register module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function optional_mail_on_register_install() {
+
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function optional_mail_on_register_uninstall() {
+  variable_del('optionalmail_register');
+  variable_del('optionalmail_edit');
+  variable_del('optionalmail_alterfield_register');
+  variable_del('optionalmail_alterfield_edit');
+}

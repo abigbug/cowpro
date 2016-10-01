@@ -1,0 +1,114 @@
+<?php
+
+/**
+ * @file
+ * Test integration for the Media Library module.
+ */
+
+class MediaLibraryTestHelper extends DrupalWebTestCase {
+  function setUp() {
+    $modules = func_get_args();
+    if (isset($modules[0]) && is_array($modules[0])) {
+      $modules = $modules[0];
+    }
+    $modules[] = 'media_library';
+    parent::setUp($modules);
+  }
+
+  protected function createFileEntity($settings = array()) {
+    // Populate defaults array.
+    $settings += array(
+      'filepath' => 'Файл для тестирования ' . $this->randomName(), // Prefix with non-latin characters to ensure that all file-related tests work with international filenames.
+      'filemime' => 'text/plain',
+      'uid' => 1,
+      'timestamp' => REQUEST_TIME,
+      'status' => FILE_STATUS_PERMANENT,
+      'contents' => "file_put_contents() doesn't seem to appreciate empty strings so let's put in some data.",
+      'scheme' => file_default_scheme(),
+      'type' => NULL,
+      'library' => 1,
+    );
+
+    $filepath = $settings['scheme'] . '://' . $settings['filepath'];
+
+    file_put_contents($filepath, $settings['contents']);
+    $this->assertTrue(is_file($filepath), t('The test file exists on the disk.'), 'Create test file');
+
+    $file = new stdClass();
+    $file->uri = $filepath;
+    $file->filename = drupal_basename($file->uri);
+    $file->filemime = $settings['filemime'];
+    $file->uid = $settings['uid'];
+    $file->timestamp = $settings['timestamp'];
+    $file->filesize = filesize($file->uri);
+    $file->status = $settings['status'];
+    $file->type = $settings['type'];
+    $file->library = $settings['library'];
+
+    // The file type is used as a bundle key, and therefore, must not be NULL.
+    if (!isset($file->type)) {
+      $file->type = FILE_TYPE_NONE;
+    }
+
+    // If the file isn't already assigned a real type, determine what type should
+    // be assigned to it.
+    if ($file->type === FILE_TYPE_NONE) {
+      $type = file_get_type($file);
+      if (isset($type)) {
+        $file->type = $type;
+      }
+    }
+
+    // Write the record directly rather than calling file_save() so we don't
+    // invoke the hooks.
+    $this->assertNotIdentical(drupal_write_record('file_managed', $file), FALSE, t('The file was added to the database.'), 'Create test file');
+
+    return $file;
+  }
+}
+
+/**
+ * Test file administration page functionality.
+ */
+class MediaLibraryAdminTestCase extends MediaLibraryTestHelper {
+  public static function getInfo() {
+    return array(
+      'name' => 'Library administration',
+      'description' => 'Test library administration page functionality.',
+      'group' => 'Media Library',
+    );
+  }
+
+  function setUp() {
+    parent::setUp();
+
+    $this->admin_user = $this->drupalCreateUser(array('administer files', 'bypass file access'));
+  }
+
+  /**
+   * Tests files overview with different user permissions.
+   */
+  function testFilesAdminPages() {
+    $this->drupalLogin($this->admin_user);
+
+    $files['standard_file'] = $this->createFileEntity(array('library' => 0));
+    $files['library_file'] = $this->createFileEntity(array('library' => 1));
+
+    // Verify all files are displayed on the standard file listing page.
+    $this->drupalGet('admin/content/file');
+    $this->assertResponse(200);
+    foreach ($files as $file) {
+      $this->assertLinkByHref('file/' . $file->fid);
+      // Verify tableselect.
+      $this->assertFieldByName('files[' . $file->fid . ']', '', t('Tableselect found.'));
+    }
+
+    // Verify only library files are displayed on the library file listing page.
+    $this->drupalGet('admin/content/file/library');
+    $this->assertResponse(200);
+    $this->assertNoLinkByHref('file/' . $files['standard_file']->fid);
+    $this->assertLinkByHref('file/' . $files['library_file']->fid);
+    // Verify tableselect.
+    $this->assertFieldByName('files[' . $file->fid . ']', '', t('Tableselect found.'));
+  }
+}

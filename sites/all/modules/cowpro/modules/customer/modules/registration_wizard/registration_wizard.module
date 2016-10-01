@@ -1,0 +1,314 @@
+<?php
+
+/**
+ * Implements hook_menu_alter().
+ */
+/*
+function registration_wizard_menu_alter(&$items) {
+	// Ctools registration wizard for standard registration.
+	// Overrides default router item defined by core user module.
+	$items['user/register']['page callback'] = array('registration_wizard_form');
+	// Pass the "first" step key to start the form on step 1 if no step has been specified.
+	$items['user/register']['page arguments'] = array('register');
+	//$items['user/register']['file path'] = drupal_get_path('module', 'cowpro_registration');
+	//$items['user/register']['file'] = 'cowpro_registration_ctools_wizard.inc';
+	return
+
+	$items;
+}
+*/
+
+/**
+ * Implements hook_menu().
+ */
+function registration_wizard_menu() {
+  $items['admin/cowpro/config_registration_wizard'] = array(
+    'title' => '注册向导设置',
+    'description' => '设置用户注册时需要填写的信息及步骤',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('registration_wizard_admin_form'),
+			'access arguments' => array (
+					'configure p2p'
+			),
+    'file' => 'registration_wizard_admin.inc',
+  );
+	$items['registration_wizard'] = array(
+			'title' => '个人资料填写向导',
+			'page callback' => 'registration_wizard_form',
+    'access callback' => 'user_is_logged_in',
+			//'file' => 'cowpro_registration_ctools_wizard.inc',
+			'type' => MENU_NORMAL_ITEM,
+			'menu_name' => 'user-menu',
+	);
+  $items['registration_wizard/%'] = array(
+			'title' => '个人资料填写向导',
+			'page callback' => 'registration_wizard_form',
+			'page arguments' => array(1),
+    'access callback' => 'user_is_logged_in',
+			//'file' => 'cowpro_registration_ctools_wizard.inc',
+			'type' => MENU_CALLBACK,
+			'menu_name' => 'user-menu',
+  );
+	return
+
+	$items;
+}
+
+/**
+ * Page callback: Handles multistep precessing.
+ *
+ * @return string
+ *   Multistep wizard output.
+ *
+ * @see registration_wizard_menu()
+ */
+function registration_wizard_form($step = NULL) {
+	$js = NULL;
+  if ($js) {
+		ctools_include('modal');
+	  ctools_include('ajax');
+  }
+
+  // Define array for ctools multistep wizard.
+  $form_info = array(
+    'id' => 'registration_wizard',
+    'path' => "registration_wizard/%step",
+    'show trail' => TRUE,
+    'show back' => TRUE,
+    'show cancel' => TRUE,
+    'show return' => FALSE,
+    'next callback' =>  'registration_wizard_wizard_next',
+    'finish callback' => 'registration_wizard_wizard_finish',
+    'cancel callback' => 'registration_wizard_wizard_cancel',
+
+   // Define forms order.
+    'order' => array(
+    ),
+
+   // Define forms
+    'forms' => array(
+    ),
+  );
+
+  $profile_type_wizard = variable_get('cowpro_registration_wizard', array());
+  $profile_types = cowpro_customer_profile_types();
+  $items = array();
+  foreach ($profile_types as $key => $value) {
+  	if (array_key_exists($key, $profile_type_wizard)) {
+  		$profile_types[$key]['weight'] = $profile_type_wizard[$key]['weight'];
+  		$profile_types[$key]['included'] = $profile_type_wizard[$key]['included'];
+  	} else {
+  		$profile_types[$key]['weight'] = 99;
+  		$profile_types[$key]['included'] = TRUE;
+  	}
+  }
+  usort($profile_types, '_registration_wizard_profile_type_item_compare');
+  foreach ($profile_types as $value) {
+  	if ($value['included']) {
+  		$form_info['order'][$value['type']] = $value['name'];
+  		$form_info['forms'][$value['type']] = array(
+  				'form id' => '_registration_wizard_form_warp',
+  				'type' => $value['type'],
+  		);
+  	}
+  }
+
+  // We're not using any real storage here, so we're going to set our
+  // object_id to 1. When using wizard forms, id management turns
+  // out to be one of the hardest parts. Editing an object with an id
+  // is easy, but new objects don't usually have ids until somewhere
+  // in creation.
+  //
+  // We skip all this here by just using an id of 1.
+  $object_id = 1;
+
+  if (empty($step)) {
+
+    // We reset the form when $step is NULL because that means they have
+    // for whatever reason started over.
+    registration_wizard_cache_clear($object_id);
+    $keys = array_keys($form_info['order']);
+    $step = array_shift($keys);
+  }
+
+  // This automatically gets defaults if there wasn't anything saved.
+  $object = registration_wizard_cache_get($object_id);
+
+  // live $form_state changes.
+  $form_state = array(
+    'ajax' => $js,
+
+    // Put our object and ID into the form state cache so we can easily find it.
+    'object_id' => $object_id,
+    'object' => &$object,
+  );
+
+  // Send this all off to our form. This is like drupal_get_form only wizardy.
+  ctools_include('wizard');
+  $form = ctools_wizard_multistep_form($form_info, $step, $form_state);
+
+  $output = drupal_render($form);
+
+  if ($js) {
+
+    // If javascript is active, we have to use a render array.
+    $commands = array();
+    if ($output === FALSE || !empty($form_state['complete'])) {
+      // Dismiss the modal.
+      $commands[] = ajax_command_html('#ctools-sample', render(multi_example_get_result($object)));
+      $commands[] = ctools_modal_command_dismiss();
+    }
+    elseif (!empty($form_state['cancel'])) {
+
+      // If cancelling, return to the activity.
+      $commands[] = ctools_modal_command_dismiss();
+    }
+    else {
+      $commands = ctools_modal_form_render($form_state, $output);
+    }
+    print ajax_render($commands);
+  }
+  else {
+    if ($output === FALSE || !empty($form_state['complete'])) {
+
+    	$url = $GLOBALS['base_url'];
+    	$result_form = registration_wizard_get_result($object);
+      return render($result_form) . "\n\r" . l(t('OK'), $url);
+    }
+    elseif (!empty($form_state['cancel'])) {
+      drupal_goto($GLOBALS['base_url']);
+    }
+    else {
+      return $output;
+    }
+  }
+}
+
+function _registration_wizard_form_warp($form, &$form_state) {
+	$form_info = $form_state['form_info'];
+	$step = $form_state['step'];
+	$type = $form_info['forms'][$step]['type'];
+	global $user;
+	return cowpro_customer_ui_customer_profile_edit_own_form_public($form, $form_state, $user->uid, $type);
+}
+
+function _registration_wizard_form_warp_submit($form, &$form_state) {
+	//$form_state['object']->work = $form_state['values']['work'];
+}
+
+function _registration_wizard_profile_type_item_compare($a, $b) {
+	$a_val = (int) $a['weight'];
+	$b_val = (int) $b['weight'];
+
+	if($a_val > $b_val) return 1;
+	if($a_val < $b_val) return -1;
+	return 0;
+}
+
+/**
+ * Clears the wizard cache.
+ *
+ * @param integer $id
+ *   cache id.
+ */
+function registration_wizard_cache_clear($id) {
+  ctools_include('object-cache');
+  ctools_object_cache_clear('registration_wizard', $id);
+}
+
+/**
+ * Stores our little cache so that we can retain data from form to form.
+ *
+ * @param integer $id
+ *   cache id.
+ * @param object $object
+ *   object with form values.
+ */
+function registration_wizard_cache_set($id, $object) {
+  ctools_include('object-cache');
+  ctools_object_cache_set('registration_wizard', $id, $object);
+}
+
+/**
+ * Gets the current object from the cache, or default.
+ *
+ * @param integer $id
+ *   cache id.
+ *
+ * @return object
+ *   cache with stored stuff.
+ */
+function registration_wizard_cache_get($id) {
+  ctools_include('object-cache');
+  $object = ctools_object_cache_get('registration_wizard', $id);
+  if (!$object) {
+    // Create a default object.
+    $object = new stdClass;
+  }
+
+  return $object;
+}
+
+/**
+ * Handles the 'next' click on the add/edit pane form wizard.
+ *
+ * All we need to do is store the updated pane in the cache.
+ */
+function registration_wizard_wizard_next(&$form_state) {
+  registration_wizard_cache_set($form_state['object_id'], $form_state['object']);
+}
+
+/**
+ * Handles the 'finish' click on teh add/edit pane form wizard.
+ *
+ * All we need to do is set a flag so the return can handle adding
+ * the pane.
+ */
+function registration_wizard_wizard_finish(&$form_state) {
+  $form_state['complete'] = TRUE;
+}
+
+/**
+ * Handles the 'cancel' click on the add/edit pane form wizard.
+ */
+function registration_wizard_wizard_cancel(&$form_state) {
+  $form_state['cancel'] = TRUE;
+}
+
+/**
+ * Implements hook_theme().
+ *
+ * We need run our forms through custom theme functions in order to build the
+ * table structure which is required by tabledrag.js.  Before we can use our
+ * custom theme functions, we need to implement hook_theme in order to register
+ * them with Drupal.
+ *
+ * We are defining our theme hooks with the same name as the form generation
+ * function so that Drupal automatically calls our theming function when the
+ * form is displayed.
+ */
+function registration_wizard_theme() {
+	return array(
+			// Theme function for the 'simple' example.
+			'registration_wizard_admin_form' => array(
+					'render element' => 'form',
+					'file' => 'registration_wizard_admin.inc',
+			),
+	);
+}
+
+/**
+ * Returns form results.
+ *
+ * @param object $object
+ *   object with form values.
+ *
+ * @return array
+ *   returns renderable array for multistep form result output.
+ */
+function registration_wizard_get_result($object) {
+  $out = array();
+  $out[] = '感谢您的注册，祝您投资愉快！';
+  return array('#theme' => 'item_list', '#items' => $out, '#title' => '完成:');
+}
+
