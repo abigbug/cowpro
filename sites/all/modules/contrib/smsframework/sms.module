@@ -1,0 +1,978 @@
+<?php
+
+/**
+ * @file
+ * The core of the SMS Framework. Provides gateway management and API for
+ * sending and receiving SMS messages.
+ */
+
+// Direction codes.
+define('SMS_DIR_NONE',  0);
+define('SMS_DIR_OUT',   1);
+define('SMS_DIR_IN',    2);
+define('SMS_DIR_ALL',   4);
+
+// Message status codes.
+// 0=Unknown, 2xx=Positive, 3xx=Positive/Neutral (context-dependent), 4xx=Negative.
+define('SMS_MSG_STATUS_UNKNOWN',      0);
+define('SMS_MSG_STATUS_OK',         200);
+define('SMS_MSG_STATUS_DELIVERED',  202);
+define('SMS_MSG_STATUS_QUEUED',     302);
+define('SMS_MSG_STATUS_ERROR',      400);
+define('SMS_MSG_STATUS_NOCREDIT',   402);
+define('SMS_MSG_STATUS_EXPIRED',    408);
+
+// Gateway response codes.
+// 0=Unknown, 2xx=Positive, 4xx=Negative(likely client err), 5xx=Negative(likely gateway err).
+define('SMS_GW_UNKNOWN_STATUS',      0);
+define('SMS_GW_OK',                200);
+define('SMS_GW_ERR_AUTH',          401);
+define('SMS_GW_ERR_INVALID_CALL',  400);
+define('SMS_GW_ERR_NOT_FOUND',     404);
+define('SMS_GW_ERR_MSG_LIMITS',    413);
+define('SMS_GW_ERR_MSG_ROUTING',   502);
+define('SMS_GW_ERR_MSG_QUEUING',   408);
+define('SMS_GW_ERR_MSG_OTHER',     409);
+define('SMS_GW_ERR_SRC_NUMBER',    415);
+define('SMS_GW_ERR_DEST_NUMBER',   416);
+define('SMS_GW_ERR_CREDIT',        402);
+define('SMS_GW_ERR_OTHER',         500);
+
+// Carrier status.
+define('SMS_CARRIER_DEFAULT', 0);
+define('SMS_CARRIER_OVERRIDDEN', 1);
+define('SMS_CARRIER_NORMAL', 3);
+
+/**
+ * Implements hook_menu().
+ */
+function sms_menu() {
+  $items = array();
+
+  $items['admin/smsframework'] = array(
+    'title' => 'SMS Framework',
+    'description' => 'Control how your site uses SMS.',
+    'position' => 'right',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer smsframework'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+
+  $items['admin/smsframework/gateways'] = array(
+    'title' => 'Gateway configuration',
+    'description' => 'Configure gateways and chose the default gateway.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sms_admin_default_form', NULL),
+    'access arguments' => array('administer smsframework'),
+    'file' => 'sms.admin.inc',
+  );
+
+  $items['admin/smsframework/gateways/%'] = array(
+    'title callback' => 'sms_admin_gateway_title',
+    'title arguments' => array(3),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sms_admin_gateway_form', 3),
+    'access arguments' => array('administer smsframework'),
+    'type' => MENU_CALLBACK,
+    'file' => 'sms.admin.inc',
+  );
+
+  $items['admin/smsframework/carriers'] = array(
+    'title' => 'Carrier configuration',
+    'description' => 'Configure supported carriers.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sms_carriers_admin_form'),
+    'access arguments' => array('administer smsframework'),
+    'file' => 'sms.admin.inc',
+  );
+
+  $items['admin/smsframework/carriers/manage'] = array(
+    'title' => 'Manage',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  $items['admin/smsframework/carriers/add'] = array(
+    'title' => 'Add',
+    'description' => 'Configure supported carriers.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sms_carriers_edit_form'),
+    'access arguments' => array('administer smsframework'),
+    'file' => 'sms.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['admin/smsframework/carriers/%carrier'] = array(
+    'title' => 'Edit carrier',
+    'description' => 'Configure supported carriers.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sms_carriers_edit_form', 3),
+    'access arguments' => array('administer smsframework'),
+    'type' => MENU_CALLBACK,
+    'file' => 'sms.admin.inc',
+  );
+
+  $items['admin/smsframework/carriers/delete/%carrier'] = array(
+    'title' => 'Edit carrier',
+    'description' => 'Configure supported carriers.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sms_carriers_delete_form', 4),
+    'access arguments' => array('administer smsframework'),
+    'type' => MENU_CALLBACK,
+    'file' => 'sms.admin.inc',
+  );
+
+  $items['admin/smsframework/bootstrap'] = array(
+    'title' => 'Incoming SMS bootstrap',
+    'description' => 'Review settings for incoming SMS bootstrap by-pass',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sms_bootstrap_admin'),
+    'access arguments' => array('administer smsframework'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'sms.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function sms_permission() {
+  return array(
+    'administer smsframework' => array(
+      'title' => t('administer smsframework'),
+      'description' => t('Administer SMS Framework'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function sms_theme() {
+  $items['sms_admin_default_form'] =
+  $items['sms_carriers_admin_form'] = array(
+    'render element' => 'form',
+    'file' => 'sms.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function sms_cron_queue_info() {
+  return array(
+    'sms_incoming' => array(
+      'worker callback' => 'sms_incoming_queue_worker',
+    ),
+  );
+}
+
+/**
+ * Sends a message using the active gateway.
+ *
+ * @param string $number
+ *   The destination number.
+ * @param string $message
+ *   The text of the messsage to send.
+ * @param array $options
+ *   An array of additional properties as defined by gateway modules.
+ *
+ * @return bool
+ *   true if the message was sent to the server, false otherwise.
+ *
+ * @see sms_handle_result().
+ */
+function sms_send($number, $message, $options = array()) {
+  // Check if preferred gateway is specified in the $options.
+  if (isset($options['gateway'])) {
+    $gateway = sms_gateways('gateway', $options['gateway']);
+  }
+  if (empty($gateway)) {
+    $gateway = sms_default_gateway();
+  }
+
+  foreach (module_implements('sms_send') as $module) {
+    $function = $module . '_sms_send';
+    $function($number, $message, $options, $gateway);
+  }
+  
+  if (module_exists('token')) {
+    $message = token_replace($message);
+  }
+  
+  $response = NULL;
+  if (isset($gateway['send']) && function_exists($gateway['send'])) {
+    $response = $gateway['send']($number, $message, $options);
+  }
+  $result = sms_handle_result($response, $number, $message);
+
+  // Post process hook
+  foreach (module_implements('sms_send_process') as $module) {
+    $function = $module . '_sms_send_process';
+    $function('post process', $number, $message, $options, $gateway, $result);
+  }
+
+  return $result;
+}
+
+/**
+ * Handles the response back from the sms gateway.
+ *
+ * This method also logs an error message to watchdog if there was a failure.
+ *
+ * @param array $result
+ *   An array containing information on the message response, with the keys:
+ *   - status: true if it was successful, false otherwise.
+ *   - message: an error message if the 'status' is false.
+ * @param string $number
+ *   The comma-separated list of the message's recipient numbers.
+ * @param string $message
+ *   The message that was sent.
+ *
+ * @return bool
+ *   true if the message was sent to the server, false otherwise.
+ */
+function sms_handle_result($result, $number, $message) {
+  if ($result['status']) {
+    return TRUE;
+  }
+  else {
+    $error_message = 'Sending SMS to %number failed.';
+    $variables['%number'] = $number;
+    if ($result['message']) {
+      $error_message .= ' The gateway said ' . $result['message'];
+      if (!empty($result['variables'])) {
+        $variables = array_merge($variables, $result['variables']);
+      }
+    }
+    watchdog('sms', $error_message, $variables, WATCHDOG_ERROR);
+    return FALSE;
+  }
+}
+
+/**
+ * Queue worker callback for queued incoming messages.
+ *
+ * @param array $item
+ *   An array containing arguments for sending queued message.
+ *
+ * @see sms_cron_queue_info().
+ */
+function sms_incoming_queue_worker(array $item) {
+  sms_incoming($item['number'], $item['message'], $item['options']);
+}
+
+/**
+ * Handles incoming messages.
+ *
+ * Allows gateways modules to pass messages in a standard format for processing.
+ * Every implementation of hook_sms_incoming() will be invoked by this method.
+ *
+ * Additionally, 'sms_incoming' rules event will be invoked if rules module is
+ * enabled.
+ *
+ * @param string $number
+ *   The sender's mobile number.
+ * @param string $message
+ *   The content of the text message.
+ * @param array $options
+ *   An array of additional options.
+ */
+function sms_incoming($number, $message, $options = array()) {
+  if (module_exists('rules')) {
+    $options += array('number' => $number, 'message' => $message);
+    rules_invoke_event('sms_incoming', $options);
+  }
+
+  // Execute three phases
+  module_invoke_all('sms_incoming', 'pre process', $number, $message, $options);
+  module_invoke_all('sms_incoming', 'process', $number, $message, $options);
+  module_invoke_all('sms_incoming', 'post process', $number, $message, $options);
+}
+
+/**
+ * Handles responses to message transactions.
+ *
+ * Allows gateways modules to pass message receipts and other responses to
+ * messages in a standard format for processing, and provides a basic set of
+ * status codes for common code handling.
+ *
+ * Allowed message status codes are defined as constants in this module.
+ *
+ * The gateway status code and message should be provided in the $options array
+ * as 'gateway_message_status' and 'gateway_message_status_text'.
+ *
+ * @param string $number
+ *   The sender's mobile number.
+ * @param string $reference
+ *   Unique message reference code, as provided when message is sent.
+ * @param int $message_status
+ *   (optional) An SMS Framework message status code, per the defined constants.
+ *    Defaults to SMS_GW_UNKNOWN_STATUS.
+ * @param array $options
+ *   (optional) Extended options passed by the receipt receiver.
+ */
+function sms_receipt($number, $reference, $message_status = SMS_GW_UNKNOWN_STATUS, array $options = array()) {
+  // Execute three phases
+  module_invoke_all('sms_receipt', 'pre process', $number, $reference, $message_status, $options);
+  module_invoke_all('sms_receipt', 'process', $number, $reference, $message_status, $options);
+  module_invoke_all('sms_receipt', 'post process', $number, $reference, $message_status, $options);
+}
+
+/**
+ * Returns the current default gateway machine name.
+ */
+function sms_default_gateway() {
+  return sms_gateways('gateway', variable_get('sms_default_gateway', 'log'));
+}
+
+/**
+ * Implements hook_gateway_info().
+ */
+function sms_gateway_info() {
+  return array(
+    'log' => array(
+      'name' => t('Log only'),
+      'send' => 'sms_send_log',
+    ),
+  );
+}
+
+/**
+ * Logs sms message.
+ *
+ * This is a rudimentary implementation of an sms gateway by simply logging the
+ * message to watchdog.
+ *
+ * @param string $number
+ *   Comma-separated list of mobile numbers message was sent to.
+ * @param string $message
+ *   The message that was sent.
+ * @param array $options
+ *   An associative array of options passed to gateway.
+ *
+ * @return array
+ *   An array containing one key:
+ *   - status: true.
+ */
+function sms_send_log($number, $message, $options) {
+  watchdog('sms', 'SMS message sent to %number with the text: @message', array('%number' => $number, '@message' => $message), WATCHDOG_INFO);
+  return array('status' => TRUE);
+}
+
+
+/**
+ * SMS gateway menu title callback.
+ */
+function sms_admin_gateway_title($gateway_id) {
+  $gateway = sms_gateways('gateway', $gateway_id);
+  return sprintf('%s gateway', $gateway['name']);
+}
+
+/**
+ * Gets a list of all gateways.
+ *
+ * @param string $op
+ *   (optional) The format in which to return the list. When set to 'gateway' or 'name',
+ *   only the specified gateway is returned. When set to 'gateways' or 'names',
+ *   all gateways are returned. Defaults to 'gateways'.
+ * @param string $gateway
+ *   (optional) A gateway identifier string that indicates the gateway to return.
+ *   Leave at default value (NULL) to return all gateways.
+ *
+ * @return array|string
+ *   Either an array of all gateways or a single gateway, in a variable format.
+ */
+function sms_gateways($op = 'gateways', $gateway = NULL) {
+  list($_gateways, $_names) = _gateways_build();
+
+  switch ($op) {
+    case 'gateway':
+      $return = $_gateways[$gateway];
+      $return['identifier'] = $gateway;
+      return $return;
+    case 'names':
+      return $_names;
+    case 'name':
+      return $_names[$gateway];
+    case 'gateways':
+    default:
+      return $_gateways;
+  }
+}
+
+/**
+ * Helper function to get gateway definitions in hook_gateway_info.
+ *
+ * @return array
+ *   A array of gateway definitions from hook_gateway_info().
+ */
+function _gateways_build() {
+  $_gateways = array();
+  $_names = array();
+
+  $gateway_array = module_invoke_all('gateway_info');
+  foreach ($gateway_array as $identifier => $info) {
+    $info['configuration'] = variable_get('sms_' . $identifier . '_settings', array());
+    $_gateways[$identifier] = $info;
+    $_names[$identifier] = $info['name'];
+  }
+
+  asort($_names);
+
+  return array($_gateways, $_names);
+}
+
+/**
+ * Form builder for send sms form.
+ *
+ * Generates a SMS sending form and adds gateway defined elements. The form
+ * array that is returned can be merged with an existing form using
+ * array_merge().
+ *
+ * @param bool $required
+ *   (optional) true if phone number field is required, false otherwise.
+ *
+ * @see sms_send_form_submit_validate()
+ * @see sms_send_form_submit_submit()
+ */
+function sms_send_form($required = FALSE) {
+  $gateway = sms_default_gateway();
+  $form['number'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Phone number'),
+    '#size' => 40,
+    '#maxlength' => 16,
+    '#required' => $required,
+  );
+
+  // Add gateway defined fields
+  if (!empty($gateway['send form']) && function_exists($gateway['send form'])) {
+    $form['gateway']['#tree'] = TRUE;
+    $form['gateway'] = array_merge($gateway['send form']($required), $form['gateway']);
+  }
+
+  return $form;
+}
+
+/**
+ * Form validation handler for sms_send_form().
+ *
+ * @see sms_send_form()
+ * @see sms_send_form_submit()
+ */
+function sms_send_form_validate($form, &$form_state) {
+  $number = sms_formatter($form_state['values']['number']);
+  $errors = sms_validate_number($number,
+      isset($form_state['values']['gateway'])? $form_state['values']['gateway']: array());
+  if ($errors) {
+    form_set_error('number', implode("<br />", $errors));
+  }
+}
+
+/**
+ * Form submission handler for sms_send_form().
+ *
+ * @see sms_send_form()
+ * @see sms_send_form_validate()
+ */
+function sms_send_form_submit($form, &$form_state) {
+  $number = sms_formatter($form_state['values']['number']);
+  sms_send($number, $form_state['values']['message'],
+      isset($form_state['values']['gateway'])? $form_state['values']['gateway']: array());
+}
+
+/******************************************************************************
+ * SMS Carrier Functions
+ *
+ * @todo Consider moving this to email gateway, unless there is a reason to
+ *   have these functions without the email gateway?
+ *****************************************************************************/
+
+/**
+ * Gets a list of all carriers
+ *
+ * @param string $domain
+ *   (optional) The domain for which the carriers are to be listed.
+ *
+ * @return array
+ *   An array of carriers keyed by the domain name and having arrays as values
+ *   with the following keys:
+ *   - name: The human readable name of the carrier.
+ *   - type: The carrier type.
+ */
+function sms_carriers($domain = NULL) {
+  $default_carriers = module_invoke_all('sms_carriers');
+  $enabled_carriers = variable_get('sms_enabled_carriers', array());
+  $carriers = array();
+
+  // Load default carriers from code.
+  foreach ($default_carriers as $id => $carrier) {
+    $carriers[$id] = array('name' => $carrier, 'type' => SMS_CARRIER_DEFAULT);
+  }
+
+  // Load overriden carriers from database.
+  $result = db_query("SELECT name, domain FROM {sms_carriers}");
+
+  foreach ($result as $carrier) {
+    if (in_array($carrier->domain, array_keys($carriers))) {
+      $type = SMS_CARRIER_OVERRIDDEN;
+    }
+    else {
+      $type = SMS_CARRIER_NORMAL;
+    }
+
+    $carriers[$carrier->domain] = array(
+      'name' => $carrier->name,
+      'type' => $type,
+    );
+  }
+
+  foreach ($enabled_carriers as $carrier) {
+    if (is_array($carriers[$carrier])) {
+      $carriers[$carrier]['status'] = 1;
+    }
+  }
+
+  if ($domain) {
+    $carriers[$domain]['domain'] = $domain;
+    return $carriers[$domain];
+  }
+
+  return $carriers;
+}
+
+/**
+ * Loads a single carrier.
+ *
+ * @param string $domain
+ *   The domain for which the carrier is to be loaded.
+ *
+ * @return array
+ *   An array containing the carrier info.
+ *
+ * @see sms_carriers()
+ */
+function carrier_load($domain) {
+  return sms_carriers($domain);
+}
+
+/**
+ * Saves a carrier to database.
+ *
+ * @param string $domain
+ *   The domain for which the carrier is to be saved.
+ * @param array $edit
+ *   An array of new values to be saved for the carrier.
+ */
+function carrier_save($domain, $edit) {
+  if (!empty($domain)) {
+    $carrier = carrier_load($domain);
+
+    if ($carrier['type'] == SMS_CARRIER_DEFAULT) {
+      $edit['status'] = 1;
+      drupal_write_record('sms_carriers', $edit);
+    }
+    elseif (!empty($edit['domain'])) {
+      //Case for when the domain name hasn't changed
+      if ($edit['domain'] == $domain) {
+        drupal_write_record('sms_carriers', $edit, 'domain');
+      }
+      //Case for when the domain has changed
+      else {
+        carrier_delete($domain);
+        drupal_write_record('sms_carriers', $edit);
+      }
+
+      // TODO: we need more logic to figure out when someone is changing the
+      //   domain name.
+    }
+  }
+  else {
+    $edit['status'] = 1;
+    drupal_write_record('sms_carriers', $edit);
+  }
+}
+
+/**
+ * Deletes a carrier from the database.
+ *
+ * @param string $domain
+ */
+function carrier_delete($domain) {
+  db_delete('sms_carriers')
+    ->condition('domain', $domain)
+    ->execute();
+
+  //removes carrier from variable
+  $enabled_carriers = variable_get('sms_enabled_carriers', array());
+  foreach ($enabled_carriers as $i => $carrier) {
+    if ($carrier == $domain) {
+      unset($enabled_carriers[$i]);
+      break;
+    }
+  }
+  variable_set('sms_enabled_carriers', $enabled_carriers);
+}
+
+/******************************************************************************
+ * HELPER FUNCTIONS
+ */
+
+/**
+ * Formats a number for display using the gateway's formatting functionality.
+ *
+ * @param string $number
+ *   The number to be formatted.
+ * @param array $options
+ *   An array of options.
+ *
+ * @return string
+ *   The formatted number.
+ */
+function sms_format_number(&$number, $options = array()) {
+  $gateway = sms_default_gateway();
+
+  if ($gateway['format number'] && function_exists($gateway['format number'])) {
+    return $gateway['format number']($number, $options);
+  }
+  else {
+    return $number;
+  }
+}
+
+/**
+ * Converts various sms formats into a common format for use in this module.
+ *
+ * @param string $number
+ *   The sms number to be formatted.
+ * @param int $format
+ *   Undefined.
+ *
+ * @return string
+ *   The formatted number.
+ *
+ * @todo Decide if the $format parameter is needed.
+ */
+function sms_formatter($number, $format = 1) {
+  // Remove non-number characters.
+  $number = preg_replace("/[^0-9]/", '', $number);
+
+  /*
+   @todo The only length specification in the international numbering plan is
+     that numbers should be a maximum of 15 digits.
+
+   http://en.wikipedia.org/wiki/E.164
+
+   if (strlen($number) > 16) {
+   if ($number[0] == 1) {
+   $number = ltrim($number, 1);
+   }
+   else {
+   return FALSE;
+   }
+   }
+   elseif (strlen($number) < 10) {
+   return FALSE;
+   }
+   */
+
+  return $number;
+}
+
+/**
+ * Validates a phone number.
+ *
+ * This function passes the number to active gateway for further validation if
+ * necessary. It also calls hook_sms_validate() so that other modules can
+ * implement custom validation.
+ *
+ * @param string $number
+ *   Comma-separated list of recipient numbers to validate. Passed by reference.
+ * @param array $options
+ *   A list of additional options.
+ *
+ * @return array
+ *   An array of translated errors. Empty if no errors.
+ */
+function sms_validate_number(&$number, $options = array()) {
+  $errors = array();
+  // Ensure there are actual numeric characters.
+  if (!strlen(preg_replace('/[^0-9]/', '', $number))) {
+    $errors[] = t('No phone number provided.');
+    // No need for further validation.
+    return $errors;
+  }
+
+  // Allow other modules to provide number validation.
+  $errors = module_invoke_all('sms_validate_number', $number, $options);
+
+  // Allow the default (or the specified in $options) gateway to provide number
+  // validation.
+  if (isset($options['gateway'])) {
+    $gateway = sms_gateways('gateway', $options['gateway']);
+  }
+  else {
+    $gateway = sms_default_gateway();
+  }
+  if (isset($gateway['validate number']) && function_exists($gateway['validate number'])) {
+    if ($error = $gateway['validate number']($number, $options)) {
+      $errors += (array) $error;
+    }
+  }
+
+  return $errors;
+}
+
+/**
+ * Returns a direction code
+ *
+ * Direction codes are one of the SMS_DIR_* constants defined in this module.
+ *
+ * @param bool $out
+ *   Outgoing allowed or not
+ * @param bool $in
+ *   Incoming allowed or not
+ *
+ * @return int
+ *   The constant that defines this direction combination.
+ */
+function sms_dir($out, $in) {
+  if ( $out &&   $in) {
+    return SMS_DIR_ALL;
+  }
+  if ( $out && !$in) {
+    return SMS_DIR_OUT;
+  }
+  if (!$out &&   $in) {
+    return SMS_DIR_IN;
+  }
+  if (!$out && !$in) {
+    return SMS_DIR_NONE;
+  }
+  return SMS_DIR_NONE;
+}
+
+/**
+ * Returns an array of E.164 international country calling codes
+ *
+ * @return array
+ *   Associative array of country calling codes and country names.
+ */
+function sms_country_codes() {
+  return array(
+    93 => "Afghanistan",
+    355 => "Albania",
+    213 => "Algeria",
+    376 => "Andorra",
+    244 => "Angola",
+    1264 => "Anguilla",
+    1268 => "Antigua & Barbuda",
+    54 => "Argentina",
+    374 => "Armenia",
+    297 => "Aruba",
+    61 => "Australia",
+    43 => "Austria",
+    994 => "Azerbaijan",
+    1242 => "Bahamas",
+    973 => "Bahrain",
+    880 => "Bangladesh",
+    1246 => "Barbados",
+    375 => "Belarus",
+    32 => "Belgium",
+    501 => "Belize",
+    229 => "Benin",
+    1441 => "Bermuda",
+    975 => "Bhutan",
+    591 => "Bolivia",
+    387 => "Bosnia-Herzegovina",
+    267 => "Botswana",
+    55 => "Brazil",
+    1284 => "British Virgin Islands",
+    673 => "Brunei",
+    359 => "Bulgaria",
+    226 => "Burkina Faso",
+    257 => "Burundi",
+    855 => "Cambodia",
+    237 => "Cameroon",
+    238 => "Cape Verde",
+    1345 => "Cayman Islands",
+    236 => "Central African Republic",
+    235 => "Chad",
+    56 => "Chile",
+    86 => "China",
+    57 => "Colombia",
+    242 => "Congo",
+    243 => "Democratic Republic Congo",
+    682 => "Cook Islands",
+    385 => "Croatia",
+    53 => "Cuba",
+    357 => "Cyprus",
+    420 => "Czech Republic",
+    45 => "Denmark",
+    253 => "Djibouti",
+    1767 => "Dominica",
+    670 => "East Timor",
+    593 => "Ecuador",
+    20 => "Egypt",
+    503 => "El Salvador",
+    240 => "Equatorial Guinea",
+    372 => "Estonia",
+    251 => "Ethiopia",
+    500 => "Falkland Islands",
+    298 => "Faroe Islands",
+    679 => "Fiji",
+    358 => "Finland",
+    33 => "France",
+    594 => "French Guiana",
+    689 => "French Polynesia",
+    241 => "Gabon",
+    220 => "Gambia",
+    995 => "Georgia",
+    49 => "Germany",
+    233 => "Ghana",
+    350 => "Gibraltar",
+    881 => "Global Mobile Satellite",
+    30 => "Greece",
+    299 => "Greenland",
+    1473 => "Grenada",
+    590 => "Guadeloupe",
+    1671 => "Guam",
+    502 => "Guatemala",
+    224 => "Guinea",
+    592 => "Guyana",
+    509 => "Haiti",
+    504 => "Honduras",
+    852 => "HongKong",
+    36 => "Hungary",
+    354 => "Iceland",
+    91 => "India",
+    62 => "Indonesia",
+    98 => "Iran",
+    964 => "Iraq",
+    353 => "Ireland",
+    972 => "Israel",
+    39 => "Italy / Vatican City State",
+    225 => "Ivory Coast",
+    1876 => "Jamaica",
+    81 => "Japan",
+    962 => "Jordan",
+    254 => "Kenya",
+    82 => "Korea (South)",
+    965 => "Kuwait",
+    996 => "Kyrgyzstan",
+    856 => "Lao",
+    371 => "Latvia",
+    961 => "Lebanon",
+    266 => "Lesotho",
+    231 => "Liberia",
+    218 => "Libya",
+    423 => "Liechtenstein",
+    370 => "Lithuania",
+    352 => "Luxembourg",
+    853 => "Macau",
+    389 => "Macedonia",
+    261 => "Madagascar",
+    265 => "Malawi",
+    60 => "Malaysia",
+    960 => "Maldives",
+    223 => "Mali",
+    356 => "Malta",
+    596 => "Martinique",
+    222 => "Mauritania",
+    230 => "Mauritius",
+    269 => "Mayotte Island (Comoros)",
+    52 => "Mexico",
+    373 => "Moldova",
+    377 => "Monaco (Kosovo)",
+    976 => "Mongolia",
+    382 => "Montenegro",
+    1664 => "Montserrat",
+    212 => "Morocco",
+    258 => "Mozambique",
+    95 => "Myanmar",
+    264 => "Namibia",
+    977 => "Nepal",
+    31 => "Netherlands",
+    599 => "Netherlands Antilles",
+    687 => "New Caledonia",
+    64 => "New Zealand",
+    505 => "Nicaragua",
+    227 => "Niger",
+    234 => "Nigeria",
+    47 => "Norway",
+    968 => "Oman",
+    92 => "Pakistan",
+    970 => "Palestine (+970)",
+    9725 => "Palestine (+9725)",
+    507 => "Panama",
+    675 => "Papua New Guinea",
+    595 => "Paraguay",
+    51 => "Peru",
+    63 => "Philippines",
+    48 => "Poland",
+    351 => "Portugal",
+    974 => "Qatar",
+    262 => "Reunion",
+    40 => "Romania",
+    7 => "Russia / Kazakhstan",
+    250 => "Rwanda",
+    1670 => "Saipan",
+    1684 => "Samoa (American)",
+    685 => "Samoa (Western)",
+    378 => "San Marino",
+    882 => "Satellite-Thuraya",
+    966 => "Saudi Arabia",
+    221 => "Senegal",
+    381 => "Serbia",
+    248 => "Seychelles",
+    232 => "Sierra Leone",
+    65 => "Singapore",
+    421 => "Slovakia",
+    386 => "Slovenia",
+    677 => "Solomon Islands",
+    252 => "Somalia",
+    27 => "South Africa",
+    34 => "Spain / Canary Islands",
+    94 => "Sri Lanka",
+    1869 => "St. Kitts And Nevis",
+    1758 => "St. Lucia",
+    1784 => "St. Vincent",
+    249 => "Sudan",
+    597 => "Suriname",
+    268 => "Swaziland",
+    46 => "Sweden",
+    41 => "Switzerland",
+    963 => "Syria",
+    886 => "Taiwan",
+    992 => "Tajikistan",
+    255 => "Tanzania / Zanzibar",
+    66 => "Thailand",
+    228 => "Togo",
+    676 => "Tonga Islands",
+    1868 => "Trinidad and Tobago",
+    216 => "Tunisia",
+    90 => "Turkey",
+    993 => "Turkmenistan",
+    1649 => "Turks and Caicos Islands",
+    256 => "Uganda",
+    44 => "UK / Isle of Man / Jersey / Guernsey",
+    380 => "Ukraine",
+    971 => "United Arab Emirates",
+    598 => "Uruguay",
+    1 => "USA / Canada / Dominican Rep. / Puerto Rico",
+    998 => "Uzbekistan",
+    678 => "Vanuatu",
+    58 => "Venezuela",
+    84 => "Vietnam",
+    967 => "Yemen",
+    260 => "Zambia",
+    263 => "Zimbabwe",
+  );
+}

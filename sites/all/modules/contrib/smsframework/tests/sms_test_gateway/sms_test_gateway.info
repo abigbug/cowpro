@@ -1,0 +1,13 @@
+name = Test Gateway
+description = Support module for sms gateway testing.
+hidden = 1
+package: Testing
+version: VERSION
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2015-06-13
+version = "7.x-1.0-alpha1"
+core = "7.x"
+project = "smsframework"
+datestamp = "1434196688"
+

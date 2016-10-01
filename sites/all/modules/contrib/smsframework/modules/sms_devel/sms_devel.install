@@ -1,0 +1,79 @@
+<?php
+/**
+ * @file
+ * SMS Development feature module: Install file
+ *
+ * @package sms
+ * @subpackage sms_devel
+ */
+
+
+/**
+ * Implements hook_install().
+ */
+function sms_devel_install() {
+//  TODO The drupal_(un)install_schema functions are called automatically in D7.
+//  drupal_install_schema('sms_devel')
+}
+
+
+/**
+ * Implements hook_uninstall().
+ */
+function sms_devel_uninstall() {
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_uninstall_schema('sms_devel')
+}
+
+
+/**
+ * Implements hook_schema().
+ */
+function sms_devel_schema() {
+  $schema['sms_devel_virtualgw'] = array(
+    'description' => 'SMS virtual gateway trace log.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'created' => array(
+        'description' => 'The creation timestamp.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => '0=out 1=in, 2=receipt',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'number' => array(
+        'description' => 'If type=0/2 this is recipient. If type=1 this is sender.',
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+      ),
+      'message' => array(
+        'description' => 'Message text.',
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => FALSE,
+      ),
+      'options' => array(
+        'description' => 'Extended message options.',
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => FALSE,
+      ),
+    ),
+    'unique keys' => array(),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}

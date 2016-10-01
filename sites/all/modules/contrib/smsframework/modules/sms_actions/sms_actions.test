@@ -1,0 +1,232 @@
+<?php
+
+/**
+ * @file
+ * Contains tests for the functions in sms_action.module and actions integration.
+ */
+
+/**
+ * Provides integration tests for the sms_action module.
+ *
+ * @todo Add tests for integration with rules and actions modules.
+ */
+class SmsActionWebTest extends DrupalWebTestCase {
+
+  /**
+   * Provides information on the test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'SMS Actions Integration Test',
+      'description' => 'Integration tests for SMS Action module.',
+      'group' => 'SMS Framework',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  function setUp() {
+    parent::setUp('sms', 'sms_test_gateway', 'sms_actions', 'node', 'trigger');
+  }
+
+  /**
+   * Tests user adding phone number.
+   */
+  function testSmsActionsCommandCrud() {
+    $user = $this->drupalCreateUser(array('administer smsframework'));
+    $this->drupalLogin($user);
+
+    // Get the command listing page.
+    $this->drupalGet('admin/smsframework/actions');
+    $this->assertResponse(200);
+    $this->assertRaw('SMS Actions');
+    $this->assertRaw('<th>Discriminator</th>', '"Discriminator" column found.');
+    $this->assertRaw('<th>Operations</th>', '"Operations" column found');
+    $this->assertRaw('No commands available.');
+
+    // Add a new command.
+    $this->drupalPost('admin/smsframework/actions/add', $edit = array('discriminator' => 'test-machinename'), t('Save command'));
+    $this->assertRaw('<td>test-machinename</td>', 'Action saved.');
+    // Add a new command that will fail validation.
+    $this->drupalPost('admin/smsframework/actions/add', array('discriminator' => 'test-machine-name'), t('Save command'));
+    $this->assertNoRaw('<td>test-machine-name</td>', 'Invalid action name not saved.');
+
+    // Change the name.
+    $this->drupalPost('admin/smsframework/actions/edit/test-machinename', $edit = array('discriminator' => 'machinename'), t('Save command'));
+    $this->assertRaw('<td>machinename</td>', 'Action name changed.');
+  }
+
+  /**
+   * Tests integration with the trigger module.
+   */
+  function testSmsActionsTriggersIntegration() {
+    $user = $this->drupalCreateUser(array('administer smsframework', 'administer actions', 'create article content'));
+    $this->drupalLogin($user);
+
+    // Add more actions and verify the trigger page integration.
+    $discriminators = array('test1', 'test2', 'test3', 'test4', 'test5', 'test6');
+    foreach ($discriminators as $discriminator) {
+      sms_actions_command_save((object) array(
+        'discriminator' => $discriminator,
+      ));
+    }
+    $this->drupalGet('admin/smsframework/actions');
+    $this->assertRaw('<td>test1</td>');
+    $this->assertRaw('<td>test2</td>');
+    $this->assertRaw('<td>test3</td>');
+    $this->assertRaw('<td>test4</td>');
+    $this->assertRaw('<td>test5</td>');
+    $this->assertRaw('<td>test6</td>');
+
+    // Trigger page integration.
+    $this->drupalGet('admin/structure/trigger/sms_actions');
+    $this->assertText('When an SMS message with the test1 discriminator is received');
+    $this->assertText('When an SMS message with the test2 discriminator is received');
+    $this->assertText('When an SMS message with the test3 discriminator is received');
+    $this->assertText('When an SMS message with the test4 discriminator is received');
+    $this->assertText('When an SMS message with the test5 discriminator is received');
+    $this->assertText('When an SMS message with the test6 discriminator is received');
+
+    // Test actions integration.
+    // Create a test node.
+    $node = $this->drupalCreateNode(array(
+      'title' => 'Test Node',
+      'type' => 'article',
+      'status' => 0,
+      'promote' => 0,
+    ));
+
+    // Verify that node is not published.
+    $this->drupalLogout();
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertResponse(403);
+    $this->assertNoText('A test article node for testing.');
+    $this->assertFalse($node->status, 'Test node not published.');
+
+    // Create action to publish the created node.
+    $action = 'node_publish_action';
+    $this->drupalLogin($user);
+    $hash = drupal_hash_base64($action);
+    $edit = array('aid' => $hash);
+    $this->drupalPost('admin/structure/trigger/sms_actions', $edit, t('Assign'), array(), array(), 'trigger-sms-actions-test1-assign-form');
+    $this->assertResponse(200);
+
+    // Activate action by calling sms_incoming() with "test1" as a discriminator
+    // and the node id as the argument.
+    sms_incoming('1234567890', 'test1 ' . $node->nid, array());
+    // Reload the node.
+    $node = node_load($node->nid);
+    $this->drupalLogout();
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertResponse(200);
+    $this->assertText($node->body['und'][0]['value']);
+    $this->assertTrue($node->status, 'Test node published.');
+  }
+
+  /**
+   * Tests integration with the actions module.
+   */
+  public function testSmsActionsActionsIntegration() {
+    $user = $this->drupalCreateUser(array('administer smsframework', 'administer actions'));
+    $this->drupalLogin($user);
+
+    // Enable sms test gateway.
+    module_enable(array('sms_test_gateway'));
+    variable_set('sms_default_gateway', 'test');
+
+    // Create sms actions discriminator testX.
+    sms_actions_command_save((object) array(
+      'discriminator' => 'test80',
+    ));
+
+    // Create a configurable sms_actions action.
+    $action = 'sms_actions_send_action';
+    $hash = drupal_hash_base64($action);
+    $edit = array(
+      'actions_label' => 'Send Test SMS',
+      'number' => '6789012345',
+      'message' => '!This is a test!'
+    );
+    $this->drupalPost("admin/config/system/actions/configure/$hash", $edit, t('Save'));
+    $this->assertText(t('The action has been successfully saved.'));
+    // Get the ID of the action just created.
+    $aid = db_query('SELECT aid FROM {actions} WHERE callback = :callback AND label = :label',
+      array(
+        ':callback' => $action,
+        ':label' => $edit['actions_label']
+      ))->fetchField();
+
+    $post = array('aid' => drupal_hash_base64($aid));
+    $this->drupalPost('admin/structure/trigger/sms_actions', $post, t('Assign'), array(), array(), 'trigger-sms-actions-test80-assign-form');
+    $this->assertResponse(200);
+
+    // Activate action by calling sms_incoming() with "testX" as a discriminator
+    // and the node message as the argument.
+    sms_incoming('1234567890', 'test80', array());
+
+    // Assert that the configured message '!This is a test!' was sent.
+    $result = sms_test_gateway_result();
+    $this->assertEqual($edit['message'], $result['message'], 'SMS actions sent as configured');
+
+    // "Any" discriminator test.
+    sms_actions_command_save((object) array(
+      // Add a new discriminator.
+      'discriminator' => 'test23',
+    ));
+    $this->drupalPost('admin/structure/trigger/sms_actions', $post, t('Assign'), array(), array(), 'trigger-sms-actions-assign-form');
+    $this->assertResponse(200);
+    // Reset triggered actions so the new ones can reload.
+    drupal_static_reset('trigger_get_assigned_actions');
+    sms_test_gateway_result(true);
+    sms_incoming('6789012345', 'testy', array());
+    $this->assertEqual(array(), sms_test_gateway_result(), 'Non-existent discriminator not triggered.');
+    sms_incoming('4567123890', 'test23', array());
+    $result = sms_test_gateway_result();
+    $this->assertEqual($edit['message'], $result['message'], 'Existing discriminator triggered for the "Any" discriminator trigger.');
+  }
+
+}
+
+/**
+ * Provides unit tests for the sms_action module.
+ */
+class SmsActionsUnitTest extends DrupalUnitTestCase {
+
+  /**
+   * Provides information on the test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'SMS Actions Unit Tests',
+      'description' => 'Unit tests for SMS Action module.',
+      'group' => 'SMS Framework',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  function testDiscriminatorValidation() {
+    // Testbot is not seeing the module file.
+    require_once dirname(__FILE__) . '/sms_actions.module';
+    $pass = array('test1', 'test-2', 'test3');
+    foreach ($pass as $machine_name) {
+      $form_state['values']['discriminator'] = $machine_name;
+      sms_actions_edit_command_form_validate(array(), $form_state);
+      $errors = form_get_errors();
+      $this->assertFalse($errors['discriminator'], 'Valid command name "' . $machine_name . '" passed validation');
+      form_clear_error();
+    }
+
+    $fail = array('test 1', 'test_2', 'Test3');
+    foreach ($fail as $machine_name) {
+      $form_state['values']['discriminator'] = $machine_name;
+      sms_actions_edit_command_form_validate(array(), $form_state);
+      $errors = form_get_errors();
+      $this->assertTrue($errors['discriminator'], 'Invalid command name "' . $machine_name . '" failed validation');
+      form_clear_error();
+    }
+  }
+
+}

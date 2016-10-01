@@ -1,0 +1,24 @@
+name = Tracking
+description = Message archiving and delivery tracking for the SMS Framework.
+core = 7.x
+package = SMS Framework
+dependencies[] = sms
+dependencies[] = views
+
+files[] = views/sms_track.views.inc
+files[] = views/sms_track.views_default.inc
+files[] = views/sms_track_handler_field_direction.inc
+files[] = views/sms_track_handler_field_gateway.inc
+files[] = views/sms_track_handler_field_local_number.inc
+files[] = sms_track.admin.inc
+files[] = sms_track.install
+files[] = sms_track.module
+files[] = tests/sms_track.test
+
+
+; Information added by Drupal.org packaging script on 2015-06-13
+version = "7.x-1.0-alpha1"
+core = "7.x"
+project = "smsframework"
+datestamp = "1434196688"
+

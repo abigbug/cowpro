@@ -1,0 +1,522 @@
+<?php
+
+/**
+ * @file
+ * Provides various tools for sending bits of information via SMS.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function sms_sendtophone_menu() {
+  $items = array();
+
+  $items['sms/sendtophone/%'] = array(
+    'title' => 'Send to phone',
+    'page callback' => 'sms_sendtophone_page',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['admin/smsframework/sendtophone'] = array(
+    'title' => 'Send to phone',
+    'description' => 'Configure send to phone functionality.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sms_sendtophone_admin_overview'),
+    'access arguments' => array('administer smsframework'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function sms_sendtophone_permission() {
+  return array(
+    'send to any number' => array(
+      'title' => t('send to any number'),
+      'description' => t('Allow users to send nodes to any phone number.'),
+    ),
+  );
+}
+
+/**
+ * Form constructor for the Send To Phone Administration page.
+ */
+function sms_sendtophone_admin_overview($form, &$form_state) {
+  $entire_types = node_type_get_types();
+  $types = array();
+  foreach ($entire_types as $type) {
+    $types[$type->type] = $type->name;
+  }
+  $form['sms_sendtophone_content_types'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Content types'),
+    '#default_value' => variable_get('sms_sendtophone_content_types', array()),
+    '#options' => $types,
+    '#description' => t('Which content types to show the Send To Phone feature.'),
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Menu callback: displays the Send To Phone confirmation form for content.
+ */
+function sms_sendtophone_page($type = NULL) {
+  global $user;
+  $user = user_load($user->uid);
+  if (user_access('send to any number') || (!empty($user->sms_user) && !empty($user->sms_user['number']) && $user->sms_user['status'] == 2)) {
+    $form = drupal_get_form('sms_sendtophone_form', $type);
+  }
+  else {
+    if ($user->uid > 0 && !empty($user->sms_user) && empty($user->sms_user['number'])) {
+      $register = t('You need to <a href="@setup">setup</a> your mobile phone to send messages.', array('@setup' => url('user/' . $user->uid . '/edit/mobile')));
+    }
+    elseif ($user->uid > 0 && !empty($user->sms_user) && $user->sms_user['status'] != 2) {
+      $register = t('You need to <a href="@confirm">confirm</a> your mobile phone number to send messages.', array('@confirm' => url('user/' . $user->uid . '/edit/mobile')));
+    }
+    else {
+      $register = t('You do not have permission to send messages. You may need to <a href="@signin">sign in</a> or <a href="@register">register</a> for an account to send messages to a mobile phone.', array('@signin' => url('user', array('query' => array('destination' => $_GET['destination']))), '@register' => url('user/register', array('query' => array('destination' => $_GET['destination'])))));
+    }
+  }
+  $output = !empty($form) ? drupal_render($form) : $register;
+
+  if (isset($_GET['thickbox'])) {
+    print $output;
+    exit;
+  }
+  return $output;
+}
+
+/**
+ * Implements hook_filter_info().
+ */
+function sms_sendtophone_filter_info() {
+  $filters['sms_sendtophone'] = array(
+    'title' => t('Inline SMS'),
+    'description' => t('Highlights text between [sms][/sms] tags and appends a "send to phone" button.'),
+    'process callback' => '_sms_sendtophone_filter_inline',
+    'tips callback' => '_sms_sendtophone_filter_sms_tips',
+    'settings callback' => '_sms_sendtophone_filter_inline_settings',
+    'cache' => FALSE,
+  );
+  return $filters;
+}
+
+/**
+ * Filter callback: Filter tips for sms_sendtophone filter.
+ *
+ * @see sms_sendtophone_filter_info()
+ */
+function _sms_sendtophone_filter_sms_tips($filter, $format, $long = FALSE) {
+  return t('Text between [sms][/sms] tags will be highlighted and appended with a "send to phone" button.');
+}
+
+/**
+ * Filter callback: SMS filter settings form constructor.
+ *
+ * @see sms_sendtophone_filter_info()
+ */
+function _sms_sendtophone_filter_inline_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
+  $filter->settings += $defaults;
+  $elements = array();
+
+  $elements["sms_sendtophone_filter_inline_display"] = array(
+    '#type' => 'radios',
+    '#title' => t('Show link as'),
+    '#description' => t('How to display the the "send to phone" link.'),
+    '#options' => array(
+      'text' => t('Text'),
+      'icon' => t('Icon'),
+    ),
+    '#default_value' => !empty($filter->settings['sms_sendtophone_filter_inline_display']) ? $filter->settings['sms_sendtophone_filter_inline_display'] : 'icon',
+  );
+
+  $elements["sms_sendtophone_filter_inline_display_text"] = array(
+    '#type' => 'textfield',
+    '#title' => t('Text for link'),
+    '#description' => t('If "Text" is selected above, the following text will be appended as a link.'),
+    '#size' => 32,
+    '#maxlength' => 32,
+    '#default_value' => !empty($filter->settings['sms_sendtophone_filter_inline_display_text']) ? $filter->settings['sms_sendtophone_filter_inline_display_text'] : t('Send to phone'),
+  );
+
+  $elements["sms_sendtophone_filter_inline_default_icon"] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use default icon'),
+    '#description' => t('If "Icon" is selected above and this option is enabled, the default icon that came with the module will be used.'),
+    '#default_value' => !empty($filter->settings['sms_sendtophone_filter_inline_default_icon']) ? $filter->settings['sms_sendtophone_filter_inline_default_icon'] : 1,
+  );
+
+  $elements["sms_sendtophone_filter_inline_custom_icon_path"] = array(
+    '#type' => 'textfield',
+    '#title' => t('Path to custom icon'),
+    '#description' => t('Provide a path to a custom icon. This icon will be used if "Icon" is selected above and the "Use default icon" option is disabled.'),
+    '#size' => 40,
+    '#maxlength' => 255,
+    '#default_value' => !empty($filter->settings['sms_sendtophone_filter_inline_custom_icon_path']) ? $filter->settings['sms_sendtophone_filter_inline_custom_icon_path'] : '',
+    '#field_prefix' => url(NULL, array('absolute' => TRUE)),
+  );
+
+  return $elements;
+}
+
+/**
+ * Filter callback: SMS filter process function.
+ *
+ * @see sms_sendtophone_filter_info()
+ */
+function _sms_sendtophone_filter_inline($text, $filter, $format, $langcode, $cache, $cache_id) {
+  preg_match_all('/\[sms\](.*?)\[\/sms\]/i', $text, $matches, PREG_SET_ORDER);
+
+  $display = 'text';
+  if ($filter->settings['sms_sendtophone_filter_inline_display'] == 'icon') {
+    $display = 'icon';
+  }
+
+  foreach ($matches as $match) {
+    $text = str_replace($match[0],
+      theme('sms_sendtophone_filter_inline_' . $display,
+        array(
+          'text' => $match[1],
+          'filter' => $filter)),
+      $text);
+  }
+  return $text;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function sms_sendtophone_theme() {
+  return array(
+    'sms_sendtophone_filter_inline_text' => array(
+      'variables' => array('text' => NULL, 'filter' => NULL)
+    ),
+    'sms_sendtophone_filter_inline_icon' => array(
+      'variables' => array('text' => NULL, 'filter' => NULL),
+    ),
+    'sms_sendtophone_field' => array(
+      'variables' => array('text' => NULL),
+    ),
+  );
+}
+
+/**
+ * Theme function for sms_sendtophone_filter_inline_text.
+ */
+function theme_sms_sendtophone_filter_inline_text($variables) {
+  $text = $variables['text'];
+  $filter = $variables['filter'];
+  $link_text = !empty($filter->settings['sms_sendtophone_filter_inline_display_text']) ?
+      $filter->settings['sms_sendtophone_filter_inline_display_text'] : t('Send to phone');
+  $link = l($link_text, 'sms/sendtophone/inline', array('attributes' => array('title' => t('Send the highlighted text via SMS.'), 'class' => 'sms-sendtophone'), 'query' => array('text' => $text, drupal_get_destination())));
+
+  // Add css.
+  drupal_add_css(drupal_get_path('module', 'sms_sendtophone') . '/sms_sendtophone.css');
+  return '<span class="sms-sendtophone-inline">' . $text . '</span> (' . $link . ')';
+}
+
+/**
+ * Theme function for sms_sendtophone_filter_inline_icon.
+ */
+function theme_sms_sendtophone_filter_inline_icon($variables) {
+  $text = $variables['text'];
+  $filter = $variables['filter'];
+  if (!isset($filter->settings["sms_sendtophone_filter_inline_default_icon"]) || $filter->settings["sms_sendtophone_filter_inline_default_icon"] == 1) {
+    $icon_path = drupal_get_path('module', 'sms_sendtophone') . '/sms-send.gif';
+  }
+  else {
+    $icon_path = $filter->settings["sms_sendtophone_filter_inline_custom_icon_path"];
+  }
+
+  $title = t('Send the highlighted text via SMS.');
+  $icon = theme('image', array(
+      'path' => $icon_path,
+      'alt' => t($filter->settings["sms_sendtophone_filter_inline_display_text"]),
+      'title' => $title,
+    ));
+
+  $link = l($icon, 'sms/sendtophone/inline', array('attributes' => array('title' => t('Send the highlighted text via SMS.'), 'class' => 'sms-sendtophone'), 'query' => array('text' => $text, drupal_get_destination()), 'html' => TRUE));
+
+  // Add css.
+  drupal_add_css(drupal_get_path('module', 'sms_sendtophone') . '/sms_sendtophone.css');
+  return '<span class="sms-sendtophone-inline" title="' . $title . '">' . $text . '</span> ' . $link;
+}
+
+/**
+ * Implements hook_widget_info().
+ */
+function sms_sendtophone_widget_info() {
+  return array(
+    'sms_sendtophone' => array(
+      'label' => t('Text Field and SMS send to phone'),
+      'field types' => array('text'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_widget_settings().
+ */
+function sms_sendtophone_widget_settings($op, $widget) {
+  switch ($op) {
+    case 'form':
+      $form = array();
+      $form['rows'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Rows'),
+        '#default_value' => $widget['rows'] ? $widget['rows'] : 1,
+        '#required' => TRUE,
+      );
+
+      return $form;
+
+    case 'validate':
+      if (!is_numeric($widget['rows']) || intval($widget['rows']) != $widget['rows'] || $widget['rows'] <= 0) {
+        form_set_error('rows', t('"Rows" must be a positive integer.'));
+      }
+      break;
+
+    case 'save':
+      return array('rows');
+  }
+}
+
+/**
+ * Implements hook_widget().
+ */
+function sms_sendtophone_widget($op, &$node, $field, &$items, $delta = NULL) {
+  switch ($op) {
+    case 'form':
+      $form = array();
+
+      $form[$field['field_name']] = array('#tree' => TRUE);
+
+      if ($field['widget']['rows'] == 1) {
+        $form[$field['field_name']][0]['value'] = array(
+          '#type' => 'textfield',
+          '#title' => t($field['widget']['label']),
+          '#default_value' => isset($items[0]['value']) ? $items[0]['value'] : '',
+          '#required' => $field['required'],
+          '#description' => t($field['widget']['description']),
+          '#maxlength' => $field['max_length'] ? $field['max_length'] : NULL,
+          '#weight' => $field['widget']['weight'],
+        );
+      }
+      else {
+        $form[$field['field_name']][0]['value'] = array(
+          '#type' => 'textarea',
+          '#title' => t($field['widget']['label']),
+          '#default_value' => $items[0]['value'],
+          '#required' => $field['required'],
+          '#rows' => $field['widget']['rows'],
+          '#description' => t($field['widget']['description']),
+          '#weight' => $field['widget']['weight'],
+        );
+      }
+
+      return $form;
+  }
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function sms_sendtophone_field_formatter_info() {
+  return array(
+    'sms_sendtophone' => array(
+      'label' => t('SMS Link'),
+      'field types' => array('text'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function sms_sendtophone_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    case 'sms_sendtophone':
+      foreach ($items as $delta => $item) {
+        $text = check_plain(strip_tags($item['value']));
+        $element[$delta] = array(
+          '#type' => 'markup',
+          '#theme' => 'sms_sendtophone_field',
+          '#text' => $text,
+        );
+      }
+      break;
+  }
+  return $element;
+}
+
+/**
+ * Theme function for sms_sendtophone_field.
+ */
+function theme_sms_sendtophone_field($variables) {
+  $text = $variables['text'];
+  $link = l(t('Send to phone'), 'sms/sendtophone/field', array('attributes' => array('title' => t('Send this text via SMS.'), 'class' => 'sms-sendtophone'), 'query' => array('text' => $text, drupal_get_destination())));
+
+  return '<span class="sms-sendtophone-inline">' . $text . '</span> (' . $link . ')';
+}
+
+/**
+ * Form constructor for sms_sendtophone_form.
+ *
+ * @param string $type
+ *   The type of form to be displayed - 'cck', 'inline' or 'node'.
+ *
+ * @see sms_sendtophone_form_validate()
+ * @see sms_sendtophone_form_submit()
+ */
+function sms_sendtophone_form($form, $form_state, $type) {
+  global $user;
+
+  switch ($type) {
+    case 'cck':
+    case 'field':
+    case 'inline':
+      $form['message'] = array(
+        '#type' => 'value',
+        '#value' => $_GET['text'],
+      );
+      $form['message_preview'] = array(
+        '#type' => 'item',
+        '#markup' => '<p class="message-preview">' . check_plain($_GET['text']) . '</p>',
+        '#title' => t('Message preview'),
+      );
+      break;
+    case 'node':
+      if (is_numeric(arg(3))) {
+        $node = node_load(arg(3));
+        $form['message_display'] = array(
+          '#type' => 'textarea',
+          '#title' => t('Message preview'),
+          '#description' => t('This URL will be sent to the phone.'),
+          '#cols' => 35,
+          '#rows' => 2,
+          '#attributes' => array('disabled' => TRUE),
+          '#default_value' => url('node/' . $node->nid, array('absolute' => TRUE)),
+        );
+        $form['message'] = array(
+          '#type' => 'value',
+          '#value' => url('node/' . $node->nid, array('absolute' => TRUE)),
+        );
+      }
+      break;
+  }
+
+  $form = array_merge(sms_send_form(), $form);
+  if (!empty($user->sms_user)) {
+    $form['number']['#default_value'] = $user->sms_user['number'];
+    if (is_array($user->sms_user['gateway'])) {
+      foreach ($user->sms_user['gateway'] as $option => $value) {
+        $form['gateway'][$option]['#default_value'] = $value;
+      }
+    }
+  }
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Send'),
+    '#weight' => 20,
+  );
+
+  // Add css.
+  drupal_add_css(drupal_get_path('module', 'sms_sendtophone') . '/sms_sendtophone.css');
+  return $form;
+}
+
+/**
+ * Validate handler for sms_sendtophone_form().
+ *
+ * @see sms_sendtophone_form_submit()
+ */
+function sms_sendtophone_form_validate($form, &$form_state) {
+  if (!$form_state['values']['number'] = sms_formatter($form_state['values']['number'])) {
+    form_set_error('number', t('Please enter a valid phone number.'));
+  }
+  if (empty($form_state['values']['gateway'])) {
+    $form_state['values']['gateway'] = array();
+  }
+}
+
+/**
+ * Submit handler for sms_sendtophone_form().
+ *
+ * @see sms_sendtophone_form_validate()
+ */
+function sms_sendtophone_form_submit($form, &$form_state) {
+  if (sms_send($form_state['values']['number'], $form_state['values']['message'], $form_state['values']['gateway'])) {
+    drupal_set_message(t('The message "@message" sent to @number.', array('@message' => $form_state['values']['message'], '@number' => $form_state['values']['number'])));
+  }
+  if (isset($_REQUEST['destination'])) {
+    $form_state['redirect'] = $_REQUEST['destination'];
+  }
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function sms_sendtophone_node_view($node, $view_mode, $langcode) {
+  global $user;
+  $links = array();
+  $user = user_load($user->uid);
+  $types = variable_get('sms_sendtophone_content_types', array());
+  if (in_array($node->type, $types)) {
+    if (user_access('send to any number') || (!empty($user->sms_user['number']) && $user->sms_user['status'] == 2)) {
+      // Only show "send to phone" link if user is permitted to do so.
+      $links['sms_sendtophone'] = array(
+        'title' => t('Send to phone'),
+        'href' => "sms/sendtophone/node/$node->nid",
+        'query' => drupal_get_destination(),
+        'attributes' => array(
+          'class' => 'sms-sendtophone',
+          'title' => 'Send a link via SMS.',
+        ),
+      );
+    }
+    else if ($user->uid > 0) {
+      // Show messages to encourage users to register their mobile number.
+      if (empty($user->sms_user['number'])) {
+        $links['sms_sendtophone'] = array(
+          'title' => t('Setup your mobile number to send to phone.'),
+          'href' => 'user/' . $user->uid . '/edit/mobile',
+        );
+      }
+      elseif ($user->sms_user['status'] != 2) {
+        $links['sms_sendtophone'] = array(
+          'title' => t('Confirm your mobile number to send to phone.'),
+          'href' => 'user/' . $user->uid . '/edit/mobile',
+        );
+      }
+    }
+    $node->content['links']['sms_sendtophone'] = array(
+      '#theme' => 'links__sms_sendtophone',
+      '#links' => $links,
+      '#attributes' => array('class' => array('links', 'inline')),
+    );
+  }
+  // Add thickbox js if module exists.
+  if (module_exists('thickbox')) {
+    drupal_add_js(drupal_get_path('module', 'sms_sendtophone') . '/sms_sendtophone.js');
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function sms_sendtophone_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'sms_sendtophone_inline_form' || $form_id == 'sms_sendtophone_node_form' || $form_id == 'sms_sendtophone_cck_form') {
+    if (!user_access('send to any number')) {
+      // Makes number field plain text.
+      $form['sms']['number']['#type'] = 'item';
+      $form['sms']['number']['#value'] = $form['sms']['number']['#default_value'];
+    }
+  }
+}

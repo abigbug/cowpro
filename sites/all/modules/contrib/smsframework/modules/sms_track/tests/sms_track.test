@@ -1,0 +1,191 @@
+<?php
+
+/**
+ * Provides common helper methods for SMS Track module tests.
+ */
+class SmsTrackWebTestCase extends DrupalWebTestCase {
+
+  /**
+   * Function that creates a user with the administrator role.
+   */
+  public function drupalCreateAdminUser(array $permissions = array('receive sms', 'edit own sms number')) {
+    $roles = user_roles();
+    $index = array_search('administrator', $roles);
+    $user = $this->drupalCreateUser($permissions);
+    $user->roles[$index] = 'administrator';
+    return user_save($user);
+  }
+}
+/**
+ * Provides integration tests for the SMS Framework.
+ */
+class SmsTrackArchiveTestCase extends SmsTrackWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'SMS Track Integration Test',
+      'description' => 'Integration tests for the SMS Framework Track Module.',
+      'group' => 'SMS Framework',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('sms', 'sms_test_gateway', 'sms_track', 'sms_user', 'sms_devel');
+  }
+
+  /**
+   * Tests recording a message sent from one site user to another.
+   */
+  public function testArchiveWriteForSentMessages() {
+
+    // Create Author User
+    $author = $this->drupalCreateAdminUser();
+    $this->drupalLogin($author);
+
+    $archiving_settings = array(
+      'archive_dir' => '4',
+    );
+    $this->drupalPost('admin/smsframework/sms_track', $archiving_settings, t('Save'));
+
+    $sms_user_settings = array(
+      'sms_user_registration_enabled' => FALSE,
+      'sms_user_allow_password' => FALSE,
+    );
+    $this->drupalPost('admin/smsframework/sms_user_options', $sms_user_settings, t('Save configuration'));
+
+    // Confirm author number.
+    $edit = array('number' => '1234567890');
+    $this->drupalPost('user/' . $author->uid . '/edit/mobile', $edit, t('Confirm number'));
+    $this->drupalPost(NULL, NULL, t('Confirm without code'));
+    $this->assertText('Your mobile phone number has been confirmed.', 'Authors number is confirmed');
+
+    $this->drupalLogout();
+
+    // Create Recipient User
+    $recipient = $this->drupalCreateAdminUser();
+    $this->drupalLogin($recipient);
+
+    // Confirm recipient number.
+    $edit = array('number' => '0987654321');
+    $this->drupalPost('user/' . $recipient->uid . '/edit/mobile', $edit, t('Confirm number'));
+    $this->drupalPost(NULL, NULL, t('Confirm without code'));
+    $this->assertText('Your mobile phone number has been confirmed.', 'Recipients number is confirmed');
+
+    $this->drupalLogout();
+
+    $this->drupalLogin($author);
+
+    // Send messages to registered users and confirm they are recorded properly.
+    $test_message = array(
+      'number' => '0987654321',
+      'message' => 'Test archiving messages from one registered number to another',
+    );
+
+   $this->drupalPost('admin/smsframework/devel', $test_message, t('Send Message'));
+   $this->assertResponse(200);
+   $this->assertText('Form submitted ok for number ' . $test_message['number'] . ' and message: ' . $test_message['message'], 'Successfully sent message to recipient with registered number');
+
+    // Test whether author and recipient uids were recorded properly.
+    $this->drupalGet('user/' . $author->uid . '/my-messages');
+    $this->assertTextInXPath('//tbody/tr[1]/td[1]', $test_message['message'],
+      'Message recorded and displayed properly on Author\'s My Messages page.');
+    $this->assertTextInXPath('//tbody/tr[1]/td[2]', $author->name,
+      'Author\'s name recorded and displayed properly on Author\'s My Messages page.');
+    $this->assertTextInXPath('//tbody/tr[1]/td[3]', $recipient->name,
+      'Recipient\'s name recorded and displayed properly on Author\'s My Messages page.');
+
+    $this->drupalLogout();
+    $this->drupalLogin($recipient);
+
+    // Test whether author and recipient uids were recorded properly.
+    $this->drupalGet('user/' . $recipient->uid . '/my-messages');
+    $this->assertTextInXPath('//tbody/tr[1]/td[1]', $test_message['message'],
+      'Message recorded and displayed properly on Recipient\'s My Messages page.');
+    $this->assertTextInXPath('//tbody/tr[1]/td[2]', $author->name,
+      'Author\'s name recorded and displayed properly on Recipient\'s My Messages page.');
+    $this->assertTextInXPath('//tbody/tr[1]/td[3]', $recipient->name,
+      'Recipient\'s name recorded and displayed properly on Recipient\'s My Messages page.');
+
+    // Test sending messages to unknown number.
+    $test_message = array(
+      'number' => '23456789103',
+      'message' => 'Test archive of message sent to unknown recipient',
+    );
+    $this->drupalPost('admin/smsframework/devel', $test_message, t('Send Message'));
+    $this->assertResponse(200);
+    $this->assertText('Form submitted ok for number ' . $test_message['number'] . ' and message: ' . $test_message['message'], 'Successfully sent message to unknown recipient');
+
+    $this->drupalGet('user/' . $recipient->uid . '/my-messages');
+    $this->assertTextInXPath('//tbody/tr[1]/td[1]', $test_message['message'],
+      'Message recorded and displayed properly on Author\'s My Messages page.');
+    $this->assertTextInXPath('//tbody/tr[1]/td[2]', $recipient->name,
+      'Author\'s name recorded and displayed properly on Author\'s My Messages page.');
+    $this->assertTextInXPath('//tbody/tr[1]/td[3]', 'Anonymous (not verified)',
+      'Recipient\'s name recorded and displayed properly on Author\'s My Messages page.');
+
+    // Test receiving messages from unknown number.
+    $test_message = array(
+      'number' => '23456789103',
+      'message' => 'Test archive of message received from unknown recipient',
+    );
+    $this->drupalPost('admin/smsframework/devel', $test_message, t('Receive Message'));
+    $this->assertResponse(200);
+    $this->assertText('Message received from number ' . $test_message['number'] . ' and message: ' . $test_message['message'], 'Successfully received message from unknown sender');
+
+    $this->drupalGet('user/' . $recipient->uid . '/my-messages');
+    $this->assertTextInXPath('//tbody/tr[1]/td[1]', $test_message['message'],
+      'Message recorded and displayed properly on Recipient\'s My Messages page.');
+    $this->assertTextInXPath('//tbody/tr[1]/td[2]', 'Anonymous (not verified)',
+      'Author\'s name recorded and displayed properly on Recipient\'s My Messages page.');
+    $this->assertTextInXPath('//tbody/tr[1]/td[3]', $recipient->name,
+      'Recipient\'s name recorded and displayed properly on Recipient\'s My Messages page.');
+
+    // Test that a user can only view their own messages.
+    $this->drupalLogout();
+    $this->drupalGet('user/' . $author->uid . '/my-messages');
+    $this->assertResponse(403, 'Access denied from anonymous user to My Messages page.');
+    $this->drupalLogout();
+    $user = $this->drupalCreateUser();
+    $this->drupalLogin($user);
+    $this->drupalGet('user/' . $author->uid . '/my-messages');
+    $this->assertResponse(403, 'Access denied from authenticated user to another user\'s My Messages page.');
+
+    // Test that all messages are available on administrative interface.
+    $this->drupalLogin($author);
+    $this->drupalGet('admin/smsframework/sms_track/view');
+    $this->assertEqual(count($this->xpath('//tbody/tr')), 5, 'All messages captured in admin sms_track view');
+
+
+  }
+
+  /**
+   * Asserts that some text exists in the current page following the given XPath.
+   *
+   * @param string $xpath
+   *   XPath used to find the text.
+   * @param string $text
+   *   The text that is to be checked.
+   * @param string $message
+   *   (optional) Message to display.
+   * @param string $group
+   *   (optional) The group this message belongs to.
+   *
+   * @return bool
+   *   TRUE on pass, FALSE on fail.
+   */
+  protected function assertTextInXPath($xpath, $text, $message = NULL, $group = 'Other') {
+    if (!$message) {
+      $message = t('"@text" found', array('@text' => $text));
+    }
+    /** @var SimpleXMLElement $xml_node */
+    foreach ($this->xpath($xpath) as $xml_node) {
+      $xml = filter_xss($xml_node->asXML(), array());
+      if (strpos($xml, $text) !== FALSE) {
+        return $this->pass($message, $group);
+      }
+    };
+
+    return $this->fail($message, $group);
+  }
+
+}

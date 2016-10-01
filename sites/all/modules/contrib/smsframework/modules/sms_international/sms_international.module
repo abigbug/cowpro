@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * @file
+ * Contains sms_international module.
+ */
+
+/**
+ * Take a number including country code and make sure it is valid.
+ *
+ * @param string $number
+ *   The number to be validated.
+ * @param array $options
+ *   Validation options.
+ *
+ * @return bool|string
+ *
+ */
+function sms_international_validate_number($number, $options = array()) {
+  // Replace all non-digit characters with spaces.
+  $number = preg_replace("/[^0-9]/", '', $number);
+  $number = trim($number);
+  // Remove leading zeros.
+  $number = ltrim($number, '0');
+
+  $candidates = array();
+  for ($i = 0; $i < 4; $i++) {
+    $candidates[] = substr($number, 0, $i + 1);
+  }
+  $result = db_select('sms_international', 's')
+    ->fields('s', array('iso', 'country_code', 'min_length', 'max_length'))
+    ->condition('country_code', $candidates, 'IN')
+    ->condition('status', 1)
+    ->execute();
+  $countries = array();
+  foreach ($result as $country) {
+    $countries[] = $country;
+    $codes[$country['country_code']] = $country['iso'];
+  }
+
+  foreach ($countries as $country) {
+    $trimmed_number = ltrim($number, $country['country_code']);
+    if (strlen($trimmed_number) >= $country['min_length'] && strlen($trimmed_number) <= $country['max_length']) {
+      return FALSE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Returns a list of country names and country codes.
+ */
+function sms_international_countries() {
+  return array(
+    'ES' => array('name' => t('Spain'), 'code' => '34', 'length' => 9),
+    'GB' => array('name' => t('United Kingdom'), 'code' => '44', 'length' => 10),
+    'US' => array('name' => t('United States'), 'code' => '1', 'length' => 10),
+  );
+}

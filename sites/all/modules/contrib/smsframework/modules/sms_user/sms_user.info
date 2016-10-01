@@ -1,0 +1,27 @@
+name = "SMS User"
+description = "Provides integration between the SMS Framework and Drupal users."
+package = SMS Framework
+core = 7.x
+
+dependencies[] = sms
+dependencies[] = token
+dependencies[] = entity
+
+files[] = includes/sms_user_handler_field_number.inc
+files[] = includes/sms_user_handler_field_status.inc
+files[] = includes/sms_user_handler_filter_status.inc
+files[] = sms_user.actions.inc
+files[] = sms_user.install
+files[] = sms_user.module
+files[] = sms_user.rules.inc
+files[] = sms_user.views.inc
+files[] = sms_user.views_default.inc
+files[] = tests/sms_user.test
+files[] = tests/sms_user.rules.test
+
+; Information added by Drupal.org packaging script on 2015-06-13
+version = "7.x-1.0-alpha1"
+core = "7.x"
+project = "smsframework"
+datestamp = "1434196688"
+

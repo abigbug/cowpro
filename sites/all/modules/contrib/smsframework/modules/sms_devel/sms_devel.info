@@ -1,0 +1,20 @@
+name = SMS Devel
+description = Dev and test tools to assist module/site development with the SMS Framework.
+core = 7.x
+package = SMS Framework
+dependencies[] = sms
+scripts[] = /js/sms_devel_virtualgw.js
+files[] = sms_devel.install
+files[] = sms_devel.module
+files[] = sms_devel.send_form.inc
+files[] = sms_devel.virtualgw.admin.inc
+files[] = sms_devel.virtualgw.inc
+files[] = tests/sms_devel.test
+
+
+; Information added by Drupal.org packaging script on 2015-06-13
+version = "7.x-1.0-alpha1"
+core = "7.x"
+project = "smsframework"
+datestamp = "1434196688"
+

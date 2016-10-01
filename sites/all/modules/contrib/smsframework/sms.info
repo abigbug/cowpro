@@ -1,0 +1,25 @@
+name = "SMS Framework"
+description = "Provides a extensible API that facilitates communication between Drupal and various SMS gateways."
+package = SMS Framework
+core = 7.x
+
+project = "smsframework"
+
+files[] = sms.admin.inc
+files[] = sms.install
+files[] = sms.module
+files[] = sms.tokens.inc
+files[] = sms.rules.inc
+files[] = sms.parser.inc
+files[] = tests/sms.module.test
+files[] = tests/sms.rules.test
+
+test_dependencies[] = rules
+test_dependencies[] = rules_admin
+
+; Information added by Drupal.org packaging script on 2015-06-13
+version = "7.x-1.0-alpha1"
+core = "7.x"
+project = "smsframework"
+datestamp = "1434196688"
+

@@ -1,0 +1,166 @@
+<?php
+
+/**
+ * @file
+ * A test gateway to be used for testing the sms framework
+ */
+
+/**
+ * Implements hook_gateway_info().
+ */
+function sms_test_gateway_gateway_info() {
+  return array(
+    'test' => array(
+      'name' => t('For testing'),
+      'send' => 'sms_test_gateway_send',
+      'configure form' => 'sms_test_gateway_config_form',
+      'delivery process' => 'sms_test_gateway_delivery_process',
+      'delivery get' => 'sms_test_gateway_delivery_get',
+      'send form' => 'sms_test_gateway_send_form',
+      'validate number' => 'sms_test_gateway_validate_number'
+    ),
+  );
+}
+
+/**
+ * Send callback
+ */
+function sms_test_gateway_send($number = NULL, $message = NULL, $options = array()) {
+  $result = &drupal_static('sms_test_gateway_result');
+
+  if (!is_null($number) && !is_null($message)) {
+    $result['number'] = $number;
+    $result['message'] = $message;
+    $result['options'] = $options;
+    variable_set('sms_test_gateway_result', $result);
+  }
+  return array('status' => TRUE, 'result' => $result);
+}
+
+function sms_test_gateway_result($reset = FALSE) {
+  $result = &drupal_static(__FUNCTION__);
+
+  if (!isset($result)) {
+    $result = variable_get('sms_test_gateway_result', array());
+  }
+
+
+  if ($reset) {
+    variable_del('sms_test_gateway_result');
+    drupal_static_reset(__FUNCTION__);
+  }
+  return $result;
+}
+
+/**
+ * Implements hook_sms_incoming().
+ */
+function sms_test_gateway_sms_incoming($op, $number, $message, $options) {
+  // Save incoming result for later retrieval.
+  $key = 'sms_test_gateway_get_incoming' . $op;
+  $result = &drupal_static($key);
+
+  if (!is_null($number) && !is_null($message)) {
+    $result['number'] = $number;
+    $result['message'] = $message;
+    $result['options'] = $options;
+    variable_set($key, $result);
+  }
+}
+
+function sms_test_gateway_get_incoming($op, $reset = FALSE) {
+  $key = __FUNCTION__ . $op;
+  $result = &drupal_static($key);
+
+  if (!isset($result)) {
+    $result = variable_get($key, array());
+  }
+
+  if ($reset) {
+    variable_del($key);
+    drupal_static_reset($key);
+  }
+  return $result;
+}
+
+/**
+ * Form builder for configure form.
+ */
+function sms_test_gateway_config_form($configuration) {
+  $configuration += array(
+    'ssl' => false,
+    'username' => '',
+    'password' => '',
+    'method' => '',
+    'server' => '',
+  );
+  $form['ssl'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use SSL Encyption'),
+    '#description' => t('Drupal\'s built-in HTTP client only supports SSL on PHP 4.3 compiled with OpenSSL.'),
+    '#default_value' => $configuration['ssl'] ?: '',
+  );
+  $form['username'] = array(
+    '#type' => 'textfield',
+    '#title' => t('User'),
+    '#description' => t('The username of the Test gateway account.'),
+    '#size' => 40,
+    '#maxlength' => 255,
+    '#default_value' => $configuration['username'] ?: '',
+  );
+  $form['password'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Password'),
+    '#description' => t('The current password on the Test gateway account.'),
+    '#size' => 30,
+    '#maxlength' => 64,
+    '#default_value' => $configuration['password'] ?: '',
+  );
+
+  $form['method'] = array(
+    '#type' => 'radios',
+    '#title' => t('Send Method'),
+    '#description' => t('The method to use for sending sms.'),
+    '#options' => array(t('HTTP GET (Split server request if recipients > 400)'), t('HTTP GET (Use POST if recipients > 500)'), t('HTTP POST'), t('SMPP (Not yet implemented)')),
+    '#default_value' => $configuration['method'] ?: '',
+  );
+
+  $form['server'] = array(
+    '#type' => 'textfield',
+    '#title' => t('API Server URL'),
+    '#description' => t('The url for accessing the Test api server.'),
+    '#size' => 40,
+    '#maxlength' => 255,
+    '#default_value' => $configuration['server'] ?: '',
+  );
+
+  return $form;
+}
+
+/**
+ * Number validation callback.
+ *
+ * For testing purposes, reject any number that exceeds 13 numeric digits, or is
+ * less than 10 digits, or has non-numeric characters or has country code 990,
+ * 997 or 999.
+ *
+ * @param string $number
+ *   The number to be validated.
+ *
+ * @return array
+ *   List of errors.
+ */
+function sms_test_gateway_validate_number($number) {
+  $code = substr($number, 0, 3);
+  $errors = array();
+  if (preg_match('/[^0-9]/', $number)) {
+    $errors[] = t('Non-numeric character found in number.');
+  }
+  if (strlen($number) > 15 || strlen($number) < 10) {
+    $errors[] = t('Number longer than 15 digits or shorter than 10 digits.');
+  }
+  if ($code == '990' || $code == '997' || $code == '999') {
+    $errors[] = t('Country code not allowed');
+  }
+  return $errors;
+}

@@ -1,0 +1,149 @@
+<?php
+
+/**
+ * @file
+ * SMS Framework Message Tracking feature module: Install file.
+ *
+ * @package sms
+ * @subpackage sms_track
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function sms_track_schema() {
+  $schema['sms_track'] = array(
+    'description' => 'Message tracking archive.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier.',
+        'type'        => 'serial',
+        'unsigned'    => TRUE,
+        'not null'    => TRUE
+      ),
+      'reference' => array(
+        'description' => 'Reference code of message. Enough for an md5 hash.',
+        'type'        => 'varchar',
+        'length'      => 32,
+        'not null'    => FALSE
+      ),
+      'dir' => array(
+        'description' => '0=out 1=in.',
+        'type'        => 'int',
+        'size'        => 'tiny',
+        'unsigned'    => TRUE,
+        'not null'    => TRUE
+      ),
+      'number' => array(
+        'description' => 'If direction=0 this is recipient. If direction=1 this is sender.',
+        'type'        => 'varchar',
+        'length'      => 20,
+        'not null'    => TRUE
+      ),
+      'gw_number' => array(
+        'description' => 'If direction=0 this is sender. If direction=1 this is recipient.',
+        'type'        => 'varchar',
+        'length'      => 20,
+        'not null'    => FALSE
+      ),
+      'message' => array(
+        'description' => 'Message text.',
+        'type'        => 'text',
+        'size'        => 'normal',
+        'not null'    => FALSE
+      ),
+      'status' => array(
+        'description' => 'Message delivery status. See constants.',
+        'type'        => 'int',
+        'size'        => 'small',
+        'unsigned'    => TRUE,
+        'not null'    => FALSE
+      ),
+      'created' => array(
+        'description' => 'The creation timestamp.',
+        'type'        => 'int',
+        'unsigned'    => TRUE,
+        'not null'    => TRUE
+      ),
+      'updated' => array(
+        'description' => 'The modification timestamp.',
+        'type'        => 'int',
+        'unsigned'    => TRUE,
+        'not null'    => FALSE
+      ),
+      'options' => array(
+        'description' => 'Options used when sending/receiving message.',
+        'type'        => 'text',
+        'size'        => 'normal',
+        'not null'    => FALSE
+      ),
+      'log' => array(
+        'description' => 'An array of status changes.',
+        'type'        => 'text',
+        'size'        => 'normal',
+        'not null'    => FALSE
+      ),
+      // Additional Author and Recipient fields.
+      'author' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => "Author's {users}.uid.",
+        'default' => 0,
+      ),
+      'recipient' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => "Recipient's {users}.uid.",
+        'default' => 0,
+      ),
+    ),
+    'unique keys' => array(),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Change the 'status' field from tinyint to smallint.
+ *
+ * See drupal issues #2295013 and #1959802.
+ */
+function sms_track_update_7001(&$sandbox) {
+  $schema = sms_track_schema();
+  $spec = $schema['sms_track']['fields']['status'];
+
+  db_change_field('sms_track', 'status', 'status', $spec);
+}
+
+/**
+ * Add fields for the message Author's and Recipient's User IDs.
+ *
+ * See drupal issue #2351575
+ */
+function sms_track_update_7002(&$sandbox) {
+  // Additional Author and Recipient fields.
+  $fields = array(
+    'author' => array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'description' => "Author's {users}.uid.",
+      'default' => 0,
+    ),
+    'recipient' => array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'description' => "Recipient's {users}.uid.",
+      'default' => 0,
+    ),
+  );
+  foreach ($fields as $key => $field) {
+    if (!db_field_exists('sms_track', $key)) {
+      db_add_field('sms_track', $key, $field);
+    }
+  }
+}

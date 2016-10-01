@@ -1,0 +1,229 @@
+<?php
+
+/**
+ * @file
+ * Contains tests for the functions in sms_user.module and user integration.
+ */
+
+/**
+ * Provides integration tests for the sms_user module.
+ *
+ * @todo Add tests for creation of users via sms.
+ * @todo Add tests for integration with rules and actions modules.
+ */
+class SmsUserWebTest extends DrupalWebTestCase {
+
+  /**
+   * Provides information on the test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'SMS User Integration Test',
+      'description' => 'Integration tests for SMS User module.',
+      'group' => 'SMS Framework',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  function setUp() {
+    parent::setUp('sms', 'sms_test_gateway', 'sms_user', 'syslog', 'sms_devel');
+  }
+
+  /**
+   * Tests user adding phone number.
+   */
+  function testNumberConfirmationAndSmsUserSend() {
+    // Set up test default gateway.
+    variable_set('sms_default_gateway', 'test');
+    $user = $this->drupalCreateUser(array('receive sms', 'edit own sms number'));
+    $this->drupalLogin($user);
+
+    // Post user confirmation request.
+    $edit = array('number' => '1234567890');
+    $this->drupalPost('user/' . $user->uid . '/edit/mobile', $edit, t('Confirm number'));
+    $this->assertResponse(200);
+    // Confirm that opt-out and sleep settings options are not available yet.
+    $this->assertNoFieldByXPath('//input[@name="sms_user_opt_out"]', null, 'SMS User opt out settings not available until number confirmed.');
+    $this->assertNoFieldByXPath('//input[@name="sleep_enabled"]', null, 'SMS User sleep enable settings not available until number confirmed.');
+
+    // Get the code that was sent.
+    $gw_result = sms_test_gateway_result();
+    preg_match('/\b([0-9]{4})\b/', $gw_result['message'], $matches);
+    $code = $matches[1];
+    // Post the code for confirmation.
+    $this->drupalPost('user/' . $user->uid . '/edit/mobile', array('confirm_code' => $code), t('Confirm number'));
+    $this->assertResponse(200);
+    // Confirm user's number is verified.
+    $user = user_load($user->uid, TRUE);
+    $this->assertTrue($user->sms_user['number'] == $edit['number'] && $user->sms_user['status'] == SMS_USER_CONFIRMED, 'Successfully confirmed user phone number ' . $edit['number']);
+    // Confirm that opt-out and sleep settings options are now available.
+    $this->assertFieldByXPath('//input[@name="sms_user_opt_out"]', null, 'SMS User opt out settings available after number confirmed.');
+    $this->assertFieldByXPath('//input[@name="sleep_enabled"]', null, 'SMS User sleep enable settings available after number confirmed.');
+
+    // Send sms to user with registered number.
+    $message = 'Test user message';
+    $this->assertTrue(sms_user_send($user->uid, $message), 'Successfully sent message to user with permission');
+    $this->assertEqual(sms_test_gateway_result(),
+      array('number' => $user->sms_user['number'], 'message' => $message, 'options' => $user->sms_user['gateway']), 'Message sent through the correct gateway.');
+
+    // Test sms_user_authenticate() on this user.
+    $account = sms_user_authenticate($user->sms_user['number']);
+    $this->assertEqual($user->uid, $account->uid, 'Correctly authenticated user by phone number.');
+
+    // Get a user with no permissions and test failed sending.
+    $user1 = $this->drupalCreateUser(array());
+    $this->assertFalse(sms_user_send($user1->uid, $message), 'Failed sending to user without permission');
+
+    // Clear user confirmed number.
+    $this->drupalPost('user/' . $user->uid . '/edit/mobile', array(), t('Delete & start over'));
+    $this->assertResponse(200);
+    $user = user_load($user->uid, TRUE);
+    $this->assertTrue($user->sms_user['number'] == '' && $user->sms_user['status'] == 0, 'Successfully deleted user confirmed number');
+
+    // Test that sending fails when confirmed number is deleted.
+    $this->assertFalse(sms_user_send($user->uid, $message), 'Failed sending to user without confirmed number');
+
+    // Test failure to authenticate a non-existent number.
+    $this->assertFalse(sms_user_authenticate(rand(23400000000, 23499999999)), 'Failed to authenticate non-existent number.');
+  }
+
+  /**
+   * Tests sms_user admin options.
+   */
+  public function testSmsUserOptions() {
+    $user = $this->drupalCreateUser(array('administer smsframework', 'receive sms', 'edit own sms number'));
+    $this->drupalLogin($user);
+
+    // Set the sms_user admin options.
+    $edit = array(
+      'sms_user_registration_form' => 0,
+      'sms_user_confirmation_message' => $this->randomString(20),
+      'sms_user_sleep' => 1,
+      'sms_user_sleep_start_time' => 1,
+      'sms_user_sleep_end_time' => 1,
+      'sms_user_registration_enabled' => 1,
+      'sms_user_allow_password' => 1,
+      'sms_user_new_account_message' => $this->randomString(30),
+      'sms_user_max_chars' => 160,
+    );
+    $this->drupalPost('admin/smsframework/sms_user_options', $edit, t('Save configuration'));
+    $this->assertResponse(200);
+
+    // Verify that the variables are set.
+    foreach ($edit as $name => $value) {
+      $this->assertEqual($value, variable_get($name), sprintf('Variable %s has been set.', $name));
+    }
+
+    // Check that the user registration page honors the mobile number field
+    // visibility settings.
+    $this->drupalLogout();
+    variable_set('sms_user_registration_form', 0);
+    $this->drupalGet('user/register');
+    $this->assertNoField('sms_user[number]', 'No number field in registration form.');
+
+    variable_set('sms_user_registration_form', 1);
+    $this->drupalGet('user/register');
+    $this->assertField('sms_user[number]', 'Number field in registration form.');
+
+    variable_set('sms_user_registration_form', 2);
+    $this->drupalGet('user/register');
+    $this->assertField('sms_user[number]', 'Number field in registration form.');
+    $this->assertText('Phone number *', 'Number field is required.');
+  }
+
+  /**
+   * Tests whether a user can opt out and in for sms messages from the site.
+   */
+  public function testSmsUserOptOut() {
+
+    // Create Excluded User
+    $excluded_user = $this->drupalCreateUser(array('administer smsframework', 'receive sms', 'edit own sms number'));
+    $this->drupalLogin($excluded_user);
+
+    // Set up test default gateway.
+    variable_set('sms_default_gateway', 'test');
+
+    $sms_user_settings = array(
+      'sms_user_registration_enabled' => TRUE,
+      'sms_user_allow_password' => TRUE,
+      'sms_user_allow_opt_out' => TRUE,
+    );
+    $this->drupalPost('admin/smsframework/sms_user_options', $sms_user_settings, t('Save configuration'));
+
+    // Confirm excluded_user number.
+    $edit = array('number' => '1234567890');
+    $this->drupalPost('user/' . $excluded_user->uid . '/edit/mobile', $edit, t('Confirm number'));
+    $this->drupalPost(NULL, NULL, t('Confirm without code'));
+    $this->assertText('Your mobile phone number has been confirmed.', 'Authors number is confirmed');
+
+    // Set the Opt Out checkbox.
+    $opt_out = array('sms_user_opt_out' => TRUE );
+    $this->drupalPost('user/' . $excluded_user->uid . '/edit/mobile', $opt_out, t('Set'));
+    $this->assertText(t('The changes have been saved.'), 'Excluded user has chosen to opt out of messages from the site.');
+
+    $test_message1 = array(
+      'number' => '1234567890',
+      'message' => 'Test opting out of messages',
+    );
+
+    sms_test_gateway_result(TRUE);
+    $this->drupalPost('admin/smsframework/devel', $test_message1, t('Send Message'));
+    $this->assertResponse(200);
+    $this->assertText('Form submitted ok for number ' . $test_message1['number'] . ' and message: ' . $test_message1['message'], 'Successfully sent message to recipient with registered number');
+
+    // Test if the message was not sent by checking the cached sms_test message
+    // result.
+    $this->assertFalse(sms_test_gateway_result(),  t('Message was not sent to user that opted out.'));
+
+    // Create Normal User
+    $normal_user = $this->drupalCreateUser(array('administer smsframework', 'receive sms', 'edit own sms number'));
+    $this->drupalLogin($normal_user);
+
+    // Confirm normal_user number.
+    $edit = array('number' => '0987654321');
+    $this->drupalPost('user/' . $normal_user->uid . '/edit/mobile', $edit, t('Confirm number'));
+    $this->drupalPost(NULL, NULL, t('Confirm without code'));
+    $this->assertText('Your mobile phone number has been confirmed.', 'Authors number is confirmed');
+
+    // Set the Opt Out checkbox.
+    $opt_in = array('sms_user_opt_out' => FALSE );
+    $this->drupalPost('user/' . $normal_user->uid . '/edit/mobile', $opt_in, t('Set'));
+    $this->assertText(t('The changes have been saved.'), t('Author has chosen opt in for messages from the site.'));
+
+    $test_message2 = array(
+      'number' => '0987654321',
+      'message' => 'Test opting in for messages.',
+    );
+
+    sms_test_gateway_result(TRUE);
+    $this->drupalPost('admin/smsframework/devel', $test_message2, t('Send Message'));
+    $this->assertResponse(200);
+    $this->assertText('Form submitted ok for number ' . $test_message2['number'] . ' and message: ' . $test_message2['message'], 'Successfully sent message to recipient with registered number');
+
+    // Test if the message was not sent by checking the cached sms_test message
+    // result.
+    $gw_result = sms_test_gateway_result();
+    $this->assertTrue(in_array($test_message2['number'], explode(',', $gw_result['number'])),  t('Message was sent to user that did not opt out.'));
+
+    // Disable Opt Out for this site.
+    $this->drupalLogin($excluded_user);
+    $sms_user_settings['sms_user_allow_opt_out'] = FALSE;
+    $this->drupalPost('admin/smsframework/sms_user_options', $sms_user_settings, t('Save configuration'));
+    $this->assertFalse(variable_get('sms_user_allow_opt_out', NULL), 'Opt out globally disabled.');
+
+    // Confirm that the opt-out button is not available to users.
+    $this->drupalGet('user/' . $excluded_user->uid . '/edit/mobile');
+    $this->assertNoText(t('Opt out of sms messages from this site.'), t('Opt out checkbox not visible in UI.'));
+
+    // Ensure opt out doesn't work when message is sent.
+    sms_test_gateway_result(TRUE);
+    $this->drupalPost('admin/smsframework/devel', $test_message1, t('Send Message'));
+    $this->assertResponse(200);
+    $this->assertText('Form submitted ok for number ' . $test_message1['number'] . ' and message: ' . $test_message1['message'], 'Successfully sent message to recipient with registered number');
+    $gw_result = sms_test_gateway_result();
+    $this->assertTrue(in_array($test_message1['number'], explode(',', $gw_result['number'])),  t('Message was sent to user who opted out due to global override.'));
+  }
+
+}

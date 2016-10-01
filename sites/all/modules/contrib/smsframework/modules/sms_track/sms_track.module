@@ -1,0 +1,338 @@
+<?php
+
+/**
+ * @file
+ * Message tracking feature module for Drupal SMS Framework.
+ *
+ * @package sms
+ * @subpackage sms_track
+ */
+
+/**
+ * Implements hook_help().
+ */
+function sms_track_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case "admin/help#sms_track":
+      $output = '<p>' . t("<i>TO BE RE-WRITTEN</i> This module simply records all incoming and outgoing SMS messages from the SMS Framework. This can be used to enable an audit trail for your system, so that you can investigate any issues and keen an eye on what is flowing in and out.<br /><br /><strong>Outgoing: </strong>It is important to be aware of your outgoing SMS traffic because user spamming can be expensive for you, and may also expose you to legal issues. A small code error can cause this kind of problem.<br /><br /><strong>Incoming: </strong>The proper handling of inbound messages depends heavily on the quality of your software code. You may find that someone is sending malformed messages to your gateway receiver, which could expose a vulnerability and potentially release sensitive data.<br /><br />This module uses a database table to store messages, and implements Views for reporting.") . '</p>';
+      break;
+  }
+  return $output;
+}
+
+
+/**
+ * Implements hook_enable().
+ */
+function sms_track_enable() {
+  if (variable_get('sms_track_archive_dir', SMS_DIR_NONE)) {
+    watchdog('sms_track', 'SMS Tracking archive collector enabled');
+  }
+}
+
+
+/**
+ * Implements hook_disable().
+ */
+function sms_track_disable() {
+  if (variable_get('sms_track_archive_dir', SMS_DIR_NONE)) {
+    watchdog('sms_track', 'SMS Tracking archive collector DISABLED');
+  }
+}
+
+
+/**
+ * Implements hook_cron().
+ */
+function sms_track_cron() {
+  // Ensure that we only run at most once per hour
+  $last_run = variable_get('sms_track_archive_cron_last_run', 0);
+  $time_an_hour_ago = REQUEST_TIME - 3600;
+  if ($last_run <= $time_an_hour_ago) {
+    // Purge the archive
+    sms_track_archive_purge();
+    variable_set('sms_track_archive_cron_last_run', REQUEST_TIME);
+  }
+}
+
+/**
+ *  Implements hook_permission().
+ */
+function sms_track_permission() {
+  return array(
+    'view own sms messages' => array(
+      'title' => t('View user\'s own sms messages.'),
+      'description' => t('View sms messages that were sent or received by currently logged in user.'),
+    ),
+    'view all sms messages' => array(
+      'title' => t('View all sms messages.'),
+      'description' => t('View sms messages that were sent or received by any user.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function sms_track_menu() {
+  $items = array();
+
+  $items['admin/smsframework/sms_track'] = array(
+    'title' => 'Message tracking',
+    'description' => 'Options and view for the message archive.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sms_track_settings_form'),
+    'access arguments' => array('administer smsframework'),
+    'file' => 'sms_track.admin.inc',
+  );
+  $items['admin/smsframework/sms_track/settings'] = array(
+    'title' => 'Settings',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 0,
+  );
+  $items['admin/smsframework/sms_track/view'] = array(
+    'title' => 'View the archive',
+    'page callback' => 'sms_track_admin_view',
+    'access arguments' => array('administer smsframework'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+    'file' => 'sms_track.admin.inc',
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_sms_send().
+ */
+function sms_track_sms_send($number, $message, &$options = array(), $gateway) {
+  // Tracking.
+  // Place a tracking reference on a sent message if we need to.
+  if (!empty($options) && !array_key_exists('reference', $options)) {
+    $options['reference'] = md5($number . $message);
+  }
+}
+
+/**
+ * Implements hook_sms_send_process().
+ *
+ * @param string $op
+ *   Operation string (pre process, process, post process).
+ * @param string $number
+ *   MSISDN of recipient.
+ * @param string $message
+ *   SMS message body.
+ * @param array $options
+ *   Additional options array including sender.
+ * @param array $gateway
+ *   Gateway array for the active gateway.
+ * @param array $result
+ *   Result array from the gateway response handler.
+ */
+function sms_track_sms_send_process($op, $number, $message, $options, $gateway, $result) {
+  if ($op == 'post process') {
+    // Archiving (outgoing == 0)
+    $dir = 0;
+    $options = (isset($options) && is_array($options))? $options : array();
+    $options['gateway_id'] = $gateway['identifier'];
+    $options['result']  = $result;
+    sms_track_archive_write($dir, $number, $message, $options);
+  }
+}
+
+
+/**
+ * Implements hook_sms_incoming().
+ *
+ * @param string $op
+ *   SMS incoming operation string (pre process, process, post process).
+ * @param string $number
+ *   MSISDN of sender.
+ * @param string $message
+ *   SMS message body string.
+ * @param array $options
+ *   Additional options including receiver MSISDN.
+ */
+function sms_track_sms_incoming($op, $number, $message, $options) {
+  if ($op == 'pre process' && isset($number)) {
+    // Archiving (incoming == 1)
+    $dir = 1;
+    sms_track_archive_write($dir, $number, $message, $options);
+  }
+}
+
+
+/**
+ * Implements hook_sms_receipt().
+ *
+ * @param string $op
+ *   Operation string.
+ * @param string $number
+ *   MSISDN (number) of recipient.
+ * @param string $reference
+ *   Reference code of the message.
+ * @param string $status
+ *   Message status code. See sms constants.
+ * @param array $options
+ *   Additional options array.
+ */
+function sms_track_sms_receipt($op, $number, $reference, $status, $options) {
+  if ($op == 'pre process') {
+    // Tracking.
+    sms_track_update_message($reference, $status);
+  }
+}
+
+
+/**
+ * Writes a record to the DB table.
+ *
+ * @param int $dir
+ *   Direction of message transmission (0=outgoing, 1=incoming).
+ * @param string $number
+ *   MSISDN of recipient or sender.
+ * @param string $message
+ *   SMS message body.
+ * @param array $options
+ *   (optional) an array of additional options.
+ */
+function sms_track_archive_write($dir, $number, $message, $options = array()) {
+  global $user;
+  $archive_dir = variable_get('sms_track_archive_dir', SMS_DIR_NONE);
+  // Query the database for the uid of the user that owns the number.
+  if (module_exists("sms_user")) {
+    $remote_user = sms_user_get_uid($number);
+  }
+  else {
+    $remote_user = FALSE;
+  }
+
+  if ($dir == 0) {
+    // Outgoing message.
+    if ($archive_dir == SMS_DIR_ALL || $archive_dir == SMS_DIR_OUT) {
+      $reference = (isset($options) && is_array($options) && array_key_exists('reference', $options)) ? $options['reference'] : NULL;
+
+      // Status code may be provided by send result handler.
+      $status = (isset($options['result']) && is_array($options['result'])) ? $options['result']['status_code'] : NULL;
+
+      // Or render a status code from a simple true/false result.
+      if (!$status) {
+        if (!empty($options['result'])) {
+          $status = SMS_GW_OK;
+        }
+        else {
+          $status = SMS_GW_ERR_OTHER;
+        }
+      }
+      // Add the author and recipient
+      $author = $user->uid;
+      $recipient = ($remote_user) ? $remote_user : 0;
+    }
+    else {
+      return;
+    }
+  }
+  elseif ($dir == 1) {
+    // Incoming message.
+    if ($archive_dir == SMS_DIR_ALL || $archive_dir == SMS_DIR_IN) {
+      $reference = NULL;
+      // Inbound message status is always the same.
+      $status = SMS_MSG_STATUS_OK;
+      // Add the author and recipient.
+      $author = ($remote_user) ? $remote_user : 0;
+      $recipient = $user->uid;
+    }
+    else {
+      return;
+    }
+  }
+
+  $gw_number = (isset($options) && is_array($options) && array_key_exists('gw_number', $options)) ? $options['gw_number'] : NULL;
+  $created   = REQUEST_TIME;
+  $options_z = serialize($options);
+
+  // Write the record to the database.
+  $result = $id = db_insert('sms_track')
+  ->fields(array(
+    'reference' => $reference,
+    'dir' => $dir,
+    'number' => $number,
+    'gw_number' => $gw_number,
+    'message' => $message,
+    'status' => $status,
+    'created' => $created,
+    'options' => $options_z,
+    'author' => $author,
+    'recipient' => $recipient,
+  ))
+  ->execute();
+
+  if (! $result) {
+    $to_from = ($dir == 0) ? 'To' : 'From';
+    watchdog('sms_track', 'Failed to record message: ' . $to_from . ' ' . $number . ': ' . $message);
+  }
+}
+
+/**
+ * Updates a message with a new status code.
+ *
+ * @param $reference
+ *   Message reference code.
+ * @param $status
+ *   Message status code. See sms constants.
+ *
+ * @todo Log record handling.
+ */
+function sms_track_update_message($reference, $status) {
+  $updated = REQUEST_TIME;
+
+  watchdog('sms_track', $reference . ' ' . $status . ' ' . $updated);
+
+  $result = db_update('sms_track')
+  ->fields(array(
+    'status' => $status,
+    'updated' => $updated,
+  ))
+  ->condition('reference', $reference)
+  ->execute();
+
+  if ($result) {
+    watchdog('sms_track', 'Affected rows: ' . db_affected_rows($result));
+  }
+}
+
+
+/**
+ * Implements hook_views_api().
+ */
+function sms_track_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'sms_track') . '/views',
+  );
+}
+
+
+/**
+ * Purge all archived messages after a certain number of days
+ *
+ * @param int $max_age_days
+ *   (optional) Maximum age of tracked messages in days. If null or not supplied,
+ *     the pre-configured value is used (default is 0).
+ */
+function sms_track_archive_purge($max_age_days = NULL) {
+  // Get the configured max_age from the variable table if not given.
+  if (is_null($max_age_days)) {
+    $max_age_days = variable_get('sms_track_archive_max_age_days', 0);
+  }
+  // Purge with no survivors.
+  if ($max_age_days > 0) {
+    $max_age_secs = $max_age_days * 86400;
+    $oldest = REQUEST_TIME - $max_age_secs;
+    $result = db_delete('sms_track')
+    ->condition('created', $oldest, '<')
+    ->execute();
+  }
+}

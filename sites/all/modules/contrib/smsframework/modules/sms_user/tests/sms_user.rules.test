@@ -1,0 +1,103 @@
+<?php
+
+/**
+ * Provides common helper methods for SMS User Rules tests.
+ */
+class SmsUserRulesWebTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'SMS User Rules Web Test',
+      'description' => 'Tests the rules integration for SMS User module.',
+      'group' => 'SMS Framework',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('sms', 'sms_test_gateway', 'sms_user', 'sms_devel', 'rules', 'rules_admin');
+  }
+
+  /**
+   * Function that creates a user with the administrator role.
+   */
+  public function drupalCreateAdminUser(array $permissions = array('receive sms', 'edit own sms number')) {
+    $roles = user_roles();
+    $index = array_search('administrator', $roles);
+    $user = $this->drupalCreateUser($permissions);
+    $user->roles[$index] = 'administrator';
+    return user_save($user);
+  }
+
+  /**
+   * Tests whether the opt out and opt in via sms rules actions work as they
+   * are supposed to.
+   */
+  public function testOptOutViaSmsAction() {
+
+    // Create Author User
+    $author = $this->drupalCreateAdminUser();
+    $this->drupalLogin($author);
+
+    // Set up test default gateway.
+    variable_set('sms_default_gateway', 'test');
+
+    // Confirm author number.
+    $edit = array('number' => '1234567890');
+    $this->drupalPost('user/' . $author->uid . '/edit/mobile', $edit, t('Confirm number'));
+    $this->drupalPost(NULL, NULL, t('Confirm without code'));
+    $this->assertText('Your mobile phone number has been confirmed.', 'Authors number is confirmed');
+
+    // Set up a rule: If an sms message comes in, check the users opt out
+    // checkbox.
+    $rule_name = array(
+      'settings[label]' => 'SMS User Opt Out rule',
+      'settings[name]' => 'sms_user_opt_out_rule',
+      'event' => 'sms_incoming',
+    );
+    $this->drupalPost('admin/config/workflow/rules/reaction/add', $rule_name, t('Save'));
+    $this->clickLink('Add action');
+    $this->drupalPost(NULL, array( 'element_name' => 'sms_action_opt_out'), t('Continue'));
+    $this->drupalPost(NULL, NULL, t('Save'));
+    $this->drupalPost(NULL, NULL, t('Save changes'));
+    $this->assertText('Your changes have been saved', t('Rule saved successfully'));
+
+    $this->drupalGet('user/' . $author->uid . '/edit/mobile');
+    $this->assertNoFieldChecked('edit-sms-user-opt-out', t('SMS User Opt Out box Unchecked.'));
+
+    $test_message = array(
+      'number' => '1234567890',
+      'message' => 'Testing Opt Out SMS User Action',
+    );
+   $this->drupalPost('admin/smsframework/devel', $test_message, t('Receive Message'));
+   $this->assertResponse(200);
+   $this->assertText('Message received from number ' . $test_message['number'] . ' and message: ' . $test_message['message'], 'Successfully received message from registered number.');
+
+   $this->drupalGet('user/' . $author->uid . '/edit/mobile');
+   $this->assertFieldChecked('edit-sms-user-opt-out', t('SMS User Opt Out box Checked.'));
+
+   // Edit the rule: If an sms message comes in, uncheck the users opt out
+   // checkbox.
+   $this->drupalGet('admin/config/workflow/rules/reaction/manage/1');
+   $this->clickLink(t('delete'), 1);
+   $this->drupalPost(NULL, NULL, t('Delete'));
+   $this->clickLink('Add action');
+   $this->drupalPost(NULL, array( 'element_name' => 'sms_action_opt_in'), t('Continue'));
+   $this->drupalPost(NULL, NULL, t('Save'));
+   $this->drupalPost(NULL, NULL, t('Save changes'));
+   $this->assertText('Your changes have been saved', t('Rule saved successfully'));
+
+    $this->drupalGet('user/' . $author->uid . '/edit/mobile');
+    $this->assertFieldChecked('edit-sms-user-opt-out', t('Opt Out box Checked.'));
+
+    $test_message = array(
+      'number' => '1234567890',
+      'message' => 'Testing Opt In SMS User Action',
+    );
+   $this->drupalPost('admin/smsframework/devel', $test_message, t('Receive Message'));
+   $this->assertResponse(200);
+   $this->assertText('Message received from number ' . $test_message['number'] . ' and message: ' . $test_message['message'], 'Successfully received message from registered number.');
+
+   $this->drupalGet('user/' . $author->uid . '/edit/mobile');
+   $this->assertNoFieldChecked('edit-sms-user-opt-out', t('Opt Out box Unchecked.'));
+  }
+}

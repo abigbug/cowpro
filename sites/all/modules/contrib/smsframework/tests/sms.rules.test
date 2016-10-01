@@ -1,0 +1,131 @@
+<?php
+
+/**
+ * Provides common helper methods for SMS Rules tests.
+ */
+class SmsRulesWebTestCase extends DrupalWebTestCase {
+
+  /**
+   * Function that creates a user with the administrator role.
+   */
+  public function drupalCreateAdminUser(array $permissions = array('receive sms', 'edit own sms number')) {
+    $roles = user_roles();
+    $index = array_search('administrator', $roles);
+    $user = $this->drupalCreateUser($permissions);
+    $user->roles[$index] = 'administrator';
+    return user_save($user);
+  }
+}
+/**
+ * Provides tests for the SMS contains keyword condition.
+ */
+class SmsContainsKeywordConditionTestCase extends SmsRulesWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'SMS Rules Condition Test',
+      'description' => 'Tests for the SMS contains keyword condition.',
+      'group' => 'SMS Framework',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('sms', 'sms_test_gateway', 'sms_track', 'sms_user', 'sms_devel', 'rules', 'rules_admin');
+  }
+
+  /**
+   * Tests whether the sms rules condition for sms contains keyword works as it
+   * is supposed to.
+   */
+  public function testSmsContainsKeywordCondition() {
+
+    // Create Author User
+    $author1 = $this->drupalCreateAdminUser();
+    $this->drupalLogin($author1);
+
+    // Set up test default gateway.
+    variable_set('sms_default_gateway', 'test');
+
+    $archiving_settings = array(
+      'archive_dir' => '4',
+    );
+    $this->drupalPost('admin/smsframework/sms_track', $archiving_settings, t('Save'));
+
+    $sms_user_settings = array(
+      'sms_user_registration_enabled' => TRUE,
+      'sms_user_allow_password' => TRUE,
+    );
+    $this->drupalPost('admin/smsframework/sms_user_options', $sms_user_settings, t('Save configuration'));
+
+    // Confirm author number.
+    $edit = array('number' => '1234567890');
+    $this->drupalPost('user/' . $author1->uid . '/edit/mobile', $edit, t('Confirm number'));
+    $this->drupalPost(NULL, NULL, t('Confirm without code'));
+    $this->assertText('Your mobile phone number has been confirmed.', 'Authors number is confirmed');
+
+    // Set up a rule: If an sms message with SITENAME comes in, send the user
+    // their username.
+    $rule_name = array(
+      'settings[label]' => 'Sitename rule',
+      'settings[name]' => 'sitename_rule',
+      'event' => 'sms_incoming',
+    );
+    $this->drupalPost('admin/config/workflow/rules/reaction/add', $rule_name, t('Save'));
+    $this->clickLink('Add condition');
+    $this->drupalPost(NULL, array( 'element_name' => 'sms_message_contains_keyword'), t('Continue'));
+    $this->drupalPost(NULL, array( 'parameter[keyword][settings][keyword]' => 'SITENAME'), t('Save'));
+    $this->clickLink('Add action');
+    $this->drupalPost(NULL, array( 'element_name' => 'sms_send'), t('Continue'));
+    $this->drupalPostAJAX(NULL, NULL, array( 'param_to' => t('Switch to data selection')));
+    $message = array(
+      'parameter[to][settings][to:select]' => 'sms:number',
+      'parameter[message][settings][message]' => 'Hello from [site:name]',
+    );
+    $this->drupalPost(NULL, $message, t('Save'));
+    $this->drupalPost(NULL, NULL, t('Save changes'));
+    $this->assertText('Your changes have been saved', t('Rule saved successfully'));
+
+    $test_message = array(
+      'number' => '1234567890',
+      'message' => 'Testing keyword Condition SITENAME',
+    );
+
+   $this->drupalPost('admin/smsframework/devel', $test_message, t('Receive Message'));
+   $this->assertResponse(200);
+   $this->assertText('Message received from number ' . $test_message['number'] . ' and message: ' . $test_message['message'], 'Successfully received message from registered number.');
+
+   // Test whether author received SITENAME reply.
+    $this->drupalGet('user/' . $author1->uid . '/my-messages');
+    $this->assertRaw('<td class="views-field views-field-message" >
+            Hello from Drupal          </td>',
+        'Author received correct SITENAME reply.');
+
+    $this->drupalLogout();
+
+    // Create Another Author User
+    $author2 = $this->drupalCreateAdminUser();
+    $this->drupalLogin($author2);
+
+    // Confirm author2 number.
+    $edit = array('number' => '0987654321');
+    $this->drupalPost('user/' . $author2->uid . '/edit/mobile', $edit, t('Confirm number'));
+    $this->drupalPost(NULL, NULL, t('Confirm without code'));
+    $this->assertText('Your mobile phone number has been confirmed.', 'Author2s number is confirmed');
+
+    $test_message2 = array(
+      'number' => '0987654321',
+      'message' => 'Testing keyword Condition SITENAme',
+    );
+
+   $this->drupalPost('admin/smsframework/devel', $test_message2, t('Receive Message'));
+   $this->assertResponse(200);
+   $this->assertText('Message received from number ' . $test_message2['number'] . ' and message: ' . $test_message2['message'], 'Successfully received message from registered number.');
+
+   // Test whether author2 received SITENAME reply.
+    $this->drupalGet('user/' . $author2->uid . '/my-messages');
+    $this->assertNoRaw('<td class="views-field views-field-message" >
+            Hello from Drupal          </td>',
+        'Author2 did not receive the SITENAME reply.');
+
+  }
+}

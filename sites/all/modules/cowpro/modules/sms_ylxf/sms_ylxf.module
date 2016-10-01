@@ -1,0 +1,292 @@
+<?php
+/*
+ * 屹立雄风短信平台
+ */
+/**
+ * Implements hook_menu().
+ */
+function sms_ylxf_menu() {
+	$items = array ();
+/*
+	$items ['admin/cowpro/config_sms_ylxf'] = array (
+			'title' => '屹立雄风接口设置',
+			'description' => '设置屹立雄风短信接口的参数',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'sms_ylxf_settings_form'
+			),
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_NORMAL_ITEM,
+	);
+*/
+	$items ['admin/smsframework/config_sms_ylxf_test'] = array (
+			'title' => '屹立雄风接口测试',
+			'description' => '向手机发送测试短信以便检查短信接口的参数设置是否正确',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'sms_ylxf_test_form'
+			),
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_NORMAL_ITEM,
+	);
+
+	return $items;
+}
+
+/**
+ * Implements hook_gateway_info().
+ */
+function sms_ylxf_gateway_info() {
+	return array(
+			'ylxf' => array(
+					'name' => '屹立雄风',
+					'send' => 'sms_ylxf_send',
+					'configure form' => 'sms_ylxf_settings_form',
+					/*
+					'delivery process' => 'sms_test_gateway_delivery_process',
+					'delivery get' => 'sms_test_gateway_delivery_get',
+					'send form' => 'sms_test_gateway_send_form',
+					'validate number' => 'sms_test_gateway_validate_number'
+					*/
+			),
+	);
+}
+
+function sms_ylxf_settings_form($configuration) {
+	$configuration += array(
+			'server_url' => 'http://58.83.147.92:8080/',
+			'username' => '',
+			'password' => '',
+			'signature' => '【' . variable_get('site_name') . '】',
+	);
+	$form = array();
+	$form['server_url'] = array(
+			'#title' => '服务器地址',
+			'#type' => 'textfield',
+			'#default_value' => $configuration['server_url'],
+	);
+	$form['username'] = array(
+			'#title' => '用户名',
+			'#type' => 'textfield',
+			'#default_value' => $configuration['username'],
+	);
+	$form['password'] = array(
+			'#title' => '密码',
+			'#type' => 'textfield',
+			'#default_value' => $configuration['password'],
+	);
+	$form['signature'] = array(
+			'#title' => '签名',
+			'#type' => 'textfield',
+			'#default_value' => $configuration['signature'],
+			'#description' => '签名的形式为“【签名】”，签名是人工向短信平台客服联系备案，下发短信时，我们会自动在短信内容的前面添加签名，只有这样，短信才能成功下发到用户手机。报备签名字数2-8字,详情请联系短信平台客服。',
+	);
+	$form['help'] = array(
+			'#markup' => '',
+	);
+	return $form;
+}
+
+function sms_ylxf_test_form($form, &$form_state) {
+	$form = array();
+	$form['sms_ylxf_test_mobile'] = array(
+			'#title' => '手机号码',
+			'#type' => 'textfield',
+			'#default_value' => '',
+	);
+	$form['sms_ylxf_test_content'] = array(
+			'#title' => '短信内容',
+			'#type' => 'textarea',
+			'#default_value' => '你好' . variable_get('site_name', '') . ',收到这条短信意味着‘屹立雄风’短信接口工作正常。',
+	);
+	$form ['sms_ylxf_test_button'] = array(
+			'#type' => 'button',
+			'#value' => '发送',
+			'#ajax' => array(
+					'event' => 'click',
+					'callback' => 'sms_ylxf_test_ajax_callback',
+					'wrapper' => 'sms-ylxf-test-result-div',
+					'method' => 'replace',
+			),
+	);
+	$form ['sms_ylxf_test_result'] = array(
+			'#markup' => '<div id=sms-ylxf-test-result-div></div>',
+	);
+	return $form;
+}
+
+function sms_ylxf_test_ajax_callback($form, $form_state) {
+	$number = $form_state['values']['sms_ylxf_test_mobile'];
+	$message = $form_state['values']['sms_ylxf_test_content'];
+
+	$options = array(
+		'gateway' => 'ylxf',
+	);
+	$result = cowpro_message_send($number, $message, $options);
+
+	$msg = '';
+	if ($result) {
+		$msg = '发送成功，请查收手机短信。';
+	} else {
+		$link = 'admin/reports/dblog';
+		$msg = "失败，请查看<a href=$link>系统日志</a>";
+	}
+	$element = array(
+			'#markup' => '<div id=sms-ylxf-test-result-div>' . $msg . '</div>',
+	);
+	return $element;
+}
+
+/**
+ * Send callback
+ */
+function sms_ylxf_send($number = NULL, $message = NULL, $options = array()) {
+	$result = array();
+	$result['result'] = array();
+
+	$gateway = sms_gateways('gateway', 'ylxf');
+	$signature = $gateway['configuration']['signature'];
+	$msg = $signature . $message;
+	$action = "qxt/smssenderv2";
+
+	if (is_array($number)) {
+		$tele = implode ( ",", $number );
+	} else {
+		$tele = $number;
+	}
+	$param = array (
+			'tele' => $tele,
+			'msg' => iconv ( 'UTF-8', 'GBK', $msg )
+	);
+
+	$response = _sms_ylxf_post ( $action, $param );
+
+	$pieces = explode ( ":", $response );
+	if ($pieces [0] == 'ok') {
+		$msg = array(
+				'%number' => $number,
+				'%id' => $pieces [1],
+				'%content' => $message,
+		);
+		watchdog('sms_ylxf', '电话%number,编号%id,发送成功。内容：%content', $msg, WATCHDOG_DEBUG);
+		$result['status'] = TRUE;
+		$result['result']['msg'] = '编号:' + $pieces [1];
+	} else {
+		$msg = array(
+				'%number' => $number,
+				'%status' => $pieces [1],
+		);
+		watchdog('sms_ylxf', '错误信息：电话%number,状态:%status', $msg, WATCHDOG_ERROR);
+		$result['status'] = FALSE;
+		$result['result']['msg'] = '状态:' + $pieces [1];;
+	}
+	return $result;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+//TODO 把区块放到 Dashboard page
+function sms_ylxf_block_info() {
+	$blocks = array();
+	$blocks['sms_ylxf_balance'] = array(
+			'info' => '显示屹立雄风短信余额',
+			'status' => TRUE,
+			'region' => BLOCK_REGION_NONE,
+  	  'pages' => 'admin/cowpro/*',
+	);
+
+	return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function sms_ylxf_block_view($delta = '') {
+  // The $delta parameter tells us which block is being requested.
+  switch ($delta) {
+    case 'sms_ylxf_balance':
+      $block['subject'] = '屹立雄风余额';
+      $block['content'] = sms_ylxf_contents($delta);
+      break;
+  }
+  return $block;
+}
+
+/**
+ * A module-defined block content function.
+ */
+function sms_ylxf_contents($which_block) {
+  switch ($which_block) {
+    case 'sms_ylxf_balance':
+    	$response = _sms_ylxf_check_balance();
+    	$pieces = explode ( ":", $response );
+    	if (count($pieces) >= 4) {
+	    	$sms = $pieces[2];
+	    	$mms = $pieces[4];
+	    	$msg = '<div><ul><li>可用短信数量(条):<br/>' . $sms . '</li><li>可用彩信数据(条):<br/>' . $mms . '</li></ul></div>';
+    	} else {
+    		$msg = "<div>$response</div>";
+    	}
+      $result = array(
+        '#markup' => $msg,
+      );
+      return $result;
+  }
+}
+
+function _sms_ylxf_check_balance() {
+	$action = "qxt/surplus";
+	$response = _sms_ylxf_post ( $action );
+	return $response;
+}
+
+function _sms_ylxf_post($action, $param = array()) {
+	$gateway = sms_gateways('gateway', 'ylxf');
+	$url = $gateway['configuration']['server_url'];
+	if (empty($url)) {
+		global $base_url;
+		$link = $base_url . '/admin/smsframework/gateways/ylxf';
+		drupal_set_message(t('请<a href="!url">配置</a>“屹立雄风”的服务器参数', array('!url' => $link,)), 'warning');
+		return 'sms_ylxf_error';
+	}
+	$url = $url . $action;
+	$param['user'] = $gateway['configuration']['username'];
+	$param['password'] = md5($gateway['configuration']['password']);
+	// use key 'http' even if you send the request to https://...
+	$options = array (
+			'http' => array (
+					'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+					'method' => 'POST',
+					'content' => http_build_query ( $param )
+			)
+	);
+	$context = stream_context_create ( $options );
+	$response = file_get_contents ( $url, false, $context );
+	return $response;
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function sms_ylxf_requirements($phase) {
+	$requirements = array();
+	if ($phase == 'runtime') {
+		$gateway = sms_gateways('gateway', 'ylxf');
+		$url = $gateway['configuration']['server_url'];
+		if (empty($url)) {
+			global $base_url;
+			$link = $base_url . '/admin/smsframework/gateways/ylxf';
+			$requirements['sms_ylxf_config']['title'] = '屹立雄风服务器参数';
+			$requirements['sms_ylxf_config']['value'] = t('Missing');
+			$requirements['sms_ylxf_config']['description'] = t('请<a href="!url">配置</a>“屹立雄风”的服务器参数', array('!url' => $link));
+			$requirements['sms_ylxf_config']['severity'] = REQUIREMENT_WARNING;
+		}
+	}
+
+	return $requirements;
+}
