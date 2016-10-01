@@ -1,0 +1,420 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ *
+ * @return array
+ */
+function invite_by_sms_menu() {
+  $items['admin/config/people/invite/by_sms'] = array(
+    'title' => '短信邀请',
+    'description' => '修改短信邀请的配置',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('invite_by_sms_settings_form'),
+    'access arguments' => array('administer invitations'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+    'file' => 'invite_by_sms.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ *
+ *
+ * @return array
+ */
+function invite_by_sms_invite_sending_controller() {
+  return array(
+    'label' => t('Invite By SMS'),
+  );
+}
+
+function invite_by_sms_form_invite_type_form_alter(&$form, &$form_state, $invite_type, $op = 'edit') {
+  $invite_type = $form['#invite_type'];
+  $invite_by_sms_settings = !empty($invite_type->data['invite_by_sms']) ? $invite_type->data['invite_by_sms'] : array(
+    'use_default' => TRUE,
+    'sms_template' => variable_get('invite_default_sms_body', ''),
+  );
+
+  $form['invite_by_sms'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Invite by sms message settings'),
+    '#tree' => TRUE,
+    '#attributes' => array(
+      'class' => array(
+        'invite-by-sms-wrapper',
+      ),
+    ),
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="invite_sending_controller[invite_by_sms]"]' => array('checked' => FALSE),
+      )
+    ),
+  );
+
+  $form['invite_by_sms']['use_default'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use default settings'),
+    '#description' => t('Use !default_link sms template and settings', array('!default_link' => l(t('default'), 'admin/config/people/invite/by_sms'))),
+    '#default_value' => $invite_by_sms_settings['use_default'],
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="invite_by_sms"]' => array('!value' => 'invite_by_sms'),
+      ),
+    ),
+  );
+
+  $form['invite_by_sms']['replace_tokens'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Apply token replacements'),
+    '#default_value' => isset($invite_by_sms_settings['replace_tokens']) ? $invite_by_sms_settings['replace_tokens'] : TRUE,
+    '#description' => t('Whether token replacement patterns should be applied.'),
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="invite_by_sms[use_default]"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
+  $form['invite_by_sms']['help'] = array(
+    '#type' => 'container',
+    'help' => array(
+      '#markup' => t('You may update the default values for Subject and Body for this content type on the fields edit page.'),
+    ),
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="invite_by_sms[use_default]"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
+  // Put our submit in top of list to ensure, that values will be added to 'data'
+  array_unshift($form['#submit'], 'invite_by_sms_form_invite_type_form_submit');
+}
+
+/**
+ * Submit handler for invite types form.
+ *
+ * @param $form
+ * @param $form_state
+ */
+function invite_by_sms_form_invite_type_form_submit(&$form, &$form_state) {
+  $invite_type = &$form_state['invite_type'];
+  $invite_type->data['invite_by_sms'] = $form_state['values']['invite_by_sms'];
+}
+
+/**
+ * Implements hook_TYPE_presave().
+ *
+ * @param InviteType $invite_type
+ */
+function invite_by_sms_invite_type_presave($invite_type) {
+  // Adding default settings to invite type if it wasn't created via entity
+  // creation form (or data wasn't set).
+  if ($invite_type->is_new && $invite_type->hasSendingController('invite_by_sms') && empty($invite_type->data['invite_by_sms'])) {
+    $invite_type->data['invite_by_sms'] = array(
+      'use_default' => TRUE,
+      'replace_tokens' => TRUE,
+    );
+  }
+}
+
+/**
+ * Implements hook_TYPE_insert().
+ *
+ * @param InviteType $invite_type
+ */
+function invite_by_sms_invite_type_insert($invite_type) {
+  invite_by_sms_invite_type_update($invite_type);
+}
+
+/**
+ * Implements hook_TYPE_update().
+ *
+ * @param InviteType $invite_type
+ */
+function invite_by_sms_invite_type_update($invite_type) {
+  // Proceed only if entity contains invite_by_sms controller.
+  if (!$invite_type->hasSendingController('invite_by_sms')) {
+    return FALSE;
+  }
+  $fields = array(
+    'field_invitation_phone_number' => array(
+      'definition' => array(
+        'field_name' => 'field_invitation_phone_number',
+        'type' => 'text',
+        'cardinality' => 1,
+      ),
+      'instance' => array(
+        'field_name' => 'field_invitation_phone_number',
+        'entity_type' => 'invite',
+        'label' => '手机号',
+        'bundle' => 'invite_by_sms',
+        'description' => '请输入要邀请的好友的手机号码',
+        'widget' => array(
+          'type' => 'text_textfield',
+          'weight' => 10,
+        ),
+        'display' => array(
+          'default' => array(
+            'type' => 'text_textfield',
+            'weight' => 10,
+          ),
+        ),
+      ),
+    ),
+    'field_invitation_sms_body' => array(
+      'definition' => array(
+        'field_name' => 'field_invitation_sms_body',
+        'type' => 'text_long',
+        'cardinality' => 1,
+      ),
+      'instance' => array(
+        'field_name' => 'field_invitation_sms_body',
+        'entity_type' => 'invite',
+        'label' => t('Body'),
+        'bundle' => 'invite_by_sms',
+        'description' => t('Enter sms body.'),
+        'default_value' => array(
+          array(
+            'value' => variable_get('invite_default_sms_body', ''),
+          )),
+        'widget' => array(
+          'type' => 'text_textarea',
+          'weight' => 30,
+        ),
+        'display' => array(
+          'default' => array(
+            'type' => 'text_textarea',
+            'weight' => 30,
+          ),
+        ),
+      ),
+    ),
+  );
+
+  foreach ($fields as $field) {
+    $info = field_read_field(array('field_name' => $field['definition']['field_name']));
+    if (empty($info)) {
+      field_create_field($field['definition']);
+    }
+
+    $field['instance']['bundle'] = $invite_type->type;
+    // Ensure that field wasn't added previously.
+    $prior_instance = field_read_instance($field['instance']['entity_type'], $field['instance']['field_name'], $field['instance']['bundle']);
+    if (!$prior_instance) {
+      field_create_instance($field['instance']);
+    }
+  }
+}
+
+/**
+ * Implements hook_invite_presave().
+ */
+function invite_by_sms_invite_presave($invite) {
+  global $user;
+  if (empty($invite->type_details()->invite_sending_controller['invite_by_sms'])) {
+    return FALSE;
+  }
+
+  $entity = entity_metadata_wrapper('invite', $invite);
+
+  $sms_body_text = $entity->field_invitation_sms_body->value();
+  $invite->data['message'] = $sms_body_text;
+
+  $invite_by_sms_settings = $invite->type_details()->data['invite_by_sms'];
+
+  if (($invite_by_sms_settings['use_default'] && variable_get('invite_default_replace_tokens', TRUE)) || (!$invite_by_sms_settings['use_default'] && !empty($invite_by_sms_settings['replace_tokens']))) {
+    $token_data = array(
+      'invite' => $invite,
+      'user' => $user,
+      'profile' => user_load($user->uid),
+    );
+    $invite->data['message'] = token_replace($sms_body_text, $token_data);
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ * @todo: refactor. There should be better way to alter default settings.
+ *
+ * @param $form
+ * @param $form_state
+ * @return bool
+ */
+function invite_by_sms_form_alter(&$form, &$form_state) {
+  if ($form['#form_id'] != 'field_ui_field_edit_form') {
+    return TRUE;
+  }
+
+  $fields_for_alter = array(
+    'field_invitation_sms_body',
+  );
+  $field_name = $form['#field']['field_name'];
+  if (!in_array($field_name, $fields_for_alter)) {
+    return TRUE;
+  }
+
+  $form['instance']['default_value_widget']['token_help'] = array(
+    '#title' => t('Replacement patterns'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#weight' => 100,
+  );
+
+  $form['instance']['default_value_widget']['token_help']['help'] = array(
+    '#markup' => theme('token_tree', array('token_types' => array('user', 'profile', 'invite'))),
+  );
+}
+
+/**
+ * @param Invite $invite
+ */
+function invite_by_sms_invite_send($invite) {
+  if (!empty($invite->type_details()->invite_sending_controller['invite_by_sms'])) {
+    invite_by_sms_send_invitation($invite);
+  }
+}
+
+/**
+ * Implements sending_controller_send_invitation function.
+ *
+ * The invitation email is sent to the invitee
+ *
+ * @param $invite
+ *   Invite object.
+ * @return
+ *   TRUE, if sending was successful; FALSE otherwise..
+ */
+function invite_by_sms_send_invitation($invite) {
+  global $language;
+
+  // Check if this is an existing invite.
+  $existing_invite = invite_load($invite->reg_code);
+  if ($existing_invite) {
+    $invite->expiry = REQUEST_TIME + (variable_get('invite_default_expiry_time', 30) * 60 * 60 * 24);
+    $invite->resent++;
+  }
+
+  $entity = entity_metadata_wrapper('invite', $invite);
+
+  $params = array('invite' => $invite->iid);
+
+  // Send SMS.
+  $message = $invite->data['message'];
+  $result = cowpro_message_send($entity->field_invitation_phone_number->value(), $message);
+
+  return $result;
+}
+
+/**
+ * Implements hook_FORM_ID_alter.
+ */
+function invite_by_sms_form_invite_form_alter(&$form, &$form_state, $form_id) {
+  $invite = $form['#entity'];
+
+  if (!empty($invite->type_details()->invite_sending_controller['invite_by_sms'])) {
+    $language_subject = $form['field_invitation_sms_body']['#language'];
+    $invite_by_sms_settings = isset($invite->type_details()->data['invite_by_sms']) ? $invite->type_details()->data['invite_by_sms'] : array('use_default' => TRUE);
+
+    if ($invite_by_sms_settings['use_default']) {
+      $replace_tokens = variable_get('invite_default_replace_tokens', TRUE);
+
+      // Override the default sms message with the global defaults.
+      $form['field_invitation_sms_body'][$language_subject][0]['value']['#default_value'] = variable_get('invite_default_sms_body', '');
+    }
+    else {
+      $replace_tokens = isset($invite_by_sms_settings['replace_tokens']) ? $invite_by_sms_settings['replace_tokens'] : TRUE;
+    }
+
+    $form['field_invitation_sms_body']['#access'] = FALSE;
+
+    $form['#validate'][] = 'invite_by_sms_form_invite_form_validate';
+    $form['actions']['submit']['#value'] = t('Send Invitation');
+  }
+}
+
+function invite_by_sms_form_invite_form_validate($form, &$form_state) {
+  $invite = $form_state['invite'];
+  $entity = entity_metadata_wrapper('invite', $invite);
+  $phone_number = $form_state['values']['field_invitation_phone_number'][LANGUAGE_NONE][0]['value'];
+
+  // Validate is phone number valid.
+  if (!_valid_phone_number($phone_number)) {
+    form_set_error('field_invitation_phone_number', "手机号码不正确\"$phone_number\"");
+  }
+
+  // Check that this phone number wasn't used by user before.
+  $query = db_select('field_data_field_invitation_phone_number', 'phone');
+  $query->join('invite', 'i', 'i.iid=phone.entity_id');
+  $duplicate = $query->condition('i.uid', $entity->inviter->uid->value(), '=')
+    ->fields('phone', array('field_invitation_phone_number_value'))
+    ->condition('phone.field_invitation_phone_number_value', $phone_number, '=')
+    ->condition('phone.deleted', 0, '=')
+    ->range(0, 1)
+    ->execute()
+    ->fetchField();
+
+  if ($duplicate) {
+    //if ($entity->inviter->mail->value() == $phone_number) {
+      form_set_error('field_invitation_phone_number', '您已经邀请过该用户。');
+    //}
+  }
+}
+
+function _valid_phone_number($number){
+	$result = FALSE;
+	$regex = "/^1\d{10}$/";
+	if (preg_match( $regex, $number )) {
+		$result = TRUE;
+	}
+	return $result;
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ */
+function invite_by_sms_form_user_register_form_alter(&$form, &$form_state, $form_id) {
+  global $user;
+
+  if (($invite = invite_load_from_session()) && !empty($invite->type_details()->invite_sending_controller['invite_by_sms'])) {
+    $invite_wrapper = entity_metadata_wrapper('invite', $invite);
+
+    if (isset($form['account'])) {
+      $field = &$form['account'];
+    }
+    else {
+      $field = &$form;
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_view().
+ *
+*/
+function invite_by_sms_entity_view( $entity, $type, $view_mode, $langcode ) {
+	switch ($type) {
+		case 'invite':
+			unset($entity->content['field_invite_user_relation_type']);
+			$entity->content['field_invitation_sms_body']['#title'] = '正文';
+			$entity->content['field_invitation_sms_body'][0] = array (
+				'#markup' => $entity->data['message'],
+			);
+			break;
+	}
+}
+
+function invite_by_sms_theme($existing, $type, $theme, $path) {
+	return array(
+			'invite__invite_by_sms' => array(
+		      'path' => drupal_get_path('module', 'invite_by_sms') . '/theme',
+		      'render element' => 'elements',
+					'variables' => array('element' => null),
+					'template' => 'invite--invite-by-sms',
+			),
+	);
+}

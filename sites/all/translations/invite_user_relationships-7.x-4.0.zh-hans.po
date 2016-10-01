@@ -1,0 +1,26 @@
+# Chinese, Simplified translation of Invite User Relationships (7.x-4.0)
+# Copyright (c) 2014 by the Chinese, Simplified translation team
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Invite User Relationships (7.x-4.0)\n"
+"POT-Creation-Date: 2014-08-06 13:48+0000\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Language-Team: Chinese, Simplified\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+msgid "User Relationships"
+msgstr "好友关系"
+msgid ""
+"Gives users the option of specifying a relationship when inviting new "
+"users"
+msgstr "当邀请一个新用户时，给用户一个指定关系的选择。"
+msgid "Relationship type"
+msgstr "关系类型"
+msgid "User relationship types"
+msgstr "好友关系类型"
+msgid "User relationship type"
+msgstr "好友关系类型"

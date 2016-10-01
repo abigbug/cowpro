@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * Implements hook_field_schema().
+ */
+function invite_user_relationships_field_schema($field) {
+  if ($field['type'] == 'invite_user_relationship_type') {
+    return array(
+      'columns' => array(
+        'rtid' => array(
+          'type' => 'int',
+          'not null' => TRUE,
+        ),
+      ),
+
+      'indexes' => array(
+        'rtid' => array('rtid'),
+      ),
+
+      'foreign keys' => array(
+        'format' => array(
+          'table' => 'user_relationship_types',
+          'columns' => array('rtid' => 'rtid'),
+        ),
+      ),
+    );
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function invite_user_relationships_uninstall() {
+  field_delete_field('field_invite_user_relation_type');
+}

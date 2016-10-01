@@ -1,0 +1,15 @@
+name = Invite User Relationships
+description = Gives users the option of specifying a relationship when inviting new users
+package = Invite
+core = 7.x
+
+dependencies[] = user_relationships
+dependencies[] = user_relationships_ui
+dependencies[] = invite
+
+; Information added by Drupal.org packaging script on 2014-07-29
+version = "7.x-4.0"
+core = "7.x"
+project = "invite_user_relationships"
+datestamp = "1406644130"
+

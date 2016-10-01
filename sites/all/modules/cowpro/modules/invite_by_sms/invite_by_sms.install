@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function invite_by_sms_install() {
+  variable_set('invite_default_sms_body', t(<<<TEMPLATE
+[invite:inviter:name] 邀请您加入 “[site:name]” 共享好收益.
+要成为“[site:name]”的会员, 请点击下面的链接或者将下面链接复制到浏览器的地址栏。
+[invite:invite-accept-link]
+TEMPLATE
+  ));
+
+  $types = array(
+    array(
+      'type' => 'invite_by_sms',
+      'module' => 'invite_by_sms',
+      'invite_sending_controller' => array(
+        'invite_by_sms' => 'invite_by_sms',
+      ),
+      'label' => st('Invite by SMS'),
+      'description' => st('Invitation by SMS.'),
+    ),
+  );
+
+  foreach ($types as $type) {
+    $invite_type = entity_get_info($type['type']);
+    if (empty($invite_type)) {
+      $invite_type = entity_create('invite_type', $type);
+      if ($invite_type) {
+        $invite_type->invite_sending_controller = $type['invite_sending_controller'];
+        invite_type_save($invite_type);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function invite_by_sms_uninstall() {
+  db_delete('invite_sending_controller')
+    ->condition('name', 'invite_by_sms')
+    ->execute();
+
+  $fields = array(
+    'field_invitation_phone_number',
+    'field_invitation_sms_body',
+  );
+
+  foreach ($fields as $field) {
+    field_delete_field($field);
+  }
+}

@@ -1,0 +1,75 @@
+<?php
+
+/**
+ * @file
+ * Contains \InviteExpireTest.
+ */
+
+/**
+ * Tests the expire functionality of the invite module.
+ */
+class InviteExpireTest extends DrupalWebTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
+    parent::setUp();
+
+    module_enable(array('invite'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Invite expire',
+      'description' => 'Tests the invite expire time',
+      'group' => 'Invite',
+    );
+  }
+
+  /**
+   * Tests the expire functionality of the invite module.
+   */
+  public function testExpire() {
+    // Setup an expire time of 3 weeks.
+    // The idea of this test is to fake the expire time to - 3weeks to ensure
+    // that the expire logic works.
+    variable_set('invite_default_expiry_time', 21);
+
+    $invite_type = entity_create('invite_type', array('label' => 'Test invite type', 'type' => 'test_type'));
+    entity_save('invite_type', $invite_type);
+    drupal_static_reset('checkPermissions');
+
+    $inviter = $this->drupalCreateUser(array('create test_type entity'));
+    $invitee = $this->drupalCreateUser(array());
+
+    /** @var \Invite $invite */
+    $invite = entity_create('invite', array('type' => 'test_type'));
+    $invite->setUser($inviter);
+    $invite->invitee = $invitee->uid;
+
+    // Manipulate the expiry date to -3 weeks, and wait a second.
+    // If the expire checking works correctly, we expect the invitation to be
+    // expired.
+    $invite->expiry -= 3 * 7 * 24 * 3600;
+    entity_save('invite', $invite);
+    sleep(1);
+
+    $this->drupalLogin($invitee);
+    $this->drupalGet('invite/accept/' . $invite->reg_code);
+    $this->assertText('This invitation has expired.');
+    $this->assertUrl('<front>');
+
+    // Change back the expiry date to the future. Now we expect it to be valid
+    // again.
+    $invite->expiry += 3 * 7 * 24 * 3600;
+    entity_save('invite', $invite);
+
+    $this->drupalGet('invite/accept/' . $invite->reg_code);
+    $this->assertText(sprintf('You have accepted the invitation from %s.', $inviter->name));
+  }
+
+}

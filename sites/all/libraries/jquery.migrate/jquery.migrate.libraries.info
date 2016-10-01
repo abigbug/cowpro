@@ -1,0 +1,5 @@
+name = jquery.migrate
+vendor url = https://github.com/jquery/jquery-migrate/
+download url = http://code.jquery.com/jquery-migrate-1.0.0.js
+version = 1.0.0
+files[js][] = jquery.migrate.js
