@@ -1,0 +1,6 @@
+OCT.14.2015
+存在的问题：‘COWPRO CUSTOMER CERTIFICATION’ 认证模块如果有disable,enable的动作之后，需要手动disable ‘Customer UI’模块，
+然后再enable 'Customer UI'模块，这样才能驱动 cowpro_customer_ui_menu() 方法，否则新增的认证类型无法出现在admin的管理菜单上
+
+1、数据库排序规则推荐有'utf8_general_ci'
+2、项目中源文件的编码为'UTF-8', eclipse相关的设置在'Window/Preferences/General/Workspace/Text file encoding'

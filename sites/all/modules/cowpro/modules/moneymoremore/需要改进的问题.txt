@@ -1,0 +1,7 @@
+通过“乾多多”这样的第三方对资金进行操作以后，要记录“现金日记账(cowpro_fund_journal)”
+对cowpro_fund_journal的操作放在moneymoremore这样的第三方模块并不是太合适，
+原则上，cowpro_fund_journal应该对第三方支付模块透明，第三方支付模块不需要了解cowpro_fund_journal的数据结构
+对cowpro_fund_journal的操作应该放在issuing模块中完成
+
+但是目前在方法moneymoremore_transfer_audit()中，仍然存在对cowpro_fund_journal的(读)操作
+如果完全对moneymoremore屏蔽cowpro_fund_journal又会增加调用“第三方资金模块”的复杂度，这个地方需要认真权衡
