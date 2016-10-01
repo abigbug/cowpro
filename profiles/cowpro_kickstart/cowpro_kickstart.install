@@ -1,0 +1,679 @@
+<?php
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ */
+function cowpro_kickstart_install() {
+	require_once 'cowpro_kickstart.theme.inc';
+	_install_theme();
+	_standard_install();
+	_install_bigbug();//用于安装私有的用于测试的内容
+	//_install_test_user();
+	_install_relationship();
+	_install_taxonomy();
+}
+
+function _install_taxonomy() {
+	$banks = array(
+		'中国银行',
+		'工商银行',
+		'农业银行',
+		'交通银行',
+		'广发银行',
+		'深发银行',
+		'建设银行',
+		'招商银行',
+		'邮政储蓄银行',
+		'民生银行',
+		'兴业银行',
+		'中信银行',
+		'华夏银行',
+		'光大银行',
+		'平安银行',
+		'汉口银行',
+	);
+	$vocabulary = (object) array(
+			'name' => '银行列表',
+			'description' => '',
+			'machine_name' => 'bank_list',
+			'hierarchy' => 0,
+	);
+	taxonomy_vocabulary_save($vocabulary);
+	$vocabulary = taxonomy_vocabulary_machine_name_load($vocabulary->machine_name);
+	$vid = $vocabulary->vid;
+
+	foreach($banks as $bank) {
+		$new_term = new stdClass();
+		$new_term->vid = $vid;
+		$new_term->name = $bank;
+		taxonomy_term_save($new_term);
+	}
+}
+
+function _install_relationship() {
+	$rtype = new StdClass;
+	$rtype->name = '朋友';
+	$rtype->machine_name = 'referrer';
+	$rtype->plural_name = '朋友';
+	$rtype->name_capitalized = '朋友';
+	$rtype->plural_name_capitalized = '朋友';
+	$rtype->reverse_name = '推荐人';
+	$rtype->reverse_plural_name = '推荐人';
+	$rtype->reverse_name_capitalized = '推荐人';
+	$rtype->reverse_plural_name_capitalized = '推荐人';
+	$rtype->is_oneway = TRUE;
+	$rtype->requires_approval = FALSE;
+	$rtype->expires_val = 0;
+	user_relationships_type_save($rtype);
+
+	/*
+	variable_set('invite_message_editable', FALSE);
+	variable_set('invite_default_mail_subject', '[invite:inviter:name] 向你发出了邀请!');
+	variable_set('invite_default_mail_body', <<<TEMPLATE
+[invite:inviter:name] 邀请您加入 “[site:name]” 共享好收益.
+要成为“[site:name]”的会员, 请点击下面的链接或者将下面链接复制到浏览器的地址栏。
+[invite:invite-accept-link]
+TEMPLATE
+			);
+			*/
+
+	$invite_type = invite_type_load('invite_by_sms');
+	$invite_type->data['invite_by_sms'] = array(
+			'use_default' => TRUE,
+			'sms_template' => variable_get('invite_default_sms_body', ''),
+	);
+	$invite_type->label = '短消息邀请';
+	$invite_type->description = '通过发送手机短消息来邀请好友注册。';
+	$invite_type->invite_sending_controller = array(
+		'invite_by_sms' => 'invite_by_sms',
+		'invite_user_relationships' => 'invite_user_relationships',
+	);
+	invite_type_save($invite_type);
+
+	$permissions = array(
+			'create any invite entities',
+			'view own userpoints',
+			'view userpoints',
+			'can have referrer relationships',
+			'can request referrer relationships',
+			'view all referrer relationships',
+			'create invite_by_sms entity',
+			//'edit own invite entities',
+	);
+	$role = user_role_load_by_name('manager');
+	user_role_grant_permissions($role->rid, $permissions);
+
+	$permissions = array(
+			'create any invite entities',
+			'view own userpoints',
+			'can have referrer relationships',
+			'can request referrer relationships',
+			'view own referrer relationships',
+			'create invite_by_sms entity',
+			//'edit own invite entities',
+	);
+	$role = user_role_load_by_name('debtor');
+	user_role_grant_permissions($role->rid, $permissions);
+	$role = user_role_load_by_name('lender');
+	user_role_grant_permissions($role->rid, $permissions);
+
+	$permissions = array(
+			'can have referrer relationships',
+			'can request referrer relationships',
+			'create invite_by_sms entity',
+			//'edit own invite entities',
+	);
+	$role = user_role_load_by_name('authenticated user');
+	user_role_grant_permissions($role->rid, $permissions);
+
+	$link = array(
+      'link_title' => '邀请好友',
+      'link_path' => 'user/1/invites/invite_by_sms',
+      'menu_name' => 'user-menu',
+      'weight' => 0,
+      'expanded' => 0,
+    );
+
+	// Build an array of menu link
+	$item = array(
+			'link_path' => $link['link_path'],
+			'link_title' => $link['link_title'],
+			'menu_name' => $link['menu_name'],
+			'weight' => $link['weight'],
+			'expanded' => $link['expanded'],
+	);
+	// Look the table first if the data does exist
+	$exists = db_query("SELECT mlid from {menu_links} WHERE link_title=:link_title AND link_path=:link_path", array(':link_title' =>  $link['link_title'], ':link_path' => $link['link_path']))->fetchField();
+	// Save the record if the data does not exist
+	if (!$exists) {
+		menu_link_save($item);
+	}
+}
+
+function _install_bigbug() {
+	//屹立雄风短信平台
+	$settings = array(
+		'server_url' => '',//服务器地址
+		'username' => '',//用户名
+		'password' => '',//密码
+		'signature' => '',//签名
+	);
+	variable_set('sms_ylxf_settings', $settings);
+	//variable_set('sms_default_gateway', 'ylxf');
+
+	//乾多多第三方资金托管
+	variable_set('platform_account_on_moneymoremore', '');
+	variable_set('public_key_on_moneymoremore', '');
+	variable_set('private_key_on_moneymoremore', '');
+	variable_set('custodian_default_provider', 'moneymoremore');
+
+	//SMTP 服务器设置
+	variable_set('smtp_on', 1);
+	variable_set('smtp_host', 'smtp.exmail.qq.com');
+	variable_set('smtp_port', '25');
+	variable_set('smtp_username', '');
+	variable_set('smtp_password', '');
+	variable_set('smtp_from', '');
+	variable_set('smtp_allowhtml', 1);
+	variable_set('smtp_queue', 1);
+	variable_set('mail_system', array('default-system' => 'SmtpMailSystem'));
+}
+
+function _install_test_user() {
+	//生成用户个人资料
+	//在乾多多测试服务器上，
+	//我们设置的登录密码为：123abc
+	//支付密码为：abc123
+	$user = user_load_by_name('吴用');
+	$uid = 4;//$user->uid;
+	$profile = cowpro_customer_profile_new('real_name', $uid);
+	$profile->name = '汪磊';
+	$profile->id_no = '330781198410100717';
+	$profile->scanning_copy_1 = '';
+	$profile->scanning_copy_2 = '';
+	$profile->verified = TRUE;
+	cowpro_customer_profile_save($profile);
+
+	$profile = cowpro_customer_profile_new('mobile', $uid);
+	$profile->mobile_number = '18600953301';
+	$profile->verified = TRUE;
+	cowpro_customer_profile_save($profile);
+
+	$profile = cowpro_customer_profile_new('moneymoremore', $uid);
+	$profile->mmm_account_number =  '3074594';
+	$profile->mmm_id = 'm85560';
+	$profile->mmm_auth_state = '3';
+	$profile->mmm_result_code = '88';
+	$profile->mmm_result_message = '成功';
+	$profile->mmm_authorize_type_1 =  TRUE;
+	$profile->mmm_authorize_type_2 =  TRUE;
+	$profile->mmm_authorize_type_3 =  TRUE;
+	$profile->verified = TRUE;
+	cowpro_customer_profile_save($profile);
+
+	$user = user_load_by_name('林冲');
+	$uid = 5;//$user->uid;
+	$profile = cowpro_customer_profile_new('real_name', $uid);
+	$profile->name = '杨亮亮';
+	$profile->id_no = '130732198605030654';
+	$profile->scanning_copy_1 = '';
+	$profile->scanning_copy_2 = '';
+	$profile->verified = TRUE;
+	cowpro_customer_profile_save($profile);
+
+	$profile = cowpro_customer_profile_new('mobile', $uid);
+	$profile->mobile_number = '18600953302';
+	$profile->verified = TRUE;
+	cowpro_customer_profile_save($profile);
+
+	$profile = cowpro_customer_profile_new('moneymoremore', $uid);
+	$profile->mmm_account_number =  '7968585';
+	$profile->mmm_id = 'm86003';
+	$profile->mmm_auth_state = '3';
+	$profile->mmm_result_code = '88';
+	$profile->mmm_result_message = '成功';
+	$profile->mmm_authorize_type_1 =  TRUE;
+	$profile->mmm_authorize_type_2 =  TRUE;
+	$profile->mmm_authorize_type_3 =  TRUE;
+	$profile->verified = TRUE;
+	cowpro_customer_profile_save($profile);
+
+	$user = user_load_by_name('武松');
+	$uid = 6;//$user->uid;
+	$profile = cowpro_customer_profile_new('real_name', $uid);
+	$profile->name = '王勇';
+	$profile->id_no = '211282197710021613';
+	$profile->scanning_copy_1 = '';
+	$profile->scanning_copy_2 = '';
+	$profile->verified = TRUE;
+	cowpro_customer_profile_save($profile);
+
+	$profile = cowpro_customer_profile_new('mobile', $uid);
+	$profile->mobile_number = '18600953303';
+	$profile->verified = TRUE;
+	cowpro_customer_profile_save($profile);
+
+	$profile = cowpro_customer_profile_new('moneymoremore', $uid);
+	$profile->mmm_account_number =  '6480016';
+	$profile->mmm_id = 'm85561';
+	$profile->mmm_auth_state = '3';
+	$profile->mmm_result_code = '88';
+	$profile->mmm_result_message = '成功';
+	$profile->mmm_authorize_type_1 =  TRUE;
+	$profile->mmm_authorize_type_2 =  TRUE;
+	$profile->mmm_authorize_type_3 =  TRUE;
+	$profile->verified = TRUE;
+	cowpro_customer_profile_save($profile);
+
+	$user = user_load_by_name('杨志');
+	$uid = 7;//$user->uid;
+	$profile = cowpro_customer_profile_new('real_name', $uid);
+	$profile->name = '王大利';
+	$profile->id_no = '132532790509049';
+	$profile->scanning_copy_1 = '';
+	$profile->scanning_copy_2 = '';
+	$profile->verified = TRUE;
+	cowpro_customer_profile_save($profile);
+
+	$profile = cowpro_customer_profile_new('mobile', $uid);
+	$profile->mobile_number = '18600953304';
+	$profile->verified = TRUE;
+	cowpro_customer_profile_save($profile);
+
+	$profile = cowpro_customer_profile_new('moneymoremore', $uid);
+	$profile->mmm_account_number =  '3985667';
+	$profile->mmm_id = 'm86004';
+	$profile->mmm_auth_state = '3';
+	$profile->mmm_result_code = '88';
+	$profile->mmm_result_message = '成功';
+	$profile->mmm_authorize_type_1 =  TRUE;
+	$profile->mmm_authorize_type_2 =  TRUE;
+	$profile->mmm_authorize_type_3 =  TRUE;
+	$profile->verified = TRUE;
+	cowpro_customer_profile_save($profile);
+
+}
+
+function _standard_install() {
+	// Add text formats.
+	$filtered_html_format = array(
+			'format' => 'filtered_html',
+			'name' => 'Filtered HTML',
+			'weight' => 0,
+			'filters' => array(
+					// URL filter.
+					'filter_url' => array(
+							'weight' => 0,
+							'status' => 1,
+					),
+					// HTML filter.
+					'filter_html' => array(
+							'weight' => 1,
+							'status' => 1,
+					),
+					// Line break filter.
+					'filter_autop' => array(
+							'weight' => 2,
+							'status' => 1,
+					),
+					// HTML corrector filter.
+					'filter_htmlcorrector' => array(
+							'weight' => 10,
+							'status' => 1,
+					),
+			),
+	);
+	$filtered_html_format = (object) $filtered_html_format;
+	filter_format_save($filtered_html_format);
+
+	$full_html_format = array(
+			'format' => 'full_html',
+			'name' => 'Full HTML',
+			'weight' => 1,
+			'filters' => array(
+					// URL filter.
+					'filter_url' => array(
+							'weight' => 0,
+							'status' => 1,
+					),
+					// Line break filter.
+					'filter_autop' => array(
+							'weight' => 1,
+							'status' => 1,
+					),
+					// HTML corrector filter.
+					'filter_htmlcorrector' => array(
+							'weight' => 10,
+							'status' => 1,
+					),
+			),
+	);
+	$full_html_format = (object) $full_html_format;
+	filter_format_save($full_html_format);
+
+	// Enable some standard blocks.
+	$default_theme = variable_get('theme_default', 'cowpro_p2p');
+	$admin_theme = 'seven';
+	$blocks = array(
+			array(
+					'module' => 'cowpro_fund',
+					'delta' => 'cowpro_fund_balance',
+					'theme' => $default_theme,
+					'status' => 1,
+					'weight' => -1,
+					'region' => 'sidebar_first',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'system',
+					'delta' => 'main',
+					'theme' => $default_theme,
+					'status' => 1,
+					'weight' => 0,
+					'region' => 'content',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'search',
+					'delta' => 'form',
+					'theme' => $default_theme,
+					'status' => 0,
+					'weight' => -1,
+					'region' => 'sidebar_first',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'node',
+					'delta' => 'recent',
+					'theme' => $admin_theme,
+					'status' => 1,
+					'weight' => 10,
+					'region' => 'dashboard_main',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'user',
+					'delta' => 'login',
+					'theme' => $default_theme,
+					'status' => 1,
+					'weight' => 0,
+					'region' => 'sidebar_first',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'system',
+					'delta' => 'navigation',
+					'theme' => $default_theme,
+					'status' => 1,
+					'weight' => 0,
+					'region' => 'sidebar_first',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'system',
+					'delta' => 'powered-by',
+					'theme' => $default_theme,
+					'status' => 1,
+					'weight' => 10,
+					'region' => 'footer',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'system',
+					'delta' => 'help',
+					'theme' => $default_theme,
+					'status' => 1,
+					'weight' => 0,
+					'region' => 'help',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'system',
+					'delta' => 'main',
+					'theme' => $admin_theme,
+					'status' => 1,
+					'weight' => 0,
+					'region' => 'content',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'system',
+					'delta' => 'help',
+					'theme' => $admin_theme,
+					'status' => 1,
+					'weight' => 0,
+					'region' => 'help',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'user',
+					'delta' => 'login',
+					'theme' => $admin_theme,
+					'status' => 1,
+					'weight' => 10,
+					'region' => 'content',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'user',
+					'delta' => 'new',
+					'theme' => $admin_theme,
+					'status' => 1,
+					'weight' => 0,
+					'region' => 'dashboard_sidebar',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'search',
+					'delta' => 'form',
+					'theme' => $admin_theme,
+					'status' => 1,
+					'weight' => -10,
+					'region' => 'dashboard_sidebar',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'sms_ylxf',
+					'delta' => 'sms_ylxf_balance',
+					'theme' => $admin_theme,
+					'status' => 1,
+					'weight' => -10,
+					'region' => 'dashboard_sidebar',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+	);
+	$query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'visibility', 'pages', 'title', 'cache'));
+	foreach ($blocks as $block) {
+		$query->values($block);
+	}
+	$query->execute();
+
+	//只针对anonymous, lender, debtor这三类角色显示superfish样式的菜单
+	$role = user_role_load_by_name('lender');
+	$rid_lender = $role->rid;
+	$role = user_role_load_by_name('debtor');
+	$rid_debtor = $role->rid;
+	$role = user_role_load_by_name('anonymous user');
+	$rid_anonymous = $role->rid;
+	$block_roles = array(
+			array(
+					'module' => 'superfish',
+					'delta' => '1',
+					'rid' => $rid_lender,
+			),
+			array(
+					'module' => 'superfish',
+					'delta' => '1',
+					'rid' => $rid_debtor,
+			),
+			array(
+					'module' => 'superfish',
+					'delta' => '1',
+					'rid' => $rid_anonymous,
+			),
+	);
+	$query = db_insert('block_role')->fields(array('module', 'delta', 'rid'));
+	foreach ($block_roles as $block_role) {
+		$query->values($block_role);
+	}
+	$query->execute();
+
+	// Insert default pre-defined node types into the database. For a complete
+	// list of available node type attributes, refer to the node type API
+	// documentation at: http://api.drupal.org/api/HEAD/function/hook_node_info.
+	$types = array(
+			array(
+					'type' => 'page',
+					'name' => st('Basic page'),
+					'base' => 'node_content',
+					'description' => st("Use <em>basic pages</em> for your static content, such as an 'About us' page."),
+					'custom' => 1,
+					'modified' => 1,
+					'locked' => 0,
+			),
+			array(
+					'type' => 'article',
+					'name' => st('Article'),
+					'base' => 'node_content',
+					'description' => st('Use <em>articles</em> for time-sensitive content like news, press releases or blog posts.'),
+					'custom' => 1,
+					'modified' => 1,
+					'locked' => 0,
+			),
+	);
+
+	foreach ($types as $type) {
+		$type = node_type_set_defaults($type);
+		node_type_save($type);
+		node_add_body_field($type);
+	}
+
+	// Insert default pre-defined RDF mapping into the database.
+	$rdf_mappings = array(
+			array(
+					'type' => 'node',
+					'bundle' => 'page',
+					'mapping' => array(
+							'rdftype' => array('foaf:Document'),
+					),
+			),
+			array(
+					'type' => 'node',
+					'bundle' => 'article',
+					'mapping' => array(
+							'field_image' => array(
+									'predicates' => array('og:image', 'rdfs:seeAlso'),
+									'type' => 'rel',
+							),
+							'field_tags' => array(
+									'predicates' => array('dc:subject'),
+									'type' => 'rel',
+							),
+					),
+			),
+	);
+	foreach ($rdf_mappings as $rdf_mapping) {
+		rdf_mapping_save($rdf_mapping);
+	}
+
+	// Default "Basic page" to not be promoted
+	//可选的操作包括：
+	//array('status', 'promote', 'sticky')
+	//'status' => t('Published'),
+	//'promote' => t('Promoted to front page'),
+	//'sticky' => t('Sticky at top of lists'),
+	variable_set('node_options_page', array('status'));
+
+	//关闭各种内容的评论功能
+	variable_set('comment_page', COMMENT_NODE_CLOSED);
+	variable_set('comment_article', COMMENT_NODE_CLOSED);
+	variable_set('comment_cowpro_issuing', COMMENT_NODE_CLOSED);
+	variable_set('comment_contract_loan', COMMENT_NODE_CLOSED);
+	variable_set('comment_contract_credit_assignment', COMMENT_NODE_CLOSED);
+
+	// Don't display date and author information for "Basic page" nodes by default.
+	variable_set('node_submitted_page', FALSE);
+	variable_set('node_submitted_cowpro_issuing', FALSE);
+	variable_set('node_submitted_contract_loan', FALSE);
+	variable_set('node_submitted_contract_credit_assignment', FALSE);
+
+	// Enable user picture support and set the default to a square thumbnail option.
+	variable_set('user_pictures', '1');
+	variable_set('user_picture_dimensions', '1024x1024');
+	variable_set('user_picture_file_size', '800');
+	variable_set('user_picture_style', 'thumbnail');
+
+	// Allow visitor account creation with administrative approval.
+	variable_set('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL);
+
+	//设置日期格式
+	variable_set('date_format_long', 'l, Y,  F j - H:i');
+	variable_set('date_format_medium', 'D, Y/m/d - H:i');
+	variable_set('date_format_short', 'Y/m/d - H:i');
+
+	// Create a Home link in the main menu.
+	/*
+	 * 所有的菜单都在 cowpro_menu features 模块中加载
+	$item = array(
+			'link_title' => st('Home'),
+			'link_path' => '<front>',
+			'menu_name' => 'main-menu',
+	);
+	menu_link_save($item);
+	*/
+
+	// Update the menu router information.
+	menu_rebuild();
+
+	// Enable the admin theme.
+	db_update('system')
+	->fields(array('status' => 1))
+	->condition('type', 'theme')
+	->condition('name', 'seven')
+	->execute();
+	variable_set('admin_theme', 'seven');
+	variable_set('node_admin_theme', '1');
+}

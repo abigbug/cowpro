@@ -1,0 +1,18 @@
+name = Customer UI
+description = Exposes a default UI for Customers through profile edit forms and default Views.
+package = CowPro
+dependencies[] = field_ui
+;dependencies[] = cowpro
+;dependencies[] = cowpro_ui
+;dependencies[] = cowpro_customer
+dependencies[] = views
+core = 7.x
+configure = admin/cowpro/customer-profiles/types
+
+; Simple tests
+; files[] = tests/cowpro_customer_ui.test
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"

@@ -1,0 +1,202 @@
+<?php
+
+/**
+ * @file
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function cowpro_issuing_ui_menu() {
+	$items = array ();
+	$items ['cowpro/issuing'] = array (
+			'title' => '贷款管理',
+			'access callback' => TRUE,
+			'page callback' => 'cowpro_issuing_ui_issuing_list',
+			//'weight' => 10,
+			'file' => 'includes/cowpro_issuing_ui.inc',
+			'expanded' => TRUE,
+	);
+
+/*
+	$items ['admin/cowpro/issuing/list-comming-soon'] = array (
+			'title' => '即将发布',
+			'weight' => 10,
+			'page callback' => 'cowpro_issuing_ui_issuing_list',
+			'access callback' => 'cowpro_issuing_ui_issuing_add_any_access',
+			'weight' => 10,
+			'file' => 'includes/cowpro_issuing_ui.inc',
+	);
+
+	$items ['admin/cowpro/issuing/list-pending'] = array (
+			'title' => '等待初审',
+			'weight' => 10,
+			'page callback' => 'cowpro_issuing_ui_issuing_list',
+			'access callback' => 'cowpro_issuing_ui_issuing_add_any_access',
+			'weight' => 10,
+			'file' => 'includes/cowpro_issuing_ui.inc',
+	);
+	$items ['admin/cowpro/issuing/list-review'] = array (
+			'title' => '等待复审',
+			'weight' => 10,
+			'page callback' => 'cowpro_issuing_ui_issuing_list',
+			'access callback' => 'cowpro_issuing_ui_issuing_add_any_access',
+			'weight' => 10,
+			'file' => 'includes/cowpro_issuing_ui.inc',
+	);
+末满标的贷款
+过期的贷款
+流标的贷款
+满标待放款
+还款中的贷款
+已完成的贷款
+提前还款的贷款
+*/
+	$items ['cowpro/issuing/add'] = array (
+			'title' => '我要贷款',
+			'description' => 'Add a new issuing.',
+			'page callback' => 'cowpro_issuing_ui_issuing_add_new',
+			'access callback' => TRUE,
+			// 'access callback' => 'cowpro_issuing_ui_issuing_add_any_access',
+			'weight' => 10,
+			'file' => 'includes/cowpro_issuing_ui.inc'
+	);
+
+	return $items;
+}
+
+function _menu_example_basic_instructions($content = NULL) {
+	$base_content = t(
+			'This is the base page of the Menu Example. There are a number of examples
+  here, from the most basic (like this one) to extravagant mappings of loaded
+  placeholder arguments. Enjoy!');
+	return '<div>' . $base_content . '</div><br /><div>' . $content . '</div>';
+}
+
+/**
+ * Access callback: determine if the user can create issuing.
+ */
+function cowpro_issuing_ui_issuing_add_any_access() {
+	// Grant automatic access to users with administer issuing permission.
+	if (user_access ( 'administer cowpro_issuing entities' )) {
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function cowpro_issuing_ui_menu_alter(&$data, $router_item, $root_path) {
+	// Add action link 'admin/cowpro/issuing/add' on
+	// 'admin/cowpro/issuing'.
+	/*
+	 * if ($root_path == 'admin/cowpro/issuing') {
+	 * $item = menu_get_item ( 'admin/cowpro/issuing/add' );
+	 * if ($item ['access']) {
+	 * $data ['actions'] ['output'] [] = array (
+	 * '#theme' => 'menu_local_action',
+	 * '#link' => $item
+	 * );
+	 * }
+	 * }
+	 */
+}
+
+/**
+ * Implements hook_help().
+ */
+function cowpro_issuing_ui_help($path, $arg) {
+	switch ($path) {
+		case 'admin/cowpro/issuing/add' :
+			return '<p>' . t ( 'Individual issuing can have different fields assigned to them.' ) . '</p>';
+	}
+}
+
+/**
+ * Implements hook_theme().
+ */
+function cowpro_issuing_ui_theme() {
+	return array (
+			'issuing_add_list' => array (
+					'variables' => array (
+							'content' => array ()
+					),
+					'file' => 'includes/cowpro_issuing_ui.inc'
+			),
+			'issuing_admin_overview' => array (
+					'variables' => array (
+							'type' => NULL
+					),
+					'file' => 'includes/cowpro_issuing_ui.inc'
+			)
+	);
+}
+
+/**
+ * Entity uri callback: points to the edit form of the given issuing.
+ */
+function cowpro_issuing_ui_issuing_uri($issuing) {
+	// First look for a return value in the default entity uri callback.
+	$uri = cowpro_issuing_uri ( $issuing );
+
+	// If a value was found, return it now.
+	if (! empty ( $uri )) {
+		return $uri;
+	}
+
+	// Only return a value if the user has permission to view the profile.
+	if (cowpro_issuing_access ( 'view', $issuing )) {
+		return array (
+				'path' => 'admin/cowpro/issuing/' . $issuing->issuing_id
+		);
+	}
+
+	return NULL;
+}
+
+/**
+ * Implements hook_forms().
+ */
+function cowpro_issuing_ui_forms($form_id, $args) {
+	$forms = array ();
+
+	// Define a wrapper ID for the issuing add / edit form.
+	$forms ['cowpro_issuing_ui_issuing_form'] = array (
+			'callback' => 'cowpro_issuing_issuing_form'
+	);
+
+	// Define a wrapper ID for the issuing delete confirmation form.
+	$forms ['cowpro_issuing_ui_issuing_delete_form'] = array (
+			'callback' => 'cowpro_issuing_issuing_delete_form'
+	);
+
+	return $forms;
+}
+
+/**
+ * Submit callback for cowpro_issuing_ui_issuing_form().
+ *
+ * @see cowpro_issuing_ui_form_cowpro_issuing_ui_issuing_form_alter()
+ */
+function cowpro_issuing_ui_issuing_form_submit($form, &$form_state) {
+	// Set the redirect based on the button clicked.
+	if ($form_state ['triggering_element'] ['#parents'] [0] == 'save_continue') {
+		$form_state ['redirect'] = 'admin/cowpro/issuing/add/' . strtr ( $form_state ['issuing']->type, array (
+				'_' => '-'
+		) );
+	} elseif (arg ( 2 ) == 'issuing' && arg ( 3 ) == 'add') {
+		$form_state ['redirect'] = 'admin/cowpro/issuing';
+	}
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function cowpro_issuing_ui_views_api() {
+	return array (
+			'api' => 3,
+			'path' => drupal_get_path ( 'module', 'cowpro_issuing_ui' ) . '/includes/views'
+	);
+}

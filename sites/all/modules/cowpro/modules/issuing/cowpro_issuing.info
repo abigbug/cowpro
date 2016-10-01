@@ -1,0 +1,38 @@
+name = Issuing
+description = 实现贷款招标、投标等功能
+package = _CowPro
+
+dependencies[] = cowpro
+dependencies[] = cowpro_ui
+dependencies[] = entity
+dependencies[] = views
+dependencies[] = views_ui
+dependencies[] = elements
+dependencies[] = ctools
+dependencies[] = views_megarow
+dependencies[] = field_group
+
+core = 7.x
+configure = admin/cowpro/config_issuing
+
+; Module includes
+files[] = includes/cowpro_issuing.controller.inc
+files[] = includes/cowpro_issuing_repayment_schedule.controller.inc
+files[] = test/cowpro_issuing.test
+
+; Views handlers
+files[] = includes/views/handlers/cowpro_issuing_handler_field_issuing.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_field_issuing_operations.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_field_node_operations.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_filter_status_select.inc
+files[] = includes/views/handlers/cowpro_repayment_schedule_handler_area_empty_text.inc
+files[] = includes/views/handlers/cowpro_repayment_schedule_handler_field_status.inc
+files[] = includes/views/handlers/cowpro_repayment_schedule_handler_filter_status.inc
+files[] = includes/views/handlers/cowpro_creditor_assignment_handler_field_amount.inc
+; files[] = includes/views/handlers/cowpro_creditor_assignment_handler_filter_amount.inc
+files[] = includes/views/handlers/cowpro_creditor_assignment_handler_field_operations.inc
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"

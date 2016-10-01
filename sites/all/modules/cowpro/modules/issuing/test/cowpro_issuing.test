@@ -1,0 +1,90 @@
+<?php
+
+/**
+ * @file
+ * Tests for dashboard.module.
+ */
+
+/**
+ * Tests the cowpro issuing.
+ */
+class CowproIssuingTestCase extends DrupalWebTestCase {
+  protected $admin_user;
+  protected $debtor_user;//贷款人
+  protected $lender_user;//放贷人
+
+	public static function getInfo() {
+    return array(
+      'name' => 'Cowpro issuing',
+      'description' => '测试 cowpro issuing.',
+      'group' => 'cowpro',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('cowpro_issuing');
+    //parent::setUp();
+
+    //$this->debtor_user = $this->drupalCreateUser(array('apply issuing'));
+    //$this->admin_user = $this->drupalCreateUser(array('administer nodes', 'apply issuing', 'review issuing', 'make loans to', 'admin repayment', 'temporary advance', 'failing issuing', 'bid issuing'));
+
+    $perms = user_role_permissions(array(array_search('adminstrator', user_roles()) => 'adminstrator'));
+    $perms = array_keys($perms[array_search('adminstrator', user_roles())]);
+    $this->admin_user = $this->drupalCreateUser($perms);
+  }
+
+  /**
+   * 测试满标放款
+   */
+  function testMakeLoansTo() {
+    $this->drupalLogin($this->admin_user);
+  	$langcode = LANGUAGE_NONE;
+    $title_key = "title";
+    $body_key = "body[$langcode][0][value]";
+    $method_repayment_key = "field_issuing[$langcode][0][issuing_general][method_repayment]";
+    $loan_term_key = "field_issuing[$langcode][0][issuing_general][loan_term]";
+    $loan_amounts_key = "field_issuing[$langcode][0][issuing_general][loan_amounts]";
+    $annual_rate_key = "field_issuing[$langcode][0][issuing_general][annual_rate]";
+    $applicant_key = "field_applicant[$langcode][0][uid]";
+    $category_key = "field_category[$langcode]";
+    $contract_loan_key = "field_contract_loan[$langcode]";
+    $contract_credit_assignment_key = "field_contract_credit_assignment[$langcode]";
+    $deadline_key = "field_issuing[$langcode][0][issuing_review][deadline]";
+    $month_key = "field_issuing[$langcode][0][issuing_review][start_time_element][month]";
+    $day_key ="field_issuing[$langcode][0][issuing_review][start_time_element][day]";
+    $year_key = "field_issuing[$langcode][0][issuing_review][start_time_element][year]";
+    $audited_key = "field_issuing[$langcode][0][issuing_review][audited]";
+
+    // Create node to edit.
+    $edit = array();
+    $edit[$title_key] = ' - Test Issuing Title - ' . $this->randomName(8);
+    $edit[$body_key] = ' - Test Issuing Body - ' . $this->randomName(16);
+    $edit[$method_repayment_key] = 'average_capital_plus_interest_method';//等额本息
+    //$edit[$method_repayment_key] = 'average_capital_method';//等额本金
+    //$edit[$method_repayment_key] = 'balloon_loan';//每月付息到期还本
+    //$edit[$loan_term_key] = '7';//七天
+    //$edit[$loan_term_key] = '30';//一个月
+    //$edit[$loan_term_key] = '90';//三个月
+    $edit[$loan_term_key] = '180';//半年
+    //$edit[$loan_term_key] = '360';//一年
+    $edit[$loan_amounts_key] = 8000;
+    $edit[$annual_rate_key] = 10;
+    $userName = $this->debtor_user->name;
+    $uid = $this->debtor_user->uid;
+    $edit[$applicant_key] = "$userName [uid:$uid]";//'user2 [uid:4]'
+    $edit[$category_key] = '企业流贷';
+    $edit[$contract_loan_key] = '9';
+    $edit[$contract_credit_assignment_key] = '10';
+    $edit[$deadline_key] = '7';
+    $edit[$month_key] = '';
+    $edit[$day_key] = '';
+    $edit[$year_key] = '';
+    $edit[$audited_key] = '';
+    $this->drupalPost('node/add/cowpro-issuing', $edit, t('Save'));
+
+    // Check that the node exists in the database.
+    $node = $this->drupalGetNodeByTitle($edit[$title_key]);
+    $this->assertTrue($node, 'Node found in database.');
+  }
+
+}

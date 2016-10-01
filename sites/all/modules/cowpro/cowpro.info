@@ -1,0 +1,19 @@
+name = CowPro
+description = 定义 CowPro（奶牛专家） 模块的公用函数。
+package = CowPro
+dependencies[] = system
+dependencies[] = entity
+dependencies[] = rules
+core = 7.x
+
+; Tests
+files[] = tests/cowpro_base.test
+
+; Central Entity Controller.
+files[] = includes/cowpro.controller.inc
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"
+

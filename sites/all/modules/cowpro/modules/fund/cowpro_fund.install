@@ -1,0 +1,189 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function cowpro_fund_schema() {
+  $schema = array();
+
+  $schema['cowpro_fund_journal'] = array(
+    'description' => '资金日记账',
+    'fields' => array(
+      'journal_id' => array(
+        'description' => '日记账序号.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => '交易类型，包括TOPUP(充值)、WITHDRAW(提现)、BID(投标)、ISSUING_FAILING(流标退款)、MAKE_LOANS_TO(满标放款)、REPAYMENT_RECEIPTS(按期还款，收款方)、REPAYMENT_PAYMENTS(按期还款，付款方)等等，其它模块也可以对此进行扩展，定义新的交易类型.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'internal_reference_id' => array(
+        'description' => '与交易相关的业务记录的索引号，可能为NULL.',
+        'type' => 'varchar',
+    		'length' => 50,
+      	'not null' => FALSE,
+        'default' => '',
+      ),
+      'external_reference_id' => array(
+        'description' => '外部（资金托管方）对应的索引号，可能为NULL.',
+        'type' => 'varchar',
+    		'length' => 50,
+      	'not null' => FALSE,
+        'default' => '',
+      ),
+    	'uid' => array(
+        'description' => '与交易相关的用户的uid.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+			'amount' => array(
+					'description' => '金额',
+					'type' => 'numeric',
+					'size' => 'normal',
+					'not null' => TRUE,
+					'default' => 0,
+					'precision' => 10,
+					'scale' => 2,
+			),
+    	'status' => array(
+        'description' => '1:表示交易成功; 0:表示交易失败; 针对type=BID这钟类型，还有status=2这种情况，表示"投标"以后"流标返款"成功的用例',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the journal was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the journal was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of additional data.',
+      ),
+    ),
+    'primary key' => array('journal_id'),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'journal_type' => array('type'),
+      'uid_by_type' => array('uid', 'type'),
+    ),
+    'foreign keys' => array(
+      'owner' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+  );
+
+  $schema['cowpro_fund_bankcard'] = array(
+  		'description' => '用户银行卡',
+  		'fields' => array(
+  				'bankcard_id' => array(
+  						'description' => '银行卡序号.',
+  						'type' => 'serial',
+  						'unsigned' => TRUE,
+  						'not null' => TRUE,
+  				),
+  				'uid' => array(
+  						'description' => '持卡人的uid.',
+  						'type' => 'int',
+  						'not null' => TRUE,
+  						'default' => 0,
+  				),
+  				'type' => array(
+  						'description' => '银行卡类型：0.借记卡 1.信用卡.',
+  						'type' => 'int',
+  						'not null' => TRUE,
+  						'default' => 0,
+  				),
+  				'card_no' => array(
+  						'description' => '银行卡号.',
+  						'type' => 'char',
+  						'length' => 19,
+  						'not null' => TRUE,
+  						'default' => '',
+  				),
+  				'cardholder' => array(
+  						'description' => '持卡人姓名',
+  						'type' => 'varchar',
+  						'length' => 255,
+  						'not null' => TRUE,
+  						'default' => '',
+  				),
+  				'bank_name' => array(
+  						'description' => '银行',
+  						'type' => 'varchar',
+  						'length' => 255,
+  						'not null' => TRUE,
+  						'default' => '',
+  				),
+  				'bank_branch' => array(
+  						'description' => '开户行网点',
+  						'type' => 'varchar',
+  						'length' => 255,
+  						'not null' => TRUE,
+  						'default' => '',
+  				),
+  				'province' => array(
+  						'description' => '开户行所在地(省)',
+  						'type' => 'varchar',
+  						'length' => 255,
+  						'not null' => TRUE,
+  						'default' => '',
+  				),
+  				'city' => array(
+  						'description' => '开户行所在地(市)',
+  						'type' => 'varchar',
+  						'length' => 255,
+  						'not null' => TRUE,
+  						'default' => '',
+  				),
+  				'created' => array(
+  						'description' => 'The Unix timestamp when the profile was created.',
+  						'type' => 'int',
+  						'not null' => TRUE,
+  						'default' => 0,
+  				),
+  				'changed' => array(
+  						'description' => 'The Unix timestamp when the profile was most recently saved.',
+  						'type' => 'int',
+  						'not null' => TRUE,
+  						'default' => 0,
+  				),
+  				'data' => array(
+  						'type' => 'blob',
+  						'not null' => FALSE,
+  						'size' => 'big',
+  						'serialize' => TRUE,
+  						'description' => 'A serialized array of additional data.',
+  				),
+  		),
+  		'primary key' => array('bankcard_id'),
+  		'indexes' => array(
+  				'uid' => array('uid'),
+  		),
+  		'foreign keys' => array(
+  				'owner' => array(
+  						'table' => 'users',
+  						'columns' => array('uid' => 'uid'),
+  				),
+  		),
+  );
+  return $schema;
+}

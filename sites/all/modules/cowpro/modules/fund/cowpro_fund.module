@@ -1,0 +1,286 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function cowpro_fund_menu() {
+	$items = array ();
+	$items ['cowpro/fund'] = array (
+			'title' => '资金管理',
+			'description' => '资金管理',
+			'page callback' => 'node_page_default',
+			'access callback' => 'cowpro_fund_real_name_verified',
+			'menu_name' => 'navigation',
+			'type' => MENU_NORMAL_ITEM,
+			'weight' => 10
+	);
+	$items ['cowpro/fund/topup'] = array (
+			'title' => '充值',
+			'description' => '充值',
+	    'page callback' => 'drupal_get_form',
+	    'page arguments' => array('cowpro_fund_topup'),
+			'access callback' => 'cowpro_fund_real_name_verified',
+			'menu_name' => 'navigation',
+			'type' => MENU_NORMAL_ITEM,
+			'file' => 'includes/cowpro_fund_topup.inc',
+			'weight' => 20
+	);
+	$items ['cowpro/fund/widthdraw'] = array (
+			'title' => '提现',
+			'description' => '提现',
+	    'page callback' => 'drupal_get_form',
+	    'page arguments' => array('cowpro_fund_withdraw'),
+			'access callback' => 'cowpro_fund_real_name_verified',
+			'menu_name' => 'navigation',
+			'type' => MENU_NORMAL_ITEM,
+			'file' => 'includes/cowpro_fund_withdraw.inc',
+			'weight' => 30
+	);
+	$items ['cowpro/fund/bankcard'] = array (
+			'title' => '银行卡',
+			'description' => '银行卡',
+			'page callback' => 'node_page_default',
+			'access callback' => 'cowpro_fund_real_name_verified',
+			'type' => MENU_CALLBACK,
+	);
+	$items ['cowpro/fund/bankcard/%/delete'] = array (
+			'title' => '删除银行卡',
+			'description' => '删除银行卡',
+			'page callback' => 'cowpro_fund_bankcard_delete',
+	    'page arguments' => array(3),
+			'access callback' => 'cowpro_fund_real_name_verified',
+			'type' => MENU_CALLBACK,
+	);
+	$items ['cowpro/fund/bankcard/%/delete/sure'] = array (
+			'title' => '删除银行卡(确认)',
+			'description' => '删除银行卡(确认)',
+			'page callback' => 'cowpro_fund_bankcard_delete',
+	    'page arguments' => array(3, 5),
+			'access callback' => 'cowpro_fund_real_name_verified',
+			'type' => MENU_CALLBACK,
+	);
+	$items ['cowpro/fund/bankcard/add'] = array (
+			'title' => '添加银行卡',
+			'description' => '添加银行卡',
+			'page callback' => 'cowpro_fund_bankcard_add',
+			'access callback' => 'cowpro_fund_real_name_verified',
+			'type' => MENU_CALLBACK,
+	);
+	$items ['cowpro/fund/dismiss'] = array (
+			'title' => '关闭模态窗口',
+			'description' => '关闭ctools模态窗口',
+			'page callback' => 'cowpro_fund_ctools_modal_dismiss',
+			'access callback' => TRUE,
+			'type' => MENU_CALLBACK,
+			'file' => 'includes/cowpro_fund_withdraw.inc',
+	);
+
+	/*
+	$items ['cowpro/fund/refresh_city_list/%'] = array (
+			'title' => '更新城市列表',
+			'description' => '更新城市列表',
+			'page callback' => 'cowpro_fund_refresh_city_list',
+	    'page arguments' => array(3),
+			'type' => MENU_CALLBACK,
+	);
+	*/
+	return $items;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function cowpro_fund_views_api()
+{
+	return array(
+			'api' => 3,
+			'path' => drupal_get_path('module', 'cowpro_fund') . '/includes/views',
+	);
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function cowpro_fund_entity_info() {
+	$return = array (
+			'cowpro_fund_journal' => array (
+					'label' => t ( 'CowPro Fund Journal' ),
+					'controller class' => 'CowProFundJournalEntityController',
+					'base table' => 'cowpro_fund_journal',
+					'fieldable' => FALSE,
+					'entity keys' => array (
+							'id' => 'journal_id',
+							'bundle' => 'type',
+					),
+					'bundle keys' => array (
+							'bundle' => 'type',
+					),
+					'bundles' => array (),
+					'load hook' => 'cowpro_fund_journal_load',
+					'view modes' => array (
+			      'tweaky' => array(
+			        'label' => t('Tweaky'),
+			        'custom settings' => FALSE,
+			      ),
+					),
+					'access callback' => 'cowpro_entity_access',
+					'access arguments' => array (
+							'user key' => 'uid',
+							'access tag' => 'cowpro_fund_journal_access',
+					),
+			),
+			'cowpro_fund_bankcard' => array (
+					'label' => t ( 'CowPro Bank Card' ),
+					'controller class' => 'CowProFundBankCardEntityController',
+					'base table' => 'cowpro_fund_bankcard',
+					'fieldable' => FALSE,
+					'entity keys' => array (
+							'id' => 'bankcard_id',
+					),
+					'bundle keys' => array (
+					),
+					'bundles' => array (),
+					'load hook' => 'cowpro_fund_bankcard_load',
+					'view modes' => array (
+			      'tweaky' => array(
+			        'label' => t('Tweaky'),
+			        'custom settings' => FALSE,
+			      ),
+					),
+					'access callback' => 'cowpro_entity_access',
+					'access arguments' => array (
+							'user key' => 'uid',
+							'access tag' => 'cowpro_fund_bankcard_access',
+					),
+			),
+	);
+
+	return $return;
+}
+
+/**
+ * Checks fund journal access for various operations.
+ *
+ * @param $op The
+ *        	operation being performed. One of 'view', 'update', 'create' or
+ *        	'delete'.
+ * @param $journal Optionally
+ *        	a journal to check access for . If nothing is given access permissions for all journals are returned.
+ * @param $account The
+ *        	user to check for. Leave it to NULL to check for the current user.
+ */
+function cowpro_fund_journal_access($op, $journal = NULL, $account = NULL) {
+	return cowpro_entity_access ( $op, $journal, $account, 'cowpro_fund_journal' );
+}
+
+function cowpro_fund_journal_can_delete($journal) {
+	return FALSE;
+}
+
+function cowpro_repayment_schedule_can_delete($repayment) {
+	return FALSE;
+}
+
+function cowpro_fund_real_name_verified() {
+	if (user_is_anonymous()) {
+		return FALSE;
+	} else {
+		$uid = $GLOBALS ['user']->uid;
+		$profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'real_name' );
+		return !is_null($profile_real_name);
+	}
+}
+
+function cowpro_fund_bankcard_access($op, $bankcard = NULL, $account = NULL) {
+	return cowpro_entity_access ( $op, $bankcard, $account, 'cowpro_fund_bankcard' );
+}
+
+function cowpro_fund_bankcard_can_delete($bankcard) {
+	if ($bankcard->uid == $GLOBALS ['user']->uid) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
+function cowpro_fund_bankcard_delete($bankcard_id, $confirm = NULL) {
+	ctools_include('modal');
+	ctools_include('ajax');
+	if ($confirm === 'sure') {
+		entity_delete('cowpro_fund_bankcard', $bankcard_id);
+		$commands = array();
+		$commands[] = ajax_command_remove("tr.bankcard-row-$bankcard_id");
+		$commands[] = ajax_command_restripe("table.bankcard-table");
+		$commands[] = ctools_modal_command_dismiss();
+		print ajax_render($commands);
+		exit;
+	} else {
+		$card = entity_load_single('cowpro_fund_bankcard', $bankcard_id);
+	  $output = array();
+		$yes = ctools_ajax_text_button('确认', "cowpro/fund/bankcard/$bankcard_id/delete/sure", '删除指定的银行卡');
+		$no = ctools_ajax_text_button('取消', 'cowpro/fund/dismiss', '关闭窗口');
+		$output[] = ctools_modal_command_display('请确认', '<div class="modal-message">请确认要删除银行卡： '. $card->card_no .'。 '. $yes .'，  '.  $no.'.</div>');
+		print ajax_render($output);
+		exit;
+	}
+}
+
+function cowpro_fund_bankcard_add() {
+	form_load_include($form_state, 'inc', 'cowpro_fund', 'includes/cowpro_fund_withdraw');
+
+	ctools_include('modal');
+	ctools_include('ajax');
+	$form_state = array(
+			'title' => '添加银行卡',
+			'ajax' => TRUE,
+	);
+	$output = ctools_modal_form_wrapper('cowpro_fund_add_bankcard', $form_state);
+
+	print ajax_render($output);
+	exit;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function cowpro_fund_block_info() {
+	$blocks = array();
+	$blocks['cowpro_fund_balance'] = array(
+			'info' => '显示登录用户的资金余额',
+			'status' => TRUE,
+			'region' => BLOCK_REGION_NONE,
+  	  //'pages' => '/',
+	);
+
+	return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function cowpro_fund_block_view($delta = '') {
+	$block = NULL;
+  // The $delta parameter tells us which block is being requested.
+  switch ($delta) {
+    case 'cowpro_fund_balance':
+    	if (user_is_logged_in()) {
+	    	require_once 'includes/cowpro_fund_balance.inc';
+	      $block['subject'] = '可用资金';
+	      $block['content'] = _cowpro_fund_balance_contents();
+    	}
+      break;
+  }
+  if ($block) {
+  	return $block;
+  }
+}
+
+function cowpro_fund_topup_callback($success, $journal_id, $external_reference_id, $interface_module, $result) {
+	include_once 'includes/cowpro_fund_topup.inc';
+	_cowpro_fund_topup_callback($success, $journal_id, $external_reference_id, $interface_module, $result);
+}
+
+function cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, $interface_module, $result) {
+	include_once 'includes/cowpro_fund_withdraw.inc';
+	_cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, $interface_module, $result);
+}

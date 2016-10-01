@@ -1,0 +1,111 @@
+; Packaging information for cowpro_kickstart
+name = "奶牛专家"
+description = ""
+exclusive = "1"
+core = "7.x"
+; ----------
+; Dependencies
+; ----------
+; Chaos tool suite
+dependencies[] = ctools
+; Context
+dependencies[] = context
+; Core
+dependencies[] = block
+dependencies[] = color
+dependencies[] = comment
+dependencies[] = contextual
+dependencies[] = dashboard
+dependencies[] = dblog
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = field_ui
+dependencies[] = file
+dependencies[] = filter
+dependencies[] = help
+dependencies[] = image
+dependencies[] = list
+dependencies[] = locale
+dependencies[] = menu
+dependencies[] = node
+dependencies[] = number
+dependencies[] = options
+dependencies[] = overlay
+dependencies[] = path
+dependencies[] = php
+dependencies[] = rdf
+dependencies[] = search
+dependencies[] = shortcut
+dependencies[] = system
+dependencies[] = taxonomy
+dependencies[] = text
+dependencies[] = toolbar
+dependencies[] = user
+; CowPro
+dependencies[] = cowpro
+dependencies[] = cowpro_ui
+dependencies[] = cowpro_customer
+dependencies[] = cowpro_customer_ui
+; CowPro Customer Certification
+dependencies[] = employment_certification
+dependencies[] = mobile_certification
+dependencies[] = real_name_certification
+dependencies[] = payment_password
+dependencies[] = registration_wizard
+; Fields
+dependencies[] = china_address_api
+dependencies[] = field_group
+dependencies[] = node_reference
+dependencies[] = references
+dependencies[] = user_reference
+; Invite
+dependencies[] = invite
+; dependencies[] = invite_by_email
+dependencies[] = invite_user_relationships
+dependencies[] = invite_by_sms
+; Multilingual
+dependencies[] = l10n_update
+; Other
+dependencies[] = elements
+dependencies[] = entity
+dependencies[] = entity_token
+dependencies[] = token
+; Rules
+dependencies[] = rules
+dependencies[] = rules_admin
+; SMS Framework
+dependencies[] = sms
+; SMTP Authentication Support
+dependencies[] = smtp
+; Userpoints
+dependencies[] = userpoints
+dependencies[] = userpoints_rules
+; user_relationships
+dependencies[] = user_relationships
+dependencies[] = user_relationships_ui
+; Views
+dependencies[] = views
+dependencies[] = views_bulk_operations
+dependencies[] = views_megarow
+dependencies[] = views_ui
+; User Management
+dependencies[] = optional_mail_on_register
+; _CowPro
+dependencies[] = cowpro_fund
+dependencies[] = cowpro_issuing
+dependencies[] = cowpro_message
+dependencies[] = custodian
+dependencies[] = cash_pooling
+dependencies[] = moneymoremore
+dependencies[] = sms_ylxf
+dependencies[] = reset_password_by_sms
+; Features
+dependencies[] = features
+;dependencies[] = cowpro_demo
+dependencies[] = cowpro_features
+;dependencies[] = cowpro_menus
+dependencies[] = cowpro_permission
+dependencies[] = cowpro_rules
+dependencies[] = cowpro_views
+dependencies[] = defaultcontent
+

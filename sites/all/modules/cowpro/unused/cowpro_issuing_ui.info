@@ -1,0 +1,13 @@
+name = Issuing UI
+description = 发标与投标的用户界面
+package = _unused_CowPro
+dependencies[] = cowpro
+dependencies[] = cowpro_ui
+dependencies[] = cowpro_issuing
+
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"

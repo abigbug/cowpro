@@ -1,0 +1,17 @@
+name = cowpro demo
+description = 测试用的数据，包括几份样板合同以及虚拟的贷款申请表
+core = 7.x
+package = Features
+version = 7.x-0.01
+dependencies[] = cowpro
+dependencies[] = cowpro_features
+dependencies[] = cowpro_issuing
+dependencies[] = defaultcontent
+features[content][] = UID05
+features[content][] = UID06
+features[content][] = UID07
+features[content][] = UID08
+features[content][] = UID09
+features[content][] = UID10
+features[content][] = UID11
+features[features_api][] = api:2

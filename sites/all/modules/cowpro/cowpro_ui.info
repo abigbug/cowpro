@@ -1,0 +1,11 @@
+name = CowPro UI
+description = 定义 CowPro（奶牛专家） 用户界面模块的菜单项
+package = CowPro
+;dependencies[] = cowpro
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"
+

@@ -1,0 +1,9 @@
+name = SMS Message
+description = "通过手机短信向用户推送消息"
+package = _CowPro
+dependencies[] = cowpro_ui
+dependencies[] = rules
+
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro_message"

@@ -1,0 +1,411 @@
+<?php
+
+/**
+ * @file
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function cowpro_customer_ui_menu() {
+  $items = array();
+
+  /*
+  $items['user/%user/customer-profiles'] = array(
+    'title' => '用户资料',
+    'page callback' => 'cowpro_customer_profiles_page',
+    'page arguments' => array(1),
+    'access callback' => TRUE,
+  	//'access arguments' => array('Edit own customer profiles of any type'),
+ 		'type' => MENU_LOCAL_TASK,
+    'file' => 'includes/cowpro_customer_ui.profiles.inc',
+  	'weight' => 20,
+  );
+  */
+
+  // Custom administrative components for managing customer profile entities
+  // from the user pages.
+  foreach (cowpro_customer_profile_types() as $type => $profile_type) {
+    $items['user/%user/customer-profiles/' . $type] = array(
+      'title' => '@name',
+      'title arguments' => array('@name' => $profile_type['name']),
+      'page callback' => 'cowpro_customer_ui_customer_profile_edit_own_form_wrapper',
+      'page arguments' => array(1, $type),
+    	'access arguments' => array('edit own cowpro_customer_profile entities of bundle ' . $type),
+    	'type' => MENU_LOCAL_TASK,
+    	'file' => 'includes/cowpro_customer_ui.profiles.inc',
+    );
+  }
+
+  // Note: admin/cowpro/customer-profiles is defined by a default View.
+  // Add a customer profile.
+  /*
+  $items['admin/cowpro/customer-profiles/add'] = array(
+    'title' => '添加用户资料',
+    'description' => 'Add a new customer profile.',
+    'page callback' => 'cowpro_customer_ui_customer_profile_add_page',
+    'access callback' => 'cowpro_customer_ui_customer_profile_add_any_access',
+    'weight' => 10,
+    'file' => 'includes/cowpro_customer_ui.profiles.inc',
+  );
+  foreach (cowpro_customer_profile_types() as $type => $profile_type) {
+    $items['admin/cowpro/customer-profiles/add/' . strtr($type, array('_' => '-'))] = array(
+      'title' => '新增 @name',
+      'title arguments' => array('@name' => $profile_type['name']),
+      'description' => $profile_type['description'],
+      'page callback' => 'cowpro_customer_ui_customer_profile_form_wrapper',
+      'page arguments' => array(cowpro_customer_profile_new($type)),
+      'access callback' => 'cowpro_customer_profile_access',
+      'access arguments' => array('edit own ' . $type . ' entities'),
+      'file' => 'includes/cowpro_customer_ui.profiles.inc',
+    );
+  }
+  */
+
+  $items['admin/cowpro/customer-profiles/%cowpro_customer_profile'] = array(
+    'title callback' => 'cowpro_customer_ui_customer_profile_title',
+    'title arguments' => array(3),
+    'page callback' => 'cowpro_customer_ui_customer_profile_form_wrapper',
+    'page arguments' => array(3),
+    'access callback' => 'cowpro_customer_profile_access',
+    'access arguments' => array('update', 3),
+    'weight' => 0,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file' => 'includes/cowpro_customer_ui.profiles.inc',
+  );
+  $items['admin/cowpro/customer-profiles/%cowpro_customer_profile/edit'] = array(
+    'title' => '编辑',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+  $items['admin/cowpro/customer-profiles/%cowpro_customer_profile/delete'] = array(
+    'title' => '删除用户资料',
+    'page callback' => 'cowpro_customer_ui_customer_profile_delete_form_wrapper',
+    'page arguments' => array(3),
+    'access callback' => 'cowpro_customer_profile_access',
+    'access arguments' => array('delete', 3),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+    'context' => MENU_CONTEXT_INLINE,
+    'file' => 'includes/cowpro_customer_ui.profiles.inc',
+  );
+
+  $items['admin/cowpro/customer-profiles/types'] = array(
+    'title' => '资料类型',
+    'description' => '管理用户资料',
+    'page callback' => 'cowpro_customer_ui_customer_profile_types_overview',
+    'access arguments' => array('administer customer profile types'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 0,
+    'file' => 'includes/cowpro_customer_ui.profile_types.inc',
+  );
+
+  foreach (cowpro_customer_profile_types() as $type => $profile_type) {
+    // Convert underscores to hyphens for the menu item argument.
+    $type_arg = strtr($type, '_', '-');
+
+    $items['admin/cowpro/customer-profiles/types/' . $type_arg] = array(
+      'title' => $profile_type['name'],
+      'page callback' => 'cowpro_customer_ui_profile_type_redirect',
+      'page arguments' => array($type),
+      'access arguments' => array('administer customer profile types'),
+    );
+  }
+
+  return $items;
+}
+
+/**
+ * Menu item title callback: returns the ID of a customer profile for its pages.
+ *
+ * @param $profile
+ *   The customer profile object as loaded via the URL wildcard.
+ * @return
+ *   A page title of the format "Profile [profile-id]".
+ */
+function cowpro_customer_ui_customer_profile_title($profile) {
+  return t('Customer profile @profile_id', array('@profile_id' => $profile->profile_id));
+}
+
+/**
+ * Access callback: determine if the user can create any type of profile.
+ */
+function cowpro_customer_ui_customer_profile_add_any_access() {
+  // Grant automatic access to users with administer customer profiles permission.
+  if (user_access('administer cowpro_customer_profile entities')) {
+    return TRUE;
+  }
+
+  // Check the user's access on a profile type basis.
+  foreach (cowpro_customer_profile_types() as $type => $profile_type) {
+    if (cowpro_customer_profile_access('create', cowpro_customer_profile_new($type))) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Redirects a customer profile type URL to its fields management page.
+ */
+function cowpro_customer_ui_profile_type_redirect($type) {
+  drupal_goto('admin/cowpro/customer-profiles/types/' . strtr($type, '_', '-') . '/fields');
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function cowpro_customer_ui_menu_alter(&$items) {
+  // Transform the field UI tabs into contextual links.
+  foreach (cowpro_customer_profile_types() as $type => $profile_type) {
+    // Convert underscores to hyphens for the menu item argument.
+    $type_arg = strtr($type, '_', '-');
+
+    // Transform the field UI tabs into contextual links.
+    $items['admin/cowpro/customer-profiles/types/' . $type_arg . '/fields']['context'] = MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE;
+    $items['admin/cowpro/customer-profiles/types/' . $type_arg . '/display']['context'] = MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE;
+  }
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function cowpro_customer_ui_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  // Add action link 'admin/cowpro/customer-profiles/add' on
+  // 'admin/cowpro/customer-profiles'.
+  if ($root_path == 'admin/cowpro/customer-profiles') {
+    $item = menu_get_item('admin/cowpro/customer-profiles/add');
+    if ($item['access']) {
+      $data['actions']['output'][] = array(
+        '#theme' => 'menu_local_action',
+        '#link' => $item,
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_admin_menu_map().
+ */
+function cowpro_customer_ui_admin_menu_map() {
+  // Add awareness to the administration menu of the various profile types so
+  // they are included in the dropdown menu.
+  $map['admin/cowpro/customer-profiles/types/%'] = array(
+    'parent' => 'admin/cowpro/customer-profiles/types',
+    'arguments' => array(
+      array('%' => array_keys(cowpro_customer_profile_types())),
+    ),
+  );
+
+  return $map;
+}
+
+/**
+ * Implements hook_help().
+ */
+function cowpro_customer_ui_help($path, $arg) {
+  switch ($path) {
+    case 'admin/cowpro/customer-profiles/types/add':
+      return '<p>' . t('Individual customer profile types can have different fields assigned to them.') . '</p>';
+  }
+
+  // Return the user defined help text per customer profile type when adding profiles.
+  if ($arg[1] == 'cowpro' && $arg[2] == 'customer-profiles' && $arg[3] == 'add' && $arg[4]) {
+    $profile_type = cowpro_customer_profile_type_load($arg[4]);
+    return (!empty($profile_type['help']) ? '<p>' . filter_xss_admin($profile_type['help']) . '</p>' : '');
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function cowpro_customer_ui_theme() {
+  return array(
+    'customer_profile_add_list' => array(
+      'variables' => array('content' => array()),
+      'file' => 'includes/cowpro_customer_ui.profiles.inc',
+    ),
+    'customer_profile_type_admin_overview' => array(
+      'variables' => array('type' => NULL),
+      'file' => 'includes/cowpro_customer_ui.profile_types.inc',
+    ),
+    'cowpro_customer_profile_verified' => array(
+      'variables' => array('verified' => NULL, 'label' => NULL, 'profile' => NULL),
+      'path' => drupal_get_path('module', 'cowpro_customer_ui') . '/theme',
+      'template' => 'cowpro-customer-profile-verified',
+    ),
+  );
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function cowpro_customer_ui_entity_info_alter(&$entity_info) {
+  // Add a URI callback to the profile entity.
+  $entity_info['cowpro_customer_profile']['uri callback'] = 'cowpro_customer_ui_customer_profile_uri';
+
+  // Expose the admin UI for profile fields.
+  foreach ($entity_info['cowpro_customer_profile']['bundles'] as $type => &$bundle) {
+    $bundle['admin'] = array(
+      'path' => 'admin/cowpro/customer-profiles/types/' . strtr($type, '_', '-'),
+      'real path' => 'admin/cowpro/customer-profiles/types/' . strtr($type, '_', '-'),
+      'access arguments' => array('administer customer profile types'),
+    );
+  }
+}
+
+/**
+ * Entity uri callback: points to the edit form of the given profile.
+ */
+function cowpro_customer_ui_customer_profile_uri($profile) {
+  // First look for a return value in the default entity uri callback.
+  $uri = cowpro_customer_profile_uri($profile);
+
+  // If a value was found, return it now.
+  if (!empty($uri)) {
+    return $uri;
+  }
+
+  // Only return a value if the user has permission to view the profile.
+  if (cowpro_customer_profile_access('view', $profile)) {
+    return array(
+      'path' => 'admin/cowpro/customer-profiles/' . $profile->profile_id,
+    );
+  }
+
+  return NULL;
+}
+
+/**
+ * Implements hook_forms().
+ */
+function cowpro_customer_ui_forms($form_id, $args) {
+  $forms = array();
+
+  // Define a wrapper ID for the customer profile add / edit form.
+  $forms['cowpro_customer_ui_customer_profile_form'] = array(
+    'callback' => 'cowpro_customer_customer_profile_form',
+  );
+
+  // Define a wrapper ID for the customer profile delete confirmation form.
+  $forms['cowpro_customer_ui_customer_profile_delete_form'] = array(
+    'callback' => 'cowpro_customer_customer_profile_delete_form',
+  );
+
+  return $forms;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function cowpro_customer_ui_form_alter(&$form, &$form_state, $form_id) {
+  // On field administration forms for customer profile types add a breadcrumb.
+  if (in_array($form_id, array('field_ui_field_overview_form', 'field_ui_display_overview_form'))) {
+    if ($form['#entity_type'] == 'cowpro_customer_profile') {
+      // Load the customer profile type being modified for this form.
+      $profile_type = cowpro_customer_profile_type_load($form['#bundle']);
+      drupal_set_title($profile_type['name']);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * The Customer UI module instantiates the Profile add/edit form at particular
+ * paths in the Commerce IA. It uses its own form ID to do so and alters the
+ * form here to add in appropriate redirection and an additional button.
+ *
+ * @see cowpro_customer_ui_customer_profile_form()
+ */
+function cowpro_customer_ui_form_cowpro_customer_ui_customer_profile_form_alter(&$form, &$form_state) {
+  // Add a submit handler to the save button to add a redirect.
+  $form['actions']['submit']['#submit'][] = 'cowpro_customer_ui_customer_profile_form_submit';
+
+  // Add the save and continue button for new profiles.
+  if (empty($form_state['customer_profile']->profile_id)) {
+    $form['actions']['save_continue'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save and add another'),
+      '#submit' => $form['actions']['submit']['#submit'],
+      '#suffix' => l(t('Cancel'), 'admin/cowpro/customer-profiles'),
+      '#weight' => 45,
+    );
+  }
+  else {
+    $form['actions']['submit']['#suffix'] = l(t('Cancel'), 'admin/cowpro/customer-profiles');
+  }
+}
+
+/**
+ * Submit callback for cowpro_customer_ui_customer_profile_form().
+ *
+ * @see cowpro_customer_ui_form_cowpro_customer_ui_customer_profile_form_alter()
+ */
+function cowpro_customer_ui_customer_profile_form_submit($form, &$form_state) {
+  // Set the redirect based on the button clicked.
+  if ($form_state['triggering_element']['#parents'][0] == 'save_continue') {
+    $form_state['redirect'] = 'admin/cowpro/customer-profiles/add/' . strtr($form_state['customer_profile']->type, array('_' => '-'));
+  }
+  elseif (arg(2) == 'customer-profiles' && arg(3) == 'add') {
+    $form_state['redirect'] = 'admin/cowpro/customer-profiles';
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * The Customer UI module instantiates the Profile delete form at a particular
+ * path in the Commerce IA. It uses its own form ID to do so and alters the
+ * form here to add in appropriate redirection.
+ *
+ * @see cowpro_customer_ui_customer_profile_delete_form()
+ */
+function cowpro_customer_ui_form_cowpro_customer_ui_customer_profile_delete_form_alter(&$form, &$form_state) {
+  $form['actions']['cancel']['#href'] = 'admin/cowpro/customer-profiles';
+  $form['#submit'][] = 'cowpro_customer_ui_customer_profile_delete_form_submit';
+}
+
+/**
+ * Submit callback for cowpro_customer_ui_customer_profile_delete_form().
+ *
+ * @see cowpro_customer_ui_form_cowpro_customer_ui_customer_profile_delete_form_alter()
+ */
+function cowpro_customer_ui_customer_profile_delete_form_submit($form, &$form_state) {
+  $form_state['redirect'] = 'admin/cowpro/customer-profiles';
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function cowpro_customer_ui_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'cowpro_customer_ui') . '/includes/views',
+  );
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function cowpro_customer_ui_form_entity_translation_admin_form_alter(&$form, &$form_state, $form_id) {
+  // Hide the cowpro_customer_profile option from entity translation.
+  unset($form['entity_translation_entity_types']['#options']['cowpro_customer_profile']);
+}
+
+/**
+ * 由于结构设计不合理，导致 wizard_registration 模块不能很方便地访问 cowpro_customer_ui_customer_profile_edit_own_form 方法
+ * 所以暂时在这里做一个补丁以方便其它模块调用
+ *
+ * @param unknown $form
+ * @param unknown $form_state
+ * @param unknown $uid
+ * @param unknown $type
+ * @return string
+ */
+function cowpro_customer_ui_customer_profile_edit_own_form_public($form, &$form_state, $uid, $type) {
+	include_once 'includes/cowpro_customer_profile.forms.inc';
+	return cowpro_customer_ui_customer_profile_edit_own_form($form, $form_state, $uid, $type);
+}

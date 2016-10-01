@@ -1,0 +1,9 @@
+name = cowpro bank list
+description = 用户提现的时候可选择的银行列表
+core = 7.x
+package = Features
+version = 7.x-0.01
+dependencies[] = features
+dependencies[] = taxonomy
+features[features_api][] = api:2
+features[taxonomy][] = bank_list

@@ -1,0 +1,306 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function cowpro_issuing_schema() {
+	$schema = array();
+
+	$schema['cowpro_repayment_schedule'] = array(
+			'description' => '还款计划表',
+			'fields' => array(
+					'schedule_id' => array(
+							'description' => '还款计划表序号.',
+							'type' => 'serial',
+							'unsigned' => TRUE,
+							'not null' => TRUE,
+					),
+					'issuing_id' => array(
+							'description' => '对应的原始贷款申请表编号(nid).',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0,
+					),
+					'period' => array(
+							'description' => '第X期还款.',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0,
+					),
+					'period_total' => array(
+							'description' => '还款计划共分X期.',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0,
+					),
+					'payer_uid' => array(
+							'description' => '付款人uid.',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0,
+					),
+					'receiver_uid' => array(
+							'description' => '收款人uid.',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0,
+					),
+					'payable_amount' => array(
+							'description' => '应付款(包括贷款人应缴的各项费用，所以可能会与receivable_amount字段的值不同)',
+							'type' => 'numeric',
+							'size' => 'normal',
+							'not null' => TRUE,
+							'default' => 0,
+							'precision' => 10,
+							'scale' => 2,
+					),
+					'paid_amount' => array(
+							'description' => '已付款金额',
+							'type' => 'numeric',
+							'size' => 'normal',
+							'not null' => TRUE,
+							'default' => 0,
+							'precision' => 10,
+							'scale' => 2,
+					),
+					'receivable_amount' => array(
+							'description' => '应收款(包括债权人应缴的各项费用，所以可能会与payable_amount字段的值不同)',
+							'type' => 'numeric',
+							'size' => 'normal',
+							'not null' => TRUE,
+							'default' => 0,
+							'precision' => 10,
+							'scale' => 2,
+					),
+					'received_amount' => array(
+							'description' => '已收款金额',
+							'type' => 'numeric',
+							'size' => 'normal',
+							'not null' => TRUE,
+							'default' => 0,
+							'precision' => 10,
+							'scale' => 2,
+					),
+					'capital' => array(
+							'description' => '当期本金',
+							'type' => 'numeric',
+							'size' => 'normal',
+							'not null' => TRUE,
+							'default' => 0,
+							'precision' => 10,
+							'scale' => 2,
+					),
+					'interest' => array(
+							'description' => '当期利息',
+							'type' => 'numeric',
+							'size' => 'normal',
+							'not null' => TRUE,
+							'default' => 0,
+							'precision' => 10,
+							'scale' => 2,
+					),
+					'deadline' => array(
+							'description' => '最后还款期限 The Unix timestamp.',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0,
+					),
+					'status' => array(
+							'description' => 'WAITING_FOR等待还款，COMPLETED已还款，IN_PROGRESS部分还款（债权转让的时候逻辑复杂，暂不支持），LOCKED锁定，在债权转让的时候，先设置该标志，这样来保证债权转让交易的原子性，ASSIGNABLE可转让，ASSIGNED已转让.',
+							'type' => 'varchar',
+      				'length' => 20,
+							'not null' => TRUE,
+							'default' => 1,
+					),
+					'created' => array(
+							'description' => 'The Unix timestamp when the record was created.',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0,
+					),
+					'changed' => array(
+							'description' => 'The Unix timestamp when the record was most recently saved.',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0,
+					),
+					'data' => array(
+							'type' => 'blob',
+							'not null' => FALSE,
+							'size' => 'big',
+							'serialize' => TRUE,
+							'description' => '借贷双方应向平台支付的各项费用，以及其它扩展的信息都可以记录在这里。A serialized array of additional data.',
+					),
+			),
+			'primary key' => array('schedule_id'),
+			'indexes' => array(
+					'issuing_id' => array('issuing_id'),
+					'payer_uid' => array('payer_uid'),
+					'receiver_uid' => array('receiver_uid'),
+			),
+			'foreign keys' => array(
+					'owner_payer' => array(
+							'table' => 'users',
+							'columns' => array('payer_uid' => 'uid'),
+					),
+					'owner_receiver' => array(
+							'table' => 'users',
+							'columns' => array('receiver_uid' => 'uid'),
+					),
+			),
+	);
+
+	/*
+	 * 改成hook_field_schema，把债权转让做为一个FIELD
+	 */
+	/*
+	$schema['cowpro_credit_assignment'] = array(
+			'description' => '债权转让表',
+			'fields' => array(
+					'assignment_id' => array(
+							'description' => '债权转让表序号.',
+							'type' => 'serial',
+							'unsigned' => TRUE,
+							'not null' => TRUE,
+					),
+			),
+			'primary key' => array('assignment_id'),
+			'indexes' => array(
+					'uid' => array('uid'),
+			),
+	);
+	*/
+
+	return $schema;
+}
+
+/**
+ * Implements hook_field_schema().
+ */
+function cowpro_issuing_field_schema() {
+	$columns = array (
+			'status' => array (
+					'description' => 'UNAUDITED:贷款人填写《贷款申请表》，末审核; AUDITED:审核通过; INVITE_BIDS_START:正在投标; INVITE_BIDS_FAILED:流标; INVITE_BIDS_SUCCEED:满标，等待放款; REPAYMENT:等待还款; FINISHED:还款完毕',
+	        'type' => 'varchar',
+	        'length' => 255,
+					'default' => NULL
+			),
+			'data' => array (
+					'type' => 'text',
+					'not null' => FALSE,
+					'size' => 'big',
+					'serialize' => TRUE,
+					'description' => 'A serialized array of additional data.'
+			),
+			'method_repayment' => array (
+					'description' => '还款方式,例如: 到期还本息.',
+					'type' => 'varchar',
+					'length' => 255,
+					'not null' => TRUE,
+					'default' => ''
+			),
+			'loan_term' => array (
+					'description' => '借款期限,以天为单位，每三十天算一个月',
+					'type' => 'int',
+					'not null' => TRUE,
+					'default' => 0,
+        	'size' => 'small',
+			),
+			'loan_amounts' => array (
+					'description' => '借款金额.',
+					'type' => 'numeric',
+					'size' => 'normal',
+					'not null' => TRUE,
+					'default' => 0,
+					'precision' => 10,
+					'scale' => 2
+			),
+			'annual_rate' => array (
+					'description' => '年利率(%).',
+					'type' => 'numeric',
+					'size' => 'normal',
+					'not null' => TRUE,
+					'default' => 0,
+					'precision' => 10,
+					'scale' => 2
+			),
+			'deadline' => array (
+					'description' => '筹标期限(天)',
+					'type' => 'int',
+					'not null' => TRUE,
+					'size' => 'tiny',
+					'default' => 7
+			),
+			'start_time' => array (
+					'description' => '开始投标的时间(Unix timestamp).',
+					'type' => 'int',
+					'not null' => TRUE,
+					'default' => 0
+			),
+			'make_loans_time' => array (
+					'description' => '放款时间(Unix timestamp).',
+					'type' => 'int',
+					'not null' => FALSE,
+					'default' => 0
+			),
+	);
+
+	return array (
+			'columns' => $columns
+	);
+	// TODO Add indexes.
+
+}
+
+/*
+ * hook_enable
+ * 创建 P2P 平台中的三个角色：
+ * 1. manager: 负责P2P平台日常的维护，对贷款的审核、放款、网站代偿款等等
+ * 2. lender: 出借人
+ * 3. debtor: 债务人
+ */
+function cowpro_issuing_enable() {
+	$permissions = array (
+			'configure p2p',
+			'review issuing',
+			'make loans to',
+			'temporary advance',
+			'failing issuing',
+			'admin repayment',
+	);
+	_cowpro_issuing_grant('manager', $permissions);
+	$permissions = array (
+			//在初始安装的时候，node 模块中没有创建'create cowpro_issuing content'权限
+			//所以在这里调用user_role_grant_permissions会导致数据库的一个异常：
+			//SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'module' cannot be null
+			//因此，我们把这个授权放在另外的cowpro_permission features 模块里实现
+			//'create cowpro-issuing content',
+	);
+	_cowpro_issuing_grant('debtor', $permissions);
+	$permissions = array (
+			'bid issuing',
+	);
+	_cowpro_issuing_grant('lender', $permissions);
+
+}
+
+/**
+ * 向指定的角色授权
+ *
+ * @param $name
+ *   String for the name of the role.
+ * @param $permissions
+ *   Array of permission names to assign to role.
+ */
+function _cowpro_issuing_grant($name, array $permissions) {
+	/*
+	// Create new role.
+	$role = new stdClass();
+	$role->name = $name;
+	user_role_save($role);
+	user_role_grant_permissions($role->rid, $permissions);
+	return $role->rid;
+	*/
+	$role = user_role_load_by_name($name);
+	user_role_grant_permissions($role->rid, $permissions);
+}

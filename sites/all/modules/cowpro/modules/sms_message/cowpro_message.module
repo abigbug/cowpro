@@ -1,0 +1,295 @@
+<?php
+const COWPRO_SMS_BID_LENDER_MESSAGE = '尊敬的用户[user:name]，您于[cowpro_fund_journal:created]投标了贷款“[cowpro_issuing:title]”，冻结资金[cowpro_fund_journal:amount]。';
+const COWPRO_SMS_BID_BORROWER_MESSAGE = '尊敬的用户[cowpro_issuing:applicant]，用户[user:name]于[cowpro_fund_journal:created]投标了贷款“[cowpro_issuing:title]”，冻结资金[cowpro_fund_journal:amount]。';
+const COWPRO_SMS_CREDITOR_ASSIGNMENT_BUYER_MESSAGE = '尊敬的用户[user:name]，很高兴的通知您，您已成功购买了债权“[cowpro_issuing:title]”，编号：“[cowpro_issuing:number]”。';
+const COWPRO_SMS_CREDITOR_ASSIGNMENT_SELLER_MESSAGE = '尊敬的用户[user:name]，很高兴的通知您，您转让的债权“[cowpro_issuing:title]”，编号：“[cowpro_issuing:number]”已成功转让。';
+const COWPRO_SMS_CREDITOR_ASSIGNMENT_INTERRUPT_MESSAGE = '尊敬的用户[user:name]，您转让的债权“[cowpro_issuing:title]”，编号：“[cowpro_issuing:number]”已被中止转让，如有疑问，请与网站管理员联系。';
+const COWPRO_SMS_MAKE_LOANS_TO_LENDER_MESSAGE = '尊敬的用户[user:name]，您投标的贷款“[cowpro_issuing:title]”已于[cowpro_issuing:sign_date]满标，资金已划拨给贷款人。';
+const COWPRO_SMS_MAKE_LOANS_TO_BORROWER_MESSAGE = '尊敬的用户[user:name]，您的贷款“[cowpro_issuing:title]”已于[cowpro_issuing:sign_date]满标，资金已划拨到您指定的账户，请注意查收。';
+const COWPRO_SMS_REPAYMENT_PAYER_MESSAGE = '尊敬的用户[user:name]，您的贷款“[cowpro_issuing:title]”第[cowpro_repayment_schedule:period]/[cowpro_repayment_schedule:period_total]期还款已完成，本期还款总金额[cowpro_repayment_schedule:payable_total_current_period]。';
+const COWPRO_SMS_REPAYMENT_RECEIVER_MESSAGE = '尊敬的用户[user:name]，您的投资“[cowpro_issuing:title]”第[cowpro_repayment_schedule:period]/[cowpro_repayment_schedule:period_total]期还款已完成，还款金额[cowpro_repayment_schedule:payable_amount]已划拨到您指定的账户，请注意查收。';
+const COWPRO_SMS_REPAYMENT_REMIND_MESSAGE = '尊敬的用户[user:name]，您本期(第[cowpro_repayment_schedule:period]/[cowpro_repayment_schedule:period_total]期)贷款“[cowpro_issuing:title]”的还款日是[cowpro_repayment_schedule:deadline]日，还款金额[cowpro_repayment_schedule:payable_total_current_period]，请按时还款。';
+const COWPRO_SMS_FUND_TOPUP_MESSAGE = '尊敬的用户[user:name]，您刚才充值[cowpro_fund_journal:amount]已成功，特此通知。';
+const COWPRO_SMS_FUND_WITHDRAW_MESSAGE = '尊敬的用户[user:name]，您刚才的提现申请[cowpro_fund_journal:amount]已提交，特此通知。';
+
+/**
+ * @file
+ * Necessary file for declaring the cowpro message module. See
+ * cowpro_message.rules.inc for the actual rules plugins.
+ */
+
+/**
+ * Implementation of hook_menu()
+ */
+function cowpro_message_menu() {
+	$items ['admin/cowpro/config_sms_message'] = array (
+			'title' => '贷款业务短信模板',
+			'description' => '设置贷款业务提醒短信的内容',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'cowpro_message_settings_form',
+			),
+			'access arguments' => array (
+					'configure p2p',
+			),
+			'type' => MENU_NORMAL_ITEM,
+	);
+
+	return $items;
+}
+
+function cowpro_message_send($number, $message, $options = array()) {
+	$result = sms_send($number, $message, $options);
+	return $result;
+}
+
+function cowpro_message_settings_form($form, &$form_state) {
+	$form = array ();
+	$form['cowpro_sms'] = array(
+			'#type' => 'vertical_tabs',
+	);
+	$form['cowpro_sms_fund'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('充值与提现'),
+			'#collapsible' => TRUE,
+			'#collapsed' => TRUE,
+			'#description' => '充值与提现以后向用户发送的手机短消息内容',
+			'#group' => 'cowpro_sms',
+	);
+	$form['cowpro_sms_fund']['cowpro_sms_fund_topup_enable'] = array(
+			'#type' => 'checkbox',
+			'#title' => '充值成功以后，向用户发送消息.',
+			'#default_value' => variable_get('cowpro_sms_fund_topup_enable', FALSE),
+	);
+	$form ['cowpro_sms_fund']['cowpro_sms_fund_topup_message'] = array (
+			'#title' => '充值成功以后，向用户发送消息的内容',
+			'#type' => 'textarea',
+			'#default_value' => variable_get ( 'cowpro_sms_fund_topup_message', COWPRO_SMS_FUND_TOPUP_MESSAGE ),
+	);
+	$form['cowpro_sms_fund']['cowpro_sms_fund_withdraw_enable'] = array(
+			'#type' => 'checkbox',
+			'#title' => '提现成功以后，向用户发送消息.',
+			'#default_value' => variable_get('cowpro_sms_fund_withdraw_enable', FALSE),
+	);
+	$form ['cowpro_sms_fund']['cowpro_sms_fund_withdraw_message'] = array (
+			'#title' => '提现成功以后，向用户发送消息的内容',
+			'#type' => 'textarea',
+			'#default_value' => variable_get ( 'cowpro_sms_fund_withdraw_message', COWPRO_SMS_FUND_WITHDRAW_MESSAGE ),
+	);
+
+	$form['cowpro_sms_bid'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('投标成功'),
+			'#collapsible' => TRUE,
+			'#collapsed' => TRUE,
+			'#description' => '投标成功以后向用户发送的手机短消息内容',
+			'#group' => 'cowpro_sms',
+	);
+	$form['cowpro_sms_bid']['cowpro_sms_bid_lender_enable'] = array(
+			'#type' => 'checkbox',
+			'#title' => '允许向出借人发送消息.',
+			'#default_value' => variable_get('cowpro_sms_bid_lender_enable', FALSE),
+	);
+	$form ['cowpro_sms_bid']['cowpro_sms_bid_lender_message'] = array (
+			'#title' => '向出借人发送消息的内容',
+			'#type' => 'textarea',
+			'#default_value' => variable_get ( 'cowpro_sms_bid_lender_message', COWPRO_SMS_BID_LENDER_MESSAGE ),
+	);
+	$form['cowpro_sms_bid']['cowpro_sms_bid_borrower_enable'] = array(
+			'#type' => 'checkbox',
+			'#title' => '允许向贷款人发送消息.',
+			'#default_value' => variable_get('cowpro_sms_bid_borrower_enable', FALSE),
+	);
+	$form ['cowpro_sms_bid']['cowpro_sms_bid_borrower_message'] = array (
+			'#title' => '向贷款人发送消息的内容',
+			'#type' => 'textarea',
+			'#default_value' => variable_get ( 'cowpro_sms_bid_borrower_message', COWPRO_SMS_BID_BORROWER_MESSAGE ),
+	);
+
+	$form['cowpro_sms_creditor_assignment'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('债权转让'),
+			'#collapsible' => TRUE,
+			'#collapsed' => TRUE,
+			'#description' => '债权转让状态发生变化以后向用户发送的手机短消息内容',
+			'#group' => 'cowpro_sms',
+	);
+	$form['cowpro_sms_creditor_assignment']['cowpro_sms_creditor_assignment_buyer_enable'] = array(
+			'#type' => 'checkbox',
+			'#title' => '债权转让成功以后，向受让人发送消息.',
+			'#default_value' => variable_get('cowpro_sms_creditor_assignment_buyer_enable', FALSE),
+	);
+	$form ['cowpro_sms_creditor_assignment']['cowpro_sms_creditor_assignment_buyer_message'] = array (
+			'#title' => '债权转让成功以后，向受让人发送消息的内容',
+			'#type' => 'textarea',
+			'#default_value' => variable_get ( 'cowpro_sms_creditor_assignment_buyer_message', COWPRO_SMS_CREDITOR_ASSIGNMENT_BUYER_MESSAGE ),
+	);
+	$form['cowpro_sms_creditor_assignment']['cowpro_sms_creditor_assignment_seller_enable'] = array(
+			'#type' => 'checkbox',
+			'#title' => '债权转让成功以后，向出让人发送消息.',
+			'#default_value' => variable_get('cowpro_sms_creditor_assignment_seller_enable', FALSE),
+	);
+	$form ['cowpro_sms_creditor_assignment']['cowpro_sms_creditor_assignment_seller_message'] = array (
+			'#title' => '债权转让成功以后，向出让人发送消息的内容',
+			'#type' => 'textarea',
+			'#default_value' => variable_get ( 'cowpro_sms_creditor_assignment_seller_message', COWPRO_SMS_CREDITOR_ASSIGNMENT_SELLER_MESSAGE ),
+	);
+	$form['cowpro_sms_creditor_assignment']['cowpro_sms_creditor_assignment_interrupt_enable'] = array(
+			'#type' => 'checkbox',
+			'#title' => '债权转让被中止以后，向出让人发送消息.',
+			'#default_value' => variable_get('cowpro_sms_creditor_assignment_interrupt_enable', FALSE),
+	);
+	$form ['cowpro_sms_creditor_assignment']['cowpro_sms_creditor_assignment_interrupt_message'] = array (
+			'#title' => '债权转让被中止以后，向出让人发送消息的内容',
+			'#type' => 'textarea',
+			'#default_value' => variable_get ( 'cowpro_sms_creditor_assignment_interrupt_message', COWPRO_SMS_CREDITOR_ASSIGNMENT_INTERRUPT_MESSAGE ),
+	);
+
+	$form['cowpro_sms_loans'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('贷款发放'),
+			'#collapsible' => TRUE,
+			'#collapsed' => TRUE,
+			'#description' => '贷款发放以后向用户发送的手机短消息内容',
+			'#group' => 'cowpro_sms',
+	);
+	$form['cowpro_sms_loans']['cowpro_sms_make_loans_to_lender_enable'] = array(
+			'#type' => 'checkbox',
+			'#title' => '满标放款以后，向出借人发送消息.',
+			'#default_value' => variable_get('cowpro_sms_make_loans_to_lender_enable', FALSE),
+	);
+	$form ['cowpro_sms_loans']['cowpro_sms_make_loans_to_lender_message'] = array (
+			'#title' => '满标放款以后，向出借人发送消息的内容',
+			'#type' => 'textarea',
+			'#default_value' => variable_get ( 'cowpro_sms_make_loans_to_lender_message', COWPRO_SMS_MAKE_LOANS_TO_LENDER_MESSAGE ),
+	);
+	$form['cowpro_sms_loans']['cowpro_sms_make_loans_to_borrower_enable'] = array(
+			'#type' => 'checkbox',
+			'#title' => '满标放款以后，向贷款人发送消息.',
+			'#default_value' => variable_get('cowpro_sms_make_loans_to_borrower_enable', FALSE),
+	);
+	$form ['cowpro_sms_loans']['cowpro_sms_make_loans_to_borrower_message'] = array (
+			'#title' => '满标放款以后，向贷款人发送消息的内容',
+			'#type' => 'textarea',
+			'#default_value' => variable_get ( 'cowpro_sms_make_loans_to_borrower_message', COWPRO_SMS_MAKE_LOANS_TO_BORROWER_MESSAGE ),
+	);
+
+	$form['cowpro_sms_repayment'] = array(
+			'#type' => 'fieldset',
+			'#title' => t('到期还款'),
+			'#collapsible' => TRUE,
+			'#collapsed' => TRUE,
+			'#description' => '即将到期的应还款、以及还款完成以后向用户发送的手机短消息内容',
+			'#group' => 'cowpro_sms',
+	);
+	$form['cowpro_sms_repayment']['cowpro_sms_repayment_payer_enable'] = array(
+			'#type' => 'checkbox',
+			'#title' => '还款操作完成以后，向还款人发送消息.',
+			'#default_value' => variable_get('cowpro_sms_repayment_payer_enable', FALSE),
+	);
+	$form ['cowpro_sms_repayment']['cowpro_sms_repayment_payer_message'] = array (
+			'#title' => '还款操作完成以后，向还款人发送消息的内容',
+			'#type' => 'textarea',
+			'#default_value' => variable_get ( 'cowpro_sms_repayment_payer_message', COWPRO_SMS_REPAYMENT_PAYER_MESSAGE ),
+	);
+	$form['cowpro_sms_repayment']['cowpro_sms_repayment_receiver_enable'] = array(
+			'#type' => 'checkbox',
+			'#title' => '还款操作完成以后，向收款人发送消息.',
+			'#default_value' => variable_get('cowpro_sms_repayment_receiver_enable', FALSE),
+	);
+	$form ['cowpro_sms_repayment']['cowpro_sms_repayment_receiver_message'] = array (
+			'#title' => '还款操作完成以后，向收款人发送消息的内容',
+			'#type' => 'textarea',
+			'#default_value' => variable_get ( 'cowpro_sms_repayment_receiver_message', COWPRO_SMS_REPAYMENT_RECEIVER_MESSAGE ),
+	);
+	$form['cowpro_sms_repayment']['cowpro_sms_repayment_remind_enable'] = array(
+			'#type' => 'checkbox',
+			'#title' => '还款即将到期前向还款人发送消息.',
+			'#default_value' => variable_get('cowpro_sms_repayment_remind_enable', FALSE),
+	);
+	$form['cowpro_sms_repayment']['cowpro_sms_repayment_remind_days'] = array(
+			'#type' => 'numberfield',
+			'#title' => '还款到期前X天向还款人发送提醒消息.',
+			'#default_value' => variable_get('cowpro_sms_repayment_remind_days', 3),
+			'#minimum' => 1,
+			'#maximum' => 7,
+	);
+	$form ['cowpro_sms_repayment']['cowpro_sms_repayment_remind_message'] = array (
+			'#title' => '还款即将到期前，向还款人发送消息的内容',
+			'#type' => 'textarea',
+			'#default_value' => variable_get ( 'cowpro_sms_repayment_remind_message', COWPRO_SMS_REPAYMENT_REMIND_MESSAGE ),
+	);
+
+	$form['tokens'] = array(
+			'#theme' => 'token_tree_link',
+			'#token_types' => array('user', 'cowpro_issuing', 'cowpro_repayment_schedule', 'cowpro_fund_journal'),
+	);
+	return system_settings_form ( $form );
+}
+
+/**
+ * Implements of hook_cowpro_fund_topup_finished().
+ *
+ */
+function cowpro_message_cowpro_fund_topup_finished($success, $journal_id) {
+	$journal = entity_load_single('cowpro_fund_journal', $journal_id);
+	rules_invoke_event('cowpro_fund_topup_finished', $success, $journal);
+}
+
+/**
+ * Implements of hook_cowpro_fund_withdraw_finished().
+ *
+ */
+function cowpro_message_cowpro_fund_withdraw_finished($success, $journal_id) {
+	$journal = entity_load_single('cowpro_fund_journal', $journal_id);
+	rules_invoke_event('cowpro_fund_withdraw_finished', $success, $journal);
+}
+
+/**
+ * Implements of hook_cowpro_fund_bid_finished().
+ *
+ */
+function cowpro_message_cowpro_fund_bid_finished($success, $nid, $journal_id) {
+	$node = node_load($nid);
+	$journal = entity_load_single('cowpro_fund_journal', $journal_id);
+	rules_invoke_event('cowpro_fund_bid_finished', $success, $node, $journal);
+}
+
+/**
+ * Implements of hook_cowpro_fund_buy_creditor_assignment_finished().
+ *
+ */
+function cowpro_message_cowpro_fund_buy_creditor_assignment_finished($success, $nid, $buyer_uid, $seller_uid, $amount) {
+	$node = node_load($nid);
+	rules_invoke_event('cowpro_fund_buy_creditor_assignment_finished', $success, $node, $buyer_uid, $seller_uid, $amount);
+}
+
+/**
+ * Implements of hook_cowpro_fund_make_loans_to_finished().
+ *
+ */
+function cowpro_message_cowpro_fund_make_loans_to_finished($success, $nid, $fund_journals) {
+	$node = node_load($nid);
+	rules_invoke_event('cowpro_fund_make_loans_to_finished', $success, $node, $fund_journals);
+}
+
+/**
+ * Implements of hook_cowpro_fund_repayment_finished().
+ *
+ */
+function cowpro_message_cowpro_fund_repayment_finished($success, $nid, $repayment_schedules) {
+	$node = node_load($nid);
+	rules_invoke_event('cowpro_fund_repayment_finished', $success, $node, $repayment_schedules);
+}
+
+/*
+仅用于测试，当用户登录的时候，触发cowpro_fund_bid_finished event
+function cowpro_message_user_login(&$edit, $account) {
+	$journal_id = 4;
+	$journal = entity_load_single('cowpro_fund_journal', $journal_id);
+	$issuing_id = 22;
+	$node = node_load($issuing_id);
+	//$issuing = $node->field_issuing [LANGUAGE_NONE] [0];
+	rules_invoke_event('cowpro_fund_bid_finished', TRUE, $node, $journal);
+}
+*/

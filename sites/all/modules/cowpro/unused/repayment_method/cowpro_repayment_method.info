@@ -1,0 +1,10 @@
+name = Repayment Method
+description = 还款方式
+core = 7.x
+package = _unused_CowPro
+dependencies[] = cowpro_issuing
+core = 7.x
+
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"

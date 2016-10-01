@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the cowpro views feature.
+ */
+
+include_once 'cowpro_views.features.inc';

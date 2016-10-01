@@ -1,0 +1,30 @@
+name = Fund
+description = 实现资金管理功能，例如：充值、提现、转账、投资与还款等等
+package = _CowPro
+
+dependencies[] = cowpro_ui
+dependencies[] = entity
+dependencies[] = views
+dependencies[] = views_ui
+dependencies[] = elements
+dependencies[] = ctools
+dependencies[] = views_megarow
+dependencies[] = china_address_api
+
+; Module includes
+files[] = includes/cowpro_fund_bankcard.controller.inc
+files[] = includes/cowpro_fund_journal.controller.inc
+
+; Views handlers
+files[] = includes/views/handlers/cowpro_fund_journal_handler_area_empty_text.inc
+files[] = includes/views/handlers/cowpro_fund_journal_handler_field_amount.inc
+files[] = includes/views/handlers/cowpro_fund_journal_handler_field_issuing_title.inc
+files[] = includes/views/handlers/cowpro_fund_journal_handler_field_status.inc
+files[] = includes/views/handlers/cowpro_fund_journal_handler_field_type.inc
+files[] = includes/views/handlers/cowpro_fund_journal_handler_filter_status.inc
+files[] = includes/views/handlers/cowpro_fund_journal_handler_filter_type.inc
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"

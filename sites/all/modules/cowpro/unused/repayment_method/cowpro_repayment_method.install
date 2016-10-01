@@ -1,0 +1,44 @@
+<?php
+/**
+ * Implements hook_enable().
+ */
+function cowpro_repayment_method_enable() {
+	$field_name = 'repayment_method';
+	if (! field_info_field ( $field_name )) {
+		$field = array (
+				'field_name' => $field_name,
+				'type' => 'list_text',
+				'cardinality' => 1,
+				'settings' => array (
+						'allowed_values_function' => 'cowpro_repayment_method_get_repayment_method'
+				),
+				'entity_types' => array (
+						'node'
+				)
+		);
+		field_create_field ( $field );
+		// Create the instance.
+		$instance = array (
+				'field_name' => $field_name,
+				'entity_type' => 'node',
+				'bundle' => 'cowpro_issuing',
+				'label' => '还款方式',
+				'description' => '选择还款方式.',
+				'required' => TRUE,
+				'widget' => array (
+						'type' => 'options_select',
+						'weight' => 0
+				),
+				'display' => array ()
+		);
+
+		field_create_instance ( $instance );
+	}
+}
+
+/**
+ * Implements hook_disable().
+ */
+function cowpro_repayment_method_disable() {
+	field_delete_field ( 'repayment_method' );
+}

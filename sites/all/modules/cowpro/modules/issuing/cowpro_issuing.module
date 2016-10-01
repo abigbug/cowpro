@@ -1,0 +1,1421 @@
+<?php
+include_once 'includes/cowpro_issuing_status.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function cowpro_issuing_menu() {
+	$items = array ();
+
+	$items ['admin/cowpro/config_issuing'] = array (
+			'title' => '贷款申请表参数',
+			'description' => '配置与《贷款申请表》有关的参数',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'cowpro_issuing_settings_form'
+			),
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'file' => 'includes/cowpro_issuing.settings.inc'
+	);
+/*
+	$items ['admin/cowpro/config_issuing_test'] = array (
+			'title' => '贷款申请表测试',
+			'description' => '测试“生成还款计划表”',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'cowpro_issuing_test_form'
+			),
+			'access arguments' => array (
+					TRUE
+			),
+			'type' => MENU_NORMAL_ITEM
+	);
+*/
+	$items ['node/add/cowpro-issuing'] = array (
+			'title' => '我要贷款',
+			'description' => '填写贷款申请表',
+			'page callback' => 'node_add',
+			'page arguments' => array (
+					'cowpro-issuing',
+			),
+			'access callback' => 'node_access',
+			'access arguments' => array (
+					'create',
+					'cowpro_issuing',
+			),
+			'file' => 'node.pages.inc',
+			'type' => MENU_NORMAL_ITEM,
+	);
+	$items ['issuing'] = array (
+			'page callback' => 'node_page_default',
+			'access arguments' => array (
+					'access content',
+			),
+			'menu_name' => 'navigation',
+			'type' => MENU_CALLBACK,
+	);
+
+	$items ['issuing/%node'] = array (
+			'title callback' => 'node_page_title',
+			'title arguments' => array (
+					1,
+			),
+			// The page callback also invokes drupal_set_title() in case
+			// the menu router's title is overridden by a menu link.
+			'page callback' => 'node_page_view',
+			'page arguments' => array (
+					1,
+			),
+			'access callback' => 'node_access',
+			'access arguments' => array (
+					'view',
+					1,
+			)
+	);
+
+	$items ['issuing/%node/brief'] = array (
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'view brief',
+					1,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'view brief',
+					1,
+			),
+			'delivery callback' => 'ajax_deliver',
+	);
+
+	$items ['issuing/%node/repayment_schedule'] = array (
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'view repayment schedule',
+					1,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'view repayment schedule',
+					1,
+			),
+			//'delivery callback' => 'ajax_deliver',
+	);
+
+	$items ['issuing/%node/review'] = array (
+			'title' => '审核贷款',
+			'description' => '审核贷款',
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'review issuing',
+					1,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'review issuing',
+					1,
+			),
+			'file' => 'includes/cowpro_issuing.command.inc',
+			'weight' => 10,
+			'type' => MENU_CALLBACK | MENU_LOCAL_TASK,
+			'context' => MENU_CONTEXT_INLINE,
+	);
+
+	$items ['issuing/%node/review-again'] = array (
+			'title' => '重新审核',
+			'description' => '重新审核贷款(针对处理“流标”状态的贷款)',
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'review again',
+					1,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'review again',
+					1,
+			),
+			'file' => 'includes/cowpro_issuing.command.inc',
+			'weight' => 10,
+			'type' => MENU_CALLBACK | MENU_LOCAL_TASK,
+			'context' => MENU_CONTEXT_INLINE,
+	);
+
+	$items ['issuing/%node/make-loans-to'] = array (
+			'title' => '满标放款',
+			'description' => '满标放款',
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'make loans to',
+					1,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'make loans to',
+					1,
+			),
+			'file' => 'includes/cowpro_issuing.command.inc',
+			'weight' => 20,
+			'type' => MENU_CALLBACK | MENU_LOCAL_TASK,
+			'context' => MENU_CONTEXT_INLINE,
+	);
+
+	$items ['issuing/%node/failing'] = array (
+			'title' => '流标返还',
+			'description' => '流标返还',
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'failing issuing',
+					1,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'failing issuing',
+					1,
+			),
+			'file' => 'includes/cowpro_issuing.command.inc',
+			'weight' => 30,
+			'type' => MENU_CALLBACK | MENU_LOCAL_TASK,
+			'context' => MENU_CONTEXT_INLINE,
+	);
+
+	$items ['issuing/%node/bid'] = array (
+			'title' => '我要投资',
+			'description' => '我要投资',
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'bid issuing',
+					1,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'bid issuing',
+					1,
+			),
+			'file' => 'includes/cowpro_issuing.command.inc',
+			'weight' => 30,
+			'type' => MENU_CALLBACK | MENU_LOCAL_TASK,
+			'context' => MENU_CONTEXT_INLINE,
+	);
+
+	$items ['issuing/%node/assignment'] = array (
+			'title' => '债权转让',
+			'description' => '债权转让',
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'creditor assignment',
+					1,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'creditor assignment',
+					1,
+			),
+			'file' => 'includes/cowpro_issuing.command.inc',
+			'weight' => 30,
+			'type' => MENU_CALLBACK | MENU_LOCAL_TASK,
+			'context' => MENU_CONTEXT_INLINE,
+	);
+
+	$items ['creditor_assignment/%node/%user/interrupt'] = array (
+			'title' => '中止债权转让',
+			'description' => '中止债权转让',
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'interrupt creditor assignment',
+					1,
+					2,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'interrupt creditor assignment',
+					1,
+					2,
+			),
+			'tab_parent' => 'creditor_assignment/%/%/interrupt',
+			'file' => 'includes/cowpro_issuing.command.inc',
+			'weight' => 30,
+			'type' => MENU_CALLBACK | MENU_LOCAL_TASK,
+			'context' => MENU_CONTEXT_INLINE,
+	);
+
+	$items ['creditor_assignment/%node/%user/buy'] = array (
+			'title' => '购买债权',
+			'description' => '购买债权',
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'buy creditor assignment',
+					1,
+					2,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'buy creditor assignment',
+					1,
+					2,
+			),
+			'tab_parent' => 'creditor_assignment/%/%/buy',
+			'file' => 'includes/cowpro_issuing.command.inc',
+			'weight' => 30,
+			'type' => MENU_CALLBACK | MENU_LOCAL_TASK,
+			'context' => MENU_CONTEXT_INLINE,
+	);
+
+	$items ['issuing/%node/repayment'] = array (
+			'title' => '到期还款',
+			'description' => '对到期需要还款的“标的”进行还款操作，还款操作的资金来自贷款申请人的自有账户.',
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'issuing repayment',
+					1,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'issuing repayment',
+					1,
+			),
+			'file' => 'includes/cowpro_issuing.command.inc',
+			'weight' => 30,
+			'type' => MENU_CALLBACK | MENU_LOCAL_TASK,
+			'context' => MENU_CONTEXT_INLINE,
+	);
+
+	$items ['issuing/%node/temporary_advance'] = array (
+			'title' => '网站代偿',
+			'description' => '在贷款申请人自有资金不足的情况下，网站可以垫付资金给贷款人还款.',
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'temporary advance',
+					1,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'temporary advance',
+					1,
+			),
+			'file' => 'includes/cowpro_issuing.command.inc',
+			'weight' => 30,
+			'type' => MENU_CALLBACK | MENU_LOCAL_TASK,
+			'context' => MENU_CONTEXT_INLINE,
+	);
+
+	$items ['issuing/%node/contract'] = array (
+			'title' => '查看合同',
+			'description' => '查看合同',
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'view contract',
+					1,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'view contract',
+					1,
+			),
+			'file' => 'includes/cowpro_issuing.command.inc',
+			'weight' => 30,
+			'type' => MENU_CALLBACK | MENU_LOCAL_TASK,
+			'context' => MENU_CONTEXT_INLINE,
+	);
+
+	$items ['issuing/%node/contract/download'] = array (
+			'title' => '查看合同',
+			'description' => '查看合同',
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'download contract',
+					1,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'download contract',
+					1,
+			),
+			'file' => 'includes/cowpro_issuing.command.inc',
+			'weight' => 30,
+			'type' => MENU_CALLBACK | MENU_LOCAL_TASK,
+			'context' => MENU_CONTEXT_INLINE,
+	);
+
+	return $items;
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function cowpro_issuing_entity_info() {
+	$return = array (
+			'cowpro_repayment_schedule' => array (
+					'label' => 'CowPro Repayment Schedule',
+					'controller class' => 'CowProRepaymentScheduleEntityController',
+					'base table' => 'cowpro_repayment_schedule',
+					'fieldable' => FALSE,
+					'entity keys' => array (
+							'id' => 'schedule_id',
+							'bundle' => 'status',
+							'period' => 'period',
+					),
+					'bundle keys' => array (
+							'bundle' => 'status',
+					),
+					'bundles' => array (),
+					'load hook' => 'cowpro_repayment_schedule_load',
+					'view modes' => array (
+							'tweaky' => array (
+									'label' => t ( 'Tweaky' ),
+									'custom settings' => FALSE,
+							)
+					),
+					'access callback' => 'cowpro_entity_access',
+					'access arguments' => array (
+							'user key' => 'uid',
+							'access tag' => 'cowpro_repayment_schedule_access',
+					)
+			)
+	);
+
+	return $return;
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function cowpro_issuing_field_extra_fields() {
+	$extra ['cowpro_issuing'] ['cowpro_issuing'] = array (
+			'form' => array (
+					'start_time' => array (
+							'label' => '开始投标的时间',
+							'description' => '开始投标的时间(Unix timestamp).',
+							'weight' => - 9
+					),
+					'loan_amounts' => array (
+							'label' => '借款金额',
+							'description' => '借款金额.',
+							'weight' => - 8
+					)
+			),
+			'display' => array (
+					'start_time' => array (
+							'label' => '开始投标的时间',
+							'description' => '开始投标的时间(Unix timestamp).',
+							'weight' => - 9
+					),
+					'loan_amounts' => array (
+							'label' => '借款金额',
+							'description' => '借款金额.',
+							'weight' => - 8
+					)
+			)
+	);
+
+	return $extra;
+}
+
+/**
+ * Implements hook_field_info().
+ *
+ * Provides the description of the field.
+ */
+function cowpro_issuing_field_info() {
+	$fields = array ();
+
+	$fields ['cowpro_issuing'] = array (
+			'label' => '贷款申请表',
+			'description' => '贷款申请表',
+			'settings' => array (),
+			'instance_settings' => array (),
+			'default_widget' => 'cowpro_issuing_widget',
+			'default_formatter' => 'cowpro_issuing_display'
+	);
+	// 'property_type' => 'cowpro_issuing',
+	// 'property_callbacks' => array('cowpro_issuing_property_info_callback'),
+
+	return $fields;
+}
+
+/**
+ * Implementation of hook_action_info().
+ */
+function cowpro_issuing_action_info() {
+	return array (
+			'cowpro_issuing_repayment_action' => array (
+					'type' => 'entity',
+					'label' => '到期还款',
+					'behavior' => array (
+							'changs_property'
+					),
+					'configurable' => FALSE,
+					'vbo_configurable' => FALSE,
+					'triggers' => array (
+							'any'
+					),
+					'aggregate' => TRUE
+			)
+	);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function cowpro_issuing_theme() {
+	// 参考 book_theme()
+	return array (
+			'cowpro_issuing' => array (
+					'render element' => 'element',
+			),
+			'cowpro_issuing_teaser' => array (
+					'path' => drupal_get_path ( 'module', 'cowpro_issuing' ) . '/theme',
+					'variables' => array (
+							'loan_amounts' => NULL,
+							'bid_avail' => NULL,
+							'status' => NULL,
+							'status_readable' => NULL,
+							'loan_term' => NULL,
+							'loan_term_readable' => NULL,
+							'annual_rate' => NULL,
+					),
+					'template' => 'cowpro-issuing-teaser',
+			),
+			'cowpro_issuing_full' => array (
+					'path' => drupal_get_path ( 'module', 'cowpro_issuing' ) . '/theme',
+					'variables' => array (
+							'loan_amounts' => NULL,
+							'bid_avail' => NULL,
+							'status' => NULL,
+							'status_readable' => NULL,
+							'loan_term' => NULL,
+							'loan_term_readable' => NULL,
+							'annual_rate' => NULL,
+					),
+					'template' => 'cowpro-issuing-full',
+			),
+			'cowpro_issuing_bid_list' => array (
+					'path' => drupal_get_path ( 'module', 'cowpro_issuing' ) . '/theme',
+					'variables' => array (
+							'journal_list' => NULL,
+					),
+					'template' => 'cowpro-issuing-bid-list',
+			),
+	);
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function cowpro_issuing_node_view($node, $view_mode) {
+	if ($node->type != 'cowpro_issuing') {
+		return;
+	}
+
+	include_once 'includes/cowpro_issuing.bid.inc';
+	include_once 'includes/cowpro_issuing_status.inc';
+	include_once 'includes/cowpro_issuing.repayment_schedule.fun.inc';
+	$issuing = $node->field_issuing [LANGUAGE_NONE] [0];
+	$issuing_id = $node->nid;
+	$bid_avail = _cowpro_issuing_bid_avail ( $node->nid, $issuing['loan_amounts'] );
+	$status_readable = _cowpro_issuing_get_readable_status($issuing ['status']);
+	$loan_term_readable = _cowpro_issuing_get_readable_loan_term($issuing ['loan_term']);
+	$method_repayment_readable = _cowpro_issuing_get_readable_repayment_method($issuing ['method_repayment']);
+	$progress = (int)((($issuing ['loan_amounts']-$bid_avail) / $issuing ['loan_amounts']) * 100);
+	$applicant_uid = $node->field_applicant [LANGUAGE_NONE] [0]['uid'];
+	$applicant_user = user_load($applicant_uid);
+	$make_loans_time = $issuing['make_loans_time'];
+	if (!$make_loans_time) {
+		$make_loans_time = $issuing['start_time'] + $issuing['deadline'] * 24 * 60 * 60;
+	}
+		ctools_include('modal');
+		ctools_include('ajax');
+		ctools_include('context');
+		ctools_modal_add_js();
+  // Create our own javascript that will be used to theme a modal.
+  $ctools_style = array(
+    'ctools-sample-style' => array(
+      'modalSize' => array(
+        'type' => 'fixed',
+        'width' => 500,
+        'height' => 300,
+        'addWidth' => 20,
+        'addHeight' => 15,
+      ),
+      'modalOptions' => array(
+        'opacity' => .5,
+        'background-color' => '#000',
+      ),
+      'animation' => 'fadeIn',
+      'modalTheme' => 'CToolsSampleModal',
+      'throbber' => theme('image', array('path' => ctools_image_path('ajax-loader.gif', 'ctools_ajax_sample'), 'alt' => t('Loading...'), 'title' => t('Loading'))),
+    ),
+  );
+
+  drupal_add_js($ctools_style, 'setting');
+	$links = menu_contextual_links('cowpro_issuing', 'issuing', array($issuing_id));
+	/*
+	$links = array(
+			'#markup' => theme('links__ctools_dropbutton', array('links' => $links, 'attributes' => array('class' => array('links', 'inline')))),
+	);
+	$links = drupal_render($links);
+	*/
+	$operations = '';
+	$count = 0;
+	foreach ($links as $link) {
+		$id = "ctools-ajax-button-$count";
+		$count++;
+		$form = array();
+		$form['url'] = array(
+				'#type' => 'hidden',
+		    // The name of the class is the #id of $form['ajax_button'] with "-url"
+		    // suffix.
+				'#attributes' => array('class' => array($id . '-url')),
+				'#value' => url($link['href']),
+		);
+		$form[] = array(
+				'#type' => 'button',
+				'#value' => $link['title'],
+				'#attributes' => array('class' => array('ctools-use-modal')),
+				'#id' => $id,
+		);
+		$operations .= drupal_render($form);
+	};
+
+	if ($view_mode == 'full') {
+		drupal_add_css(drupal_get_path('module', 'cowpro_issuing') . "/theme/cowpro_issuing.theme.css");
+		$node->content ['cowpro-issuing-full'] = array (
+				'#markup' => theme ( 'cowpro_issuing_full', array (
+						'title' => $node->title,
+						'issuing_id' => $issuing_id,
+						'applicant' => $applicant_user,
+						'loan_amounts' => $issuing ['loan_amounts'],
+						'bid_avail' => 	$bid_avail,
+						'status' => $issuing ['status'],
+						'status_readable' => $status_readable,
+						'loan_term' => $issuing ['loan_term'],
+						'loan_term_readable' => $loan_term_readable,
+						'method_repayment' => $issuing ['method_repayment'],
+						'method_repayment_readable' => $method_repayment_readable,
+						'annual_rate' => $issuing ['annual_rate'],
+						'created' => $node->created,//提交贷款申请的时间
+						'start' => $issuing['start_time'],//开始投标的时间
+						'make_loans_time' => $make_loans_time,//开始记息（放款）的时间
+						'deadline' => $issuing['deadline'],//投标期（天）
+						'progress' => $progress,
+						'operations' => $operations,
+				) ),
+				'#weight' => 100,
+		);
+		$node->content['my_field'] = array(
+				'#type' => 'horizontal_tabs',
+				'#tree' => TRUE,
+				'#prefix' => '<div id="unique-wrapper">',
+				'#suffix' => '</div>',
+				'#weight' => 200,
+		);
+		$node->content['my_field']['stuff'][0] = array(
+				'#type' => 'fieldset',
+				'#title' => '项目信息',
+				'#collapsible' => TRUE,
+				'#collapsed' => TRUE,
+		);
+		$node->content['my_field']['stuff'][1] = array(
+				'#type' => 'fieldset',
+				'#title' => '风控信息',
+				'#collapsible' => TRUE,
+				'#collapsed' => TRUE,
+		);
+		$node->content['my_field']['stuff'][2] = array(
+				'#type' => 'fieldset',
+				'#title' => '见证信息',
+				'#collapsible' => TRUE,
+				'#collapsed' => TRUE,
+		);
+		$node->content['my_field']['stuff'][3] = array(
+				'#type' => 'fieldset',
+				'#title' => '投资人列表',
+				'#collapsible' => TRUE,
+				'#collapsed' => TRUE,
+		);
+		$node->content['my_field']['stuff'][4] = array(
+				'#type' => 'fieldset',
+				'#title' => '还款记录',
+				'#collapsible' => TRUE,
+				'#collapsed' => TRUE,
+		);
+		$node->content['my_field']['stuff'][0]['body'] = $node->content['body'];
+		unset($node->content['field_applicant']);
+		unset($node->content['field_category']);
+		unset($node->content['field_contract_credit_assignment']);
+		unset($node->content['field_contract_loan']);
+		unset($node->content['field_issuing']);
+		unset($node->content['body']);
+		if (isset($node->content['field_risk_management'])) {
+			//如果用户在填写贷款申请表的时候没有填写风控信息，那么$node->content['field_risk_management']就是"Undefined index"状态
+			$node->content['my_field']['stuff'][1]['field_risk_management'] = $node->content['field_risk_management'];
+			unset($node->content['field_risk_management']);
+		}
+		if (isset($node->content['field_image'])) {
+			//如果用户在填写贷款申请表的时候没有提交图片，那么$node->content['field_image']就是"Undefined index"状态
+			$node->content['my_field']['stuff'][2]['field_image'] = $node->content['field_image'];
+			unset($node->content['field_image']);
+		}
+		$node->content['my_field']['stuff'][3]['bid_list'] = array (
+				'#markup' => theme ( 'cowpro_issuing_bid_list', array (
+						'journal_list' => cowpro_issuing_bid_list ( $node->nid ),
+				) ),
+		);
+		$view = views_get_view('repayment_schedule_lender');
+		$view->set_display('default');
+		$view->set_arguments(array($node->nid));
+		$view->pre_execute();
+		$view->execute();
+		$node->content['my_field']['stuff'][4]['repayment'] = array (
+				'#markup' => $view->render(),
+		);
+	} elseif ($view_mode == 'teaser') {
+		$node->content ['cowpro-issuing-teaser'] = array (
+				'#markup' => theme ( 'cowpro_issuing_teaser', array (
+						'loan_amounts' => $issuing ['loan_amounts'],
+						'bid_avail' => 	$bid_avail,
+						'status' => $issuing ['status'],
+						'status_readable' => $status_readable,
+						'loan_term' => $issuing ['loan_term'],
+						'loan_term_readable' => $loan_term_readable,
+						'annual_rate' => $issuing ['annual_rate'],
+				) ),
+		);
+	} elseif ($view_mode == 'rss') {
+	} elseif ($view_mode == 'search_index') {
+	} elseif ($view_mode == 'search_result') {
+	}
+}
+
+/**
+ * Implements hook_node_view_alter().
+ */
+function cowpro_issuing_node_view_alter(&$build) {
+	/*
+	if ($build['#view_mode'] == 'full' && isset($build['an_additional_field'])) {
+		// Change its weight.
+		$build['an_additional_field']['#weight'] = -10;
+	}
+
+	// Add a #post_render callback to act on the rendered HTML of the node.
+	$build['#post_render'][] = 'my_module_node_post_render';
+	*/
+}
+
+/**
+ *
+ * @param unknown $form
+ * @param unknown $form_state
+ * @param unknown $vbo
+ */
+function cowpro_issuing_views_bulk_operations_form_alter(&$form, &$form_state, $vbo) {
+	if ($vbo->view->name == 'repayment_schedule_debtor') {
+		if ($form_state ['step'] == 'views_form_views_form') {
+			foreach ( $vbo->view->result as $key => $value ) {
+				$nid = $form ['views_bulk_operations'] [$key] ['#return_value'];
+				if ($value->cowpro_repayment_schedule_status === 'COMPLETED') {
+					$form ['views_bulk_operations'] [$key] ['#disabled'] = TRUE;
+					$form ['views_bulk_operations'] [$key] ['#title'] = '已还款';
+				} else if ($value->cowpro_repayment_schedule_status === 'LOCKED') {
+					$form ['views_bulk_operations'] [$key] ['#disabled'] = TRUE;
+					$form ['views_bulk_operations'] [$key] ['#title'] = '债权转让中';
+				} else {
+					$form ['views_bulk_operations'] [$key] ['#disabled'] = FALSE;
+				}
+			}
+		} elseif ($form_state ['step'] == 'views_bulk_operations_confirm_form') {
+			$schedules = entity_load ( 'cowpro_repayment_schedule', $form_state ['selection'] );
+			$markup = '';
+			$total = 0;
+			$info = '第 %d期, 用户 %s, 金额%.2f元<br/>';
+			foreach ( $schedules as $schedule ) {
+				$u = user_load ( $schedule->receiver_uid );
+				$markup .= sprintf ( $info, $schedule->period, $u->name, $schedule->payable_amount - $schedule->paid_amount );
+				$total += round ( $schedule->payable_amount - $schedule->paid_amount, 2 );
+			}
+			$form ['description'] = array (
+					'#prefix' => '<p class="context-help help">',
+					'#markup' => $markup,
+					'#suffix' => '</p>'
+			);
+			$form ['total'] = array (
+					'#prefix' => '<p class="context-help help">',
+					'#markup' => "合计还款金额 $total 元",
+					'#suffix' => '</p>'
+			);
+		}
+	}
+}
+function cowpro_issuing_views_bulk_operations_form_submit($form, &$form_state, $vbo) {
+	drupal_set_message ( 'message' );
+}
+
+/**
+ *
+ * @param unknown $node
+ * @param unknown $context
+ */
+function cowpro_issuing_repayment_action(&$entities, $context = array()) {
+	require_once 'includes/cowpro_issuing.repayment.inc';
+	_cowpro_issuing_repayment_action ( $entities, $context );
+}
+function cowopro_issuing_access($op, $node, $account = NULL) {
+	require_once 'includes/cowpro_issuing.command.inc';
+	return _cowopro_issuing_access ( $op, $node, $account );
+}
+function cowpro_issuing_command($op, $node, $account = NULL) {
+	require_once 'includes/cowpro_issuing.command.inc';
+	return _cowpro_issuing_command ( $op, $node, $account );
+}
+
+/**
+ * Implements hook_cron().
+ */
+function cowpro_issuing_cron() {
+	$need_clear_cache = FALSE;
+
+	// 将 'COWPRO_ISSUING_STATUS_AUDITED 审核通过' 的状态更新为 'COWPRO_ISSUING_STATUS_INVITE_BIDS_START 正在投标'
+	$db_and = db_and ()->condition ( 'field_issuing_status', COWPRO_ISSUING_STATUS_AUDITED, '=' )->condition ( 'field_issuing_start_time', time (), '<' );
+	$updated = db_update ( 'field_data_field_issuing' )->fields ( array (
+			'field_issuing_status' => COWPRO_ISSUING_STATUS_INVITE_BIDS_START
+	) )->condition ( $db_and )->execute ();
+	if (! empty ( $updated )) {
+		watchdog ( 'cowpro_issuing', 'cron 更新《贷款申请表》状态，从“审核通过”到“正在投标”，共 @updated条记录.', array (
+				'@updated' => $updated
+		), WATCHDOG_NOTICE );
+	}
+	$need_clear_cache = $need_clear_cache || $updated;
+
+	// 将 'COWPRO_ISSUING_STATUS_INVITE_BIDS_START 正在投标' 的状态更新为 'COWPRO_ISSUING_STATUS_INVITE_BIDS_FAILED 流标'
+	$db_and = db_and ()->condition ( 'field_issuing_status', COWPRO_ISSUING_STATUS_INVITE_BIDS_START, '=' );
+	$updated = db_update ( 'field_data_field_issuing' )->fields ( array (
+			'field_issuing_status' => COWPRO_ISSUING_STATUS_INVITE_BIDS_FAILED
+	) )->condition ( $db_and )->where ( 'field_issuing_start_time + field_issuing_deadline*24*60*60<UNIX_TIMESTAMP()' )->execute ();
+	if (! empty ( $updated )) {
+		watchdog ( 'cowpro_issuing', 'cron 更新《贷款申请表》状态，从“正在投标”到“流标”，共 @updated条记录.', array (
+				'@updated' => $updated
+		), WATCHDOG_NOTICE );
+	}
+	$need_clear_cache = $need_clear_cache || $updated;
+
+	if ($need_clear_cache) {
+		// 更新缓存
+		entity_get_controller ( 'node' )->resetCache ();
+		cache_clear_all ( '*', 'cache_views', TRUE );
+		cache_clear_all ( '*', 'cache_views_data', TRUE );
+		cache_clear_all ( '*', 'cache_field', TRUE );
+		// cache_clear_all();
+	}
+}
+
+/**
+ * Implements hook_field_validate().
+ *
+ * This hook gives us a chance to validate content that's in our
+ * field. We're really only interested in the $items parameter, since
+ * it holds arrays representing content in the field we've defined.
+ * If the item validates, we do nothing. If it doesn't validate,
+ * we add our own error notification to the $errors parameter.
+ *
+ * @see field_example_field_widget_error()
+ */
+function cowpro_issuing_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
+}
+function cowpro_issuing_form_element_validate($element, &$form_state) {
+	// @todo: Isn't there a better way to find out which element?
+	$delta = $element ['#delta'];
+	$field = $form_state ['field'] [$element ['#field_name']] [$element ['#language']] ['field'];
+	$field_name = $field ['field_name'];
+
+	// 把"开始时间"的选项（由年、月、日三个下拉列表组成）转化成 unix timestamp 并保存在 $element['start_time'] 表单项里面
+	$start = $form_state ['values'] [$field_name] [$element ['#language']] [$delta] ['issuing_review'] ['start_time_element'];
+	$format = 'Ymd';
+	$date = DateTime::createFromFormat ( $format, $start ['year'] . sprintf ( '%02d', $start ['month'] ) . sprintf ( '%02d', $start ['day'] ) );
+	$value = $date->getTimestamp ();
+	form_set_value ( $element ['issuing_review'] ['start_time'], $value, $form_state );
+
+	// $form['field_issuing'][LANGUAGE_NONE][0]['issuing_general']['field_loan_term'] = $form['field_loan_term'][LANGUAGE_NONE];
+}
+
+/**
+ * Implements hook_field_is_empty().
+ *
+ * hook_field_is_emtpy() is where Drupal asks us if this field is empty.
+ * Return TRUE if it does not contain data, FALSE if it does. This lets
+ * the form API flag an error when required fields are empty.
+ */
+function cowpro_issuing_field_is_empty($item, $field) {
+	return FALSE;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function cowpro_issuing_views_api() {
+	return array (
+			'api' => 3,
+			'path' => drupal_get_path ( 'module', 'cowpro_issuing' ) . '/includes/views'
+	);
+}
+
+/**
+ * Implements hook_permission().
+ */
+function cowpro_issuing_permission() {
+	$permissions = array (
+			'review issuing' => array (
+					'title' => '审核贷款',
+					'description' => '审核贷款.',
+					'restrict access' => TRUE
+			),
+			'make loans to' => array (
+					'title' => '满标放款',
+					'description' => '满标放款.',
+					'restrict access' => TRUE
+			),
+			'admin repayment' => array (
+					'title' => '辅助还款',
+					'description' => '由管理员帮助债务人对到期需要还款的“标的”进行还款操作，还款操作的资金来自债务人（即贷款申请人）的自有账户.',
+					'restrict access' => TRUE
+			),
+			'temporary advance' => array (
+					'title' => '网站代偿',
+					'description' => '在贷款申请人自有资金不足的情况下，网站可以垫付资金给贷款人还款.',
+					'restrict access' => TRUE
+			),
+			'failing issuing' => array (
+					'title' => '贷款流标',
+					'description' => '将贷款标记为流标.',
+					'restrict access' => TRUE
+			),
+			'bid issuing' => array (
+					'title' => '我要投资',
+					'description' => '针对某个《贷款申请表》进行投标.'
+			)
+	);
+
+	return $permissions;
+}
+
+/**
+ * Implements hook_node_access().
+ */
+function cowpro_issuing_node_access($node, $op, $account) {
+	$type = is_string ( $node ) ? $node : $node->type;
+
+	if ($type === 'cowpro_issuing') {
+		if (in_array ( $type, node_permissions_get_configured_types () )) {
+			// if ($op == 'create' && user_access ( 'create ' . $type . ' content', $account )) {
+			if ($op == 'create') {
+				if (user_access ( 'create ' . $type . ' content', $account ) || (user_access ( 'review issuing', $account ))) {
+					// TODO 只有实名认证的用户和具有‘create cowpro_issuing content’权限的用户可以创建《贷款申请表》
+					// 并且实名认证的用户创建的《贷款申请表》中，“申请人”一项，只能是其本人，并且不能被修改
+					return NODE_ACCESS_ALLOW;
+				} else {
+					return NODE_ACCESS_DENY;
+				}
+			}
+
+			$issuing = $node->field_issuing [LANGUAGE_NONE] [0];
+			if ($op == 'update') {
+				if ((user_access ( 'edit any ' . $type . ' content', $account ) || (user_access ( 'edit own ' . $type . ' content', $account ) && ($account->uid == $node->uid))) && ($issuing ['status'] == COWPRO_ISSUING_STATUS_UNAUDITED)) {
+					// TODO 用户可以编辑自己创建的、还未被管理员审核的《贷款申请表》
+					// 并且实名认证的用户创建的《贷款申请表》中，“申请人”一项，只能是其本人，并且不能被修改
+					return NODE_ACCESS_ALLOW;
+				} else {
+					return NODE_ACCESS_DENY;
+				}
+			}
+
+			if ($op == 'delete') {
+				$result = NODE_ACCESS_DENY;
+				if ($issuing ['status'] == COWPRO_ISSUING_STATUS_UNAUDITED) {
+					if ((user_access ( 'delete own ' . $type . ' content', $account ) && ($account->uid == $node->uid)) || (user_access ( 'review issuing', $account ))) {
+						// 只能由贷款审核人或者贷款者本人来删除还未审核的《贷款申请表》
+						$result = NODE_ACCESS_ALLOW;
+					}
+				}
+				return $result;
+			}
+
+			if ($op == 'view') {
+				$result = NODE_ACCESS_DENY;
+				if ($issuing ['status'] == COWPRO_ISSUING_STATUS_UNAUDITED) {
+					// 如果贷款申请表是“未审核”状态，那么只有申请人以及管理员可见
+					if (user_access ( 'edit any ' . $type . ' content', $account ) || (user_access ( 'view own ' . $type . ' content', $account ) && ($account->uid == $node->uid))) {
+						$result = NODE_ACCESS_ALLOW;
+					}
+				} else {
+					$result = NODE_ACCESS_ALLOW;
+				}
+				return $result;
+			}
+		}
+	}
+
+	return NODE_ACCESS_IGNORE;
+}
+
+/**
+ * Determines whether or not the give issuing can be deleted.
+ *
+ * @param $issuing The
+ *        	issuing to be checked for deletion.
+ *
+ * @return Boolean indicating whether or not the issuing can be deleted.
+ */
+function cowpro_issuing_can_delete($issuing) {
+	// todo 下面代码要重新整理
+	// Return FALSE if the given $issuing does not have an ID; it need not be
+	// deleted, which is functionally equivalent to cannot be deleted as far as
+	// code depending on this function is concerned.
+	if (empty ( $issuing->issuing_id )) {
+		return FALSE;
+	}
+
+	// If any module implementing hook_cowpro_issuing_can_delete()
+	// returns FALSE the issuing cannot be deleted. Return TRUE if none
+	// return FALSE.
+	return ! in_array ( FALSE, module_invoke_all ( 'cowpro_issuing_can_delete', $issuing ) );
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function cowpro_issuing_field_formatter_info() {
+	return array (
+			'cowpro_issuing_display' => array (
+					'label' => '贷款申请表',
+					'description' => '显示贷款申请表.',
+					'field types' => array (
+							'cowpro_issuing',
+					),
+					'settings' => array (
+							'use_widget_handlers' => 1,
+							'format_handlers' => array (
+									'cowpro_issuing',
+							)
+					)
+			),
+			'cowpro_issuing_additional_field_display' => array(
+					'label' => '贷款申请表附加字段',
+					'description' => '显示贷款申请表的附加字段, 把与cowpro_issuing有关的字段的显示工作统一交由cowpro_issuing模块来处理，这样在需要定制cowpro_issuing的场合可以减少与其它模块的耦合',
+					'field types' => array(
+						'user_reference',//field_applicant
+						'list_text',//field_category
+						'node_reference',//field_contract_credit_assignment, field_contract_loan
+						'image',//field_image
+						'taxonomy_term_reference',//field_tags
+					),
+			),
+
+	);
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function cowpro_issuing_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+	$settings = $display ['settings'];
+	$element = array ();
+
+	switch ($display ['type']) {
+		case 'cowpro_issuing_display' :
+			/*
+			if (! empty ( $settings ['use_widget_handlers'] )) {
+				$handlers = $instance ['widget'] ['settings'] ['format_handlers'];
+			} else {
+				$handlers = $settings ['format_handlers'];
+			}
+			*/
+			foreach ( $items as $delta => $issuing ) {
+				// Generate the issuing format.
+				$context = array (
+						'mode' => 'render',
+						'field' => $field,
+						'instance' => $instance,
+						'langcode' => $langcode,
+						'delta' => $delta
+				);
+				$element [$delta] = _cowpro_issuing_generate ( $issuing, $context );
+			}
+			break;
+		case 'cowpro_issuing_additional_field_display' :
+			include_once 'includes/cowpro_issuing.field_formatter.php';
+			switch($field['type']) {
+				case 'user_reference' :
+					$element = cowpro_issuing_field_formatter_view_user_reference($entity_type, $entity, $field, $instance, $langcode, $items, $display);
+					break;
+				case 'list_text' :
+					$element = cowpro_issuing_field_formatter_view_list_text($entity_type, $entity, $field, $instance, $langcode, $items, $display);
+					break;
+				case 'node_reference' :
+					$element = cowpro_issuing_field_formatter_view_node_reference($entity_type, $entity, $field, $instance, $langcode, $items, $display);
+					break;
+				case 'image' :
+					$element = cowpro_issuing_field_formatter_view_image($entity_type, $entity, $field, $instance, $langcode, $items, $display);
+					break;
+				case 'taxonomy_term_reference' :
+					$element = cowpro_issuing_field_formatter_view_taxonomy_term_reference($entity_type, $entity, $field, $instance, $langcode, $items, $display);
+					break;
+				default:
+					$element ['help'] = array (
+							'#type' => 'html_tag',
+							'#tag' => 'p',
+							'#value' => '未处理的字段类型！',
+					);
+					break;
+			}
+	}
+
+	return $element;
+}
+
+/**
+ * Implements hook_field_presave().
+ * Make changes or additions to field values by altering the $items parameter by
+ * reference. There is no return value.
+ *
+ * @param $entity_type The
+ *        	type of $entity.
+ * @param $entity The
+ *        	entity for the operation.
+ * @param $field The
+ *        	field structure for the operation.
+ * @param $instance The
+ *        	instance structure for $field on $entity's bundle.
+ * @param $langcode The
+ *        	language associated with $items.
+ * @param $items $entity->{$field['field_name']}[$langcode],
+ *        	or an empty array if unset.
+ */
+function cowpro_issuing_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+	foreach ( $items as $delta => &$item ) {
+		// Trim whitespace from all of the address components and convert any double
+		// spaces to single spaces.
+		foreach ( $item as $key => &$value ) {
+			if (! in_array ( $key, array (
+					'data'
+			) ) && is_string ( $value )) {
+				$value = trim ( str_replace ( '  ', ' ', $value ) );
+			}
+		}
+		// 在用features功能导入初始示例数据的时候也会触发hook_field_presave方法
+		// 由features触发本方法的时候，$item['issuing_general']，$item['issuing_review']，$item ['issuing_settings']是没有的
+		if (isset ( $item ['issuing_general'] )) {
+			$item = array_merge ( $item, $item ['issuing_general'] );
+		}
+		if (isset ( $item ['issuing_review'] )) {
+			$item = array_merge ( $item, $item ['issuing_review'] );
+			if ($item ['issuing_review'] ['audited'] == 1) {
+				$item ['status'] = COWPRO_ISSUING_STATUS_AUDITED;
+			}
+		}
+		$item ['data'] = isset ( $item ['data'] ) ? $item ['data'] : array ();
+		if (isset ( $item ['issuing_settings'] )) {
+			$item ['data'] ['deal_service_fee'] = $item ['issuing_settings'] ['deal_service_fee'];
+			$item ['data'] += array (
+					'borrower_management_fee' => $item ['issuing_settings'] ['borrower_management_fee']
+			);
+			$item ['data'] += array (
+					'investor_management_fee' => $item ['issuing_settings'] ['investor_management_fee']
+			);
+			$item ['data'] += array (
+					'interest_management_fee' => $item ['issuing_settings'] ['interest_management_fee']
+			);
+			$item ['data'] += array (
+					'charges_for_late_payments' => $item ['issuing_settings'] ['charges_for_late_payments']
+			);
+			$item ['data'] += array (
+					'charges_for_serious_overdue' => $item ['issuing_settings'] ['charges_for_serious_overdue']
+			);
+			$item ['data'] += array (
+					'assignment_of_credit_management_fee' => $item ['issuing_settings'] ['assignment_of_credit_management_fee']
+			);
+			$item ['data'] += array (
+					'prepayment_penalty' => $item ['issuing_settings'] ['prepayment_penalty']
+			);
+			$item ['data'] += array (
+					'investor_rebate' => $item ['issuing_settings'] ['investor_rebate']
+			);
+
+			$item ['data'] += module_invoke_all ( 'cowpro_issuing_field_presave', $item );
+		}
+
+		// 在 cowpro_issuing_field_schema() 里面，我们定义 'data' 字段的 'serialize' 属性为 TRUE
+		// 按原来的经验，在保存数据的时候，应该由 drupal 的 field api 来实现 serialize() 操作
+		// 但是现在并不是这样，原因未知，所以我们在这里执行 serialize() 操作
+		$item ['data'] = serialize ( $item ['data'] );
+	}
+}
+
+/**
+ * Implements hook_field_load().
+ */
+function cowpro_issuing_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+	foreach ( $entities as $id => $entity ) {
+		foreach ( $items [$id] as $delta => $item ) {
+			$items [$id] [$delta] ['data'] = unserialize ( $item ['data'] );
+		}
+	}
+}
+
+/**
+ * Implements hook_field_widget_info().
+ *
+ * Defines widgets available for use with field types as specified in each
+ * widget's $info['field types'] array.
+ */
+function cowpro_issuing_field_widget_info() {
+	return array (
+			'cowpro_issuing_widget' => array (
+					'label' => '贷款申请表',
+					'field types' => array (
+							'cowpro_issuing'
+					)
+			)
+	);
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function cowpro_issuing_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+	include_once DRUPAL_ROOT . '/' . drupal_get_path ( 'module', 'cowpro_issuing' ) . '/includes/cowpro_issuing.display.inc';
+	$issuing = isset ( $items [$delta] ) ? $items [$delta] : array ();
+
+	$widget = $element;
+	$widget += array (
+			'#type' => 'fieldset',
+			'#element_validate' => array (
+					'cowpro_issuing_form_element_validate'
+			),
+
+			// #delta is set so that the validation function will be able
+			// to access external value information which otherwise would be
+			// unavailable.
+			'#delta' => $delta
+	);
+
+	$context = array (
+			'mode' => 'form',
+			'field' => $field,
+			'instance' => $instance,
+			'langcode' => $langcode,
+			'delta' => $delta
+	);
+
+	$widget += _cowpro_issuing_generate ( $issuing, $context );
+
+	return $widget;
+}
+function cowpro_issuing_field_default_value($entity_type, $entity, $field, $instance, $langcode) {
+	include_once DRUPAL_ROOT . '/' . drupal_get_path ( 'module', 'cowpro_issuing' ) . '/includes/cowpro_issuing.status.inc';
+	$values = array (
+			'status' => COWPRO_ISSUING_STATUS_UNAUDITED,
+			'data' => array (),
+			'method_repayment' => '',
+			'loan_amounts' => NULL,
+			'annual_rate' => 10,
+			'deadline' => 7,
+			'start_time' => time () + (1 * 24 * 60 * 60),
+			'make_loans_time' => 0,
+	);
+	return $values;
+}
+function _cowpro_issuing_generate($issuing, array $context = array()) {
+	require_once 'includes/cowpro_issuing.display.inc';
+
+	// If no mode is given in the context array, default it to 'render'.
+	if (empty ( $context ['mode'] )) {
+		$context ['mode'] = 'render';
+	}
+
+	if ($context ['mode'] == 'form') {
+		$format = _cowpro_issuing_get_form_issuing ( $issuing );
+	} else if ($context ['mode'] == 'render') {
+		$format = _cowpro_issuing_get_render_issuing ( $issuing );
+	}
+
+	return $format;
+}
+
+/*
+ * hook_form_alter()
+ */
+function cowpro_issuing_form_alter(&$form, &$form_state) {
+	if (isset ( $form ['type'] ) && isset ( $form ['type'] ['#value'] ) && ($form ['type'] ['#value'] === 'cowpro_issuing')) {
+		hide ( $form ['revision_information'] );
+		// hide($form['options']);
+		hide ( $form ['author'] );
+		hide ( $form ['comment_settings'] );
+		// hide($form['additional_settings']);
+	}
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function cowpro_issuing_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+	// 在'node/%' 页面里，如果用户只能看到一个 tabs，那么就隐藏这个 tabs，这样可以改善用户的体验
+	// 具体来说，在'node/%' 页面里，tabs 展现的 local task link 可能有 view, edit 等等
+	// 对于没有 edit 权限的访问者来说，他只能看到 view(查看)那一项，(就是查看贷款详情页面)
+	// 这个时候，我们就隐藏'view(查看)'这个tabs，但是这样并不会影响贷款详情页想要显示给用户的详情
+	// 通过这种方式简化页面，可以改善用户的体验
+	if ($root_path == 'node/%') {
+		if ($data ['tabs'] [0] ['count'] == 1) {
+			unset ( $data ['tabs'] );
+			$data ['tabs'] = array ();
+		}
+	}
+}
+
+/*
+ * hook_field_access()
+ */
+function cowpro_issuing_field_access($op, $field, $entity_type, $entity, $account) {
+	if (($op === 'edit') && ($field ['field_name'] === 'field_applicant')) {
+		return user_access ( 'review issuing', $account );
+	}
+}
+
+/*
+ * drupal 的文档中提到 field 有一个属性 default_value_function，可以在运行时刻提供默认值
+ * 但是在 field ui 的编辑界面中，只提供了 default_value 属性的设置，
+ * 并没有提供 default_value_function 的设置
+ * 所以我们在 cowpro_features.features.field_instance.inc 文件中直接修改
+ * 就是在数组 $field_instances['node-cowpro_issuing-field_applicant'] 里面增加一个下标：
+ * 'default_value_function' => 'cowpro_issuing_get_default_applicant',
+ *
+ * 注意：这个函数需要移到 user_reference.module 文件中，
+ * 以后如果找到更好的方法，再调整
+ */
+function _cowpro_issuing_get_default_applicant() {
+	$default_value = array (
+			0 => array (
+					$GLOBALS ['user']->uid
+			)
+	);
+	return $default_value;
+}
+
+/*
+ * drupal 的文档中提到 field 有一个属性 default_value_function，可以在运行时刻提供默认值
+ * 但是在 field ui 的编辑界面中，只提供了 default_value 属性的设置，
+ * 并没有提供 default_value_function 的设置
+ * 所以我们在 cowpro_features.features.field_instance.inc 文件中直接修改
+ * 就是在数组 $field_instances['node-cowpro_issuing-field_issuing'] 里面增加一个下标：
+ * 'default_value_function' => 'cowpro_issuing_get_default_issuing',
+ */
+function cowpro_issuing_get_default_issuing() {
+	$date = new DateTime ( 'NOW' );
+	date_add ( $date, date_interval_create_from_date_string ( '3 days' ) ); // 上标时间是三天后
+	$v = array (
+			'year' => ( int ) $date->format ( 'Y' ),
+			'month' => ( int ) $date->format ( 'm' ),
+			'day' => ( int ) $date->format ( 'd' )
+	);
+
+	$default_value = array (
+			0 => array (
+					'method_repayment' => 1,
+					'loan_amounts' => NULL,
+					'annual_rate' => 10,
+					'deadline' => 7,
+					'start_time_element' => $v,
+					'start_time' => $date->getTimestamp (),
+					'make_loans_time' => 0,
+					'status' => 'UNAUDITED',
+					'weight' => 0,
+			)
+	);
+	return $default_value;
+}
+
+/**
+ * Implements hook_node_presave()
+ *
+ */
+function cowpro_issuing_node_presave($node) {
+	// 将 'COWPRO_ISSUING_STATUS_AUDITED 审核通过' 的状态更新为 'COWPRO_ISSUING_STATUS_INVITE_BIDS_START 正在投标'
+	if (($node->field_issuing[LANGUAGE_NONE][0]['status'] == COWPRO_ISSUING_STATUS_AUDITED)
+			&& ($node->field_issuing[LANGUAGE_NONE][0]['start_time'] <= time ())) {
+		$node->field_issuing[LANGUAGE_NONE][0]['status'] = COWPRO_ISSUING_STATUS_INVITE_BIDS_START;
+	}
+}
+
+/**
+ * Implements hook_field_attach_form().
+ * 根据 issuing 的状态来决定表单中的项目是否可被编辑
+ * 因为 field issuing 在设计的时候粒度分的并不是太细，
+ * 里面包括 issuing_general，issuing_review，issuing_settings 几个类别，
+ * 权限是不同的，所以并不适合在 hook_field_access 里面实现权限管理
+ * 所以我们把这部分需求放在 hook_field_attach_form 里面来处理
+ */
+function cowpro_issuing_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
+	if (isset ( $entity->type ) && ($entity->type === 'cowpro_issuing')) {
+		$audited = FALSE;
+		if (isset ( $entity->field_issuing )) {
+			$issuing = $entity->field_issuing [LANGUAGE_NONE] [0];
+			if (isset ( $issuing ['status'] ) && ($issuing ['status'] != COWPRO_ISSUING_STATUS_UNAUDITED)) {
+				$audited = TRUE;
+			}
+		}
+		$form ['field_issuing'] [LANGUAGE_NONE] [0] ['issuing_general'] ['#disabled'] = $audited;
+		$form ['field_issuing'] [LANGUAGE_NONE] [0] ['issuing_review'] ['#disabled'] = $audited;
+		// $form ['field_issuing'] [LANGUAGE_NONE] [0] ['issuing_review'] ['audited'] ['#disabled'] = $audited;
+		// $form ['field_issuing'] [LANGUAGE_NONE] [0] ['issuing_review'] ['deadline'] ['#disabled'] = $audited;
+		// $form ['field_issuing'] [LANGUAGE_NONE] [0] ['issuing_review'] ['start_time_element'] ['#disabled'] = $audited;
+		$form ['field_issuing'] [LANGUAGE_NONE] [0] ['issuing_settings'] ['#disabled'] = $audited;
+		$form ['body'] ['#disabled'] = $audited;
+		$form ['field_applicant'] ['#disabled'] = $audited;
+		$form ['field_category'] ['#disabled'] = $audited;
+		$form ['field_contract_credit_assignment'] ['#disabled'] = $audited;
+		$form ['field_contract_loan'] ['#disabled'] = $audited;
+		$form ['field_image'] ['#disabled'] = $audited;
+		$form ['field_risk_management'] ['#disabled'] = $audited;
+
+		$access = user_access ( 'review issuing' );
+		$form ['field_issuing'] [LANGUAGE_NONE] [0] ['issuing_review'] ['audited'] ['#access'] = $access;
+		$form ['field_issuing'] [LANGUAGE_NONE] [0] ['issuing_settings'] ['#access'] = $access;
+		$form ['field_applicant'] ['#access'] = $access;
+	}
+}
+function cowpro_issuing_create_repayment_schedule($nid, $applicant, $issuing) {
+	require_once 'includes/cowpro_issuing.repayment_schedule.fun.inc';
+	_cowpro_issuing_save_repayment_schedule ( $nid, $applicant, $issuing );
+}
+function cowpro_issuing_bid_list($nid) {
+	require_once 'includes/cowpro_issuing.bid.inc';
+	return _cowpro_issuing_bid_list ( $nid );
+}
+/*
+function cowpro_issuing_test_form($form, &$form_state) {
+	// 生成还款计划表
+	$nid = 12;
+	$node = node_load ( $nid );
+	$issuing = $node->field_issuing [LANGUAGE_NONE] [0];
+
+	require_once 'includes/cowpro_issuing.repayment_schedule.fun.inc';
+	$schedule_list = _cowpro_issuing_build_repayment_schedule ( $issuing ['loan_amounts'], $issuing ['annual_rate'], $issuing ['loan_term'], $issuing ['method_repayment'], $issuing['make_loans_time'] );
+	$total = 0;
+	foreach ( $schedule_list as $key => $value ) {
+		$total += $value ['capital'] + $value ['interest'];
+		$content = '<ul>';
+		foreach ( $value as $k => $v ) {
+			$content .= "<li>$k => $v</li>";
+		}
+		$content .= '</ul>';
+		echo "$key => $content<br/>";
+	}
+	$interest = $total - $issuing ['loan_amounts'];
+
+	echo '利息：' . $interest . '<br/>';
+	echo 'loan_amount:' . $issuing ['loan_amounts'] . '<br/>';
+	echo 'annual_rate:' . $issuing ['annual_rate'] . '<br/>';
+	echo 'loan_term:' . $issuing ['loan_term'] . '<br/>';
+	echo 'method_repayment:' . $issuing ['method_repayment'] . '<br/>';
+	die ( '还款计划表' );
+}
+*/

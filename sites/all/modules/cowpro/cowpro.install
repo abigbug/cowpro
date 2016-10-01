@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * Performs database updates and uninstallation cleanup for the CowPro module.
+ */
+
+
+/**
+ * Implements hook_install().
+ */
+function cowpro_install() {
+  // Give cowpro.module a higher weight than field.module so we can use
+  // hook_system_info_alter() to override the dependencies it adds.
+  $weight = db_select('system', 's')
+              ->fields('s', array('weight'))
+              ->condition('name', 'field', '=')
+              ->execute()
+              ->fetchField();
+  db_update('system')
+    ->fields(array('weight' => $weight + 1))
+    ->condition('name', 'cowpro', '=')
+    ->execute();
+
+    _cowpro_create_role();
+}
+
+/*
+ * 创建 P2P 平台中的三个角色：
+ * 1. manager: 负责P2P平台日常的维护
+ * 2. lender: 出借人
+ * 3. debtor: 债务人
+ */
+function _cowpro_create_role() {
+	// Create new role.
+	$role = new stdClass();
+	$role->name = 'manager';
+	user_role_save($role);
+	$role = new stdClass();
+	$role->name = 'lender';
+	user_role_save($role);
+	$role = new stdClass();
+	$role->name = 'debtor';
+	user_role_save($role);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function cowpro_uninstall() {
+  variable_del('cowpro_default_currency');
+  variable_del('cowpro_enabled_currencies');
+  variable_del('cowpro_password_length');
+}

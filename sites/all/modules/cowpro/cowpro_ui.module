@@ -1,0 +1,196 @@
+<?php
+include_once 'cowpro.const.inc';
+
+/**
+ * @file
+ * Defines menu items common to the various Drupal CowPro UI modules.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function cowpro_ui_menu() {
+	$items = array ();
+
+	// Top level "Store" container.
+	$items ['admin/cowpro'] = array (
+			'title' => 'P2P平台管理',
+			'description' => 'P2P网贷平台管理',
+			'page callback' => 'system_admin_menu_block_page',
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'file path' => drupal_get_path ( 'module', 'system' ),
+			'file' => 'system.admin.inc',
+			'weight' => - 7
+	);
+	/*
+	$items ['admin/cowpro/config'] = array (
+			'title' => '参数设置',
+			'description' => '配置P2P平台的参数与业务逻辑',
+			'page callback' => 'system_admin_menu_block_page',
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'weight' => 50,
+			'file path' => drupal_get_path ( 'module', 'system' ),
+			'file' => 'system.admin.inc'
+	);
+	*/
+	$items ['admin/cowpro/config_general'] = array (
+			'title' => '常规',
+			'description' => '与平台相关的一些参数项，可以在这里设置',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'cowpro_ui_general_settings_form'
+			),
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_NORMAL_ITEM
+	);
+	return $items;
+}
+function cowpro_ui_general_settings_form($form, &$form_state) {
+	$form['cowpro_company_name'] = array(
+			'#type' => 'textfield',
+			'#title' => '公司名称',
+			'#default_value' => variable_get('cowpro_company_name', COWPRO_COMPANY_NAME),
+			'#description' => '公司名称可以出现在合同、短信、电子邮件等内容中',
+			'#size' => 60,
+			'#maxlength' => 60,
+			'#required' => FALSE,
+	);
+	$form['cowpro_company_address'] = array(
+			'#type' => 'textfield',
+			'#title' => '公司营业地址',
+			'#default_value' => variable_get('cowpro_company_address', COWPRO_COMPANY_ADDRESS),
+			'#description' => '公司营业地址可以出现在合同、短信、电子邮件等内容中',
+			'#size' => 60,
+			'#maxlength' => 60,
+			'#required' => FALSE,
+	);
+	$form['cowpro_company_organization_code'] = array(
+			'#type' => 'textfield',
+			'#title' => '公司组织机构代码',
+			'#default_value' => variable_get('cowpro_company_organization_code', COWPRO_COMPANY_ORGANIZATION_CODE),
+			'#description' => '组织机构代码可以出现在合同、短信、电子邮件等内容中',
+			'#size' => 60,
+			'#maxlength' => 60,
+			'#required' => FALSE,
+	);
+
+	$seal = variable_get('cowpro_company_seal', '');
+	if ($seal != '') {
+		$file = file_load($seal);
+		$form['cowpro_company_seal_copy'] = array(
+				'#type' => 'item',
+				'#markup' => '<img style="max-width:200px;max-height:200px;" src=' . file_create_url($file->uri) . '>',
+		);
+	}
+
+	$form['cowpro_company_seal'] = array(
+			'#type' => 'managed_file',
+			'#title' => '公司印章',
+			'#default_value' => $seal,
+			'#description' => '上传图片文件，可接受的文件格式为: png. 公司印章可以显示在合同中。 在制作 png 图片的时候，请将图片的背景设置为透明，以便印章更好地显示在合同中。',
+			'#upload_location' => 'public://seal/',
+			'#upload_validators' => array(
+					'file_validate_extensions' => array('png'),
+					// Pass the maximum file size in bytes
+					//'file_validate_size' => array(MAX_FILE_SIZE*1024*1024),
+			),
+			'#required' => FALSE,
+	);
+
+	$form ['description'] = array (
+			'#type' => 'item',
+			'#title' => '使用 CowPro P2P 平台之前，你需要先阅读并且同意我们的《使用协议》'
+	);
+	$form ['cowpro_User_agreement'] = array (
+			'#title' => t ( 'I agree to the Privacy Policy and User Agreement' ),
+			'#type' => 'checkbox',
+			'#default_value' => variable_get ( 'cowpro_User_agreement', FALSE ),
+			'#suffix' => '</div>'
+	);
+	$form ['actions'] = array (
+			'#type' => 'actions'
+	);
+	$form ['actions'] ['submit'] = array (
+			'#type' => 'submit',
+			'#value' => t ( "Save" ),
+			'#weight' => 10
+	);
+  $form = system_settings_form($form);
+  // Custom validation callback for the cowpro_ui_general setting.
+  // $form['#validate'][] = 'cowpro_ui_general_settings_validate';
+  // We need to call our own submit callback first, not the one from
+  // system_settings_form(), so that we can process and save the emails.
+  unset($form['#submit']);
+
+  return $form;
+}
+
+function cowpro_ui_general_settings_form_submit($form, &$form_state) {
+	global $user;
+
+	// unset manged_file submit buttons
+	foreach ($form_state['buttons'] as $ind => $button) {
+		if (isset($button['#submit']) && $button['#submit'][0] == 'file_managed_file_submit') {
+			unset($form_state['buttons'][$ind]);
+		}
+	}
+
+	if (is_numeric($form_state['values']['cowpro_company_seal']) && $form_state['values']['cowpro_company_seal'] > 0) {
+		// Load the file via file.fid.
+		$file = file_load($form_state['values']['cowpro_company_seal']);
+		if ($file) {
+			// Change status to permanent.
+			$file->status = FILE_STATUS_PERMANENT;
+			// Save.
+			file_save($file);
+			// Save file to variable.
+			variable_set('cowpro_company_seal', $file->fid);
+			// Record that the module is using the file.
+			file_usage_add($file, 'cowpro', 'seal', $user->uid);
+		}
+	}
+	else {
+		// Load the file via file.fid.
+		$file = file_load(variable_get('cowpro_company_seal', ''));
+
+		if ($file->fid) {
+			// Delete the file and the usage record
+			file_delete($file, TRUE);
+		}
+
+		variable_del('cowpro_company_seal');
+	}
+  system_settings_form_submit($form, $form_state);
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+ function cowpro_ui_menu_alter(&$items) {
+ $items['user']['title callback'] = array('cowpro_ui_user_menu_title');
+ }
+
+ function cowpro_ui_user_menu_title() {
+ 	$title = t('User account');
+ 	if (user_is_logged_in()) {
+ 		global $user;
+ 		$name = $user->name;
+ 		$roles = $user->roles;
+ 		$key = array_search('authenticated user', $roles);
+ 		unset($roles[$key]);
+ 		$role_title = '';
+ 		foreach ($roles as $role) {
+ 			$role_title .= ',' . t($role);
+ 		}
+ 		$role_title = substr ( $role_title, 1 ); // 删除开头的“逗号”
+ 		$title = "$name ($role_title)";
+ 	}
+ 	return $title;
+ }

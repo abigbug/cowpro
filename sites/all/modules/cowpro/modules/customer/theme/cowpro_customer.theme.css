@@ -1,0 +1,14 @@
+
+/**
+ * @file
+ * Basic styling for the CowPro Customer module.
+ */
+
+.cowpro-customer-profile-copy .ajax-progress {
+  float: none;
+  display: inline;
+}
+
+.cowpro-customer-profile-copy .ajax-progress .message {
+  display: none;
+}
