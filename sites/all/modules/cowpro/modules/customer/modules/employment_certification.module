@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * Implements hook_views_api().
+ */
+function employment_certification_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'employment_certification') . '/includes/views',
+  );
+}
+
+/**
+ * Implements hook_cowpro_customer_profile_type_create().
+ */
+function employment_certification_cowpro_customer_profile_employment_create($values) {
+	$values += array(
+			'' => '', //单位名称
+			'' => '', //职业状态
+			'' => '', //工作城市
+			'' => '', //公司类别
+			'' => '', //公司行业
+			'' => '', //公司规模
+			'' => '', //职位
+			'' => '', //月收入
+			'' => '', //在现单位工作年限
+			'' => '', //公司电话
+			'' => '', //工作邮箱
+			'' => '', //公司地址
+			'' => '', //直系亲属联系人,姓名
+			'' => '', //直系亲属联系人,关系
+			'' => '', //直系亲属联系人,手机
+			'' => '', //其他联系人,姓名
+			'' => '', //其他联系人,关系
+			'' => '', //其他联系人,手机
+	);
+	return $values;
+}
+
+function employment_certification_cowpro_customer_profile_employment_save($profile) {
+	$data = array();
+	$data['title'] = $profile->title;
+	$data['sku'] = $profile->sku;
+	$profile->data = $data;
+	return $profile;
+}
+
+function employment_certification_cowpro_customer_profile_employment_load($profile) {
+	$profile->title = $profile->data['title'];
+	$profile->sku = $profile->data['sku'];
+	return $profile;
+}
+
+/**
+ * Implements hook_cowpro_customer_profile_type_info().
+ */
+function employment_certification_cowpro_customer_profile_type_info() {
+	$profile_types = array();
+
+	 $profile_types['employment'] = array(
+	 'type' => 'employment',
+	 'name' => '工作认证',
+	 'description' => '您的工作状况是评估您信用状况的主要依据。请您填写真实可靠的工作信息。',
+	 'help' => '',
+			'weight' => 300,
+	 );
+
+	return $profile_types;
+}
