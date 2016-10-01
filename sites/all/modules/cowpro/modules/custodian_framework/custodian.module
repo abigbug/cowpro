@@ -1,0 +1,254 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function custodian_menu() {
+  $items = array();
+
+	$items ['admin/cowpro/config_custodian'] = array (
+			'title' => '选择第三方托管服务商',
+			'description' => '指定第三方资金托管服务商',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'custodian_settings_form'
+			),
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'file' => 'custodian.admin.inc'
+	);
+	$items['admin/cowpro/config_custodian/%'] = array(
+			'title callback' => 'custodian_readable_provider_title',
+			'title arguments' => array(3),
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('custodian_admin_provider_form', 3),
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_CALLBACK,
+			'file' => 'custodian.admin.inc',
+	);
+
+  return $items;
+}
+
+/**
+ * Custodian provider menu title callback.
+ */
+function custodian_admin_provider_title($provider_id) {
+	$provider = custodian_providers('provider', $provider_id);
+	return sprintf('%s 第三方托管', $provider['name']);
+}
+
+/**
+ * Returns the current default provider info.
+ */
+function custodian_default_provider_info() {
+  return custodian_providers('provider', variable_get('custodian_default_provider', 'cash_pooling'));
+}
+
+/**
+ * Returns the current default provider key.
+ */
+function custodian_default_provider_key() {
+  $provider = custodian_providers('provider', variable_get('custodian_default_provider', 'cash_pooling'));
+  return $provider['identifier'];
+}
+
+/**
+ * 缺省的第三方托管服务商的名字（显示给用户的，具有可读性的）
+ * 在充值、提现等界面中，会调用该方法以便显示当前正在使用的第三方托管服务商的名字
+ * @param unknown $provider_id
+ */
+function custodian_readable_provider_title($provider_id) {
+  $provider = custodian_providers('provider', $provider_id);
+  return sprintf('%s', $provider['name']);
+}
+
+/**
+ * Gets a list of all providers.
+ *
+ * @param string $op
+ *   (optional) The format in which to return the list. When set to 'provider' or 'name',
+ *   only the specified provider is returned. When set to 'providers' or 'names',
+ *   all providers are returned. Defaults to 'providers'.
+ * @param string $provider
+ *   (optional) A provider identifier string that indicates the provider to return.
+ *   Leave at default value (NULL) to return all providers.
+ *
+ * @return array|string
+ *   Either an array of all providers or a single gateway, in a variable format.
+ */
+function custodian_providers($op = 'providers', $provider = NULL) {
+	if ($provider == NULL) {
+		$provider_key = custodian_default_provider_key();
+	} else {
+		$provider_key = $provider;
+	}
+  list($_providers, $_names) = _providers_build();
+
+  switch ($op) {
+    case 'provider':
+      $return = $_providers[$provider_key];
+      $return['identifier'] = $provider_key;
+      return $return;
+    case 'names':
+      return $_names;
+    case 'name':
+      return $_names[$provider_key];
+    case 'providers':
+    default:
+      return $_providers;
+  }
+}
+
+/**
+ * Helper function to get provider definitions in hook_provider_info.
+ *
+ * @return array
+ *   A array of provider definitions from hook_provider_info().
+ */
+function _providers_build() {
+  $_providers = array();
+  $_names = array();
+
+  $provider_array = module_invoke_all('provider_info');
+  foreach ($provider_array as $identifier => $info) {
+    $_providers[$identifier] = $info;
+    $_names[$identifier] = $info['name'];
+  }
+
+  asort($_names);
+
+  return array($_providers, $_names);
+}
+
+function custodian_cowpro_fund_topup($uid, $amount, $method, $journal_id) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_cowpro_fund_topup';
+	if (function_exists($function)) {
+		$result = $function($uid, $amount, $method, $journal_id);
+		return $result;
+	} else {
+		$msg = array(
+				'%function' => $function,
+		);
+		watchdog('custodian', '方法"%function"未定义', $msg, WATCHDOG_ERROR);
+	}
+}
+
+function custodian_cowpro_fund_topup_callback($success, $journal_id, $external_reference_id, $interface_module, $result) {
+	cowpro_fund_topup_callback($success, $journal_id, $external_reference_id, $interface_module, $result);
+}
+
+function custodian_cowpro_fund_withdraw($uid, $amount, $bankcard, $journal_id) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_cowpro_fund_withdraw';
+	if (function_exists($function)) {
+		$result = $function($uid, $amount, $bankcard, $journal_id);
+		return $result;
+	} else {
+		$msg = array(
+				'%function' => $function,
+		);
+		watchdog('custodian', '方法"%function"未定义', $msg, WATCHDOG_ERROR);
+	}
+}
+
+function custodian_cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, $interface_module, $result) {
+	cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, $interface_module, $result);
+}
+
+function custodian_cowpro_fund_bid($uid, $amount, $nid, $journal_id) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_cowpro_fund_bid';
+	if (function_exists($function)) {
+		$result = $function($uid, $amount, $nid, $journal_id);
+		return $result;
+	} else {
+		$msg = array(
+				'%function' => $function,
+		);
+		watchdog('custodian', '方法"%function"未定义', $msg, WATCHDOG_ERROR);
+	}
+}
+
+function custodian_cowpro_fund_issuing_failing($nid) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_cowpro_fund_issuing_failing';
+	if (function_exists($function)) {
+		$result = $function($nid);
+		return $result;
+	} else {
+		$msg = array(
+				'%function' => $function,
+		);
+		watchdog('custodian', '方法"%function"未定义', $msg, WATCHDOG_ERROR);
+	}
+}
+
+function custodian_cowpro_fund_make_loans_to($nid) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_cowpro_fund_make_loans_to';
+	if (function_exists($function)) {
+		$result = $function($nid);
+		return $result;
+	} else {
+		$msg = array(
+				'%function' => $function,
+		);
+		watchdog('custodian', '方法"%function"未定义', $msg, WATCHDOG_ERROR);
+	}
+}
+
+function custodian_cowpro_fund_repayment($repayment_schedules) {
+	//TODO _cowpro_issuing_repayment_form_submit()对该方法的调用传入的参数与这里不一致
+	//并且，_cowpro_issuing_repayment_form_submit没有判断还款操作的结果
+	$module = custodian_default_provider_key();
+	$function = $module . '_cowpro_fund_repayment';
+	if (function_exists($function)) {
+		$result = $function($repayment_schedules);
+		return $result;
+	} else {
+		$msg = array(
+				'%function' => $function,
+		);
+		watchdog('custodian', '方法"%function"未定义', $msg, WATCHDOG_ERROR);
+	}
+}
+
+function custodian_cowpro_fund_balance_contents($uid) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_cowpro_fund_query_balance';
+	if (function_exists($function)) {
+		$balance = $function($uid);
+		if ($balance ['success']) {
+			$result = '<span>' . '余额：' . $balance ['balance'] . '元</span><br/>';
+			$result = $result . '<span>' . '冻结：' . $balance ['lock'] . '元</span>';
+		} else {
+			$result = $balance ['msg'];
+		}
+		return $result;
+	} else {
+		$msg = array(
+				'%function' => $function,
+		);
+		watchdog('custodian', '方法"%function"未定义', $msg, WATCHDOG_ERROR);
+	}
+}
+
+function custodian_cowpro_fund_buy_creditor_assignment($amount, $issuing_id, $seller_uid, $buyer_uid) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_cowpro_fund_buy_creditor_assignment';
+	if (function_exists($function)) {
+		$result = $function($amount, $issuing_id, $seller_uid, $buyer_uid);
+		return $result;
+	} else {
+		$msg = array(
+				'%function' => $function,
+		);
+		watchdog('custodian', '方法"%function"未定义', $msg, WATCHDOG_ERROR);
+	}
+}

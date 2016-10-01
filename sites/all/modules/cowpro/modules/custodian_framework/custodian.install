@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the custodian module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function custodian_install() {
+}
+
+/**
+ * Implements hook_schema().
+ */
+function custodian_schema() {
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function custodian_uninstall() {
+  variable_del('custodian_default_provider');
+}

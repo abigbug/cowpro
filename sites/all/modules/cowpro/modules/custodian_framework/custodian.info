@@ -1,0 +1,13 @@
+name = "Cowpro Custodian Framework"
+description = "提供第三方资金托管帐户的基本架构。"
+package = _CowPro
+core = 7.x
+
+files[] = custodian.admin.inc
+files[] = custodian.install
+files[] = custodian.module
+files[] = custodian.rules.inc
+
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"
