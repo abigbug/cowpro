@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * Implements hook_provider_info().
+ */
+function cash_pooling_provider_info() {
+	return array(
+			'cash_pooling' => array(
+					'name' => '虚拟托管',
+					'description' => '模拟第三方资金托管接口，用于测试P2P平台的功能，用户在平台上的操作都是虚拟的',
+					'setting_link' => 'admin/cowpro/config_cash_pooling',
+			),
+	);
+}
+
+/**
+ * Implements hook_menu().
+ */
+function cash_pooling_menu() {
+}
+
+function cash_pooling_cowpro_fund_topup($amount, $method, $journal_id) {
+	include_once 'includes/cash_pooling.topup.inc';
+	$uid = $GLOBALS['user']->uid;
+	return cash_pooling_topup($uid, $amount, $method, $journal_id);
+}
+
+function cash_pooling_cowpro_fund_withdraw($amount, $bankcard, $journal_id) {
+	include_once 'includes/cash_pooling.withdraw.inc';
+	$uid = $GLOBALS['user']->uid;
+	return cash_pooling_withdraw($uid, $amount, $bankcard, $journal_id);
+}
+
+function cash_pooling_cowpro_fund_bid($amount, $nid, $journal_id) {
+	include_once 'includes/cash_pooling.bid.inc';
+	$uid = $GLOBALS['user']->uid;
+	return cash_pooling_bid($uid, $amount, $nid, $journal_id);
+}
+
+function cash_pooling_cowpro_fund_issuing_failing($nid) {
+	include_once 'includes/cash_pooling.issuingfailing.inc';
+	return cash_pooling_issuing_failing($nid);
+}
+
+function cash_pooling_cowpro_fund_make_loans_to($nid) {
+	include_once 'includes/cash_pooling.makeloans.inc';
+	return cash_pooling_make_loans_to($nid);
+}
+
+function cash_pooling_cowpro_fund_repayment($repayment_schedules) {
+	include_once 'includes/cash_pooling.repayment.inc';
+	return cash_pooling_repayment($repayment_schedules);
+}
+
+function cash_pooling_cowpro_fund_balance_contents($uid) {
+	include_once 'includes/cash_pooling.querybalance.inc';
+	$balance = cash_pooling_cowpro_fund_query_balance($uid);
+	if ($balance ['status']) {
+		$result = '<span>' . '余额：' . $balance ['balance'] . '元</span><br/>';
+		$result = $result . '<span>' . '冻结：' . $balance ['lock'] . '元</span>';
+	} else {
+		$result = $balance ['msg'];
+	}
+	return $result;
+}
+
+function cash_pooling_cowpro_fund_buy_creditor_assignment($amount, $issuing_id, $seller_uid, $buyer_uid) {
+	include_once 'includes/cash_pooling.creditorassignment.inc';
+	return cash_pooling_creditor_assignment($amount, $issuing_id, $seller_uid, $buyer_uid);
+}

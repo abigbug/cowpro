@@ -1,0 +1,18 @@
+name = China address Api
+description = A Field offering province, city, and county of China
+package = Fields
+core = 7.x
+
+; Information added by drupal.org packaging script on 2012-10-03
+version = "7.x-1.2"
+core = "7.x"
+project = "China_address_field"
+datestamp = "1349240466"
+
+
+; Information added by drupal.org packaging script on 2013-07-10
+version = "7.x-2.0-alpha2"
+core = "7.x"
+project = "China_address_field"
+datestamp = "1373426457"
+

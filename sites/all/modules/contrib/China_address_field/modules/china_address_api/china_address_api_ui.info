@@ -1,0 +1,16 @@
+name = China address Api UI
+description = The UI for adjust the China address display behavior.
+package = Other
+core = 7.x
+
+core = "7.x"
+project = "China_address_field"
+
+dependencies[] = china_address_api
+
+; Information added by drupal.org packaging script on 2013-07-10
+version = "7.x-2.0-alpha2"
+core = "7.x"
+project = "China_address_field"
+datestamp = "1373426457"
+

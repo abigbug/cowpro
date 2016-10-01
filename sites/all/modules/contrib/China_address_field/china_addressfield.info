@@ -1,0 +1,19 @@
+name = China address field(An addressfield plugin)
+description = A Field offering province, city, and county of China
+package = Fields
+core = 7.x
+
+; Information added by drupal.org packaging script on 2012-10-26
+core = "7.x"
+project = "addressfield"
+
+dependencies[] = addressfield
+dependencies[] = china_address_api
+
+
+; Information added by drupal.org packaging script on 2013-07-10
+version = "7.x-2.0-alpha2"
+core = "7.x"
+project = "China_address_field"
+datestamp = "1373426457"
+

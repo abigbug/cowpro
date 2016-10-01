@@ -1,0 +1,99 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function cash_pooling_schema() {
+  $schema = array();
+
+  $schema['cowpro_cash_pooling'] = array(
+    'description' => '模拟第三方资金托管服务',
+    'fields' => array(
+      'cash_id' => array(
+        'description' => '序号.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => '交易类型，包括TOPUP(充值)、WITHDRAW(提现)、BID(投标)、ISSUING_FAILING(流标退款)、MAKE_LOANS_TO(满标放款)、REPAYMENT_RECEIPTS(按期还款，收款方)、REPAYMENT_PAYMENTS(按期还款，付款方)等等，其它模块也可以对此进行扩展，定义新的交易类型.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'reference_id' => array(
+        'description' => '与交易相关的业务记录的索引号，可能为NULL.',
+        'type' => 'int',
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+    	'uid' => array(
+        'description' => '与交易相关的用户的uid.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+			'amount_transaction' => array(
+					'description' => '交易金额',
+					'type' => 'numeric',
+					'size' => 'normal',
+					'not null' => TRUE,
+					'default' => 0,
+					'precision' => 10,
+					'scale' => 2,
+			),
+    	'amount_available' => array(
+					'description' => '可用金额',
+					'type' => 'numeric',
+					'size' => 'normal',
+					'not null' => TRUE,
+					'default' => 0,
+					'precision' => 10,
+					'scale' => 2,
+			),
+			'amount_locked' => array(
+					'description' => '冻结金额',
+					'type' => 'numeric',
+					'size' => 'normal',
+					'not null' => TRUE,
+					'default' => 0,
+					'precision' => 10,
+					'scale' => 2,
+			),
+    	'status' => array(
+        'description' => '1:表示交易成功; 2:表示交易失败; 针对type=BID这钟类型，还有status=2这种情况，表示"投标"以后"流标返款"成功的用例',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the record was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of additional data.',
+      ),
+    ),
+    'primary key' => array('cash_id'),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'journal_type' => array('type'),
+      'uid_by_type' => array('uid', 'type'),
+    ),
+    'foreign keys' => array(
+      'owner' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+  );
+
+  return $schema;
+}

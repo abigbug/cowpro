@@ -1,0 +1,9 @@
+name = Cash Pooling
+description = 模拟第三方资金托管接口，用于测试P2P平台的功能，用户在平台上的操作都是虚拟的
+package = _CowPro
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"
+
