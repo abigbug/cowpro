@@ -1,0 +1,11 @@
+
+/**
+ * @file
+ * Administration styles for the CowPro Issuing module.
+ *
+ * Optimized for the Seven administration theme.
+ */
+
+.links.operations {
+  text-transform: lowercase;
+}

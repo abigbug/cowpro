@@ -1,0 +1,141 @@
+/**
+ * @file
+ * Basic styling for the CowPro Issuing module.
+ */
+
+/*项目详情*/
+.details{ width:780px; background:#ffffff; margin:20px auto; clear:both;}
+.details_title{ height:45px; border-bottom:1px solid #fc8026;}
+.details_name{ display:block; float:left; height:45px; line-height:45px; padding-left:30px; font-size:16px; color:#2b2b2b;}
+.details_id{ display:block; float:left;height:45px; line-height:45px;padding-left:50px; font-size:16px; color:#2b2b2b;}
+.details_main{ margin:0 auto;}
+.details_left{ width:75%; float:left; margin-top:25px;}
+.details_right{ width:25%; float:right;margin:15px 0}
+.details_money font{ font-size:50px; color:#fe7542; display:block; float:left;}
+.details_money span{ font-size:18px;  display:block; color:#fe7542;float:left; padding:15px 0 0 5px;}
+.details_money{ width:380px; height:45px; line-height:45px;}
+.details_count{ width:200px; height:45px; line-height:45px;}
+.details_count font, .details_time font{ font-size:42px;color:#2b2b2b; display:block; float:left;}
+.details_count span, .details_time span{ font-size:18px;display:block; color:#828282;float:left; padding:15px 0 0 5px;}
+.details_time{width:134px; height:45px; line-height:45px;}
+.details_tex{ color:#828282; font-size:14px;}
+
+.details_words{ width:350px; height:85px;margin-top:30px;}
+.details_words ul.barbox,.details_main_plan ul{ margin:0; padding:0;}
+.details_words ul li{ height:28px; line-height:28px; color:#828282;}
+.safeguard span, .repayment span{ padding-left:25px; font-size:14px; color:#2b2b2b;}
+.join span{font-size:14px; color:#2b2b2b;}
+.safeguard em{width:15px; height:15px; display:inline-block; margin-left:10px;}
+.safeguard font{ margin:0 0 0 50px; display:inline-block;}
+
+.join .chart_bar .barbox{height:11px;overflow:hidden; line-height:11px;}
+.join .chart_bar .barbox li{float:left; margin:0; padding:0;}
+.join .chart_bar .barbox li.last{color:#999;}
+.join .chart_bar .barbox li.barline{width:173px;background:#dedfe0;height:11px;overflow:hidden;}
+.join .chart_bar .barbox li.barline div.charts{height:11px;overflow:hidden;background:#fc8026;}
+.chart_bar{ display:inline; height:11px; margin:10px 0px 0 0; float:right;}
+.chart_1{ display:inline; float:right; margin-right:30px;}
+.details_line{ width:1px; height:240px; background:#f4f6f8; float:left;}
+
+.balance, .mybalance, .mybalance_beg_log{ font-size:14px; color:#828282; margin-top:15px;}
+.balance span{ font-size:30px; color:#fe7542; padding-left:25px;}
+.balance font{ font-size:12px; color:#fe7542; padding-left:5px;}
+/*登录前*/
+.mybalance_beg_log font{font-size:12px; color:#828282;padding-left:2px;}
+.mybalance_beg_log a{font-size:14px; color:#fe7743; padding-left:28px;text-decoration:none}
+.mybalance_beg_log a:hover{color:#fb7300; text-decoration:none}
+/*登录后*/
+.mybalance span{font-size:14px; color:#fe7542; padding-left:28px;}
+.mybalance font{font-size:12px; color:#fe7542; padding-left:5px;}
+.mybalance a{ display:block; float:right; color:#1180d5; font-size:14px; text-decoration:none;}
+.mybalance a:hover{ color:#fb7300;text-decoration:none;}
+.investment_btn a{ width:255px; height:43px; border-radius:10px; background:#fc8026; color:#ffffff; line-height:43px; text-align:center; font-size:20px; display:block;margin-top:15px;text-decoration:none;}
+.investment_btn a:hover{ background:#feaf29; text-decoration:none; color:#ffffff;}
+.select_m{ width:255px; height:45px; margin-top:15px;}
+.less_btn{ width:22px; height:45px; display:block; float:left;background:url(icon.png) no-repeat 0 -365px; cursor:pointer;}
+.add_btn{width:20px; height:45px; display:block; float:left; background:url(icon.png) no-repeat -23px -365px;cursor:pointer;}
+.select_m span{ float:left; display:block; height:43px; width:213px; border-top:1px solid #dcdcdc;border-bottom:1px solid #dcdcdc;}
+.select_m span input{ width:213px; height:43px; border:none; text-align:center; padding:0; margin:0; line-height:35px; background:none; font-size:16px; box-shadow:none; color:#828282;}
+.select_m span input:-ms-input-placeholder{font-size:14px;}
+.select_m span input::-webkit-input-placeholder{font-size:14px;}
+.select_m span input::-moz-placeholder{font-size:14px;}
+
+
+/*贷款状态*/
+.unaudited_pic{ width:100px; height:100px; margin:0 auto;background:url(unaudited.jpg) no-repeat;}
+.audited_pic{ width:100px; height:100px; margin:0 auto;background:url(audited.jpg) no-repeat;}
+.bidding_pic{ width:100px; height:100px; margin:0 auto;background:url(bidding.jpg) no-repeat;}
+.failed_pic{ width:100px; height:100px; margin:0 auto;background:url(failed.jpg) no-repeat;}
+.saleout_pic{ width:100px; height:100px; margin:0 auto;background:url(sale_out.jpg) no-repeat;}
+.repayment_pic{ width:100px; height:100px; margin:0 auto;background:url(repayment.jpg) no-repeat;}
+.finished_pic{ width:100px; height:100px; margin:0 auto;background:url(finished.jpg) no-repeat;}
+.undefined_pic{ width:100px; height:100px; margin:0 auto;background:url(undefined.jpg) no-repeat;}
+.saleword{ width:255px; height:45px; margin-top:20px; color:#2b2b2b;}
+.saleword span{ color:#ff6b00; font-size:14px;}
+
+
+/*计划进度*/
+.details_main_plan{width:1074px; margin:0 auto;}
+.details_main_plan ul li{ width:93px; height:93px;float:left; margin:55px 31px 12px 12px;}
+.details_main_plan ul li.last{ margin-right:0;}
+
+.release{ width:44px; height:40px; background:url(icon.png) no-repeat 0 -200px; margin:26px 25px;}
+.release.active{ background:url(icon.png) no-repeat -45px -200px;}
+
+.circle{ background:#f4f6f8; border-radius:50%;width:93px; height:93px;}
+
+.toRight{ width:13px; height:25px; background:url(icon.png) no-repeat -43px -365px; margin:34px 40px}
+.toRight.active{background:url(icon.png) no-repeat -56px -365px;}
+
+.beg_investment{ width:48px; height:41px;background:url(icon.png) no-repeat 0 -240px; margin:26px 23px;}
+.beg_investment.active{background:url(icon.png) no-repeat -48px -240px;}
+
+.calculate{width:44px; height:44px;background:url(icon.png) no-repeat 0 -281px;margin:24px;}
+.calculate.active{ background:url(icon.png) no-repeat -44px -281px;}
+
+.expire{ width:42px; height:40px;background:url(icon.png) no-repeat 0 -325px; margin:25px 26px;}
+.expire.active{background:url(icon.png) no-repeat -42px -325px;}
+
+.schedule{ width:1074px; clear:both; height:40px;}
+.release_w{ width:150px; height:40px;text-align:center; float:left; margin-right:157px;}
+.release_w p{font-size:16px; color:#2b2b2b; padding:0;}
+.release_w span{ font-size:14px; color:#959595; display:block;}
+.release_w.last{ margin-right:0;}
+
+
+/*项目信息*/
+.information{ width:780px; height:auto; background:#ffffff; margin:0 auto; margin-top:20px;}
+
+#tab{width:780px;position:relative;margin:0 auto;}
+#tab .tab_menu{width:100%;float:left;position:absolute;z-index:1; margin:0;}
+#tab .tab_menu li{float:left;width:229px;height:49px;line-height:49px;cursor:pointer;text-align:center;margin:0 6px 0 0; background:#fefaf6; border-top:4px solid #fefaf6; font-size:16px; color:#282828;}
+#tab .tab_menu li.last{ margin-right:0; padding-left:1px;}
+#tab .tab_box{width:1068px;height:auto;clear:both;background:#ffffff;margin:80px auto;}
+
+#tab .tab_menu .selected{ background:#ffffff; border-top:4px solid #fc8026;cursor:pointer;}
+.hide{display:none;}
+/*项目信息 风控信息*/
+.tab_xm{ width:780px; height:auto; margin:0 auto;}
+.xm_word_1{ padding-bottom:10px; border-bottom:1px dashed #e8e8e8; height:auto; width:100%;}
+.xm_word_1 span{ font-size:16px; color:#fb7300; display:block; padding: 30px 0 20px 0;}
+.xm_word_1 p{ font-size:14px; color:#282828; line-height:26px;}
+.xm_word_1.last{ border-bottom:0;}
+/*见证信息 投资人列表 还款记录*/
+.hide table{ width:100%; table-layout:fixed;}
+.hide table tr td{ text-align:center; height:40px; font-size:14px;  color:#282828;}
+.hide table tr:nth-child(2n+1){ background:#fefaf6;}
+.hide table tr:nth-child(1){ background:#ffffff;}
+.hide .first{ border-bottom:1px solid #e8e8e8;}
+.hide table a{ color:#282828; text-decoration:underline;}
+.hide table a:hover{color:#fb7300;}
+
+/*clearfix */
+.clearfix:after{content: "."; display: block; height: 0; clear: both; visibility: hidden;}
+.clearfix{display: inline-block;}
+* html .clearfix{height: 1%;}
+.clearfix{display: block;}
+
+/*全局的定义，适当的时候放到一个单独文件中*/
+*{ margin:0; padding:0; font-family:'微软雅黑',YaHei}
+ul{list-style:none;}
+ul,li{list-style-type:none;}
