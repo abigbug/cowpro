@@ -1,9 +1,52 @@
 <?php
-function _install_theme() {
+function _install_theme_v1() {
+	theme_enable(array('cowpro_p2p'));
 	variable_set('theme_default', 'cowpro_p2p');
+	_install_theme_image_style_v1();
 	_install_theme_modules();
 	_install_theme_views();
 	_install_theme_blocks();
+}
+
+function _install_theme_v2() {
+	theme_enable(array('cowpro_p2p_v2'));
+	variable_set('theme_default', 'cowpro_p2p_v2');
+	_install_theme_image_style_v2();
+	_install_theme_modules();
+	_install_theme_views();
+	_install_theme_blocks();
+}
+
+function _install_theme_image_style_v1() {
+	// Create a style.
+	$style = image_style_save(array('name' => 'flexslider_full', 'label' => 'flexslider_full'));
+
+	$effect = array(
+			'name' => 'image_scale_and_crop',
+			'data' => array(
+					'width' => 800,
+					'height' => 500,
+			),
+			'isid' => $style['isid'],
+	);
+
+	image_effect_save($effect);
+}
+
+function _install_theme_image_style_v2() {
+	// Create a style.
+	$style = image_style_save(array('name' => 'flexslider_full', 'label' => 'flexslider_full'));
+
+	$effect = array(
+			'name' => 'image_scale_and_crop',
+			'data' => array(
+					'width' => 800,
+					'height' => 350,
+			),
+			'isid' => $style['isid'],
+	);
+
+	image_effect_save($effect);
 }
 
 function _install_theme_blocks() {

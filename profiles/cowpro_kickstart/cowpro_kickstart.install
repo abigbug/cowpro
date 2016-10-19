@@ -5,8 +5,6 @@
  * Perform actions to set up the site for this profile.
  */
 function cowpro_kickstart_install() {
-	require_once 'cowpro_kickstart.theme.inc';
-	_install_theme();
 	_standard_install();
 	_install_bigbug();//用于安装私有的用于测试的内容
 	//_install_test_user();
@@ -512,6 +510,7 @@ function _standard_install() {
 					'title' => '',
 					'cache' => -1,
 			),
+			/*
 			array(
 					'module' => 'sms_ylxf',
 					'delta' => 'sms_ylxf_balance',
@@ -524,6 +523,7 @@ function _standard_install() {
 					'title' => '',
 					'cache' => -1,
 			),
+			*/
 	);
 	$query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'visibility', 'pages', 'title', 'cache'));
 	foreach ($blocks as $block) {

@@ -38,21 +38,79 @@ function cowpro_kickstart_install_tasks_alter(&$tasks, $install_state) {
 /**
  * Implements hook_install_tasks().
  */
-function cowpro_kickstart_install_tasks() {
+function cowpro_kickstart_install_tasks($install_state) {
+	if (isset($install_state['parameters']['theme'])) {
+		$theme_id = $install_state['parameters']['theme'];
+	}
+
+	$tasks ['cowpro_kickstart_install_select_theme'] = array (
+			'display_name' => st ( '选择主题（网站界面）' ),
+			'type' => 'form',
+			'function' => 'cowpro_kickstart_theme_select_form',
+	);
+	/*
+	$task['cowpro_kickstart_install_select_theme_sumbit'] = array(
+	  'display_name' => '开始安装网站主题',
+	  'type' => 'batch',
+		'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
+	  'function' => 'cowpro_kickstart_install_select_theme_sumbit',
+	);
+	*/
 	$tasks ['cowpro_kickstart_import_translations'] = array (
 			'display_name' => st ( '导入汉化文件' ),
-			'type' => 'batch'
+			'type' => 'batch',
 	);
 	$tasks ['cowpro_kickstart_grant_default_permissions'] = array (
 			'display_name' => st ( '设置权限' ),
-			'type' => 'batch'
+			'type' => 'batch',
 	);
 	$tasks ['cowpro_kickstart_customer_setup'] = array (
 			'display_name' => st ( '初始化站点' ),
-			'type' => 'batch'
+			'type' => 'batch',
 	);
 
 	return $tasks;
+}
+
+function cowpro_kickstart_install_select_theme_submit($form, &$form_state) {
+	require_once 'cowpro_kickstart.theme.inc';
+
+	$theme_id = $form_state['values']['theme'];
+	if ($theme_id == 'cowpro_p2p_v1') {
+		_install_theme_v1();
+	} else if ($theme_id == 'cowpro_p2p_v2') {
+		_install_theme_v2();
+	}
+}
+
+function cowpro_kickstart_theme_select_form($form, &$form_state) {
+	$theme_options = array(
+			'cowpro_p2p_v1' => 'cowpro_p2p_v1',
+			'cowpro_p2p_v2' => 'cowpro_p2p_v2',
+	);
+	$themes = system_rebuild_theme_data();
+	$theme_v1 = $themes['cowpro_p2p'];
+	$theme_v2 = $themes['cowpro_p2p_v2'];
+	$form['screenshot_v1'] = array(
+			'#markup' => '<p>' . $theme_v1->info['name'] . ' ' . $theme_v1->info['description'] . '</p><br/><img src=' . $theme_v1->info['screenshot'] . ' /><br/>',
+	);
+	$form['screenshot_v2'] = array(
+			'#markup' => '<p>' . $theme_v2->info['name'] . ' ' . $theme_v2->info['description'] . '</p><br/><img src=' . $theme_v2->info['screenshot'] . ' /><br/>',
+	);
+	$form['theme'] = array(
+			'#type' => 'radios',
+			'#title' => '选择网站外观',
+			'#default_value' => 'cowpro_p2p_v2',
+			'#options' => $theme_options,
+			'#description' => '请选择网站外观',
+	);
+	$form['actions'] = array('#type' => 'actions');
+	$form['actions']['submit'] =  array(
+			'#type' => 'submit',
+			'#value' => st('Save and continue'),
+	);
+	$form['#submit'][] = 'cowpro_kickstart_install_select_theme_submit';
+	return $form;
 }
 
 /**
