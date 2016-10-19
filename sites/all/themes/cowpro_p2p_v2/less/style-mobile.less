@@ -1,0 +1,664 @@
+@import url('mixins.less');
+
+/* Table of Contents:
+   1. Tablet landscape
+   2. Tablet portrait
+   3. Mobile landscape
+   4. Mobile portrait
+*/
+
+
+
+/*==========================================================================
+1. Tablet landscape
+===========================================================================*/
+
+.switcher {
+	display:none;
+}
+
+@media (max-width: 2050px) {
+	.header-bg-home,
+	#block-views-slider-block {
+		left: 50%;
+		margin-left: -1025px;
+		right: auto;
+		width: 2050px;
+	}
+}
+
+@media (max-width: 1250px) {
+	body {
+		min-width: 320px;
+	}
+	
+	.switcher {
+		display: inline-block;
+	}
+	
+	.front .header-section-wrapper,
+	.header-section-wrapper {
+		padding-top: 80px;
+	}
+	
+	.header-bg-home,
+	#block-views-slider-block {
+		margin-left: -900px;
+		width: 1800px;
+	}
+	
+	#block-views-slider-block .attachment-after {
+		margin-left: -470px;
+	}
+	
+	.block-custom-1 h2 {
+		font-size: 50px;
+		line-height: 50px;
+	}
+	
+	#block-views-testimonials-block {
+		.views-field-field-testi-image {
+			max-width: 45%;
+		}
+
+		.views-field-field-testi-author {
+			padding: 30px 0 0;
+		}
+
+		.block-content {
+			padding: 50px 40px;
+	
+			&:before {
+				border-width: 170px 380px 0px 0px;
+			}
+		}
+	}
+	
+	#block-views-articles-block-1 {
+		.views-field-nothing {
+			padding: 30px 30px 40px;
+
+			h2 {
+				font-size: 30px;
+				line-height: 36px;
+				margin-bottom: 15px;
+				padding: 0;
+			}
+		}
+		
+		.views-field-body {
+			max-height: 120px;
+			overflow: hidden;
+		}
+
+		.expand-trigger{
+			top: 112px;
+
+			&.active {
+				top: 252px;
+			}
+		}
+	}
+	
+	#block-views-services-block {
+		.views-row {
+			padding: 80px 30px 40px;
+			
+			&:before {
+				border-width: 180px 300px 0 0;
+			}
+		}
+		
+		.views-field-field-service-icon {
+			font-size: 40px;
+			height: 100px;
+			line-height: 100px;
+			margin-right: 20px;
+			width: 100px;
+		}
+		
+		.views-field-title {
+			padding-top: 17px;
+		}
+		
+		h2 {
+			font-size: 30px;
+			line-height: 36px;
+		}
+	}
+	
+	#block-views-our-team-block-1 h2 {
+		font-size: 28px;
+		line-height: 34px;
+	}
+}
+
+
+
+/*==========================================================================
+2. Tablet portrait
+===========================================================================*/
+
+@media (max-width: 995px) {
+	.page-page-404 .panel-col-first {
+		font-size: 160px;
+	}
+	
+	.stickup{
+		box-shadow: none !important;
+		position: static !important;
+	}
+	
+	#superfish-1 > li {
+		margin-right: 8px;
+	}
+	
+	.isStuck {
+		background: transparent;
+
+		.front & #superfish-1 {
+			width: 156px;
+		
+			> li {
+				float: none;
+				margin: 0;
+				
+				> a {
+					padding: 8px 0;
+				}
+	
+				ul {
+					left: 101%;
+					top: 0;
+					
+					li ul {
+						left: 101%;
+						top: -15px;
+					}
+				}
+			}
+		}
+	}
+	
+	.pseudoStickyBlock{
+		display: none !important;
+		height: 0 !important;
+	}
+	
+	#backtotop {
+		display: none !important;
+	}
+	
+	.filter-help {
+		float: none;
+		margin-bottom: 15px;
+		padding-top: 0;
+	}
+	
+	.front .header-section-wrapper,
+	.header-section-wrapper {
+		padding-top: 50px;
+	}
+	
+	.header-section-1 .block-contacts {
+		padding-top: 52px;
+	}
+	
+	.header-bg-home,
+	#block-views-slider-block {
+		margin-left: -700px;
+		width: 1400px;
+	}
+	
+	#block-views-slider-block {
+		margin-left: -800px;
+		width: 1600px;
+
+		.attachment-after {
+			margin-left: -374px;
+		}
+	}
+	
+	#main {
+		padding: 80px 0;
+	}
+	
+	.block-custom-1 h2 {
+		font-size: 40px;
+		line-height: 40px;
+	}
+	
+	#block-views-testimonials-block {
+		.block-content:before {
+			border-width: 115px 300px 0 0;
+		}
+
+		.views-field-field-testi-image:before {
+			height: 50px;
+			font-size: 60px;
+			line-height: 72px;
+			top: -10px;
+			width: 50px;
+		}
+		
+		.views-field-field-testi-author {
+			font-size: 26px;
+			line-height: 30px;
+			padding-top: 0;
+		}
+	}
+	
+	#block-views-articles-block-1 {
+		.views-field-nothing {
+			padding: 20px;
+
+			h2 {
+				font-size: 24px;
+				line-height: 29px;
+			}
+		}
+		
+		.views-field-body {
+			max-height: 80px;
+		}
+		
+		.expand-trigger {
+			top: 85px;
+			
+			&.active {
+				top: 192px;
+			}
+		}
+	}
+	
+	#block-views-our-team-block-1 h2 {
+		font-size: 30px;
+		line-height: 36px;
+	}
+}
+
+@media (min-width: 767px) and (max-width: 995px) {
+	#block-views-services-block {
+		.views-row {
+			padding: 60px 30px 40px;
+			
+			&:before {
+				border-width: 140px 236px 0 0;
+			}
+		}
+		
+		.views-field-field-service-icon {
+			float: none;
+			margin: 0;
+		}
+		
+		h2 {
+			font-size: 30px;
+			line-height: 36px;
+		}
+	}
+}
+
+
+
+/*==========================================================================
+3. Mobile landscape
+===========================================================================*/
+
+@media (max-width: 767px) {
+	#superfish-1 {
+		display: none;
+	}
+
+	.select-menu {
+		display: block !important;
+		width: 100%;
+	}
+
+	.comment-wrapper {
+		overflow: visible;
+	}
+
+	.user-picture {
+		margin-bottom: 12px;
+	}
+
+	.views-field-field-portfolio-image {
+		pointer-events: none;
+	}
+
+	.panel-2col .panel-col-first,
+	.panel-2col .panel-col-last {
+		float: none;
+		width: 100%;
+
+		.inside {
+			margin: 0;
+		}
+	}
+
+	.page-page-404 .panel-col-first {
+		font-size: 170px;
+		line-height: 170px;
+		text-align: center;
+	}
+	
+	.mobile-two-column .views-row {
+		padding-top: 0 !important;
+		float: left !important;
+		width: 46% !important;
+		margin-bottom: 30px !important;
+		margin-right: 4% !important;
+		
+		&.even {
+			margin-right: 0 !important;
+		}
+		
+		&.odd {
+			clear: left;
+		}
+	}
+	
+	#block-views-slider-block {
+		background: #212C79;
+		left: 0;
+		margin-left: 0;
+		width: auto;
+		
+		.flex-caption {
+			padding: 20px 0 0;
+			
+			h1,
+			h2,
+			h3,
+			h4,
+			h5,
+			h6 {
+				a:hover {
+					color: @altColor;
+				}
+			}
+		}
+		
+		.attachment-after {
+			margin: 0 auto;
+			padding: 0 0 40px;
+			position: static;
+			width: 450px;
+		}
+	}
+	
+	.flexslider {
+		.flex-caption {
+			position: static;
+			width: auto;
+		}
+	}
+	
+	.contact-form {
+		.form-type-textfield {
+			float: none;
+			margin-left: 0;
+			width: 100%;
+		}
+	}
+	
+	.node-teaser .field-type-file,
+	.node-teaser .field-type-image,
+	.node-employee .field-type-image {
+		float: none;
+		margin: 0 0 20px;
+		max-width: 100%;
+	}
+	
+	#comments .indented {
+		margin-left: 0;
+	}
+	
+	.olrk-noquirks {
+		display: none !important;
+	}
+	
+	.dd-search {
+		&[id^="block-search-form"] {
+			.search-button {
+				display: none;
+			}
+
+			.block-content {
+				bottom: 0;
+				left: 0;
+				position: relative;
+				width: 100%;
+
+				form {
+					opacity: 1;
+					padding: 0;
+					visibility: visible;
+				}
+			}
+		}
+	}
+	
+	.header-bg-home {
+		display: none;
+	}
+	
+	.front .header-section-wrapper {
+		background: url(../images/header-bg.jpg) center top no-repeat @linkColor;
+		padding-bottom: 40px;
+		position: static;
+	}
+	
+	.header-section-1 .block-contacts {
+		padding-top: 0;
+	}
+	
+	.block-custom-1 {
+		padding-right: 0;
+	}
+	
+	#block-views-testimonials-block {
+		.block-content:before {
+			border-width: 250px 450px 0px 0px;
+		}
+		
+		.views-field-field-testi-image:before {
+			font-size: 72px;
+			height: 71px;
+			line-height: 94px;
+			top: -22px;
+			width: 71px;
+		}
+		
+		.views-field-field-testi-author {
+			padding-top: 70px;
+		}
+		
+		h2 {
+			font-size: 36px;
+			line-height: 40px;
+		}
+	}
+	
+	#block-views-articles-block-1 {
+		.views-field-nothing {
+			background: #fff;
+			color: @linkColor;
+			padding: 30px;
+			position: static;
+			
+			h2 {
+				padding: 0;
+			}
+		}
+		
+		.views-field-body {
+			display: block;
+			max-height: inherit;
+		}
+		
+		.expand-trigger {
+			display: none;
+		}
+	}
+	
+	#block-views-articles-block-2 .views-field-field-image {
+		float: none;
+		margin: 0 0 30px;
+		max-width: 100%;
+	}
+	
+	#block-views-services-block {
+		.views-row:before {
+			border-width: 180px 450px 0 0;
+		}
+		
+		.views-field-field-service-icon {
+			font-size: 60px;
+			height: 133px;
+			line-height: 133px;
+			width: 133px;
+		}
+		
+		.views-field-title {
+			padding-top: 30px;
+		}
+		
+		h2 {
+			font-size: 36px;
+			line-height: 40px;
+		}
+	}
+}
+
+
+
+/*==========================================================================
+4. Mobile portrait
+===========================================================================*/
+
+@media (max-width: 479px) {
+	#comments {
+		.comment .comment-wrapper {
+			overflow: visible;
+		}
+	}
+
+	.page-tracker #main-wrapper .content {
+		overflow-x: scroll;
+
+		table.sticky-header {
+			display: none !important;
+		}
+	}
+
+	.page-forum #forum {
+		overflow-x: scroll;
+
+		td.forum .icon {
+			float: none;
+			margin: 0 0 5px;
+		}
+	}
+
+	.field-name-field-testi-image {
+		float: none;
+		margin: 0 0 20px;
+		max-width: inherit;
+	}
+	
+	.mobile-two-column .views-row {
+		float: none;
+		width: 100% !important;
+		margin-right: 0 !important;
+	}
+	
+	#isotope-options {
+		#filters {
+			li {
+				display: block;
+				margin: 0 0 10px;
+			}
+		}
+	}
+
+	.node-submitted ul.submitted-list li {
+		border-bottom: 1px solid @borderColor;
+		float: none;
+		margin: 0;
+		padding: 3px 0;
+	}
+	
+	.tabs ul.primary li a {
+		padding-left: 9px;
+		padding-right: 9px;
+	}
+	
+	#block-views-slider-block .attachment-after {
+		width: 290px;
+	}
+	
+	.flexslider .flex-caption h2 {
+		font-size: 30px;
+		line-height: 36px;
+		padding-right: 0;
+	}
+	
+	#block-views-testimonials-block {
+		.block-content:before {
+			border-width: 150px 290px 0px 0px;
+		}
+		
+		.views-field-field-testi-image {
+			float: none;
+			margin: 0 0 20px;
+			max-width: 100%;
+			width: auto;
+			
+			&:before {
+				top: -8px;
+			}
+			
+			img {
+				width: 100%;
+			}
+		}
+		
+		.views-field-field-testi-author {
+			padding-top: 0;
+		}
+	}
+	
+	#block-views-services-block {
+		.views-row {
+			&:before {
+				border-width: 180px 290px 0 0;
+			}
+		}
+		
+		.views-field-field-service-icon {
+			font-size: 40px;
+			height: 100px;
+			line-height: 100px;
+			width: 100px;
+		}
+		
+		.views-field-title {
+			padding-top: 17px;
+		}
+		
+		h2 {
+			font-size: 28px;
+			line-height: 34px;
+		}
+	}
+	
+	.links li {
+		margin-right: 15px;
+	}
+	
+	#comment-form .filter-wrapper {
+		padding: 20px;
+	}
+}
