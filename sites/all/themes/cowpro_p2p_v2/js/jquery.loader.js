@@ -132,6 +132,7 @@ jQuery(document).ready(function () {
 	}
 	
 	// Contact form validation
+	/*
 	var my_form_id = new tFormer('contact-site-form', {
 		fields: {
 			name: {
@@ -148,6 +149,7 @@ jQuery(document).ready(function () {
 			}
 		}
 	});
+	*/
 	
 	// Contact form tooltips
 	jQuery(".contact-form .form-item-name").append('<div class="error-message">This field is required!</div>');
