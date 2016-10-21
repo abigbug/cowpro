@@ -640,13 +640,19 @@ function cowpro_issuing_node_view($node, $view_mode) {
 				'#collapsible' => TRUE,
 				'#collapsed' => TRUE,
 		);
-		$node->content['my_field']['stuff'][0]['body'] = $node->content['body'];
+		if (isset($node->content['body'])) {
+			$node->content['my_field']['stuff'][0]['body'] = $node->content['body'];
+		} else {
+			$node->content['my_field']['stuff'][0]['body'] = '';
+		}
 		unset($node->content['field_applicant']);
 		unset($node->content['field_category']);
 		unset($node->content['field_contract_credit_assignment']);
 		unset($node->content['field_contract_loan']);
 		unset($node->content['field_issuing']);
-		unset($node->content['body']);
+		if (isset($node->content['body'])) {
+			unset($node->content['body']);
+		}
 		if (isset($node->content['field_risk_management'])) {
 			//如果用户在填写贷款申请表的时候没有填写风控信息，那么$node->content['field_risk_management']就是"Undefined index"状态
 			$node->content['my_field']['stuff'][1]['field_risk_management'] = $node->content['field_risk_management'];
