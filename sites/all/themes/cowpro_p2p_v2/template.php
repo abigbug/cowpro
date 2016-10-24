@@ -2,11 +2,11 @@
 
 /**
  * @file
- * Contains theme override functions and process & preprocess functions for cowpro_p2p
+ * Contains theme override functions and process & preprocess functions for cowpro_p2p_v2
  */
 
 // Auto-rebuild the theme registry during theme development.
-if ( theme_get_setting( 'cowpro_p2p_clear_registry' ) ) {
+if ( theme_get_setting( 'cowpro_p2p_v2_clear_registry' ) ) {
 	// Rebuild .info data.
 	system_rebuild_theme_data();
 	// Rebuild theme registry.
@@ -18,7 +18,7 @@ if ( theme_get_setting( 'cowpro_p2p_clear_registry' ) ) {
  *
  * Changes the default meta content-type tag to the shorter HTML5 version
  */
-function cowpro_p2p_html_head_alter( &$head_elements ) {
+function cowpro_p2p_v2_html_head_alter( &$head_elements ) {
 	$head_elements['system_meta_content_type']['#attributes'] = array(
 		'charset'	=> 'utf-8'
 	);
@@ -29,15 +29,15 @@ function cowpro_p2p_html_head_alter( &$head_elements ) {
  *
  * Changes the search form to use the HTML5 "search" input attribute
  */
-function cowpro_p2p_preprocess_search_block_form( &$vars ) {
+function cowpro_p2p_v2_preprocess_search_block_form( &$vars ) {
 	$vars['search_form'] = str_replace( 'type="text"', 'type="search"', $vars['search_form'] );
 }
 
 /**
  * Implements template_preprocess().
  */
-function cowpro_p2p_preprocess( &$vars, $hook ) {
-	$vars['cowpro_p2p_path'] = base_path() . path_to_theme();
+function cowpro_p2p_v2_preprocess( &$vars, $hook ) {
+	$vars['cowpro_p2p_v2_path'] = base_path() . path_to_theme();
 
 	$count[ $hook ] = isset( $count[ $hook ] ) && is_int( $count[ $hook ] ) ? $count[ $hook ] : 1;
 	$vars['zebra_hook'][ $hook ] = ( $count[ $hook ] % 2) ? 'odd' : 'even';
@@ -47,9 +47,9 @@ function cowpro_p2p_preprocess( &$vars, $hook ) {
 /**
  * Implements template_preprocess_html().
  */
-function cowpro_p2p_preprocess_html( &$vars ) {
-	$vars['doctype'] = _cowpro_p2p_doctype();
-	$vars['rdf'] = _cowpro_p2p_rdf( $vars );
+function cowpro_p2p_v2_preprocess_html( &$vars ) {
+	$vars['doctype'] = _cowpro_p2p_v2_doctype();
+	$vars['rdf'] = _cowpro_p2p_v2_rdf( $vars );
 
 	// Since menu is rendered in preprocess_page we need to detect it here to add body classes
 	$has_main_menu = theme_get_setting( 'toggle_main_menu' );
@@ -94,10 +94,10 @@ function cowpro_p2p_preprocess_html( &$vars ) {
 		$page_name = array_shift( $temp );
 
 		if ( isset( $page_name ) ) {
-			$vars['classes_array'][] = cowpro_p2p_id_safe( 'page-' . $page_name );
+			$vars['classes_array'][] = cowpro_p2p_v2_id_safe( 'page-' . $page_name );
 		}
 
-		$vars['classes_array'][] = cowpro_p2p_id_safe( 'section-' . $section );
+		$vars['classes_array'][] = cowpro_p2p_v2_id_safe( 'section-' . $section );
 
 		// add template suggestions
 		$vars['theme_hook_suggestions'][] = "page__section__" . $section;
@@ -120,16 +120,16 @@ function cowpro_p2p_preprocess_html( &$vars ) {
 
 	// Blog title
 	$d = drupal_get_destination();
-	if ( ( $d['destination'] == 'blog' ) && ( theme_get_setting( 'cowpro_p2p_blog_title' ) != "" ) ) {
-		$vars['title'] = theme_get_setting( 'cowpro_p2p_blog_title' );
-		$vars['head_title'] = theme_get_setting( 'cowpro_p2p_blog_title' );
+	if ( ( $d['destination'] == 'blog' ) && ( theme_get_setting( 'cowpro_p2p_v2_blog_title' ) != "" ) ) {
+		$vars['title'] = theme_get_setting( 'cowpro_p2p_v2_blog_title' );
+		$vars['head_title'] = theme_get_setting( 'cowpro_p2p_v2_blog_title' );
 	}
 }
 
 /**
  * Implements template_preprocess_page().
  */
-function cowpro_p2p_preprocess_page( &$vars ) {
+function cowpro_p2p_v2_preprocess_page( &$vars ) {
 	if ( isset( $vars['node_title'] ) ) {
 		$vars['title'] = $vars['node_title'];
 	}
@@ -166,28 +166,28 @@ function cowpro_p2p_preprocess_page( &$vars ) {
 
 	// Blog title
 	$d = drupal_get_destination();
-	if ( ( $d['destination'] == 'blog' ) && ( theme_get_setting( 'cowpro_p2p_blog_title' ) != "" ) ) {
-		$vars['title'] = theme_get_setting( 'cowpro_p2p_blog_title' );
-		$vars['head_title'] = theme_get_setting( 'cowpro_p2p_blog_title' );
+	if ( ( $d['destination'] == 'blog' ) && ( theme_get_setting( 'cowpro_p2p_v2_blog_title' ) != "" ) ) {
+		$vars['title'] = theme_get_setting( 'cowpro_p2p_v2_blog_title' );
+		$vars['head_title'] = theme_get_setting( 'cowpro_p2p_v2_blog_title' );
 	}
 }
 
 /**
  * Implements template_preprocess_maintenance_page().
  */
-function cowpro_p2p_preprocess_maintenance_page( &$vars ) {
+function cowpro_p2p_v2_preprocess_maintenance_page( &$vars ) {
 	// Manually include these as they're not available outside template_preprocess_page().
 	$vars['rdf_namespaces'] = drupal_get_rdf_namespaces();
 	$vars['grddl_profile'] = '//www.w3.org/1999/xhtml/vocab';
 
-	$vars['doctype'] = _cowpro_p2p_doctype();
-	$vars['rdf'] = _cowpro_p2p_rdf( $vars );
+	$vars['doctype'] = _cowpro_p2p_v2_doctype();
+	$vars['rdf'] = _cowpro_p2p_v2_rdf( $vars );
 
 	if ( !$vars['db_is_active'] ) {
 		unset( $vars['site_name'] );
 	}
 
-	drupal_add_css( drupal_get_path( 'theme', 'cowpro_p2p' ) . '/css/maintenance-page.css' );
+	drupal_add_css( drupal_get_path( 'theme', 'cowpro_p2p_v2' ) . '/css/maintenance-page.css' );
 }
 
 /**
@@ -195,7 +195,7 @@ function cowpro_p2p_preprocess_maintenance_page( &$vars ) {
  *
  * Adds extra classes to node container for advanced theming
  */
-function cowpro_p2p_preprocess_node( &$vars ) {
+function cowpro_p2p_v2_preprocess_node( &$vars ) {
 	// Striping class
 	$vars['classes_array'][] = 'node-' . $vars['zebra'];
 
@@ -233,7 +233,7 @@ function cowpro_p2p_preprocess_node( &$vars ) {
 /**
  * Implements template_preprocess_block().
  */
-function cowpro_p2p_preprocess_block( &$vars, $hook ) {
+function cowpro_p2p_v2_preprocess_block( &$vars, $hook ) {
 	// Add a striping class.
 	$vars['classes_array'][] = 'block-' . $vars['zebra'];
 
@@ -246,14 +246,14 @@ function cowpro_p2p_preprocess_block( &$vars, $hook ) {
 /**
  * Implements theme_menu_tree().
  */
-function cowpro_p2p_menu_tree( $vars ) {
+function cowpro_p2p_v2_menu_tree( $vars ) {
 	return '<ul class="menu clearfix">' . $vars['tree'] . '</ul>';
 }
 
 /**
  * Implements theme_field__field_type().
  */
-function cowpro_p2p_field__taxonomy_term_reference( $vars ) {
+function cowpro_p2p_v2_field__taxonomy_term_reference( $vars ) {
 	$output = '';
 
 	// Render the label, if it's not hidden.
@@ -277,14 +277,14 @@ function cowpro_p2p_field__taxonomy_term_reference( $vars ) {
 /**
  *	Return a themed breadcrumb trail
  */
-function cowpro_p2p_breadcrumb( $vars ) {
+function cowpro_p2p_v2_breadcrumb( $vars ) {
 	$breadcrumb = isset( $vars['breadcrumb'] ) ? $vars['breadcrumb'] : array();
 
-	$condition = theme_get_setting( 'cowpro_p2p_breadcrumb_hideonlyfront' ) ? count( $breadcrumb ) > 1
+	$condition = theme_get_setting( 'cowpro_p2p_v2_breadcrumb_hideonlyfront' ) ? count( $breadcrumb ) > 1
 			: !empty( $breadcrumb );
-	$separator = theme_get_setting( 'cowpro_p2p_breadcrumb_separator' );
+	$separator = theme_get_setting( 'cowpro_p2p_v2_breadcrumb_separator' );
 
-	if ( theme_get_setting( 'cowpro_p2p_breadcrumb_showtitle' ) ) {
+	if ( theme_get_setting( 'cowpro_p2p_v2_breadcrumb_showtitle' ) ) {
 		$title = drupal_get_title();
 		if ( !empty( $title ) ) {
 			$condition = true;
@@ -307,9 +307,9 @@ function cowpro_p2p_breadcrumb( $vars ) {
  *
  * @return bool
  */
-function cowpro_p2p_tabs_float() {
-	$float = (bool) theme_get_setting( 'cowpro_p2p_tabs_float' );
-	$float_node = (bool) theme_get_setting( 'cowpro_p2p_tabs_node' );
+function cowpro_p2p_v2_tabs_float() {
+	$float = (bool) theme_get_setting( 'cowpro_p2p_v2_tabs_float' );
+	$float_node = (bool) theme_get_setting( 'cowpro_p2p_v2_tabs_node' );
 	$is_node = ( arg(0) === 'node' && is_numeric( arg(1) ) );
 
 	if ( $float ) {
@@ -336,7 +336,7 @@ function cowpro_p2p_tabs_float() {
  * 		The converted string
  */
 
-function cowpro_p2p_id_safe( $string ) {
+function cowpro_p2p_v2_id_safe( $string ) {
 	// Strip accents
 	$accents = '/&([A-Za-z]{1,2})(tilde|grave|acute|circ|cedil|uml|lig);/';
 	$string = preg_replace( $accents, '$1', htmlentities( utf8_decode( $string ) ) );
@@ -352,7 +352,7 @@ function cowpro_p2p_id_safe( $string ) {
 /**
  * Generate doctype for templates
  */
-function _cowpro_p2p_doctype() {
+function _cowpro_p2p_v2_doctype() {
 	return ( module_exists( 'rdf' ) ) ? '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML+RDFa 1.1//EN"' . "\n" . '"//www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">' : '<!DOCTYPE html>' . "\n";
 }
 
@@ -365,7 +365,7 @@ function _cowpro_p2p_doctype() {
  *
  * @param array $vars
  */
-function _cowpro_p2p_rdf( $vars ) {
+function _cowpro_p2p_v2_rdf( $vars ) {
 	$rdf = new stdClass();
 
 	if ( module_exists( 'rdf' ) ) {
@@ -393,7 +393,7 @@ function _cowpro_p2p_rdf( $vars ) {
  *
  * @ingroup themeable
  */
-function cowpro_p2p_menu_link( array $vars ) {
+function cowpro_p2p_v2_menu_link( array $vars ) {
 	$element = $vars['element'];
 	$sub_menu = '';
 
@@ -403,7 +403,7 @@ function cowpro_p2p_menu_link( array $vars ) {
 
 	$output = l( $element['#title'], $element['#href'], $element['#localized_options'] );
 	// Adding a class depending on the TITLE of the link (not constant)
-	$element['#attributes']['class'][] = cowpro_p2p_id_safe( $element['#title'] );
+	$element['#attributes']['class'][] = cowpro_p2p_v2_id_safe( $element['#title'] );
 	// Adding a class depending on the ID of the link (constant)
 	$element['#attributes']['class'][] = 'mid-' . $element['#original_link']['mlid'];
 
@@ -413,7 +413,7 @@ function cowpro_p2p_menu_link( array $vars ) {
 /**
  * Override or insert variables into theme_menu_local_task().
  */
-function cowpro_p2p_preprocess_menu_local_task( &$vars ) {
+function cowpro_p2p_v2_preprocess_menu_local_task( &$vars ) {
 	$link = & $vars['element']['#link'];
 
 	// If the link does not contain HTML already, check_plain() it now.
@@ -429,7 +429,7 @@ function cowpro_p2p_preprocess_menu_local_task( &$vars ) {
 /**
  *	Duplicate of theme_menu_local_tasks() but adds clearfix to tabs.
  */
-function cowpro_p2p_menu_local_tasks( &$vars ) {
+function cowpro_p2p_v2_menu_local_tasks( &$vars ) {
 	$output = '';
 
 	if ( !empty( $vars['primary'] ) ) {
@@ -455,7 +455,7 @@ function cowpro_p2p_menu_local_tasks( &$vars ) {
  * Borrowed from Responsive HTML5 Boilerplate.
  * @link http://drupal.org/project/html5_boilerplate
  */
-function cowpro_p2p_preprocess_comment( &$variables ) {
+function cowpro_p2p_v2_preprocess_comment( &$variables ) {
 	$uri = entity_uri( 'comment', $variables['comment'] );
 	$uri['options'] += array( 'attributes' => array( 'rel' => 'bookmark' ) );
 	$variables['title'] = l( $variables['comment']->subject, $uri['path'], $uri['options'] );
@@ -487,13 +487,13 @@ include( 'includes/lessc.inc.php' );
 include( 'includes/less-compile.php' );
 
 /* Region options */
-function cowpro_p2p_region_preffix ( $reg ) {
-	$block_bg_type = theme_get_setting( 'cowpro_p2p_' . $reg . '_bg_type' );
-	$block_bg_img = theme_get_setting( 'cowpro_p2p_' . $reg . '_bg_img' );
-	$block_bg_parallax = theme_get_setting( 'cowpro_p2p_' . $reg . '_bg_parallax' );
-	$bg_video = theme_get_setting( 'cowpro_p2p_' . $reg . '_bg_video' );
-	$bg_video_start = theme_get_setting( 'cowpro_p2p_' . $reg . '_bg_video_start' );
-	$fullwidth = theme_get_setting( 'cowpro_p2p_' . $reg . '_fullwidth' );
+function cowpro_p2p_v2_region_preffix ( $reg ) {
+	$block_bg_type = theme_get_setting( 'cowpro_p2p_v2_' . $reg . '_bg_type' );
+	$block_bg_img = theme_get_setting( 'cowpro_p2p_v2_' . $reg . '_bg_img' );
+	$block_bg_parallax = theme_get_setting( 'cowpro_p2p_v2_' . $reg . '_bg_parallax' );
+	$bg_video = theme_get_setting( 'cowpro_p2p_v2_' . $reg . '_bg_video' );
+	$bg_video_start = theme_get_setting( 'cowpro_p2p_v2_' . $reg . '_bg_video_start' );
+	$fullwidth = theme_get_setting( 'cowpro_p2p_v2_' . $reg . '_fullwidth' );
 
 	$classes = ' class="' . $reg . '_wrapper';
 	$styles = '';
@@ -536,10 +536,10 @@ function cowpro_p2p_region_preffix ( $reg ) {
 
 	print $output_preffix;
 }
-function cowpro_p2p_region_suffix ( $reg ) {
-	$fullwidth = theme_get_setting( 'cowpro_p2p_' . $reg . '_fullwidth' );
-	$block_bg_parallax = theme_get_setting( 'cowpro_p2p_' . $reg . '_bg_parallax' );
-	$block_bg_img = theme_get_setting( 'cowpro_p2p_' . $reg . '_bg_img' );
+function cowpro_p2p_v2_region_suffix ( $reg ) {
+	$fullwidth = theme_get_setting( 'cowpro_p2p_v2_' . $reg . '_fullwidth' );
+	$block_bg_parallax = theme_get_setting( 'cowpro_p2p_v2_' . $reg . '_bg_parallax' );
+	$block_bg_img = theme_get_setting( 'cowpro_p2p_v2_' . $reg . '_bg_img' );
 
 	$output_suffix = '';
 		if ( !$fullwidth ) {
@@ -557,7 +557,7 @@ function cowpro_p2p_region_suffix ( $reg ) {
 }
 
 
-function cowpro_p2p_form_contact_site_form_alter( &$form, &$form_state, $form_id ) {
+function cowpro_p2p_v2_form_contact_site_form_alter( &$form, &$form_state, $form_id ) {
 	$form['name']['#attributes']['placeholder'] = t( "Name" );
 	$form['name']['#title_display'] = 'invisible';
 
