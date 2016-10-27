@@ -206,7 +206,7 @@ function _cowpro_message_rules_cowpro_repayment_schedule_info() {
       'type' => 'user',
       'getter callback' => '_cowpro_message_rules_receiver_user_get',
     ),
-		'capital_integer' => array(
+	'capital_integer' => array(
       'label' => t('当期本金(整数)'),
       'description' => '当期本金(整数)',
       'type' => 'integer',
@@ -292,40 +292,40 @@ function cowpro_message_rules_event_info() {
     		'label' => 'cowpro_fund_buy_creditor_assignment_finished',
     		'group' => t('cowpro'),
     		'variables' => array(
-    				'success' => array(
-    						'type' => 'boolean',
-    						'label' => t('Executing result'),
-    				),
-    				'node' => array(
-    						'type' => 'node',
-    						'label' => 'node object',
-    				),
-    				'buyer_uid' => array(
-    						'type' => 'integer',
-    						'label' => 'buyer_uid',
-    				),
-    				'seller_uid' => array(
-    						'type' => 'integer',
-    						'label' => 'seller_uid',
-    				),
-    				'amount' => array(
-    						'type' => 'decimal',
-    						'label' => 'amount',
-    				),
+   				'success' => array(
+					'type' => 'boolean',
+					'label' => t('Executing result'),
+   				),
+   				'node' => array(
+					'type' => 'node',
+					'label' => 'node object',
+   				),
+   				'buyer_uid' => array(
+					'type' => 'integer',
+					'label' => 'buyer_uid',
+   				),
+  				'seller_uid' => array(
+					'type' => 'integer',
+					'label' => 'seller_uid',
+   				),
+   				'amount' => array(
+					'type' => 'decimal',
+					'label' => 'amount',
+  				),
     		),
     ),
     'cowpro_fund_make_loans_to_finished' => array(
     		'label' => 'cowpro_fund_make_loans_to_finished',
     		'group' => t('cowpro'),
     		'variables' => array(
-    				'success' => array(
-    						'type' => 'boolean',
-    						'label' => t('Executing result'),
-    				),
-    				'node' => array(
-    						'type' => 'node',
-    						'label' => 'node object',
-    				),
+   				'success' => array(
+					'type' => 'boolean',
+					'label' => t('Executing result'),
+   				),
+   				'node' => array(
+					'type' => 'node',
+					'label' => 'node object',
+   				),
 		        'fund_journals' => array(
 		          'type' => 'unknown',
 		          'label' => 'array of fund journal',
@@ -336,10 +336,10 @@ function cowpro_message_rules_event_info() {
     		'label' => 'cowpro_fund_repayment_finished',
     		'group' => t('cowpro'),
     		'variables' => array(
-    				'success' => array(
-    						'type' => 'boolean',
-    						'label' => t('Executing result'),
-    				),
+   				'success' => array(
+					'type' => 'boolean',
+					'label' => t('Executing result'),
+   				),
 		        'cowpro_issuing' => array(
 		          'type' => 'cowpro_issuing',
 		          'label' => 'cowpro_issuing object',

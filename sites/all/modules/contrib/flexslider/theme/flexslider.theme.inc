@@ -148,7 +148,7 @@ function template_process_flexslider_list_item(&$vars) {
     $attributes['data-thumbcaption'] = $caption;
     // Prevent captions from appearing in the slider as well
     if (isset($settings['optionset']->options['thumbCaptionsBoth']) and FALSE === $settings['optionset']->options['thumbCaptionsBoth']) {
-      $caption = '';      
+      $caption = '';
     }
   }
 
