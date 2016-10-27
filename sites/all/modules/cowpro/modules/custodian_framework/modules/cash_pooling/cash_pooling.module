@@ -6,7 +6,7 @@
 function cash_pooling_provider_info() {
 	return array(
 			'cash_pooling' => array(
-					'name' => '虚拟托管',
+					'name' => '虚拟托管（用于测试）',
 					'description' => '模拟第三方资金托管接口，用于测试P2P平台的功能，用户在平台上的操作都是虚拟的',
 					'setting_link' => 'admin/cowpro/config_cash_pooling',
 			),
