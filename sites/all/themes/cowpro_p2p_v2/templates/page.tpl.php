@@ -118,16 +118,16 @@ endif; ?>
 
 			<!-- Region Header -->
 			<?php if ( $page['header'] ) :
-				cowpro_p2p_region_preffix ( 'header' );
+				cowpro_p2p_v2_region_preffix ( 'header' );
 					print render( $page['header'] );
-				cowpro_p2p_region_suffix ( 'header' );
+				cowpro_p2p_v2_region_suffix ( 'header' );
 			endif; ?>
 
 			<!-- Region Header bottom -->
 			<?php if ( $page['header_bottom'] ) :
-				cowpro_p2p_region_preffix ( 'header_bottom' );
+				cowpro_p2p_v2_region_preffix ( 'header_bottom' );
 					print render( $page['header_bottom'] );
-				cowpro_p2p_region_suffix ( 'header_bottom' );
+				cowpro_p2p_v2_region_suffix ( 'header_bottom' );
 			endif; ?>
 		</header>
 
@@ -136,9 +136,9 @@ endif; ?>
 		<div id="main-wrapper" class="main-wrapper" role="main">
 			<!-- Region content top -->
 			<?php if ( $page['content_top'] ) :
-				cowpro_p2p_region_preffix ( 'content_top' );
+				cowpro_p2p_v2_region_preffix ( 'content_top' );
 					print render( $page['content_top'] );
-				cowpro_p2p_region_suffix ( 'content_top' );
+				cowpro_p2p_v2_region_suffix ( 'content_top' );
 			endif; ?>
 
 			<div class="container-12">
@@ -216,16 +216,16 @@ endif; ?>
 
 			<!-- Region Content bottom -->
 			<?php if ( $page['content_bottom'] ) :
-				cowpro_p2p_region_preffix ( 'content_bottom' );
+				cowpro_p2p_v2_region_preffix ( 'content_bottom' );
 					print render( $page['content_bottom'] );
-				cowpro_p2p_region_suffix ( 'content_bottom' );
+				cowpro_p2p_v2_region_suffix ( 'content_bottom' );
 			endif; ?>
 
 			<!-- Region Prefooter -->
 			<?php if ( $page['prefooter'] ) :
-				cowpro_p2p_region_preffix ( 'prefooter' );
+				cowpro_p2p_v2_region_preffix ( 'prefooter' );
 					print render( $page['prefooter'] );
-				cowpro_p2p_region_suffix ( 'prefooter' );
+				cowpro_p2p_v2_region_suffix ( 'prefooter' );
 			endif; ?>
 		</div>
 
@@ -234,9 +234,9 @@ endif; ?>
 		<footer id="footer" class="footer page-footer" role="contentinfo">
 			<!-- Region Footer top -->
 			<?php if ( $page['footer_top'] ) :
-				cowpro_p2p_region_preffix ( 'footer_top' );
+				cowpro_p2p_v2_region_preffix ( 'footer_top' );
 					print render( $page['footer_top'] );
-				cowpro_p2p_region_suffix ( 'footer_top' );
+				cowpro_p2p_v2_region_suffix ( 'footer_top' );
 			endif; ?>
 
 			<div id="footer-wrapper" class="footer-wrapper">
@@ -256,9 +256,9 @@ endif; ?>
 
 			<!-- Region Footer bottom -->
 			<?php if ( $page['footer_bottom'] ) :
-				cowpro_p2p_region_preffix ( 'footer_bottom' );
+				cowpro_p2p_v2_region_preffix ( 'footer_bottom' );
 					print render( $page['footer_bottom'] );
-				cowpro_p2p_region_suffix ( 'footer_bottom' );
+				cowpro_p2p_v2_region_suffix ( 'footer_bottom' );
 			endif; ?>
 		</footer>
 	</div>
