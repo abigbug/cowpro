@@ -88,6 +88,7 @@ dependencies[] = views
 dependencies[] = views_bulk_operations
 dependencies[] = views_megarow
 dependencies[] = views_ui
+dependencies[] = views_data_export
 ; User Management
 dependencies[] = optional_mail_on_register
 ; _CowPro
