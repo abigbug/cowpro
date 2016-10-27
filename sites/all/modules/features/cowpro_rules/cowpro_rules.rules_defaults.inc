@@ -78,9 +78,44 @@ function cowpro_rules_default_rules_configuration() {
       "PLUGIN" : "reaction rule",
       "OWNER" : "rules",
       "TAGS" : [ "cowpro" ],
-      "REQUIRES" : [ "cowpro_message" ],
+      "REQUIRES" : [ "cowpro_message", "userpoints_rules", "rewards" ],
       "ON" : { "cowpro_fund_repayment_finished" : [] },
-      "DO" : [ { "cowpro_fund_repayment_finished" : [] } ]
+      "DO" : [
+        { "cowpro_fund_repayment_finished" : {
+            "success" : "1",
+            "cowpro_issuing" : [ "cowpro-issuing" ],
+            "repayment_schedules" : [ "repayment_schedules" ]
+          }
+        },
+        { "LOOP" : {
+            "USING" : { "list" : [ "repayment-schedules" ] },
+            "ITEM" : { "list_item" : "\\u5f53\\u524d\\u5217\\u8868\\u9879\\u76ee" },
+            "DO" : [
+              { "userpoints_action_grant_points" : {
+                  "user" : [ "list-item:receiver-user" ],
+                  "points" : [ "list-item:interest-integer" ],
+                  "tid" : "0",
+                  "entity" : [ "" ],
+                  "operation" : "\\u5229\\u606f\\u79ef\\u5206",
+                  "display" : "1",
+                  "moderate" : "approved"
+                }
+              },
+              { "rewards_action_grant_points" : {
+                  "user" : [ "list-item:receiver-user" ],
+                  "points" : [ "list-item:interest-integer" ],
+                  "percent" : "1",
+                  "tid" : "0",
+                  "entity" : [ "list-item" ],
+                  "operation" : "Insert",
+                  "display" : "1",
+                  "moderate" : "approved"
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   }');
   $items['rules_cowpro_fund_topup_finished'] = entity_import('rules_config', '{ "rules_cowpro_fund_topup_finished" : {
