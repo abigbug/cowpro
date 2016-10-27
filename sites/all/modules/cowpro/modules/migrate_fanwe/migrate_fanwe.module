@@ -555,6 +555,7 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 				'uid' => $user->uid,
 				'points' => $fanwe_user->score,
 				'description' => '数据迁移',
+				'display' => FALSE,
 		);
 		userpoints_userpointsapi($params);
 	}
