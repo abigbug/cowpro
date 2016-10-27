@@ -1,0 +1,14 @@
+; $Id
+name = 各种奖励
+description = 好友推荐奖励等等，与 rules的集成
+dependencies[] = userpoints 
+dependencies[] = rules
+dependencies[] = user_relationships
+package = _CowPro
+core = 7.x
+files[]=rewards.rules.inc
+
+
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro_rewards"
