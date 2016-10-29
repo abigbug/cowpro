@@ -282,6 +282,22 @@ function _cowpro_issuing_build_repayment_schedule($loan_amounts, $annual_rate, $
 function _cowpro_issuing_save_repayment_schedule($nid, $applicant, $issuing) {
 	//根据还款方式计算每一期的还款额
 	$journal_list = cowpro_issuing_bid_list($nid);
+
+	/*
+	 * 向$journal_list里面增加一条记录，用于生成借款人每一期需要还款的金额，
+	 * 该记录的收款人UID为-1
+	 * 这样，可以放便我们输出各种还款报表，如果需要当期还款合计，也不必在输出的时候分组求和，只需要过滤UID=-1的记录就可以
+	 */
+	$amount = 0;
+	foreach ($journal_list as $journal) {
+		$amount = $amount + $journal->amount;
+	}
+	$payer_total = new stdClass();
+	$payer_total->amount = $amount;
+	$payer_total->created = REQUEST_TIME;
+	$payer_total->uid = -1;
+	$journal_list[] = $payer_total;
+
 	$repayment_schedule = array();
 	foreach ($journal_list as $journal) {
 		//$journal->uid 出借人
