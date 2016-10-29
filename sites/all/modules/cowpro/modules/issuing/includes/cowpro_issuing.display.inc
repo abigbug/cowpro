@@ -262,7 +262,7 @@ function _cowpro_issuing_get_render_issuing($issuing) {
 	$element = array ();
 	$element ['status'] = array (
 			'#type' => 'html_tag',
-			'#tag' => 'p',
+			'#tag' => 'span',
 			'#value' => _cowpro_issuing_get_readable_status ( $issuing ['status'] ),
 			'#children' => ''
 	);
@@ -280,20 +280,44 @@ function _cowpro_issuing_get_render_issuing($issuing) {
 		}
 		$element ['remain'] = array (
 				'#type' => 'html_tag',
-				'#tag' => 'p',
+				'#tag' => 'span',
 				'#value' => $text,
 		);
 	}
 	$element ['method_repayment'] = array (
 			'#type' => 'html_tag',
-			'#tag' => 'p',
+			'#tag' => 'span',
 			'#value' => _cowpro_issuing_get_readable_repayment_method ( $issuing ['method_repayment'] ),
+			'#children' => ''
+	);
+	$element ['line1'] = array (
+			'#type' => 'html_tag',
+			'#tag' => 'br',
+			'#value' => '',
 			'#children' => ''
 	);
 	$element ['loan_amounts'] = array (
 			'#type' => 'html_tag',
-			'#tag' => 'p',
-			'#value' => $issuing ['loan_amounts'],
+			'#tag' => 'span',
+			'#value' => '贷款金额：' . $issuing ['loan_amounts'],
+			'#children' => ''
+	);
+	$element ['line2'] = array (
+			'#type' => 'html_tag',
+			'#tag' => 'br',
+			'#value' => '',
+			'#children' => ''
+	);
+	$element ['loan_term'] = array (
+			'#type' => 'html_tag',
+			'#tag' => 'span',
+			'#value' => _cowpro_issuing_get_readable_loan_term($issuing ['loan_term']) . '，',
+			'#children' => ''
+	);
+	$element ['annual_rate'] = array (
+			'#type' => 'html_tag',
+			'#tag' => 'span',
+			'#value' => '年利率：' . $issuing ['annual_rate'],
 			'#children' => ''
 	);
 

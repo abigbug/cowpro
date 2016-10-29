@@ -82,7 +82,7 @@ function cowpro_issuing_views_data() {
 	// ----------------------------------------------------------------
 	// Fields
 	// The schedule_id field
-	$data['cowpro_repayment_schedule']['schedule_id'] = array(
+	$data['cowpro_repayment_schedule']['schedule_id_idx'] = array(
 			'title' => 'schedule_id',
 			'help' => '流水号',
 			'field' => array(
@@ -97,6 +97,7 @@ function cowpro_issuing_views_data() {
 	);
 
 	// Expose the issuing_id.
+	/*
 	$data['cowpro_repayment_schedule']['issuing_id'] = array(
 			'title' => '贷款申请表',
 			'help' => '与该资金明细账相关的贷款申请表.',
@@ -119,8 +120,31 @@ function cowpro_issuing_views_data() {
 					'label' => '贷款申请表',
 			),
 	);
+	*/
+	$data['cowpro_repayment_schedule']['issuing_id'] = array(
+			'title' => '贷款名称',
+			'help' => '贷款名称.',
+			'field' => array(
+					'handler' => 'cowpro_issuing_handler_field_title',
+			),
+			'filter' => array(
+					'handler' => 'views_handler_filter_numeric',
+			),
+			'argument' => array(
+					'handler' => 'views_handler_argument_numeric',
+			),
+			'sort' => array(
+					'handler' => 'views_handler_sort',
+			),
+			'relationship' => array(
+					'handler' => 'views_handler_relationship',
+					'base' => 'node',
+					'field' => 'nid',
+					'label' => '贷款申请表',
+			),
+	);
 
-	// The payable_amount field
+	// The period field
 	$data['cowpro_repayment_schedule']['period'] = array(
 			'title' => 'period',
 			'help' => '期次',
@@ -140,7 +164,7 @@ function cowpro_issuing_views_data() {
 			'title' => '付款方',
 			'help' => '付款方用户',
 			'field' => array(
-					//'handler' => 'views_handler_field_user',
+					'handler' => 'cowpro_issuing_handler_field_payer_name',
 					'click sortable' => TRUE,
 			),
 			'argument' => array(
@@ -170,7 +194,7 @@ function cowpro_issuing_views_data() {
 			'title' => '收款方',
 			'help' => '收款方用户',
 			'field' => array(
-					//'handler' => 'views_handler_field_user',
+					'handler' => 'cowpro_issuing_handler_field_receiver_name',
 					'click sortable' => TRUE,
 			),
 			'argument' => array(
@@ -215,7 +239,7 @@ function cowpro_issuing_views_data() {
 			'title' => 'payable_amount',
 			'help' => '应付款金额',
 			'field' => array(
-					'handler' => 'views_handler_field_numeric',
+					'handler' => 'cowpro_fund_journal_handler_field_amount',
 					'float' => TRUE,
 			),
 			'sort' => array(
@@ -231,7 +255,7 @@ function cowpro_issuing_views_data() {
 			'title' => 'paid_amount',
 			'help' => '已付款金额',
 			'field' => array(
-					'handler' => 'views_handler_field_numeric',
+					'handler' => 'cowpro_fund_journal_handler_field_amount',
 					'float' => TRUE,
 			),
 			'sort' => array(
@@ -247,7 +271,7 @@ function cowpro_issuing_views_data() {
 			'title' => 'receivable_amount',
 			'help' => '应收款金额',
 			'field' => array(
-					'handler' => 'views_handler_field_numeric',
+					'handler' => 'cowpro_fund_journal_handler_field_amount',
 					'float' => TRUE,
 			),
 			'sort' => array(
@@ -263,7 +287,7 @@ function cowpro_issuing_views_data() {
 			'title' => 'received_amount',
 			'help' => '已收款金额',
 			'field' => array(
-					'handler' => 'views_handler_field_numeric',
+					'handler' => 'cowpro_fund_journal_handler_field_amount',
 					'float' => TRUE,
 			),
 			'sort' => array(
