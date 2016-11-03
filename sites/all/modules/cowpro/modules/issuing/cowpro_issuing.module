@@ -734,10 +734,12 @@ function cowpro_issuing_views_bulk_operations_form_alter(&$form, &$form_state, $
 			$schedules = entity_load ( 'cowpro_repayment_schedule', $form_state ['selection'] );
 			$markup = '';
 			$total = 0;
-			$info = '第 %d期, 用户 %s, 金额%.2f元<br/>';
+			$info = '%s, 第 %d期(共%d期), 金额%.2f元<br/>';
 			foreach ( $schedules as $schedule ) {
-				$u = user_load ( $schedule->receiver_uid );
-				$markup .= sprintf ( $info, $schedule->period, $u->name, $schedule->payable_amount - $schedule->paid_amount );
+				$issuing = node_load($schedule->issuing_id);
+				$title = $issuing->title;
+				//$u = user_load ( $schedule->receiver_uid );
+				$markup .= sprintf ( $info, $title, $schedule->period, $schedule->period_total, $schedule->payable_amount - $schedule->paid_amount );
 				$total += round ( $schedule->payable_amount - $schedule->paid_amount, 2 );
 			}
 			$form ['description'] = array (
