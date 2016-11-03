@@ -174,7 +174,7 @@ function migrate_fanwe_batch_op_issuing($fanwe_dealid, $operation_details, &$con
 			'impose_fee_day1', //普通逾期费率
 			'impose_fee_day2', //严重逾期费率
 			'user_load_transfer_fee', //债权转让管理费
-			'deal_status', //'0待等材料，1进行中，2满标，3流标，4还款中，5已还清
+			'deal_status', //'0待等材料，1进行中，2满标，3流标，4还款中，5已还清
 			'repay_time_type', //'借款期限类型 0:按天还款  1:按月还款'
 			'repay_time', //贷款期限
 	) )->condition ( 'id', $fanwe_dealid );
@@ -222,6 +222,14 @@ function migrate_fanwe_batch_op_issuing($fanwe_dealid, $operation_details, &$con
 	$issuing->field_issuing[LANGUAGE_NONE][0]['data']['assignment_of_credit_management_fee'] = 0;
 	$issuing->field_issuing[LANGUAGE_NONE][0]['data']['prepayment_penalty'] = 0;
 	$issuing->field_issuing[LANGUAGE_NONE][0]['data']['investor_rebate'] = 0;
+
+	/*
+	drupal_set_message ( t ( 'dealid:@dealid, status:@status', array (
+			'@status' => $fanwe_deal->deal_status,
+			'@dealid' => $fanwe_dealid,
+	) ) );
+	return;
+	*/
 
 	switch ($fanwe_deal->deal_status) {
 		case 0://0待等材料
@@ -297,6 +305,7 @@ function migrate_fanwe_batch_op_issuing($fanwe_dealid, $operation_details, &$con
 				'status' => TRUE,
 				'type' => 'BID',
 				'amount' => $fanwe_deal_load->money,
+				'issuing_id' => $issuing->nid,
 				'internal_reference_id' => 'ISSUING-' . $issuing->nid,
 				'external_reference_id' => $fanwe_deal_load->pP2PBillNo,
 				'created' => $fanwe_deal_load->create_time,
@@ -324,6 +333,13 @@ function migrate_fanwe_batch_op_issuing($fanwe_dealid, $operation_details, &$con
 	if (($fanwe_deal->deal_status == 4) || ($fanwe_deal->deal_status == 5)) {
 		include_once   drupal_get_path('module', 'cowpro_issuing') . '/includes/cowpro_issuing.loans.inc';
 		_cowpro_issuing_loans_finished(TRUE, $issuing->nid);
+
+		if ($fanwe_deal->deal_status == 5) {
+			//_cowpro_issuing_loans_finished()会将issuing的状态标记为REPAYMENT,
+			//所以在这里要把已经还款完成的标的状态重转为FINISHED
+			$issuing->field_issuing[LANGUAGE_NONE][0]['status'] = 'FINISHED';
+			node_save($issuing);
+		}
 	}
 
 	$query = db_select('cowpro_repayment_schedule', 's');
@@ -410,6 +426,21 @@ function migrate_fanwe_batch_op_issuing($fanwe_dealid, $operation_details, &$con
 		->condition ( 'period', $fanwe_deal_load_repay->l_key+1, '=' )
 		->execute ();
 
+		/*
+		 * cowpro_repayment_schedule表中，每一期的还款，都会有一条记录receiver_uid=-1
+		 * 这条记录是冗余的，为的是views中方便展示贷款人的应付款的时候
+		 * 所以，我们在更新还款记录的时候，要把这一条冗余记录也一并更新
+		 */
+		$query = db_update ( 'cowpro_repayment_schedule' )->fields ( array (
+				'status' => 'COMPLETED',
+				'changed' => REQUEST_TIME,
+		) )->expression('paid_amount', 'payable_amount')
+		->expression('received_amount', 'receivable_amount')
+		->condition ( 'issuing_id', $issuing->nid, '=' )
+		->condition ( 'receiver_uid', -1, '=' )
+		->condition ( 'period', $fanwe_deal_load_repay->l_key+1, '=' )
+		->execute ();
+
 		$repayment_query = db_select ( 'cowpro_repayment_schedule', 's');
 		$repayment_query->addField('s', 'schedule_id');
 		$repayment_query->addField('s', 'period_total');
@@ -480,7 +511,7 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 			'auth_state',
 			'result_code',
 			'result_message',
-	) )->condition ( 'user_id', $fanwe_uid );
+	) )->condition ( 'user_id', $fanwe_uid )->condition('result_code', '88');
 	$fanwe_mmm = $select->execute ()->fetchObject ();
 
 	$role_debtor = user_role_load_by_name ( 'debtor' );
@@ -495,6 +526,7 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 			'init' => $fanwe_user->email,
 			'signature_format' => 'plain_text',
 			'roles' => array($role_lender->rid => $role_lender->name, $role_debtor->rid => $role_debtor->name),
+			'roles' => array($role_lender->rid => $role_lender->name),
 			//'field_custom_first_name' => array(LANGUAGE_NONE => array(array('value' => 'John'))), // This becomes $account->field_custom_first_name[LANGUAGE_NONE][0]['value']
 			//'field_custom_last_name' => array(LANGUAGE_NONE => array(array('value' => 'Doe'))),
 	);
