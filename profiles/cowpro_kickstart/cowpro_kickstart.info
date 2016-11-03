@@ -47,7 +47,7 @@ dependencies[] = cowpro_ui
 dependencies[] = cowpro_customer
 dependencies[] = cowpro_customer_ui
 ; CowPro Customer Certification
-dependencies[] = employment_certification
+;dependencies[] = employment_certification
 dependencies[] = mobile_certification
 dependencies[] = real_name_certification
 dependencies[] = payment_password
