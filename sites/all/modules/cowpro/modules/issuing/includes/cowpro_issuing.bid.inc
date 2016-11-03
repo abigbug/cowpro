@@ -95,6 +95,7 @@ function _cowpro_issuing_bid_form_submit(&$form, &$form_state) {
 				'status' => FALSE,
 				'type' => 'BID',
 				'amount' => $amount,
+				'issuing_id' => $issuing->nid,
 				'internal_reference_id' => 'ISSUING-' . $nid,
 		);
 		$entity = entity_create('cowpro_fund_journal', $entity_value);
