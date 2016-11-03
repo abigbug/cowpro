@@ -510,20 +510,30 @@ function _standard_install() {
 					'title' => '',
 					'cache' => -1,
 			),
-			/*
 			array(
 					'module' => 'sms_ylxf',
 					'delta' => 'sms_ylxf_balance',
 					'theme' => $admin_theme,
 					'status' => 1,
 					'weight' => -10,
-					'region' => 'dashboard_sidebar',
+					'region' => 'sidebar_first',
 					'visibility' => '0',
 					'pages' => '',
 					'title' => '',
 					'cache' => -1,
 			),
-			*/
+			array(
+					'module' => 'sms_ylxf',
+					'delta' => 'sms_ylxf_balance',
+					'theme' => $default_theme,
+					'status' => 1,
+					'weight' => -1,
+					'region' => 'sidebar_first',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
 	);
 	$query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'visibility', 'pages', 'title', 'cache'));
 	foreach ($blocks as $block) {
@@ -653,6 +663,9 @@ function _standard_install() {
 	variable_set('date_format_long', 'l, Y,  F j - H:i');
 	variable_set('date_format_medium', 'D, Y/m/d - H:i');
 	variable_set('date_format_short', 'Y/m/d - H:i');
+
+	//设置默认首页为issuing-list
+	variable_set('site_frontpage', 'issuing-list');
 
 	// Create a Home link in the main menu.
 	/*
