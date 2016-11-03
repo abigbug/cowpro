@@ -419,7 +419,7 @@ img::selection, img::-moz-selection { background:transparent; }
 #superfish-1 > li:last-child { margin-right:0; }
 #superfish-1 > li > a {
 	border-radius:20px;
-	color:#fff;
+	color:#555;
 	display:block;
 	padding:8px 34px;
 	text-decoration:none;
