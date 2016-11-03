@@ -14,6 +14,13 @@ function cowpro_fund_views_data()
         'help' => '包括充值、提现、投标…… 等等各种资金明细',
     );
 
+    $data['cowpro_fund_journal']['table']['join'] = array(
+    		'node' => array(
+    				'left_field' => 'issuing_id',
+    				'field' => 'nid',
+    		),
+    );
+
     // The journal_id field
     $data['cowpro_fund_journal']['journal_id'] = array(
     		'title' => 'journal_id',
@@ -27,6 +34,28 @@ function cowpro_fund_views_data()
     		'filter' => array(
     				'handler' => 'views_handler_filter_numeric',
     		),
+    );
+
+    // The issuing_id field
+    $data['cowpro_fund_journal']['issuing_id'] = array(
+    		'title' => 'issuing_id',
+    		'help' => '贷款申请表编号',
+    		'field' => array(
+    				'handler' => 'views_handler_field_numeric',
+    		),
+    		'sort' => array(
+    				'handler' => 'views_handler_sort',
+    		),
+    		'filter' => array(
+    				'handler' => 'views_handler_filter_numeric',
+    		),
+		    'relationship' => array(
+		    		'handler' => 'views_handler_relationship',
+		    		'base' => 'node',
+		    		'base field' => 'nid',
+		    		'field' => 'issuing_id',
+		    		'label' => '贷款申请表',
+		    ),
     );
 
     // Expose the internal_reference_id.

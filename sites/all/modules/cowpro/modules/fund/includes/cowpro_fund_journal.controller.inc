@@ -24,6 +24,7 @@ class CowProFundJournalEntityController extends DrupalCowProEntityController {
     $values += array(
       'journal_id' => NULL,
       'type' => '',
+    	'issuing_id' => 0,
     	'internal_reference_id' => '',
     	'external_reference_id' => '',
     	'uid' => '',
