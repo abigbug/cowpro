@@ -82,6 +82,7 @@ function cowpro_issuing_views_data() {
 	// ----------------------------------------------------------------
 	// Fields
 	// The schedule_id field
+	/*
 	$data['cowpro_repayment_schedule']['schedule_id_idx'] = array(
 			'title' => 'schedule_id',
 			'help' => '流水号',
@@ -95,6 +96,7 @@ function cowpro_issuing_views_data() {
 					'handler' => 'views_handler_filter_numeric',
 			),
 	);
+	*/
 
 	// Expose the issuing_id.
 	/*
@@ -203,7 +205,7 @@ function cowpro_issuing_views_data() {
 			),
 			'filter' => array(
 					'title' => '收款方用户ID',
-					'handler' => 'views_handler_filter_user_name',
+					'handler' => 'views_handler_filter_numeric',
 			),
 			'sort' => array(
 					'handler' => 'views_handler_sort',
