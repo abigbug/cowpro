@@ -106,6 +106,28 @@ function _cowpro_issuing_embed_view($view_id, $display_id, $arguments) {
 }
 
 function _cowpro_issuing_repayment_action(&$entities, $context = array()) {
+	$repayment_list = array();
+	foreach ($entities as $entity) {
+		$repayment_object = new StdClass;
+		$repayment_object->issuing_id = $entity->issuing_id;
+		$repayment_object->period = $entity->period;
+		$repayment_list[] = $repayment_object;
+	}
+	$entities = array();
+	foreach ($repayment_list as $repayment_object) {
+		$conditions = array (
+			'issuing_id' => $repayment_object->issuing_id,
+			'period' => $repayment_object->period,
+			'status' => 'WAITING_FOR',
+		);
+		$reset = FALSE;
+		$schedules = entity_load ( 'cowpro_repayment_schedule', FALSE, $conditions, $reset );
+		foreach ($schedules as $schedule) {
+			if ($schedule->receiver_uid != -1) {
+				$entities[] = $schedule;
+			}
+		}
+	}
 	$result = custodian_cowpro_fund_repayment($entities);
 	_cowpro_issuing_repayment_finished($result['success'], $entities);
 
@@ -174,12 +196,33 @@ function _cowpro_issuing_repayment_update($repayment_schedules) {
 		entity_get_controller('cowpro_fund_journal')->save($entity);
 	}
 
-	//登记贷款人的付款流水帐
 	$values = array_values ( $repayment_schedules );
 	$repayment = array_shift($values);
 	$issuing_id = $repayment->issuing_id;
 	$period = $repayment->period;
 	$period_total = $repayment->period_total;
+
+	//cowpro_repayment_schedule表中，每一期的还款记录中有一个receiver_uid=-1的记录
+	//是为了views输出方便而存在的冗余记录
+	//在当期还款完毕以后，我们要在这里更新这条记录
+	$conditions = array (
+			'issuing_id' => $issuing_id,
+			'period' => $period,
+			'receiver_uid' => -1,
+			'status' => 'WAITING_FOR',
+	);
+	$reset = FALSE;
+	$schedules = entity_load ( 'cowpro_repayment_schedule', FALSE, $conditions, $reset );
+	$schedule = array_shift($schedules);
+	if ($schedule) {
+		$schedule->paid_amount = $schedule->paid_amount + $paid_amount;
+		if ($schedule->payable_amount == $schedule->paid_amount) {
+			$schedule->status = 'COMPLETED';
+		}
+		entity_save ( 'cowpro_repayment_schedule', $schedule );
+	}
+
+	//登记贷款人的付款流水帐
 	$internal_reference_id = 'ISSUING-' . $issuing_id . ';PERIOD-' . $period . '/' . $period_total;
 	$journal = array(
 			'uid' => $repayment->payer_uid,
