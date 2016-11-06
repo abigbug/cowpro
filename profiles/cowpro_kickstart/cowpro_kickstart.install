@@ -10,6 +10,7 @@ function cowpro_kickstart_install() {
 	//_install_test_user();
 	_install_relationship();
 	_install_taxonomy();
+	_install_user_menu();
 }
 
 function _install_taxonomy() {
@@ -127,26 +128,12 @@ TEMPLATE
 
 	$link = array(
       'link_title' => '邀请好友',
-      'link_path' => 'user/1/invites/invite_by_sms',
+      'link_path' => 'user/1/invites/invite_by_sms',//从invite模块的代码上看，这里的“user/1/...”传递过去的链接并不是指定uid=1，所以这里user后面参数并不起作用，无所谓在这里写什么值
       'menu_name' => 'user-menu',
       'weight' => 0,
       'expanded' => 0,
     );
-
-	// Build an array of menu link
-	$item = array(
-			'link_path' => $link['link_path'],
-			'link_title' => $link['link_title'],
-			'menu_name' => $link['menu_name'],
-			'weight' => $link['weight'],
-			'expanded' => $link['expanded'],
-	);
-	// Look the table first if the data does exist
-	$exists = db_query("SELECT mlid from {menu_links} WHERE link_title=:link_title AND link_path=:link_path", array(':link_title' =>  $link['link_title'], ':link_path' => $link['link_path']))->fetchField();
-	// Save the record if the data does not exist
-	if (!$exists) {
-		menu_link_save($item);
-	}
+	_install_menu_link($link);
 }
 
 function _install_bigbug() {
@@ -689,4 +676,65 @@ function _standard_install() {
 	->execute();
 	variable_set('admin_theme', 'seven');
 	variable_set('node_admin_theme', '1');
+}
+
+function _install_user_menu() {
+	$link = array(
+			'link_title' => '我要投资',
+			'link_path' => 'issuing-list',
+			'menu_name' => 'user-menu',
+			'weight' => -50,
+			'expanded' => 0,
+	);
+	_install_menu_link($link);
+	$link = array(
+			'link_title' => '安全保障',
+			'link_path' => 'node/1',
+			'menu_name' => 'user-menu',
+			'weight' => -49,
+			'expanded' => 0,
+	);
+	_install_menu_link($link);
+	$link = array(
+			'link_title' => '新手学堂',
+			'link_path' => 'node/3',
+			'menu_name' => 'user-menu',
+			'weight' => -48,
+			'expanded' => 0,
+	);
+	_install_menu_link($link);
+	$link = array(
+			'link_title' => '积分商城',
+			'link_path' => 'http://www.jd.com',
+			'menu_name' => 'user-menu',
+			'weight' => -47,
+			'expanded' => 0,
+	);
+	_install_menu_link($link);
+	$link = array(
+			'link_title' => '关于我们',
+			'link_path' => 'node/2',
+			'menu_name' => 'user-menu',
+			'weight' => -46,
+			'expanded' => 0,
+	);
+	_install_menu_link($link);
+
+}
+
+function _install_menu_link($link) {
+	// Build an array of menu link
+	$item = array(
+			'link_path' => $link['link_path'],
+			'link_title' => $link['link_title'],
+			'menu_name' => $link['menu_name'],
+			'weight' => $link['weight'],
+			'expanded' => $link['expanded'],
+	);
+	// Look the table first if the data does exist
+	$exists = db_query("SELECT mlid from {menu_links} WHERE link_title=:link_title AND link_path=:link_path", array(':link_title' =>  $link['link_title'], ':link_path' => $link['link_path']))->fetchField();
+	// Save the record if the data does not exist
+	if (!$exists) {
+		menu_link_save($item);
+	}
 }
