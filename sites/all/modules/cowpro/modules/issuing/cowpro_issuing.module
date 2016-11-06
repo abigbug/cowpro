@@ -1346,10 +1346,12 @@ function cowpro_issuing_get_default_issuing() {
  *
  */
 function cowpro_issuing_node_presave($node) {
-	// 将 'COWPRO_ISSUING_STATUS_AUDITED 审核通过' 的状态更新为 'COWPRO_ISSUING_STATUS_INVITE_BIDS_START 正在投标'
-	if (($node->field_issuing[LANGUAGE_NONE][0]['status'] == COWPRO_ISSUING_STATUS_AUDITED)
-			&& ($node->field_issuing[LANGUAGE_NONE][0]['start_time'] <= time ())) {
-		$node->field_issuing[LANGUAGE_NONE][0]['status'] = COWPRO_ISSUING_STATUS_INVITE_BIDS_START;
+	if ($node->type === 'cowpro_issuing') {
+		// 将 'COWPRO_ISSUING_STATUS_AUDITED 审核通过' 的状态更新为 'COWPRO_ISSUING_STATUS_INVITE_BIDS_START 正在投标'
+		if (($node->field_issuing[LANGUAGE_NONE][0]['status'] == COWPRO_ISSUING_STATUS_AUDITED)
+				&& ($node->field_issuing[LANGUAGE_NONE][0]['start_time'] <= time ())) {
+			$node->field_issuing[LANGUAGE_NONE][0]['status'] = COWPRO_ISSUING_STATUS_INVITE_BIDS_START;
+		}
 	}
 }
 
