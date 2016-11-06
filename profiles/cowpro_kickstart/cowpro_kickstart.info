@@ -51,7 +51,7 @@ dependencies[] = cowpro_customer_ui
 dependencies[] = mobile_certification
 dependencies[] = real_name_certification
 dependencies[] = payment_password
-dependencies[] = registration_wizard
+;dependencies[] = registration_wizard
 ; Fields
 dependencies[] = china_address_api
 dependencies[] = field_group
