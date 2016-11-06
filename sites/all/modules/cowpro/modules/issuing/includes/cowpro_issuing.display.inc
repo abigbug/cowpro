@@ -30,7 +30,7 @@ function _cowpro_issuing_get_form_issuing($issuing) {
 			'#type' => 'select',
 			'#title' => '借款期限',
 			'#options' => _cowpro_issuing_get_loan_term_options (),
-			'#default_value' => isset ( $issuing ['loan_term'] ) ? $issuing ['loan_term'] : 3,
+			'#default_value' => isset ( $issuing ['loan_term'] ) ? $issuing ['loan_term'] : 90,
 			'#input' => TRUE,
 			'#weight' => 900
 	);

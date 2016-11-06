@@ -1327,7 +1327,7 @@ function cowpro_issuing_get_default_issuing() {
 
 	$default_value = array (
 			0 => array (
-					'method_repayment' => 1,
+					'method_repayment' => NULL,
 					'loan_amounts' => NULL,
 					'annual_rate' => 10,
 					'deadline' => 7,
