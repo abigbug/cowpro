@@ -250,6 +250,7 @@ function _import_customized_translation() {
 			'Invite' => '邀请',
 			'Invitation' => '邀请',
 			'Send Invitation' => '发送邀请',
+			'Invitation has been sent.' => '邀请已发出',
 			'Relationship Type' => '好友关系',
 			'User Relationship Type' => '好友关系',
 			'Request new password' => '用邮箱重置密码',
