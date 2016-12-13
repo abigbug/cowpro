@@ -1,4 +1,4 @@
-a:4:{s:4:"root";s:50:"sites/all/themes/cowpro_p2p/less/style-mobile.less";s:8:"compiled";s:9777:".switcher { display:none; }
+a:4:{s:4:"root";s:53:"sites/all/themes/cowpro_p2p_v2/less/style-mobile.less";s:8:"compiled";s:9777:".switcher { display:none; }
 @media (max-width: 2050px) {
 	.header-bg-home, #block-views-slider-block {
 		left:50%;
@@ -177,7 +177,7 @@ a:4:{s:4:"root";s:50:"sites/all/themes/cowpro_p2p/less/style-mobile.less";s:8:"c
 		width:auto;
 	}
 	#block-views-slider-block .flex-caption { padding:20px 0 0; }
-	#block-views-slider-block .flex-caption h1 a:hover, #block-views-slider-block .flex-caption h2 a:hover, #block-views-slider-block .flex-caption h3 a:hover, #block-views-slider-block .flex-caption h4 a:hover, #block-views-slider-block .flex-caption h5 a:hover, #block-views-slider-block .flex-caption h6 a:hover { color:#fec107; }
+	#block-views-slider-block .flex-caption h1 a:hover, #block-views-slider-block .flex-caption h2 a:hover, #block-views-slider-block .flex-caption h3 a:hover, #block-views-slider-block .flex-caption h4 a:hover, #block-views-slider-block .flex-caption h5 a:hover, #block-views-slider-block .flex-caption h6 a:hover { color:#fcbd14; }
 	#block-views-slider-block .attachment-after {
 		margin:0 auto;
 		padding:0 0 40px;
@@ -327,4 +327,4 @@ a:4:{s:4:"root";s:50:"sites/all/themes/cowpro_p2p/less/style-mobile.less";s:8:"c
 	.links li { margin-right:15px; }
 	#comment-form .filter-wrapper { padding:20px; }
 }
-";s:5:"files";a:2:{s:71:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p\less\style-mobile.less";i:1467499278;s:65:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p\less\mixins.less";i:1472796716;}s:7:"updated";i:1472797628;}
+";s:5:"files";a:2:{s:74:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p_v2\less\style-mobile.less";i:1467499278;s:68:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p_v2\less\mixins.less";i:1480994952;}s:7:"updated";i:1481005574;}

@@ -141,18 +141,45 @@ endif; ?>
 				cowpro_p2p_v2_region_suffix ( 'content_top' );
 			endif; ?>
 
+	        <div class="separate"></div>
+
+			<div class="content_header">
+				<div class="container-12">
+					<div class="grid-12">
+						<div class="top_manage">
+							<ul class="imgs">
+								<li> <img src="<?php echo base_path() . path_to_theme(); ?>/images/guide1.png">
+								</li>
+								<li> <img src="<?php echo base_path() . path_to_theme(); ?>/images/guide2.png">
+								</li>
+								<li> <img src="<?php echo base_path() . path_to_theme(); ?>/images/guide3.png">
+								</li>
+								<li> <img src="<?php echo base_path() . path_to_theme(); ?>/images/guide4.png">
+								</li>
+							</ul>
+							<ul class="content_header_title">
+								<li>资金安全</li>
+								<li>高收益</li>
+								<li>随时赎回</li>
+								<li>第三方法律监管</li>
+							</ul>
+							<ul class="content_header_detail">
+								<li>运用技术分散投资，帮助投资人进入本金保障计划</li>
+								<li>最高收益可达9.6%，祝您轻松获收益</li>
+								<li>两步赎回您的资金，最快当日到账</li>
+								<li>第三方法律监管，交易更透明，时时查看项目进度</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<div class="container-12">
 				<div class="grid-12">
 					<div id="main" class="main clearfix">
-						<?php if ( $page['sidebar_first'] ) : ?>
-							<!-- Left sidebar -->
-							<aside id="sidebar-first" class="sidebar-first sidebar grid-2 alpha" role="complementary">
-								<?php print render( $page['sidebar_first'] ); ?>
-							</aside>
-						<?php endif; ?>
 
 						<!-- Page content -->
-						<div id="content" class="content content-main <?php if ( ( $page['sidebar_first'] ) && ( $page['sidebar_second'] ) ) : print 'grid-2'; elseif ( $page['sidebar_first'] ) : print 'grid-10 omega'; elseif ( $page['sidebar_second'] ) : print 'grid-10 alpha'; endif; ?>">
+						<div id="content" class="content content-main">
 							<?php if ( $page['highlighted'] || $breadcrumb || ( $title && !$is_front ) || $tabs['#primary'] || $action_links || $page['help'] || $messages ) : ?>
 								<header id="content-header" class="content-header">
 									<?php if ( $messages ) : ?>
@@ -202,14 +229,6 @@ endif; ?>
 							<?php print render( $page['content'] ); ?>
 						</div>
 
-						<?php if ( $page['sidebar_second'] ) : ?>
-							<!-- Right sidebar -->
-							<aside id="sidebar-second" class="sidebar-second sidebar grid-2 omega" role="complementary">
-								<div class="section">
-									<?php print render( $page['sidebar_second'] ); ?>
-								</div>
-							</aside>
-						<?php endif; ?>
 					</div>
 				</div>
 			</div>
@@ -227,6 +246,36 @@ endif; ?>
 					print render( $page['prefooter'] );
 				cowpro_p2p_v2_region_suffix ( 'prefooter' );
 			endif; ?>
+
+			<div class="content_footer">
+				<div class="container-12">
+					<div class="grid-12">
+						<div class="footer_manage">
+							<h1>只需“四步”拥抱高收益理财</h1>
+							<ul class="imgs">
+								<li> <img src="<?php echo base_path() . path_to_theme(); ?>/images/instruct1.png">
+								</li>
+								<li> <img src="<?php echo base_path() . path_to_theme(); ?>/images/instruct2.png">
+								</li>
+								<li> <img src="<?php echo base_path() . path_to_theme(); ?>/images/instruct3.png">
+								</li>
+								<li> <img src="<?php echo base_path() . path_to_theme(); ?>/images/instruct4.png">
+								</li>
+							</ul>
+							<ul class="content_footer_detail">
+								<li>注册投资账号</li>
+								<li>账号充值</li>
+								<li>投资意向项目</li>
+								<li>到期自动结算</li>
+							</ul>
+						</div>
+						<div class="button">
+							<a href="<?php echo base_path(); ?>/user/register">立即注册</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
 		</div>
 
 		<!-- Footer

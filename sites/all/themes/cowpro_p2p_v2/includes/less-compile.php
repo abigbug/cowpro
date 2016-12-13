@@ -3,7 +3,7 @@
  * Style files
  *
  */
-$themeDir = 'sites/all/themes/cowpro_p2p';
+$themeDir = 'sites/all/themes/cowpro_p2p_v2';
 
 $styleInput = $themeDir . '/less/style.less';
 $styleOutput = $themeDir . '/css/style.css';

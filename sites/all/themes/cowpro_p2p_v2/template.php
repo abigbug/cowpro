@@ -576,3 +576,34 @@ function cowpro_p2p_v2_form_contact_site_form_alter( &$form, &$form_state, $form
 		'#weight' => 1,
 	);
 }
+
+/**
+ * Themable display of the 'breadcrumb' trail to show the order of the forms.
+ */
+function cowpro_p2p_v2_ctools_wizard_trail__registration_wizard($vars) {
+	//<span class="wizard-trail-current"><a href="/cms/cowpro/registration_wizard/payment_password" data-thmr="thmr_1">支付密码</a></span>
+	//<span class="wizard-trail-next"><a href="/cms/cowpro/registration_wizard/moneymoremore" data-thmr="thmr_2">关联乾多多账户</a></span>
+	//<span class="wizard-trail-next"><a href="/cms/cowpro/registration_wizard/mobile" data-thmr="thmr_3">手机认证</a></span>
+	//<span class="wizard-trail-next"><a href="/cms/cowpro/registration_wizard/credentials" data-thmr="thmr_4">证明文件</a></span>
+	if (!empty($vars['trail'])) {
+		$profile_types = registration_wizard_get_available_profile_types();
+		foreach ($profile_types as $value) {
+			if ($value['included']) {
+				foreach($vars['trail'] as $id => $trail) {
+					if (strpos($trail, $value['type']) !== false) {
+						$class = $value['type'] . ' ';
+						$uid = $GLOBALS ['user']->uid;
+						$profile = cowpro_customer_profile_load_one_row_with_conditions($uid, $value['type']);
+						if (!is_null($profile)) {
+							$class .= 'audited';
+						} else {
+							$class .= 'unaudited';
+						}
+						$vars['trail'][$id] = '<span class="' . $class . '">' . $vars['trail'][$id] . '</span>';
+					}
+				}
+			}
+		}
+		return '<div class="wizard-trail">' . implode('', $vars['trail']) . '</div>';
+	}
+}
