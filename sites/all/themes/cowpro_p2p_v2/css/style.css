@@ -348,6 +348,9 @@ img::selection, img::-moz-selection { background:transparent; }
 #logo {
 	position:relative;
 	z-index:2;
+	background-image:url(../logo.png);
+	background-repeat:no-repeat;
+	background-position:100px;
 }
 .site-name {
 	color:#fff;
@@ -2126,6 +2129,7 @@ td.views-field.views-field-amount
 	padding-left:11px;
 }
 .content_top_wrapper .region { padding:0; }
+div.views-view-content-cowpro { border:1px solid #e6b020; }
 div.views-view-content-cowpro ul { margin-bottom:20px; }
 div.views-view-content-cowpro ul li { margin-bottom:0px; }
 div.views-view-content-cowpro ul li { background:none; }
@@ -2357,3 +2361,25 @@ div.wizard-trail span.audited {
 	background-repeat:no-repeat;
 	background-position:left;
 }
+div.profile dl {
+	width:100%;
+	overflow:hidden;
+	padding:0;
+	margin:0;
+	margin-bottom:30px;
+}
+div.profile dt {
+	float:left;
+	width:30%;
+	padding:0;
+	margin:0;
+}
+div.profile dd {
+	float:left;
+	width:70%;
+	padding:0;
+	margin:0;
+}
+div.cowpro_issuing_views dl { margin:0 0 1.5em 0; }
+div.cowpro_issuing_views dl dt { font-weight:bold; }
+div.cowpro_issuing_views dl dd { margin-left:1.5em; }

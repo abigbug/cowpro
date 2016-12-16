@@ -87,11 +87,10 @@ endif; ?>
 		======================================================================================= -->
 
 		<div class="main-bar-wrapper">
-			<div class="<?php if ( theme_get_setting( 'cowpro_p2p_sticky_menu' ) ) { echo 'stickup '; } ?>header-section-2"> <!-- Sticky menu wrapper -->
+			<div id="logo" class="<?php if ( theme_get_setting( 'cowpro_p2p_sticky_menu' ) ) { echo 'stickup '; } ?>header-section-2"> <!-- Sticky menu wrapper -->
 				<div class="container-12">
 
-					<div class="grid-2">
-						<a href="<?php echo base_path()?>"><img class="logo" src="<?php echo base_path() . path_to_theme(); ?>/logo.png"/></a>
+					<div class="grid-2">.
 					</div>
 
 					<div class="grid-10">

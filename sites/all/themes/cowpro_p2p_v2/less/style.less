@@ -675,6 +675,9 @@ img::-moz-selection {
 #logo {
 	position: relative;
 	z-index: 2;
+	background-image:url(../logo.png);
+  background-repeat: no-repeat;
+  background-position: 100px;
 }
 
 .img-logo {}
@@ -3408,6 +3411,7 @@ div.stickup a img.logo {
 #cowpro-statis ul li i{font-size:26px;color:@altColor;padding-left:11px}
 .content_top_wrapper .region { padding:0; }
 
+div.views-view-content-cowpro {border:1px solid #e6b020;}
 div.views-view-content-cowpro ul{margin-bottom:20px;}
 div.views-view-content-cowpro ul li{margin-bottom:0px;} 
 div.views-view-content-cowpro ul li{background:none;}
@@ -3591,3 +3595,39 @@ div.wizard-trail span.unaudited, div.wizard-trail span.audited{
 div.wizard-trail span a{line-height:70px;padding:48px;vertical-align:bottom;}
 div.wizard-trail span.unaudited{ background-image:url(../images/unaudited.png); background-repeat:no-repeat;background-position:left; }
 div.wizard-trail span.audited{ background-image:url(../images/audited.png); background-repeat:no-repeat;background-position:left;}
+
+/*DL, DT, DD TAGS LIST DATA*/
+div.profile dl {
+  width: 100%;
+  overflow: hidden;
+  /*background: #dd0;*/
+  padding: 0;
+  margin: 0;
+  margin-bottom:30px;
+}
+div.profile dt {
+  float: left;
+  width: 30%;
+  /* adjust the width; make sure the total of both is 100% */
+  /*background: #cc0;*/
+  padding: 0;
+  margin: 0;
+}
+div.profile dd {
+  float: left;
+  width: 70%;
+  /* adjust the width; make sure the total of both is 100% */
+  /*background: #dd0;*/
+  padding: 0;
+  margin: 0;
+}
+
+div.cowpro_issuing_views dl {
+  margin: 0 0 1.5em 0;
+}
+div.cowpro_issuing_views dl dt {
+  font-weight: bold;
+}
+div.cowpro_issuing_views dl dd {
+  margin-left: 1.5em;
+}
