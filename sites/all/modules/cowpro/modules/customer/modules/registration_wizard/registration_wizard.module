@@ -73,6 +73,9 @@ function registration_wizard_form($step = NULL) {
   $form_info = array(
     'id' => 'registration_wizard',
     'path' => "registration_wizard/%step",
+  	'next text' => '下一步',
+  	'finish text' => '完成',
+  	'free trail' => TRUE,
     'show trail' => TRUE,
     'show back' => TRUE,
     'show cancel' => TRUE,
@@ -90,19 +93,7 @@ function registration_wizard_form($step = NULL) {
     ),
   );
 
-  $profile_type_wizard = variable_get('cowpro_registration_wizard', array());
-  $profile_types = cowpro_customer_profile_types();
-  $items = array();
-  foreach ($profile_types as $key => $value) {
-  	if (array_key_exists($key, $profile_type_wizard)) {
-  		$profile_types[$key]['weight'] = $profile_type_wizard[$key]['weight'];
-  		$profile_types[$key]['included'] = $profile_type_wizard[$key]['included'];
-  	} else {
-  		$profile_types[$key]['weight'] = 99;
-  		$profile_types[$key]['included'] = TRUE;
-  	}
-  }
-  usort($profile_types, '_registration_wizard_profile_type_item_compare');
+  $profile_types = registration_wizard_get_available_profile_types();
   foreach ($profile_types as $value) {
   	if ($value['included']) {
   		$form_info['order'][$value['type']] = $value['name'];
@@ -147,6 +138,13 @@ function registration_wizard_form($step = NULL) {
   ctools_include('wizard');
   $form = ctools_wizard_multistep_form($form_info, $step, $form_state);
 
+  //unset($form['buttons']['return']);
+  if (isset($form_state['next']) && (!empty($form_state['next']))) {
+  	$form['buttons']['next']['#next'] = $form_state['next'];
+  	unset($form['buttons']['return']);
+  } else {
+  	unset($form['buttons']['next']);
+  }
   $output = drupal_render($form);
 
   if ($js) {
@@ -184,16 +182,38 @@ function registration_wizard_form($step = NULL) {
   }
 }
 
+function registration_wizard_get_available_profile_types() {
+	$profile_type_wizard = variable_get('cowpro_registration_wizard', array());
+	$profile_types = cowpro_customer_profile_types();
+	$items = array();
+	foreach ($profile_types as $key => $value) {
+		if (array_key_exists($key, $profile_type_wizard)) {
+			$profile_types[$key]['weight'] = $profile_type_wizard[$key]['weight'];
+			$profile_types[$key]['included'] = $profile_type_wizard[$key]['included'];
+		} else {
+			$profile_types[$key]['weight'] = 99;
+			$profile_types[$key]['included'] = TRUE;
+		}
+	}
+	usort($profile_types, '_registration_wizard_profile_type_item_compare');
+	return $profile_types;
+}
+
 function _registration_wizard_form_warp($form, &$form_state) {
 	$form_info = $form_state['form_info'];
 	$step = $form_state['step'];
 	$type = $form_info['forms'][$step]['type'];
 	global $user;
-	return cowpro_customer_ui_customer_profile_edit_own_form_public($form, $form_state, $user->uid, $type);
+	$result = cowpro_customer_ui_customer_profile_edit_own_form_public($form, $form_state, $user->uid, $type);
+	//unset($result['actions']);
+	return $result;
 }
 
 function _registration_wizard_form_warp_submit($form, &$form_state) {
 	//$form_state['object']->work = $form_state['values']['work'];
+	if (isset($form_state['next'])) {
+		$form_state['clicked_button']['#next'] = $form_state['next'];
+	}
 }
 
 function _registration_wizard_profile_type_item_compare($a, $b) {
@@ -311,4 +331,3 @@ function registration_wizard_get_result($object) {
   $out[] = '感谢您的注册，祝您投资愉快！';
   return array('#theme' => 'item_list', '#items' => $out, '#title' => '完成:');
 }
-

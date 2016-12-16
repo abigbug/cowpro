@@ -651,8 +651,8 @@ function _standard_install() {
 	variable_set('date_format_medium', 'D, Y/m/d - H:i');
 	variable_set('date_format_short', 'Y/m/d - H:i');
 
-	//设置默认首页为issuing-list
-	variable_set('site_frontpage', 'issuing-list');
+	//设置默认首页为issuing-list-front
+	variable_set('site_frontpage', 'issuing-list-front');
 
 	// Create a Home link in the main menu.
 	/*
@@ -681,7 +681,15 @@ function _standard_install() {
 function _install_user_menu() {
 	$link = array(
 			'link_title' => '我要投资',
-			'link_path' => 'issuing-list',
+			'link_path' => 'issuing-list-front',
+			'menu_name' => 'user-menu',
+			'weight' => -60,
+			'expanded' => 0,
+	);
+	_install_menu_link($link);
+	$link = array(
+			'link_title' => '我要贷款',
+			'link_path' => 'issuing-list-front',
 			'menu_name' => 'user-menu',
 			'weight' => -50,
 			'expanded' => 0,
@@ -705,7 +713,7 @@ function _install_user_menu() {
 	_install_menu_link($link);
 	$link = array(
 			'link_title' => '积分商城',
-			'link_path' => 'http://www.jd.com',
+			'link_path' => 'http://shop.jinbeizeng.com',
 			'menu_name' => 'user-menu',
 			'weight' => -47,
 			'expanded' => 0,
@@ -716,6 +724,22 @@ function _install_user_menu() {
 			'link_path' => 'node/2',
 			'menu_name' => 'user-menu',
 			'weight' => -46,
+			'expanded' => 0,
+	);
+	_install_menu_link($link);
+	$link = array(
+			'link_title' => '登录',
+			'link_path' => 'user/login',
+			'menu_name' => 'user-menu',
+			'weight' => -45,
+			'expanded' => 0,
+	);
+	_install_menu_link($link);
+	$link = array(
+			'link_title' => '注册',
+			'link_path' => 'user/register',
+			'menu_name' => 'user-menu',
+			'weight' => -44,
 			'expanded' => 0,
 	);
 	_install_menu_link($link);

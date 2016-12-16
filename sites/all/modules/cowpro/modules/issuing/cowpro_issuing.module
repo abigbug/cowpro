@@ -342,6 +342,59 @@ function cowpro_issuing_menu() {
 }
 
 /**
+ * Implements hook_block_info().
+ */
+function cowpro_issuing_block_info() {
+	$blocks = array();
+	$blocks['cowpro_statis'] = array(
+			'info' => '投标统计',
+			'status' => TRUE,
+			'region' => BLOCK_REGION_NONE,
+			'visibility' => BLOCK_VISIBILITY_LISTED,
+			'pages' => '<front>',
+	);
+	$blocks['cowpro_news'] = array(
+			'info' => '新闻头条',
+			'status' => TRUE,
+			'region' => BLOCK_REGION_NONE,
+			'visibility' => BLOCK_VISIBILITY_LISTED,
+			'pages' => '<front>',
+	);
+
+	return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function cowpro_issuing_block_view($delta = '') {
+	// The $delta parameter tells us which block is being requested.
+	switch ($delta) {
+		case 'cowpro_statis':
+			$revenus = db_query("SELECT SUM(interest) FROM {cowpro_repayment_schedule} WHERE receiver_uid = -1")->fetchField();
+			$capital = db_query("SELECT SUM(capital) FROM {cowpro_repayment_schedule} WHERE receiver_uid = -1")->fetchField();
+			$bids = db_query("SELECT COUNT(*) FROM {cowpro_fund_journal} WHERE type = 'BID'")->fetchField();
+			$msg = '<div id="cowpro-statis"><ul><li class="alpha">收益总额<i>' . number_format($revenus) . '</i></li><li class="alpha">投资总额<i>' . number_format($capital) . '</i></li><li>总投资人次<i>' . number_format($bids) . '</i></li></ul></div>';
+			$block['subject'] = '';
+			$block['content'] = array(
+				'#markup' => $msg,
+			);
+			break;
+		case 'cowpro_news':
+			$revenus = db_query("SELECT SUM(interest) FROM {cowpro_repayment_schedule} WHERE receiver_uid = -1")->fetchField();
+			$capital = db_query("SELECT SUM(capital) FROM {cowpro_repayment_schedule} WHERE receiver_uid = -1")->fetchField();
+			$bids = db_query("SELECT COUNT(*) FROM {cowpro_fund_journal} WHERE type = 'BID'")->fetchField();
+			$msg = '<div id="cowpro-statis"><ul><li>收益总额<i>' . $revenus . '</i></li><li>投资总额<i>' . $capital . '</i></li><li>总投资人次<i>' . $bids . '</i></li></ul></div>';
+			$block['subject'] = '';
+			$block['content'] = array(
+					'#markup' => $msg,
+			);
+			break;
+	}
+	return $block;
+}
+
+/**
  * Implements hook_entity_info().
  */
 function cowpro_issuing_entity_info() {
@@ -755,8 +808,17 @@ function cowpro_issuing_views_bulk_operations_form_alter(&$form, &$form_state, $
 		}
 	}
 }
+
 function cowpro_issuing_views_bulk_operations_form_submit($form, &$form_state, $vbo) {
 	drupal_set_message ( 'message' );
+}
+
+/**
+ * Implements hook_user_view().
+ */
+function cowpro_issuing_user_view($account, $view_mode) {
+	include_once 'includes/cowpro_issuing.status.inc';
+	_cowpro_issuing_user_view($account, $view_mode);
 }
 
 /**

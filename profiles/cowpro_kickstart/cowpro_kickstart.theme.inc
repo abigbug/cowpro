@@ -40,7 +40,7 @@ function _install_theme_image_style_v2() {
 	$effect = array(
 			'name' => 'image_scale_and_crop',
 			'data' => array(
-					'width' => 800,
+					'width' => 1920,
 					'height' => 350,
 			),
 			'isid' => $style['isid'],

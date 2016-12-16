@@ -262,6 +262,60 @@ function _cowpro_issuing_get_render_issuing($issuing) {
 	$element = array ();
 	$element ['status'] = array (
 			'#type' => 'html_tag',
+			'#tag' => 'li',
+			'#value' => _cowpro_issuing_get_readable_status ( $issuing ['status'] ),
+			'#children' => ''
+	);
+	if ($issuing['status'] == COWPRO_ISSUING_STATUS_INVITE_BIDS_START) {
+		$remain = $issuing ['start_time'] + $issuing['deadline']*24*60*60 - time();
+		if ($remain <= 0) {
+			$text = '已到期';
+		} else {
+			$date_a = new DateTime();
+			$date_a->setTimestamp($issuing ['start_time'] + $issuing['deadline']*24*60*60);
+			$date_b = new DateTime();
+			$date_b->setTimestamp(time());
+			$interval = date_diff($date_a, $date_b);
+			$text = '投标截止时间还剩余：' . $interval->format('%d天 %h:%i:%s');
+		}
+		$element ['remain'] = array (
+				'#type' => 'html_tag',
+				'#tag' => 'li',
+				'#value' => $text,
+		);
+	}
+	$element ['method_repayment'] = array (
+			'#type' => 'html_tag',
+			'#tag' => 'li',
+			'#value' => _cowpro_issuing_get_readable_repayment_method ( $issuing ['method_repayment'] ),
+			'#children' => ''
+	);
+	$element ['loan_amounts'] = array (
+			'#type' => 'html_tag',
+			'#tag' => 'li',
+			'#value' => $issuing ['loan_amounts'],
+			'#children' => ''
+	);
+	$element ['loan_term'] = array (
+			'#type' => 'html_tag',
+			'#tag' => 'li',
+			'#value' => _cowpro_issuing_get_readable_loan_term($issuing ['loan_term']),
+			'#children' => ''
+	);
+	$element ['annual_rate'] = array (
+			'#type' => 'html_tag',
+			'#tag' => 'li',
+			'#value' => $issuing ['annual_rate'],
+			'#children' => ''
+	);
+
+	return $element;
+}
+
+function _cowpro_issuing_get_render_issuing_2($issuing) {
+	$element = array ();
+	$element ['status'] = array (
+			'#type' => 'html_tag',
 			'#tag' => 'span',
 			'#value' => _cowpro_issuing_get_readable_status ( $issuing ['status'] ),
 			'#children' => ''

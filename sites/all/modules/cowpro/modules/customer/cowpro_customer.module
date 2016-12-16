@@ -500,6 +500,7 @@ function cowpro_customer_menu_alter(&$items) {
 
 	}
 }
+
 /**
  * Loads a customer profile type.
  *
@@ -1430,4 +1431,12 @@ function cowpro_customer_profile_load_one_row_with_conditions($uid = NULL, $prof
 		$values = array_values($results);
 		return $values [0];
 	}
+}
+
+/**
+ * Implements hook_user_view().
+ */
+function cowpro_customer_user_view($account, $view_mode) {
+	include_once 'includes/cowpro_customer_profile.status.inc';
+	_cowpro_customer_user_view($account, $view_mode);
 }

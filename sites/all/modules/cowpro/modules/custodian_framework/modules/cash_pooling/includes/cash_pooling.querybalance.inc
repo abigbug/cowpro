@@ -1,10 +1,6 @@
 <?php
-include_once 'moneymoremore.const.inc';
-include_once ("libs/RSA.php");
-include_once ("libs/Common.php");
-
 /**
- * 账户余额查询(WS)
+ * 账户余额查询
  *
  * @param int $uid
  */

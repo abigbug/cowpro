@@ -101,7 +101,7 @@ function theme_slider_field_default_field_instances() {
         'module' => 'image',
         'settings' => array(
           'image_link' => '',
-          'image_style' => 'full_post',
+          'image_style' => 'flexslider_full',
         ),
         'type' => 'image',
         'weight' => 0,

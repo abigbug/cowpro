@@ -286,7 +286,7 @@ function _cowpro_issuing_save_repayment_schedule($nid, $applicant, $issuing) {
 	/*
 	 * 向$journal_list里面增加一条记录，用于生成借款人每一期需要还款的金额，
 	 * 该记录的收款人UID为-1
-	 * 这样，可以放便我们输出各种还款报表，如果需要当期还款合计，也不必在输出的时候分组求和，只需要过滤UID=-1的记录就可以
+	 * 这样，可以方便我们输出各种还款报表，如果需要当期还款合计，也不必在输出的时候分组求和，只需要过滤UID=-1的记录就可以
 	 */
 	$amount = 0;
 	foreach ($journal_list as $journal) {

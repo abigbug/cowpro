@@ -339,7 +339,28 @@ function moneymoremore_cowpro_fund_query_balance($uid) {
 	return $balance;
 }
 
+function moneymoremore_user_view_fund($uid) {
+	include_once 'includes/moneymoremore.querybalance.inc';
+	$balance = _moneymoremore_cowpro_fund_query_balance($uid);
+	if (! $balance ['status']) {
+		$result = $balance ['msg'];
+	}
+	$balance['success'] = $balance ['status'];
+	return $balance;
+}
+
 function moneymoremore_cowpro_fund_buy_creditor_assignment($amount, $issuing_id, $seller_uid, $buyer_uid) {
 	include_once 'includes/moneymoremore.creditorassignment.inc';
 	return moneymoremore_creditor_assignment($amount, $issuing_id, $seller_uid, $buyer_uid);
+}
+
+function moneymoremore_user_view_detail($profile){
+	if ((!$profile) || (! $profile->verified)) {
+		$markup = '未认证';
+	} else if ((!$profile->mmm_authorize_type_1) || (!$profile->mmm_authorize_type_2) || (!$profile->mmm_authorize_type_1)) {
+		$markup = '已认证、未关联、未授权';
+	} else {
+		$markup = '已关联、已授权';
+	}
+	return $markup;
 }

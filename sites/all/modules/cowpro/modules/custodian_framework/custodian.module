@@ -239,6 +239,42 @@ function custodian_cowpro_fund_balance_contents($uid) {
 	}
 }
 
+function custodian_user_view_fund($account, $view_mode) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_user_view_fund';
+	if (function_exists($function)) {
+		$balance = $function($account->uid);
+		$account->content['fund'] = array(
+				'#type' => 'user_profile_category',
+				'#title' => '托管账号详情',
+				'#weight' => 0,
+		);
+		if ($balance ['success']) {
+			$account->content['fund']['fund_1'] = array(
+					'#type' => 'user_profile_item',
+					'#title' => '可提现余额',
+					'#markup' => $balance ['withdraw'],
+			);
+			$account->content['fund']['fund_2'] = array(
+					'#type' => 'user_profile_item',
+					'#title' => '可投标余额',
+					'#markup' => $balance ['balance'],
+			);
+			$account->content['fund']['fund_3'] = array(
+					'#type' => 'user_profile_item',
+					'#title' => '冻结金额',
+					'#markup' => $balance ['lock'],
+			);
+		} else {
+			$account->content['fund']['fund_1'] = array(
+					'#type' => 'user_profile_item',
+					'#title' => '错误消息',
+					'#markup' => $balance ['msg'],
+			);
+		}
+	}
+}
+
 function custodian_cowpro_fund_buy_creditor_assignment($amount, $issuing_id, $seller_uid, $buyer_uid) {
 	$module = custodian_default_provider_key();
 	$function = $module . '_cowpro_fund_buy_creditor_assignment';

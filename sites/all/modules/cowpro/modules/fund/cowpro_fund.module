@@ -159,6 +159,14 @@ function cowpro_fund_entity_info() {
 }
 
 /**
+ * Implements hook_user_view().
+ */
+function cowpro_fund_user_view($account, $view_mode) {
+	include_once 'includes/cowpro_fund_balance.inc';
+	_cowpro_fund_user_view($account, $view_mode);
+}
+
+/**
  * Checks fund journal access for various operations.
  *
  * @param $op The

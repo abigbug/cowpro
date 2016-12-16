@@ -13,7 +13,7 @@ function cowpro_views_views_default_views() {
   $view = new view();
   $view->name = 'all_issuing';
   $view->description = '';
-  $view->tag = 'cowpro';
+  $view->tag = 'cowpro-issuing-list';
   $view->base_table = 'node';
   $view->human_name = '贷款管理';
   $view->core = 7;
@@ -39,7 +39,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
   $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
   $handler->display->display_options['pager']['type'] = 'full';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '20';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '10';
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['pager']['options']['id'] = '0';
   $handler->display->display_options['pager']['options']['quantity'] = '9';
@@ -110,16 +110,6 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['sorts']['created']['table'] = 'node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* 上下文过滤器: 还款详情: 收款方 */
-  $handler->display->display_options['arguments']['receiver_uid']['id'] = 'receiver_uid';
-  $handler->display->display_options['arguments']['receiver_uid']['table'] = 'cowpro_repayment_schedule';
-  $handler->display->display_options['arguments']['receiver_uid']['field'] = 'receiver_uid';
-  $handler->display->display_options['arguments']['receiver_uid']['default_action'] = 'default';
-  $handler->display->display_options['arguments']['receiver_uid']['exception']['title'] = '全部';
-  $handler->display->display_options['arguments']['receiver_uid']['default_argument_type'] = 'current_user';
-  $handler->display->display_options['arguments']['receiver_uid']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['receiver_uid']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['receiver_uid']['summary_options']['items_per_page'] = '25';
   /* 过滤规则: 内容: 类型 */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
@@ -129,7 +119,7 @@ function cowpro_views_views_default_views() {
   );
 
   /* Display: 贷款管理 */
-  $handler = $view->new_display('page', '贷款管理', 'page');
+  $handler = $view->new_display('page', '贷款管理', 'issuing_manage');
   $handler->display->display_options['defaults']['title'] = FALSE;
   $handler->display->display_options['title'] = '贷款管理';
   $handler->display->display_options['defaults']['access'] = FALSE;
@@ -137,6 +127,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['access']['role'] = array(
     3 => '3',
   );
+  $handler->display->display_options['defaults']['arguments'] = FALSE;
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* 过滤规则: 内容: 类型 */
@@ -198,7 +189,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['sitename_title'] = 0;
 
   /* Display: 正在投标的贷款(管理员) */
-  $handler = $view->new_display('page', '正在投标的贷款(管理员)', 'page_9');
+  $handler = $view->new_display('page', '正在投标的贷款(管理员)', 'issuing_manage_bidding');
   $handler->display->display_options['defaults']['title'] = FALSE;
   $handler->display->display_options['title'] = '正在投标的贷款';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
@@ -225,7 +216,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
   /* Display: 待审核的贷款 */
-  $handler = $view->new_display('page', '待审核的贷款', 'page_1');
+  $handler = $view->new_display('page', '待审核的贷款', 'issuing_manage_unaudited');
   $handler->display->display_options['defaults']['title'] = FALSE;
   $handler->display->display_options['title'] = '待审核';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
@@ -252,7 +243,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
   /* Display: 已满标等待放款的贷款 */
-  $handler = $view->new_display('page', '已满标等待放款的贷款', 'page_7');
+  $handler = $view->new_display('page', '已满标等待放款的贷款', 'issuing_manage_succeed');
   $handler->display->display_options['defaults']['title'] = FALSE;
   $handler->display->display_options['title'] = '已满标等待放款的贷款';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
@@ -279,7 +270,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
   /* Display: 正在还款的贷款 */
-  $handler = $view->new_display('page', '正在还款的贷款', 'page_8');
+  $handler = $view->new_display('page', '正在还款的贷款', 'issuing_manage_repayment');
   $handler->display->display_options['defaults']['title'] = FALSE;
   $handler->display->display_options['title'] = '还款中';
   $handler->display->display_options['defaults']['access'] = FALSE;
@@ -374,7 +365,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['sitename_title'] = 0;
 
   /* Display: 已流标的贷款 */
-  $handler = $view->new_display('page', '已流标的贷款', 'page_6');
+  $handler = $view->new_display('page', '已流标的贷款', 'issuing_manage_failed');
   $handler->display->display_options['defaults']['title'] = FALSE;
   $handler->display->display_options['title'] = '已流标';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
@@ -401,7 +392,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
   /* Display: 全部贷款 */
-  $handler = $view->new_display('page', '全部贷款', 'page_2');
+  $handler = $view->new_display('page', '全部贷款', 'issuing_list');
   $handler->display->display_options['defaults']['title'] = FALSE;
   $handler->display->display_options['title'] = '全部贷款';
   $handler->display->display_options['defaults']['access'] = FALSE;
@@ -431,11 +422,12 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
   /* Display: 正在投标的贷款(用户) */
-  $handler = $view->new_display('page', '正在投标的贷款(用户)', 'page_5');
+  $handler = $view->new_display('page', '正在投标的贷款(用户)', 'issuing_list_bidding');
   $handler->display->display_options['defaults']['title'] = FALSE;
   $handler->display->display_options['title'] = '正在投标的贷款';
   $handler->display->display_options['defaults']['access'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['defaults']['arguments'] = FALSE;
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* 过滤规则: 内容: 类型 */
@@ -460,7 +452,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
   /* Display: 我的贷款 */
-  $handler = $view->new_display('page', '我的贷款', 'page_3');
+  $handler = $view->new_display('page', '我的贷款', 'issuing_list_debtor');
   $handler->display->display_options['defaults']['title'] = FALSE;
   $handler->display->display_options['title'] = '我的贷款';
   $handler->display->display_options['defaults']['access'] = FALSE;
@@ -494,6 +486,35 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['menu']['weight'] = '0';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: 全部贷款(首页) */
+  $handler = $view->new_display('page', '全部贷款(首页)', 'issuing_list_front');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = '全部贷款';
+  $handler->display->display_options['defaults']['access'] = FALSE;
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* 过滤规则: 内容: 类型 */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'cowpro_issuing' => 'cowpro_issuing',
+  );
+  /* 过滤规则: 内容: 贷款表 (field_issuing:status) */
+  $handler->display->display_options['filters']['field_issuing_status']['id'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['filters']['field_issuing_status']['field'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status']['operator'] = 'not in';
+  $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
+    'UNAUDITED' => 'UNAUDITED',
+  );
+  $handler->display->display_options['path'] = 'issuing-list-front';
+  $handler->display->display_options['menu']['title'] = '全部贷款';
+  $handler->display->display_options['menu']['weight'] = '0';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
   $translatables['all_issuing'] = array(
     t('Master'),
     t('贷款管理，导出'),
@@ -513,7 +534,6 @@ function cowpro_views_views_default_views() {
     t('申请人'),
     t('贷款表'),
     t('操作'),
-    t('全部'),
     t('贷款管理'),
     t('正在投标的贷款(管理员)'),
     t('正在投标的贷款'),
@@ -528,6 +548,8 @@ function cowpro_views_views_default_views() {
     t('全部贷款'),
     t('正在投标的贷款(用户)'),
     t('我的贷款'),
+    t('全部'),
+    t('全部贷款(首页)'),
   );
   $export['all_issuing'] = $view;
 
@@ -1065,7 +1087,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['filters']['receiver_uid']['value']['value'] = '-1';
 
   /* Display: 待还款清单（管理员） */
-  $handler = $view->new_display('page', '待还款清单（管理员）', 'page');
+  $handler = $view->new_display('page', '待还款清单（管理员）', 'due_in_list_manager');
   $handler->display->display_options['defaults']['access'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
@@ -1081,7 +1103,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
   /* Display: 待还款清单（借款人） */
-  $handler = $view->new_display('page', '待还款清单（借款人）', 'page_1');
+  $handler = $view->new_display('page', '待还款清单（借款人）', 'due_in_list_debtor');
   $handler->display->display_options['defaults']['access'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
@@ -1138,8 +1160,10 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
-  /* Display: 待还款清单（出借人） */
-  $handler = $view->new_display('page', '待还款清单（出借人）', 'page_2');
+  /* Display: 待收款清单（出借人） */
+  $handler = $view->new_display('page', '待收款清单（出借人）', 'due_in_list_lender');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = '待收款清单';
   $handler->display->display_options['defaults']['access'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
@@ -1232,7 +1256,8 @@ function cowpro_views_views_default_views() {
     t('全部'),
     t('待还款清单（管理员）'),
     t('待还款清单（借款人）'),
-    t('待还款清单（出借人）'),
+    t('待收款清单（出借人）'),
+    t('待收款清单'),
     t('Data export'),
   );
   $export['due_in_list'] = $view;
@@ -1507,13 +1532,6 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
   $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
   $handler->display->display_options['style_plugin'] = 'table';
-  $handler->display->display_options['style_options']['grouping'] = array(
-    0 => array(
-      'field' => 'period',
-      'rendered' => 1,
-      'rendered_strip' => 0,
-    ),
-  );
   $handler->display->display_options['style_options']['columns'] = array(
     'period' => 'period',
     'name' => 'name',
@@ -1627,6 +1645,11 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['arguments']['issuing_id']['exception']['title'] = '全部';
   $handler->display->display_options['arguments']['issuing_id']['default_argument_type'] = 'fixed';
   $handler->display->display_options['arguments']['issuing_id']['summary']['format'] = 'default_summary';
+  /* 过滤规则: 还款详情: 收款方用户ID */
+  $handler->display->display_options['filters']['receiver_uid']['id'] = 'receiver_uid';
+  $handler->display->display_options['filters']['receiver_uid']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['receiver_uid']['field'] = 'receiver_uid';
+  $handler->display->display_options['filters']['receiver_uid']['value']['value'] = '-1';
   $translatables['repayment_schedule_debtor'] = array(
     t('Master'),
     t('更多'),

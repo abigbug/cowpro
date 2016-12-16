@@ -54,12 +54,13 @@ function _moneymoremore_cowpro_fund_query_balance($uid) {
 	$context = stream_context_create ( $options );
 	$response = file_get_contents ( $url, false, $context );
 
-	$values = explode ( '|', $response );
+	$values = explode ( '|', $response );//网贷平台可提现余额|可投标余额(子账户可用余额+公共账户可用余额)|子账户冻结余额
 	$result = array();
 	if (sizeof ( $values ) == 3) {
 		$result ['status'] = TRUE;
 		$result ['code'] = '0';
 		$result ['msg'] = '';
+		$result ['withdraw'] = $values [0];
 		$result ['balance'] = $values [1];
 		$result ['lock'] = $values [2];
 		$result ['account_number'] = $platformId;
@@ -67,6 +68,7 @@ function _moneymoremore_cowpro_fund_query_balance($uid) {
 		$result ['status'] = FALSE;
 		$result ['code'] = '0';
 		$result ['msg'] = $response;
+		$result ['withdraw'] = 0;
 		$result ['balance'] = 0;
 		$result ['lock'] = 0;
 		$result ['account_number'] = $platformId;
@@ -75,5 +77,3 @@ function _moneymoremore_cowpro_fund_query_balance($uid) {
 	//watchdog('moneymoremore', "moneymoremore_cowpro_fund_query_balance: $response", NULL, WATCHDOG_DEBUG);
 	return $result;
 }
-
-?>
