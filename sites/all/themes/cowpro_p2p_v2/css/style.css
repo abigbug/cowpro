@@ -2383,3 +2383,19 @@ div.profile dd {
 div.cowpro_issuing_views dl { margin:0 0 1.5em 0; }
 div.cowpro_issuing_views dl dt { font-weight:bold; }
 div.cowpro_issuing_views dl dd { margin-left:1.5em; }
+div.modal-content:has(#-cowpro-issuing-review-form) {
+	width:400px;
+	height:400px;
+}
+div.modal-content:has(form) {
+	width:400px;
+	height:400px;
+}
+div.modal-content {
+	width:400px;
+	height:400px;
+}
+#-cowpro-issuing-review-form {
+	width:400px;
+	height:400px;
+}

@@ -8,6 +8,38 @@ include_once 'cowpro_issuing_status.inc';
 function _cowpro_issuing_review($node) {
 	ctools_include ( 'modal' );
 	ctools_include ( 'ajax' );
+
+	// Add CTools' javascript to the page.
+	ctools_modal_add_js();
+
+	// Create our own javascript that will be used to theme a modal.
+	$customer_style = array(
+		'ctools-sample-style' => array(
+			'modalSize' => array(
+				'type' => 'fixed',
+				'width' => 500,
+				'height' => 300,
+				'addWidth' => 20,
+				'addHeight' => 15,
+			),
+				/*
+			'modalOptions' => array(
+				'opacity' => .5,
+				'background-color' => '#000',
+			),
+			'animation' => 'fadeIn',
+			'modalTheme' => 'CToolsSampleModal',
+			'throbber' => theme('image', array('path' => ctools_image_path('ajax-loader.gif', 'ctools_ajax_sample'), 'alt' => t('Loading...'), 'title' => t('Loading'))),
+			*/
+		),
+	);
+
+	drupal_add_js($customer_style, 'setting');
+	/*
+	$commands = array();
+	$commands[] = ctools_modal_command_display($title, $output);
+	print ajax_render($commands);
+*/
 	$issuing = $node->field_issuing [LANGUAGE_NONE] [0];
 	$form_state = array (
 			'title' => $node->title,
@@ -17,8 +49,14 @@ function _cowpro_issuing_review($node) {
 			'node' => $node,
 			'ajax' => TRUE
 	);
-	$output = ctools_modal_form_wrapper ( '_cowpro_issuing_review_form', $form_state );
-	print ajax_render ( $output );
+	//$output = ctools_modal_form_wrapper ( '_cowpro_issuing_review_form', $form_state );
+	//print ajax_render ( $output );
+	//$commands = array();
+	$commands = ctools_modal_form_wrapper ( '_cowpro_issuing_review_form', $form_state );
+	$commands[] = ajax_command_add_css('<style>.ctools-modal-content {width:400px;height:400px;}</style>');
+	//$commands[] =ajax_command_add_css('.ctools-modal-content', 'width:400px;');
+	$commands[] = ajax_command_add_css('css/abcabc.css');
+	print ajax_render($commands);
 	exit ();
 }
 function _cowpro_issuing_review_form($form, &$form_state) {

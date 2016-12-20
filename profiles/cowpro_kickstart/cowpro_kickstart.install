@@ -11,6 +11,7 @@ function cowpro_kickstart_install() {
 	_install_relationship();
 	_install_taxonomy();
 	_install_user_menu();
+	_install_cowpro_registration_wizard_config();
 }
 
 function _install_taxonomy() {
@@ -761,4 +762,34 @@ function _install_menu_link($link) {
 	if (!$exists) {
 		menu_link_save($item);
 	}
+}
+
+function _install_cowpro_registration_wizard_config() {
+	$profile_type_wizard = array();
+	$profile_type_wizard['mobile'] = array(
+		'included' => 1,
+		'description' => '通过手机短信验证码的形式，对用户提供的手机号进行认证。',
+		'weight' => -10,
+	);
+	$profile_type_wizard['payment_password'] = array(
+			'included' => 1,
+			'description' => '投标密码，在用户投标的时候会要求用户输入该密码。',
+			'weight' => -8,
+	);
+	$profile_type_wizard['moneymoremore'] = array(
+			'included' => 1,
+			'description' => '在乾多多网站上开通第三方托管账户，并与我们P2P平台上的用户进行关联。',
+			'weight' => -7,
+	);
+	$profile_type_wizard['credentials'] = array(
+			'included' => 0,
+			'description' => '贷款人在填写贷款申请表的时候可以从中选择需要的证明文件，这样可以方便贷款申请人多次贷款。',
+			'weight' => -6,
+	);
+	$profile_type_wizard['real_name'] = array(
+			'included' => 1,
+			'description' => '此项为必要信用认证，上传齐全后将开始审核。必要认证缺失的用户，无法得到贷款。',
+			'weight' => -9,
+	);
+	variable_set('cowpro_registration_wizard', $profile_type_wizard);
 }

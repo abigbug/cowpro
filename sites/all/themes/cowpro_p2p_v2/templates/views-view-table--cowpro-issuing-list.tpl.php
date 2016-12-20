@@ -41,6 +41,7 @@
           </li>
 		</ul>
           </td>
+          <td class="separate"></td>
 
           <td <?php if ($field_classes['view_issuing'][$row_count]) { print 'class="'. $field_classes['view_issuing'][$row_count] . '" '; } ?><?php if ($field_attributes['view_issuing'][$row_count]) { print drupal_attributes($field_attributes['view_issuing'][$row_count]);} ?>>
             <?php print $row['view_issuing'];  unset($row['view_issuing']);?>
@@ -48,7 +49,6 @@
 		</tr>
   </tbody>
 		</table>
-          <div class="separate"></div>
 
 		<div class="title">
 			<ul class="title2">

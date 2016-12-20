@@ -1,4 +1,4 @@
-a:4:{s:4:"root";s:46:"sites/all/themes/cowpro_p2p_v2/less/style.less";s:8:"compiled";s:64334:"@import url(//fonts.googleapis.com/css?family=Roboto:400,400italic,700,700italic);
+a:4:{s:4:"root";s:46:"sites/all/themes/cowpro_p2p_v2/less/style.less";s:8:"compiled";s:64593:"@import url(//fonts.googleapis.com/css?family=Roboto:400,400italic,700,700italic);
 body {
 	background:#f1f1f1;
 	color:#444444;
@@ -2383,4 +2383,20 @@ div.profile dd {
 div.cowpro_issuing_views dl { margin:0 0 1.5em 0; }
 div.cowpro_issuing_views dl dt { font-weight:bold; }
 div.cowpro_issuing_views dl dd { margin-left:1.5em; }
-";s:5:"files";a:2:{s:67:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p_v2\less\style.less";i:1481709598;s:68:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p_v2\less\mixins.less";i:1480994952;}s:7:"updated";i:1481709606;}
+div.modal-content:has(#-cowpro-issuing-review-form) {
+	width:400px;
+	height:400px;
+}
+div.modal-content:has(form) {
+	width:400px;
+	height:400px;
+}
+div.modal-content {
+	width:400px;
+	height:400px;
+}
+#-cowpro-issuing-review-form {
+	width:400px;
+	height:400px;
+}
+";s:5:"files";a:2:{s:67:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p_v2\less\style.less";i:1482119611;s:68:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p_v2\less\mixins.less";i:1480994952;}s:7:"updated";i:1482206098;}
