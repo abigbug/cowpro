@@ -266,6 +266,7 @@ function _cowpro_issuing_get_render_issuing($issuing) {
 			'#value' => _cowpro_issuing_get_readable_status ( $issuing ['status'] ),
 			'#children' => ''
 	);
+	/*
 	if ($issuing['status'] == COWPRO_ISSUING_STATUS_INVITE_BIDS_START) {
 		$remain = $issuing ['start_time'] + $issuing['deadline']*24*60*60 - time();
 		if ($remain <= 0) {
@@ -284,6 +285,7 @@ function _cowpro_issuing_get_render_issuing($issuing) {
 				'#value' => $text,
 		);
 	}
+	*/
 	$element ['method_repayment'] = array (
 			'#type' => 'html_tag',
 			'#tag' => 'li',

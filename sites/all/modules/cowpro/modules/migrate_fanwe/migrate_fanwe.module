@@ -41,6 +41,7 @@ function migrate_fanwe_settings_form($configuration) {
 			'fanwe_database' => variable_get ( 'fanwe_database', '' ),
 			'fanwe_username' => variable_get ( 'fanwe_username', '' ),
 			'fanwe_password' => variable_get ( 'fanwe_password', '' ),
+			'fanwe_mobile_as_username' => variable_get ( 'fanwe_mobile_as_username', TRUE ),
 	);
 	$form = array ();
 	$form ['fanwe_host'] = array (
@@ -62,6 +63,12 @@ function migrate_fanwe_settings_form($configuration) {
 			'#title' => '密码',
 			'#type' => 'textfield',
 			'#default_value' => $configuration ['fanwe_password']
+	);
+	$form ['fanwe_mobile_as_username'] = array (
+			'#title' => '将手机号码作为登录用户名',
+			'#type' => 'checkbox',
+			'#description' => '在迁移数据的时候，将手机号码作为登录用户名。',
+			'#default_value' => $configuration ['fanwe_mobile_as_username']
 	);
 	$form ['help'] = array (
 			'#markup' => ''
@@ -480,6 +487,7 @@ function migrate_fanwe_batch_op_issuing($fanwe_dealid, $operation_details, &$con
 	}
 }
 function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) {
+	$mobile_as_username = variable_get ( 'fanwe_mobile_as_username', TRUE );
 	migrate_fanwe_add_connection_info ();
 	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'user', 'u' )->fields ( 'u', array (
 			'id',
@@ -504,6 +512,13 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 	if ((!$fanwe_user) || ($fanwe_user->is_effect == 0) || ($fanwe_user->is_delete == 1)) {
 		return;
 	}
+	if (($mobile_as_username) && (!$fanwe_user->mobilepassed)) {
+		//管理员设定以手机号作为用户登录名，如果该用户在方维平台上没有认证手机号，就不导入这个用户
+		return;
+	}
+	if (($mobile_as_username) && ($fanwe_user->mobile == '')) {
+		return;
+	}
 
 	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'mmm_create_new_acct', 'm' )->fields ( 'm', array (
 			'account_number',
@@ -525,11 +540,16 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 			'status' => 1,
 			'init' => $fanwe_user->email,
 			'signature_format' => 'plain_text',
-			'roles' => array($role_lender->rid => $role_lender->name, $role_debtor->rid => $role_debtor->name),
+			//'roles' => array($role_lender->rid => $role_lender->name, $role_debtor->rid => $role_debtor->name),
 			'roles' => array($role_lender->rid => $role_lender->name),
 			//'field_custom_first_name' => array(LANGUAGE_NONE => array(array('value' => 'John'))), // This becomes $account->field_custom_first_name[LANGUAGE_NONE][0]['value']
 			//'field_custom_last_name' => array(LANGUAGE_NONE => array(array('value' => 'Doe'))),
 	);
+	if ($mobile_as_username) {
+		//实际导入数据的时候，遇到问题：
+		//不同的用户可能用了同一个手机号认证，这样的话，如果以手机号做为用户名导入，就行不通了，所以老平台上的用户，仍然继承原来的用户名
+		//$new_user['name'] = $fanwe_user->mobile;
+	}
 	$user = user_save(NULL, $new_user);
 	if (!$user) {
 		// Store some results for post-processing in the 'finished' callback.

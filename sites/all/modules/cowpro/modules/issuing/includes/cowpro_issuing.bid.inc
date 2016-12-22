@@ -15,8 +15,31 @@ function _cowpro_issuing_bid($node) {
 			'node' => $node,
 			'ajax' => TRUE,
 	);
-	$output = ctools_modal_form_wrapper ( '_cowpro_issuing_bid_form', $form_state );
-	print ajax_render ( $output );
+	$commands = ctools_modal_form_wrapper ( '_cowpro_issuing_bid_form', $form_state );
+
+	//以AJAX方式驱动modal窗口的显示的时候，暂时没有找到更好的定义窗口维度的方法，所以暂时用js的方式来实现
+	$js = <<<js
+	<script type="text/javascript">
+	var width = 800;
+	var height = 300;
+	var contentRight = 25;
+    var contentBottom = 45;
+	jQuery('div.ctools-modal-content').css({
+		'width': width + 'px',
+		'height': height + 'px'
+	});
+    jQuery('div.ctools-modal-content .modal-content').css({
+        'width': (width - contentRight) + 'px',
+        'height': (height - contentBottom) + 'px'
+    });
+	var styleProps = jQuery('#modalContent').css('top');
+	modalContentResize();
+	jQuery('#modalContent').css('top', styleProps);
+	</script>
+js;
+
+	$commands[0]['output'] .= $js;
+	print ajax_render ( $commands );
 	exit ();
 }
 

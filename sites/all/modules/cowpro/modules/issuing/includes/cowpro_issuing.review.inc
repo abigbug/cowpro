@@ -9,37 +9,6 @@ function _cowpro_issuing_review($node) {
 	ctools_include ( 'modal' );
 	ctools_include ( 'ajax' );
 
-	// Add CTools' javascript to the page.
-	ctools_modal_add_js();
-
-	// Create our own javascript that will be used to theme a modal.
-	$customer_style = array(
-		'ctools-sample-style' => array(
-			'modalSize' => array(
-				'type' => 'fixed',
-				'width' => 500,
-				'height' => 300,
-				'addWidth' => 20,
-				'addHeight' => 15,
-			),
-				/*
-			'modalOptions' => array(
-				'opacity' => .5,
-				'background-color' => '#000',
-			),
-			'animation' => 'fadeIn',
-			'modalTheme' => 'CToolsSampleModal',
-			'throbber' => theme('image', array('path' => ctools_image_path('ajax-loader.gif', 'ctools_ajax_sample'), 'alt' => t('Loading...'), 'title' => t('Loading'))),
-			*/
-		),
-	);
-
-	drupal_add_js($customer_style, 'setting');
-	/*
-	$commands = array();
-	$commands[] = ctools_modal_command_display($title, $output);
-	print ajax_render($commands);
-*/
 	$issuing = $node->field_issuing [LANGUAGE_NONE] [0];
 	$form_state = array (
 			'title' => $node->title,
@@ -47,15 +16,32 @@ function _cowpro_issuing_review($node) {
 			'start_time' => $issuing ['start_time'],
 			'status' => $issuing ['status'],
 			'node' => $node,
-			'ajax' => TRUE
+			'ajax' => TRUE,
 	);
-	//$output = ctools_modal_form_wrapper ( '_cowpro_issuing_review_form', $form_state );
-	//print ajax_render ( $output );
-	//$commands = array();
 	$commands = ctools_modal_form_wrapper ( '_cowpro_issuing_review_form', $form_state );
-	$commands[] = ajax_command_add_css('<style>.ctools-modal-content {width:400px;height:400px;}</style>');
-	//$commands[] =ajax_command_add_css('.ctools-modal-content', 'width:400px;');
-	$commands[] = ajax_command_add_css('css/abcabc.css');
+
+	//以AJAX方式驱动modal窗口的显示的时候，暂时没有找到更好的定义窗口维度的方法，所以暂时用js的方式来实现
+	$js = <<<js
+	<script type="text/javascript">
+	var width = 800;
+	var height = 300;
+	var contentRight = 25;
+    var contentBottom = 45;
+	jQuery('div.ctools-modal-content').css({
+		'width': width + 'px',
+		'height': height + 'px'
+	});
+    jQuery('div.ctools-modal-content .modal-content').css({
+        'width': (width - contentRight) + 'px',
+        'height': (height - contentBottom) + 'px'
+    });
+	var styleProps = jQuery('#modalContent').css('top');
+	modalContentResize();
+	jQuery('#modalContent').css('top', styleProps);
+	</script>
+js;
+
+	$commands[0]['output'] .= $js;
 	print ajax_render($commands);
 	exit ();
 }
