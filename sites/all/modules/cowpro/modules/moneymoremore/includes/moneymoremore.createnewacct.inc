@@ -96,7 +96,10 @@ function moneymoremore_create_new_acct_callback() {
 	}
 	if (($_POST ["ResultCode"] == '88') || ($_POST ["ResultCode"] == '16')) {//88:绑定成功；16：网贷平台账号已绑定
 		$uid = $_POST ["Remark1"];
-		$profile = cowpro_customer_profile_new('moneymoremore', $uid);
+		$profile = cowpro_customer_profile_load_one_row_with_conditions($uid, 'moneymoremore');
+		if ($profile == NULL) {
+			$profile = cowpro_customer_profile_new('moneymoremore', $uid);
+		}
 		$profile->mmm_account_number =  $_POST ["AccountNumber"];//乾多多数字账户(可用于登录)
 		$profile->mmm_id = $_POST ["MoneymoremoreId"];//用户的乾多多标识(以m开头)
 		$profile->mmm_auth_state = $_POST ["AuthState"];//实名认证状态(1.未实名认证,2.快捷支付认证,3.其他认证)
