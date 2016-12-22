@@ -102,7 +102,7 @@ function mobile_certification_cowpro_customer_profile_mobile_form($form, &$form_
 
 	return $form;
 }
-function mobile_certification_cowpro_customer_profile_mobile_form_validate($form, &$form_state, $profile) {
+function mobile_certification_cowpro_customer_profile_mobile_form_validate($form, &$form_state) {
 	$validate_result = TRUE;
 	if (!isset($_SESSION ['mobile_verification_mobile_number'])) {
 		$validate_result = FALSE;
@@ -110,8 +110,14 @@ function mobile_certification_cowpro_customer_profile_mobile_form_validate($form
 	if (!isset($_SESSION ['mobile_verification_code'])) {
 		$validate_result = FALSE;
 	}
-	if ($validate_result && ($_SESSION ['mobile_verification_mobile_number'] != trim ( $form_state ['values'] ['mobile_number'] ))) {
-		$validate_result = FALSE;
+	if (isset($form_state ['values'] ['mobile_number'])) {
+		if ($validate_result && ($_SESSION ['mobile_verification_mobile_number'] != trim ( $form_state ['values'] ['mobile_number'] ))) {
+			$validate_result = FALSE;
+		}
+	} else if (isset($form_state ['values'] ['name'])) {//注册新用户的时候，以手机号做为登录用户名
+		if ($validate_result && ($_SESSION ['mobile_verification_mobile_number'] != trim ( $form_state ['values'] ['name'] ))) {
+			$validate_result = FALSE;
+		}
 	}
 	if ($validate_result && ($_SESSION ['mobile_verification_code'] != trim ( $form_state ['values'] ['verify_code'] ))) {
 			$validate_result = FALSE;
@@ -215,4 +221,83 @@ function mobile_certification_settings_form($form, &$form_state) {
 			'#weight' => 10,
 	);
 	return system_settings_form ( $form );
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ * Form ID: user_register_form
+ * 菜单路径：user/register
+ */
+function mobile_certification_form_user_register_form_alter(&$form, &$form_state, $form_id) {
+	global $base_url;
+	drupal_add_js(array('basePath' => $base_url), 'setting');
+	drupal_add_js ( drupal_get_path ( 'module', 'mobile_certification' ) . '/mobile_certification.js' );
+	$form ['verify_code'] = array (
+			'#type' => 'textfield',
+			'#title' => '验证码',
+			'#default_value' => '',
+			'#maxlength' => 20,
+			'#required' => FALSE,//在通过 registration_wizard 模块显示这个 form 的时候，用户有可能只是在向导翻页的时候路过
+			'#weight' => - 5,
+	);
+
+	$form ['send_verify'] = array (
+			'#id' => 'send_verify',
+			'#type' => 'button',
+			'#value' => '发送验证码',
+			'#attributes' => array (
+					'class' => array (
+							'send-verify-code',
+					)
+			),
+			'#weight' => 10,
+	);
+
+	$form ['mobile_verify_help'] = array (
+			'#markup' => '<div id=mobile_verify_help><p></p></div>',
+			'#weight' => 5,
+	);
+
+	$form['account']['name']['#title'] = '请输入您的手机号作为登录用户名';
+	$form['account']['name']['#description'] = '手机号码，11位数字';
+	$form['#validate'][] = 'mobile_certification_cowpro_customer_profile_mobile_form_validate';
+	$form['#submit'][] = 'mobile_certification_register_form_submit';
+}
+
+function mobile_certification_register_form_submit($form, &$form_state) {
+	global $user;
+	$profile = cowpro_customer_profile_new('mobile', $user->uid);
+	$profile->mobile_number = $form_state ['values'] ['name'];
+	$profile->verified = 1;
+	cowpro_customer_profile_save($profile);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ * Form ID: user_profile_form
+ * 菜单路径：user/%/edit
+ */
+function mobile_certification_form_user_profile_form_alter(&$form, &$form_state, $form_id) {
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ * Form ID: user_admin_settings
+ * 菜单路径：admin/config/people/accounts
+ */
+function mobile_certification_form_user_admin_settings_alter($form, &$form_state) {
+}
+
+/**
+ * Implementation of hook_menu_alter().
+ */
+function mobile_certification_menu_alter(&$items) {
+	$items['user/password']['access callback'] = 'mobile_certification_access_check';
+}
+
+function mobile_certification_access_check() {
+	if (variable_get('mobile_certification_request_password_by_email_disabled', TRUE)) {
+		return FALSE;
+	}
+	return TRUE;
 }

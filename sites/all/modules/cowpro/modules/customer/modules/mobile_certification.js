@@ -5,7 +5,11 @@
 		$(".send-verify-code").unbind('click').click(
 				function(event) {
 					event.preventDefault();
-					var mobile_number = $(".mobile_number").val();
+					var number_object = $(".mobile_number");
+					if (number_object.length == 0) {
+						number_object = $("#edit-name");
+					}
+					var mobile_number = number_object.val();
 
 					if (!mobile_number_vailidate(mobile_number)) {
 						$("#mobile_verify_help").text('请输入有效的手机号码');
