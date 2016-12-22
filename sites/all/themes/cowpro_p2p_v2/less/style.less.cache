@@ -1,4 +1,4 @@
-a:4:{s:4:"root";s:46:"sites/all/themes/cowpro_p2p_v2/less/style.less";s:8:"compiled";s:64457:"@import url(//fonts.googleapis.com/css?family=Roboto:400,400italic,700,700italic);
+a:4:{s:4:"root";s:46:"sites/all/themes/cowpro_p2p_v2/less/style.less";s:8:"compiled";s:64530:"@import url(//fonts.googleapis.com/css?family=Roboto:400,400italic,700,700italic);
 body {
 	background:#f1f1f1;
 	color:#444444;
@@ -873,7 +873,7 @@ div.messages .dismiss:hover {
 }
 .prefooter_wrapper .region { padding:30px 0; }
 .content_bottom_wrapper {
-	background:url(../images/footer-bg.jpg) center top no-repeat #e8eaf6;
+	background:url(../images/footer-bg.png) center top no-repeat #e8eaf6;
 	color:#283593;
 }
 .content_bottom_wrapper .region { padding:85px 0 92px; }
@@ -1920,7 +1920,6 @@ td.views-field.views-field-amount
 	overflow:hidden;
 }
 .region-menu ul.menu, ul.menu ul {
-	background:#FFF;
 	margin:0;
 	padding:0;
 	list-style-type:none;
@@ -2390,4 +2389,6 @@ div.cowpro_issuing_views dl { margin:0 0 1.5em 0; }
 div.cowpro_issuing_views dl dt { font-weight:bold; }
 div.cowpro_issuing_views dl dd { margin-left:1.5em; }
 .form-item-start-time-element { width:600px; }
-";s:5:"files";a:2:{s:67:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p_v2\less\style.less";i:1482369441;s:68:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p_v2\less\mixins.less";i:1480994952;}s:7:"updated";i:1482369464;}
+#edit-card-no, #edit-card-no2 { width:260px; }
+#edit-province, #edit-city { width:260px; }
+";s:5:"files";a:2:{s:67:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p_v2\less\style.less";i:1482374480;s:68:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p_v2\less\mixins.less";i:1480994952;}s:7:"updated";i:1482374502;}
