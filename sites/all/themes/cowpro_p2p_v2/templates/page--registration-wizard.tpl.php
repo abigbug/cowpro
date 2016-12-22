@@ -89,11 +89,11 @@ endif; ?>
 			<div class="<?php if ( theme_get_setting( 'cowpro_p2p_sticky_menu' ) ) { echo 'stickup '; } ?>header-section-2"> <!-- Sticky menu wrapper -->
 				<div class="container-12">
 
-					<div class="grid-2">
+					<div class="grid-3">
 						<a href="<?php echo base_path()?>"><img class="logo" src="<?php echo base_path() . path_to_theme(); ?>/logo.png"/></a>
 					</div>
 
-					<div class="grid-10">
+					<div class="grid-9">
 						<!-- Region Menu -->
 						<?php if ( $page['menu'] ) :
 							print render( $page['menu'] );
