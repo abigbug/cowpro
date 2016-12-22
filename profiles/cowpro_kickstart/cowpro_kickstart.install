@@ -625,6 +625,15 @@ function _standard_install() {
 	//'sticky' => t('Sticky at top of lists'),
 	variable_set('node_options_page', array('status'));
 
+	//关闭用户头像
+	variable_set('user_pictures', 0);
+
+	//注册的时候不显示email
+	variable_set('optionalmail_register', 1);
+	variable_set('optionalmail_alterfield_register', 'field hidden');
+	variable_set('optionalmail_edit', 1);
+	variable_set('optionalmail_alterfield_edit', 'field hidden');
+
 	//关闭各种内容的评论功能
 	variable_set('comment_page', COMMENT_NODE_CLOSED);
 	variable_set('comment_article', COMMENT_NODE_CLOSED);

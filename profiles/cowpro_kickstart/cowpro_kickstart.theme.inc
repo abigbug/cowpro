@@ -19,7 +19,10 @@ function _install_theme_v2() {
 
 function _install_theme_image_style_v1() {
 	// Create a style.
-	$style = image_style_save(array('name' => 'flexslider_full', 'label' => 'flexslider_full'));
+	$style = image_style_load('flexslider_full');
+	if (! $style) {
+		$style = image_style_save(array('name' => 'flexslider_full', 'label' => 'flexslider_full'));
+	}
 
 	$effect = array(
 			'name' => 'image_scale_and_crop',
@@ -35,7 +38,10 @@ function _install_theme_image_style_v1() {
 
 function _install_theme_image_style_v2() {
 	// Create a style.
-	$style = image_style_save(array('name' => 'flexslider_full', 'label' => 'flexslider_full'));
+	$style = image_style_load('flexslider_full');
+	if (! $style) {
+		$style = image_style_save(array('name' => 'flexslider_full', 'label' => 'flexslider_full'));
+	}
 
 	$effect = array(
 			'name' => 'image_scale_and_crop',
