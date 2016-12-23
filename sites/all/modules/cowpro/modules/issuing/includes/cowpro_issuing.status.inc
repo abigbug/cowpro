@@ -48,7 +48,7 @@ function _cowpro_issuing_user_view_debtor($account, $view_mode) {
 
 function _cowpro_issuing_user_view_payable($account, $view_mode) {
 	$role = user_role_load_by_name('debtor');
-	if (user_has_role($role->rid, $account->uid)) {
+	if (user_has_role($role->rid, $account)) {
 		$view = views_get_view('due_in_list');
 		$view->set_display('due_in_list_debtor');
 		$view->set_arguments(array($account->uid));
