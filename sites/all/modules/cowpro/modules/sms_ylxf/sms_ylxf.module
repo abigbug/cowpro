@@ -197,7 +197,8 @@ function sms_ylxf_block_info() {
 			'info' => '显示屹立雄风短信余额',
 			'status' => TRUE,
 			'region' => BLOCK_REGION_NONE,
-  	  'pages' => 'admin/cowpro/*',
+			'visibility' => BLOCK_VISIBILITY_PHP,
+			'pages' => '<?php global $user; if ($user->uid == 1) { return TRUE; } else { return FALSE; } ?>',
 	);
 
 	return $blocks;

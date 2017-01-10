@@ -1,0 +1,75 @@
+<?php
+/**
+ * Implements hook_menu_alter().
+ */
+function assign_register_referee_menu_alter(&$items) {
+  $items['user/autocomplete']['access callback'] = TRUE;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ * Form ID: user_register_form
+ * 菜单路径：user/register
+ */
+function assign_register_referee_form_user_register_form_alter(&$form, &$form_state, $form_id) {
+	if (isset($_SESSION[INVITE_SESSION_CODE])) {
+		$invite = invite_by_code_load($_SESSION[INVITE_SESSION_CODE]);
+		$user = user_load($invite->uid);
+		$form['register_referee_reminder'] = array(
+				'#markup' => '推荐人：' . $user->name,
+				'#weight' => - 3,
+		);
+	} else {
+		$form ['register_referee'] = array (
+				'#type' => 'textfield',
+				'#title' => '推荐人',
+				'#default_value' => '',
+				'#maxlength' => 20,
+				'#autocomplete_path' =>	'user/autocomplete',
+				'#required' => FALSE,
+				'#attributes' => array (
+						'class' => array (
+								'register_referee',
+						)
+				),
+				'#weight' => - 3,
+		);
+		$form['#submit'][] = 'assign_register_referee_register_form_submit';
+	}
+}
+
+function assign_register_referee_register_form_submit($form, &$form_state) {
+	if (isset($form_state ['values'] ['register_referee'])) {
+		global $user;
+		$relationship_type = user_relationships_type_load(array('name'=>'朋友'));
+		$requestee = user_load_by_name($form_state ['values'] ['register_referee']);
+		$relationship->requester_id = $user->uid;
+		$relationship->requestee_id = $requestee->uid;
+		$relationship->approved = TRUE;
+		$relationship->rtid = $relationship_type->rtid;
+
+		return user_relationships_save_relationship($relationship);
+	}
+}
+
+/**
+ * Alter the table rows of relationship listings.
+ *
+ * @param $row
+ *   Array with the table row content.
+ * @param $relationship
+ *   Relationship object.
+ * @param $account
+ *   User account for which the relationships are shown.
+ *
+ * @see user_relationships_ui_get_table_row()
+ */
+function assign_register_referee_user_relationships_ui_table_row_alter(&$row, $relationship, $account) {
+	foreach($row as &$r) {
+		if ($r[1] === '推荐人') {
+
+		}
+	}
+	//$insert_index = variable_get('user_relationships_show_user_pictures', 0) + 2;
+	//$row = array_merge(array_slice($row, 0, $insert_index), array($relationship->elaboration), array_slice($row, $insert_index));
+}

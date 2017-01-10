@@ -11,7 +11,7 @@ function _cowpro_issuing_user_view($account, $view_mode) {
 
 function _cowpro_issuing_user_view_debtor($account, $view_mode) {
 	$role = user_role_load_by_name('debtor');
-	if (user_has_role($role->rid, $account->uid)) {
+	if (user_has_role($role->rid, $account)) {
 		$uid = $account->uid;
 		$capital = db_query("SELECT SUM(capital) FROM {cowpro_repayment_schedule} WHERE receiver_uid = -1 AND payer_uid = $uid")->fetchField();
 		$count = db_query("SELECT COUNT(DISTINCT issuing_id) FROM {cowpro_repayment_schedule} WHERE receiver_uid = -1 AND payer_uid = $uid")->fetchField();

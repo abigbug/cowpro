@@ -512,6 +512,7 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 	if ((!$fanwe_user) || ($fanwe_user->is_effect == 0) || ($fanwe_user->is_delete == 1)) {
 		return;
 	}
+	/*
 	if (($mobile_as_username) && (!$fanwe_user->mobilepassed)) {
 		//管理员设定以手机号作为用户登录名，如果该用户在方维平台上没有认证手机号，就不导入这个用户
 		return;
@@ -519,6 +520,7 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 	if (($mobile_as_username) && ($fanwe_user->mobile == '')) {
 		return;
 	}
+	*/
 
 	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'mmm_create_new_acct', 'm' )->fields ( 'm', array (
 			'account_number',

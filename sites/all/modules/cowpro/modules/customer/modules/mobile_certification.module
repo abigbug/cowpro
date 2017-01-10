@@ -80,6 +80,11 @@ function mobile_certification_cowpro_customer_profile_mobile_form($form, &$form_
 			'#default_value' => '',
 			'#maxlength' => 20,
 			'#required' => FALSE,//在通过 registration_wizard 模块显示这个 form 的时候，用户有可能只是在向导翻页的时候路过
+			'#attributes' => array (
+					'class' => array (
+							'verify_code',
+					)
+			),
 			'#weight' => - 5,
 	);
 
@@ -238,6 +243,11 @@ function mobile_certification_form_user_register_form_alter(&$form, &$form_state
 			'#default_value' => '',
 			'#maxlength' => 20,
 			'#required' => FALSE,//在通过 registration_wizard 模块显示这个 form 的时候，用户有可能只是在向导翻页的时候路过
+			'#attributes' => array (
+					'class' => array (
+							'verify_code',
+					)
+			),
 			'#weight' => - 5,
 	);
 
@@ -270,6 +280,7 @@ function mobile_certification_register_form_submit($form, &$form_state) {
 	$profile->mobile_number = $form_state ['values'] ['name'];
 	$profile->verified = 1;
 	cowpro_customer_profile_save($profile);
+	$form_state['redirect'] = 'registration_wizard';
 }
 
 /**

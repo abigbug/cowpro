@@ -8,7 +8,7 @@ function cowpro_fund_menu() {
 	$items ['cowpro/fund'] = array (
 			'title' => '资金管理',
 			'description' => '资金管理',
-			'page callback' => 'node_page_default',
+			'page callback' => 'cowpro_fund_journal',
 			'access callback' => 'cowpro_fund_real_name_verified',
 			'menu_name' => 'navigation',
 			'type' => MENU_NORMAL_ITEM,
@@ -85,6 +85,28 @@ function cowpro_fund_menu() {
 	);
 	*/
 	return $items;
+}
+
+function cowpro_fund_journal() {
+	global $user;
+	$view = views_get_view ( 'cowpro_fund_journal' );
+	$view->set_display ( 'journal' );
+
+	// Set the specific arguments passed in.
+	$view->set_arguments ( array($user->uid) );
+
+	// Override the view url, if an override was provided.
+	if (! empty ( $override_url )) {
+		$view->override_url = $override_url;
+	}
+
+	// Prepare and execute the View query.
+	$view->pre_execute ();
+	$view->execute ();
+
+	// Return the rendered View.
+	return $view->render ();
+
 }
 
 /**

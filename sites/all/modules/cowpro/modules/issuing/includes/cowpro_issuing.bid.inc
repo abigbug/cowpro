@@ -21,7 +21,7 @@ function _cowpro_issuing_bid($node) {
 	$js = <<<js
 	<script type="text/javascript">
 	var width = 800;
-	var height = 300;
+	var height = 400;
 	var contentRight = 25;
     var contentBottom = 45;
 	jQuery('div.ctools-modal-content').css({
@@ -55,7 +55,7 @@ function _cowpro_issuing_bid_form($form, &$form_state) {
 			'#weight' => 10,
 	);
 	$form['information'] = array(
-			'#markup' => "<p>当前最大可投资金额为 $bid_avail 元</p>",
+			'#markup' => "<p>当前最大可投资金额为 $bid_avail 元，投资金额必需是100元的整数倍。</p>",
 	);
 	$form ['submit'] = array (
 			'#type' => 'submit',
@@ -104,6 +104,9 @@ function _cowpro_issuing_bid_form_validate($form, &$form_state) {
 		}
 		if ($form_state ['values']['amount'] <= 0) {
 			form_set_error ( 'bid', '请填写有效的投资金额(大于零)' );
+		}
+		if ($form_state ['values']['amount'] % 100 != 0) {
+			form_set_error ( 'bid', '投资金额必需是100元的整数倍' );
 		}
 	}
 }

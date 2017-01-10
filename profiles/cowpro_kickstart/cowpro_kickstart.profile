@@ -198,16 +198,17 @@ function cowpro_kickstart_customer_setup() {
 
 	variable_set ( 'user_register', USER_REGISTER_VISITORS );
 
+	//注册的时候不显示email
 	// optional_mail_on_register模块
-	variable_set ( 'optionalmail_register', 1 );
 	variable_set ( 'user_email_verification', FALSE );
 	if (module_exists ( 'contact' )) {
 		// 参考方法 optional_mail_on_register_optionalmail_settings_submit
 		variable_set ( 'contact_default_status', FALSE );
 	}
-	variable_set ( 'optionalmail_edit', 1 );
-	variable_set ( 'optionalmail_alterfield_register', 'field visible' );
-	variable_set ( 'optionalmail_alterfield_edit', 'field visible' );
+	variable_set('optionalmail_register', 1);
+	variable_set('optionalmail_alterfield_register', 'field hidden');
+	variable_set('optionalmail_edit', 1);
+	variable_set('optionalmail_alterfield_edit', 'field hidden');
 
 	//与point模块有关的汉化设置
 	variable_set(USERPOINTS_TRANS_UCPOINTS, '积分');

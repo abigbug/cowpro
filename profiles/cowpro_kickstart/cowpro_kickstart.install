@@ -522,6 +522,42 @@ function _standard_install() {
 					'title' => '',
 					'cache' => -1,
 			),
+			array(
+					'module' => 'system',
+					'delta' => 'user-menu',
+					'theme' => $default_theme,
+					'status' => 1,
+					'weight' => 0,
+					'region' => 'menu',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'cowpro_issuing',
+					'delta' => 'cowpro_statis',
+					'theme' => $default_theme,
+					'status' => 1,
+					'weight' => 0,
+					'region' => 'content_top',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
+			array(
+					'module' => 'cowpro_issuing',
+					'delta' => 'cowpro_news',
+					'theme' => $default_theme,
+					'status' => 1,
+					'weight' => 0,
+					'region' => '-1',
+					'visibility' => '0',
+					'pages' => '',
+					'title' => '',
+					'cache' => -1,
+			),
 	);
 	$query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'visibility', 'pages', 'title', 'cache'));
 	foreach ($blocks as $block) {
@@ -628,12 +664,6 @@ function _standard_install() {
 	//关闭用户头像
 	variable_set('user_pictures', 0);
 
-	//注册的时候不显示email
-	variable_set('optionalmail_register', 1);
-	variable_set('optionalmail_alterfield_register', 'field hidden');
-	variable_set('optionalmail_edit', 1);
-	variable_set('optionalmail_alterfield_edit', 'field hidden');
-
 	//关闭各种内容的评论功能
 	variable_set('comment_page', COMMENT_NODE_CLOSED);
 	variable_set('comment_article', COMMENT_NODE_CLOSED);
@@ -648,10 +678,12 @@ function _standard_install() {
 	variable_set('node_submitted_contract_credit_assignment', FALSE);
 
 	// Enable user picture support and set the default to a square thumbnail option.
+	/*
 	variable_set('user_pictures', '1');
 	variable_set('user_picture_dimensions', '1024x1024');
 	variable_set('user_picture_file_size', '800');
 	variable_set('user_picture_style', 'thumbnail');
+	*/
 
 	// Allow visitor account creation with administrative approval.
 	variable_set('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL);
@@ -738,19 +770,29 @@ function _install_user_menu() {
 	);
 	_install_menu_link($link);
 	$link = array(
-			'link_title' => '登录',
-			'link_path' => 'user/login',
-			'menu_name' => 'user-menu',
-			'weight' => -45,
-			'expanded' => 0,
-	);
-	_install_menu_link($link);
-	$link = array(
 			'link_title' => '注册',
 			'link_path' => 'user/register',
 			'menu_name' => 'user-menu',
+			'weight' => -45,
+			'expanded' => 0,
+			'options' => array(
+					'attributes' => array(
+							'title' => '注册送好礼',
+					),
+			),
+	);
+	_install_menu_link($link);
+	$link = array(
+			'link_title' => '登录',
+			'link_path' => 'user/login',
+			'menu_name' => 'user-menu',
 			'weight' => -44,
 			'expanded' => 0,
+			'options' => array(
+					'attributes' => array(
+							'title' => '登录',
+					),
+			),
 	);
 	_install_menu_link($link);
 
@@ -776,9 +818,14 @@ function _install_menu_link($link) {
 function _install_cowpro_registration_wizard_config() {
 	$profile_type_wizard = array();
 	$profile_type_wizard['mobile'] = array(
-		'included' => 1,
+		'included' => 0,
 		'description' => '通过手机短信验证码的形式，对用户提供的手机号进行认证。',
 		'weight' => -10,
+	);
+	$profile_type_wizard['real_name'] = array(
+			'included' => 1,
+			'description' => '此项为必要信用认证，上传齐全后将开始审核。必要认证缺失的用户，无法得到贷款。',
+			'weight' => -9,
 	);
 	$profile_type_wizard['payment_password'] = array(
 			'included' => 1,
@@ -794,11 +841,6 @@ function _install_cowpro_registration_wizard_config() {
 			'included' => 0,
 			'description' => '贷款人在填写贷款申请表的时候可以从中选择需要的证明文件，这样可以方便贷款申请人多次贷款。',
 			'weight' => -6,
-	);
-	$profile_type_wizard['real_name'] = array(
-			'included' => 1,
-			'description' => '此项为必要信用认证，上传齐全后将开始审核。必要认证缺失的用户，无法得到贷款。',
-			'weight' => -9,
 	);
 	variable_set('cowpro_registration_wizard', $profile_type_wizard);
 }

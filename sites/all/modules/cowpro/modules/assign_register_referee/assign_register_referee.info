@@ -1,0 +1,10 @@
+name = Assign register referee
+description = 允许新用户在注册的时候选择自己的推荐人
+core = 7.x
+package = _CowPro
+
+dependencies[] = invite
+
+version = "7.x-0.01"
+core = "7.x"
+project = "assign_register_referee"

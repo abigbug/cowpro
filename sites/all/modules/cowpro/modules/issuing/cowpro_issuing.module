@@ -1491,3 +1491,44 @@ function cowpro_issuing_test_form($form, &$form_state) {
 	die ( '还款计划表' );
 }
 */
+
+/**
+ * Implements hook_views_pre_render()
+ */
+function cowpro_issuing_views_pre_render(&$view) {
+	if ($view->name == 'repayment_schedule_lender') {
+		global $user;
+		$role = user_role_load_by_name('manager');
+		if (user_has_role($role->rid, $user)) {
+			//业务管理员看到的是没有马赛克的用户姓名
+			return;
+		}
+
+		$results = $view->result;
+		foreach ($results as $key => $value) {
+			if (isset($view->result[$key]->users_cowpro_repayment_schedule_1_name) &&
+					isset($view->result[$key]->users_cowpro_repayment_schedule_1_uid)) {
+				if ($view->result[$key]->users_cowpro_repayment_schedule_1_uid != $user->uid) {
+					$name = _cowpro_issuing_mask_user_name($view->result[$key]->users_cowpro_repayment_schedule_1_name);
+					$view->result[$key]->users_cowpro_repayment_schedule_1_name = $name;
+				}
+			}
+			if (isset($view->result[$key]->users_cowpro_repayment_schedule_name) &&
+					isset($view->result[$key]->users_cowpro_repayment_schedule_uid)) {
+				if ($view->result[$key]->users_cowpro_repayment_schedule_uid != $user->uid) {
+					$name = _cowpro_issuing_mask_user_name($view->result[$key]->users_cowpro_repayment_schedule_name);
+					$view->result[$key]->users_cowpro_repayment_schedule_name = $name;
+				}
+			}
+		}
+	}
+}
+
+function _cowpro_issuing_mask_user_name($name) {
+	if (mb_strlen($name) < 11) {
+		$result = mb_substr($name, 0, 2) . '***';
+	} else {
+		$result = mb_substr($name, 0, 4) . '****' . mb_substr($name, -3, 3);
+	}
+	return $result;
+}

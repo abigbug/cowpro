@@ -331,3 +331,33 @@ function registration_wizard_get_result($object) {
   $out[] = '感谢您的注册，祝您投资愉快！';
   return array('#theme' => 'item_list', '#items' => $out, '#title' => '完成:');
 }
+
+/**
+ * Implements hook_user_login().
+ */
+function registration_wizard_user_login(&$edit, $account) {
+	$profile_types = registration_wizard_get_available_profile_types();
+	foreach ($profile_types as $value) {
+		if ($value['included']) {
+			global $user;
+			$conditions = array(
+					'uid' => $user->uid,
+					'type' => $value['type'],
+			);
+			$profiles = cowpro_customer_profile_load_multiple(array(), $conditions);
+			$redirect = FALSE;
+			if (empty ( $profiles )) {
+				$redirect = TRUE;
+			} else {
+				$profile = reset($profiles);
+				if (!$profile->verified) {
+					$redirect = TRUE;
+				}
+			}
+			if ($redirect) {
+				$edit['redirect'] = 'registration_wizard/' . $value['type'];
+				break;
+			}
+		}
+	}
+}

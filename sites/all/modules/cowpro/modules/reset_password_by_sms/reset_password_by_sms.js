@@ -5,8 +5,11 @@
 		$(".send-verify-code").unbind('click').click(
 				function(event) {
 					event.preventDefault();
-					var mobile_number = $(".mobile_number").val();
 					var user_name = $(".user_name").val();
+					var mobile_number = user_name;
+					if (!$("#mobile_as_user_name")[0].checked) {
+						mobile_number = $(".mobile_number").val();
+					}
 
 					if (!mobile_number_vailidate(mobile_number)) {
 						$("#mobile_verify_help").text('请输入有效的手机号码');
@@ -34,6 +37,14 @@
 								}
 							}
 						});
+					}
+				});
+		$("#mobile_as_user_name").unbind('click').click(
+				function(event) {
+					if (this.checked) {
+						$( "div.form-item-mobile-number" ).hide();
+					} else {
+						$( "div.form-item-mobile-number" ).show();
 					}
 				});
 	};
