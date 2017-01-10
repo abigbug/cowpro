@@ -146,7 +146,6 @@ label {
 	display: block;
 }
 
-#user-register-form,
 #reset-password-by-sms-form,
 #user-login,
 #contact-site-form,
@@ -3064,7 +3063,7 @@ table .mini-day-on a {
 ===========================================================================*/
 
 .page-footer {
-	background: url(../images/footer-bg.jpg) center top no-repeat @altBg;
+	background: url(../images/footer-bg.png) center top no-repeat @altBg;
 	background-size: 100% auto;
 	clear: both;
 	color: @linkColor;
@@ -3648,4 +3647,17 @@ div.cowpro_issuing_views dl dd {
 }
 #edit-province, #edit-city {
   width:260px;
+}
+
+/*注册*/
+#user-register-form {
+  width:320px;
+}
+#user-register-form .username, #user-register-form .password-field,
+#user-register-form .password-confirm, #user-register-form .verify-code,
+#user-register-form .password-parent {
+  width:300px;
+ }
+#user-register-form .password-strength {
+  display:none; 
 }

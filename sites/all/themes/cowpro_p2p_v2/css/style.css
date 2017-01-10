@@ -69,7 +69,7 @@ input[type="text"], input[type="color"], input[type="date"], input[type="datetim
 fieldset { border-color:#e8eaf6; }
 label { display:inline-block; }
 #search-form .form-item { display:block; }
-#user-register-form .form-text, #reset-password-by-sms-form .form-text, #user-login .form-text, #contact-site-form .form-text, .search-form .form-text { width:100%; }
+#reset-password-by-sms-form .form-text, #user-login .form-text, #contact-site-form .form-text, .search-form .form-text { width:100%; }
 #contact-site-form label { vertical-align:middle; }
 a {
 	color:#283593;
@@ -2391,3 +2391,6 @@ div.cowpro_issuing_views dl dd { margin-left:1.5em; }
 .form-item-start-time-element { width:600px; }
 #edit-card-no, #edit-card-no2 { width:260px; }
 #edit-province, #edit-city { width:260px; }
+#user-register-form { width:320px; }
+#user-register-form .username, #user-register-form .password-field, #user-register-form .password-confirm, #user-register-form .verify-code, #user-register-form .password-parent { width:300px; }
+#user-register-form .password-strength { display:none; }

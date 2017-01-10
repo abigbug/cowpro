@@ -1,4 +1,4 @@
-a:4:{s:4:"root";s:46:"sites/all/themes/cowpro_p2p_v2/less/style.less";s:8:"compiled";s:64530:"@import url(//fonts.googleapis.com/css?family=Roboto:400,400italic,700,700italic);
+a:4:{s:4:"root";s:46:"sites/all/themes/cowpro_p2p_v2/less/style.less";s:8:"compiled";s:64787:"@import url(//fonts.googleapis.com/css?family=Roboto:400,400italic,700,700italic);
 body {
 	background:#f1f1f1;
 	color:#444444;
@@ -69,7 +69,7 @@ input[type="text"], input[type="color"], input[type="date"], input[type="datetim
 fieldset { border-color:#e8eaf6; }
 label { display:inline-block; }
 #search-form .form-item { display:block; }
-#user-register-form .form-text, #reset-password-by-sms-form .form-text, #user-login .form-text, #contact-site-form .form-text, .search-form .form-text { width:100%; }
+#reset-password-by-sms-form .form-text, #user-login .form-text, #contact-site-form .form-text, .search-form .form-text { width:100%; }
 #contact-site-form label { vertical-align:middle; }
 a {
 	color:#283593;
@@ -1775,7 +1775,7 @@ table .mini-day-on a:hover { text-decoration:underline; }
 	top:319px;
 }
 .page-footer {
-	background:url(../images/footer-bg.jpg) center top no-repeat #e8eaf6;
+	background:url(../images/footer-bg.png) center top no-repeat #e8eaf6;
 	background-size:100% auto;
 	clear:both;
 	color:#283593;
@@ -2391,4 +2391,7 @@ div.cowpro_issuing_views dl dd { margin-left:1.5em; }
 .form-item-start-time-element { width:600px; }
 #edit-card-no, #edit-card-no2 { width:260px; }
 #edit-province, #edit-city { width:260px; }
-";s:5:"files";a:2:{s:67:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p_v2\less\style.less";i:1482374480;s:68:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p_v2\less\mixins.less";i:1480994952;}s:7:"updated";i:1482374502;}
+#user-register-form { width:320px; }
+#user-register-form .username, #user-register-form .password-field, #user-register-form .password-confirm, #user-register-form .verify-code, #user-register-form .password-parent { width:300px; }
+#user-register-form .password-strength { display:none; }
+";s:5:"files";a:2:{s:67:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p_v2\less\style.less";i:1482737456;s:68:"F:\htdocs\cms\cowpro\sites\all\themes\cowpro_p2p_v2\less\mixins.less";i:1480994952;}s:7:"updated";i:1482737486;}

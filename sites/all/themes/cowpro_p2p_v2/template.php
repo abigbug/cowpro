@@ -607,3 +607,9 @@ function cowpro_p2p_v2_ctools_wizard_trail__registration_wizard($vars) {
 		return '<div class="wizard-trail">' . implode('', $vars['trail']) . '</div>';
 	}
 }
+
+function cowpro_p2p_v2_username($variables) {
+	$userpath = 'user/' . $variables['uid'];
+	$output = l($variables['name'] . $variables['extra'], $userpath, $variables['link_options']);
+	return $output;
+}

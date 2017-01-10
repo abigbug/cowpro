@@ -111,7 +111,7 @@ $html_attributes = "lang=\"{$language->language}\" dir=\"{$language->dir}\" {$rd
         online_bar end-->
         <div class="online_bar collapse" id="onlineSort3">
           <h2> <a href="javascript:;">扫一扫，关注微信</a> </h2>
-          <div class="online_content overz" id="onlineType3" style="display: block;"> <img src="http://www.jinbeizeng.com/public/wx.jpg" style="display: block;margin: 0 auto 5px;width: 90px"> </div>
+          <div class="online_content overz" id="onlineType3" style="display: block;"> <img src="<?php echo base_path().path_to_theme() ?>/images/wx.jpg" style="display: block;margin: 0 auto 5px;width: 90px"> </div>
         </div>
         <!--online_bar end-->
       </div>
