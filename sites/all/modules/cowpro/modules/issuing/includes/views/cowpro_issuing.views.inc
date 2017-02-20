@@ -43,6 +43,15 @@ function cowpro_issuing_field_views_data($field) {
 			),
 	);
 
+	$data['field_data_field_issuing']['progress'] = array(
+			'real field' => 'entity_id',
+			'field' => array(
+					'title' => t('progress'),
+					'help' => '投标进度',
+					'handler' => 'cowpro_issuing_handler_field_progress',
+			),
+	);
+
 	return $data;
 }
 

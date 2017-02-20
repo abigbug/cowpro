@@ -24,6 +24,7 @@ files[] = test/cowpro_issuing.test
 files[] = includes/views/handlers/cowpro_issuing_handler_field_issuing.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_issuing_operations.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_node_operations.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_field_progress.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_filter_status_select.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_title.inc
 ;files[] = includes/views/handlers/cowpro_issuing_handler_field_receiver_name.inc
