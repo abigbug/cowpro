@@ -1,0 +1,18 @@
+name = cowpro_report
+description = 实现管理报表相关的功能
+package = _CowPro
+
+core = 7.x
+
+; Module includes
+files[] = includes/cowpro_issuing.controller.inc
+files[] = includes/cowpro_issuing_repayment_schedule.controller.inc
+
+; Views handlers
+files[] = includes/views/handlers/cowpro_report_handler_field_real_name.inc
+files[] = includes/views/handlers/cowpro_report_handler_field_mmm.inc
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"
