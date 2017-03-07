@@ -69,12 +69,36 @@ function _cowpro_issuing_get_loan_term_options() {
 	return $terms;
 }
 
+function _cowpro_issuing_get_loan_term_options_2() {
+	$terms = array (
+			7 => '+1 week',
+			30 => '+1 month',
+			90 => '+3 month',
+			180 => '+6 month',
+			360 => '+1 year',
+	);
+	return $terms;
+}
+
 /**
  * 将贷款期限转换为便于用户理解的贷款期限的文字表述
  * @param unknown $loan_term
  */
 function _cowpro_issuing_get_readable_loan_term($loan_term) {
-	$terms = _cowpro_issuing_get_loan_term_options();
+	$terms = _cowpro_issuing_get_loan_term_options_2();
+	if (array_key_exists($loan_term, $terms)) {
+		return date("Y-m-d",strtotime($terms[$loan_term]));
+	} else {
+		return '未知';
+	}
+}
+
+/**
+ * 将贷款期限转换为便于用户理解的贷款期限的文字表述
+ * @param unknown $loan_term
+ */
+function _cowpro_issuing_get_interest_period($loan_term) {
+	$terms = _cowpro_issuing_get_loan_term_options_2();
 	if (array_key_exists($loan_term, $terms)) {
 		return $terms[$loan_term];
 	} else {
