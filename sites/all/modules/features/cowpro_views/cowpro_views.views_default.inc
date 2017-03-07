@@ -39,7 +39,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
   $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
   $handler->display->display_options['pager']['type'] = 'full';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '5';
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['pager']['options']['id'] = '0';
   $handler->display->display_options['pager']['options']['quantity'] = '9';
@@ -105,6 +105,10 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['fields']['view_issuing']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['view_issuing']['field'] = 'view_issuing';
   $handler->display->display_options['fields']['view_issuing']['add_destination'] = 1;
+  /* 字段: Issuing: progress */
+  $handler->display->display_options['fields']['progress']['id'] = 'progress';
+  $handler->display->display_options['fields']['progress']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['progress']['field'] = 'progress';
   /* 排序标准: 内容: 发布日期 */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
@@ -534,6 +538,7 @@ function cowpro_views_views_default_views() {
     t('申请人'),
     t('贷款表'),
     t('操作'),
+    t('progress'),
     t('贷款管理'),
     t('正在投标的贷款(管理员)'),
     t('正在投标的贷款'),
