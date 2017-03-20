@@ -1,0 +1,14 @@
+name = Web service client REST
+description = Implements a REST endpoint to connect to REST services.
+package = Services
+core = 7.x
+files[] = wsclient_rest.module
+dependencies[] = wsclient
+dependencies[] = http_client
+
+; Information added by drupal.org packaging script on 2013-04-16
+version = "7.x-1.0"
+core = "7.x"
+project = "wsclient"
+datestamp = "1366136535"
+

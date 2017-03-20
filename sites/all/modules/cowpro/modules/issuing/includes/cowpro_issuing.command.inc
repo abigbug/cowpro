@@ -116,7 +116,12 @@ function _cowopro_issuing_access($op, $node, $account = NULL) {
 			}
 			break;
 		case 'view contract' : // 查看合同
-			$result = TRUE;
+			global $user;
+			if ($user->uid == 0) {
+				$result = FALSE;//user is not logged in
+			} else {
+				$result = TRUE;
+			}
 			break;
 		case 'download contract' : // 下载合同
 			$result = TRUE;

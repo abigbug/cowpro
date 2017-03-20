@@ -1,0 +1,99 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function cowpro_shop_menu() {
+	$items = array ();
+	$items ['shop'] = array (
+			'title' => '积分商城',
+			'description' => '用积分兑换商品',
+			'page callback' => 'cowpro_shop_list',
+			'access callback' => TRUE,
+			//'menu_name' => 'navigation',
+			'type' => MENU_NORMAL_ITEM,
+			'weight' => 10
+	);
+	$items ['shop/detail/%'] = array (
+			'title' => '积分商城',
+			'description' => '用积分兑换商品',
+			'page callback' => 'cowpro_shop_detail',
+			'page arguments' => array(2),
+			'access callback' => TRUE,
+			//'menu_name' => 'navigation',
+			'type' => MENU_NORMAL_ITEM,
+			'weight' => 10
+	);
+	$items ['shop/buy/%/%'] = array (
+			'title' => '兑换',
+			'description' => '用积分兑换商品',
+			'page callback' => 'cowpro_shop_buy',
+			'page arguments' => array(2, 3),
+			'access callback' => TRUE,
+			'type' => MENU_CALLBACK,
+			'weight' => 10
+	);
+	return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function cowpro_shop_theme() {
+	return array(
+			'cowpro_commerce_list' => array(
+					'variables' => array('list' => NULL),
+					'file' => 'cowpro_shop.pages.inc',
+					'template' => 'cowpro-commerce-list',
+			),
+			'cowpro_commerce_item' => array(
+					'variables' => array('item' => NULL),
+					'file' => 'cowpro_shop.pages.inc',
+					'template' => 'cowpro-commerce-item',
+			),
+	);
+}
+
+function cowpro_shop_list($page) {
+	$service = new WSClientServiceDescription();
+	$service->name = 'commerce-kickstart';
+	$service->label = 'commerce kickstart';
+	$service->url = 'http://localhost/cms/commerce-kickstart/service/';
+	$service->type = 'rest';
+
+	$operation = array();
+	$operation['label'] = 'Index';
+	$operation['url'] = 'entity_node';
+	$operation['type'] = 'GET';
+	$operation['parameter']['page'] = array('type' => 'integer', 'label' => 'Page NO.');
+	//$operation['result'] = array('type' => 'node', 'label' => 'Node');
+	$service->operations['index'] = $operation;
+	$result = $service->index($page);
+
+	drupal_set_title($result['title']);
+	$html = theme('cowpro_commerce_list', array('list' => $result));
+
+	return $html;
+}
+
+function cowpro_shop_detail($nid) {
+	$service = new WSClientServiceDescription();
+	$service->name = 'commerce-kickstart';
+	$service->label = 'commerce kickstart';
+	$service->url = 'http://localhost/cms/commerce-kickstart/service/';
+	$service->type = 'rest';
+
+	$operation = array();
+	$operation['label'] = 'retrieve';
+	$operation['url'] = 'entity_node/@nid';
+	$operation['type'] = 'GET';
+	$operation['parameter']['nid'] = array('type' => 'integer', 'label' => 'Node id');
+	$operation['result'] = array('type' => 'node', 'label' => 'Node');
+	$service->operations['retrieve'] = $operation;
+	$result = $service->retrieve($nid);
+
+	drupal_set_title($result['title']);
+	$html = theme('cowpro_commerce_item', array('item' => $result));
+
+	return $html;
+}

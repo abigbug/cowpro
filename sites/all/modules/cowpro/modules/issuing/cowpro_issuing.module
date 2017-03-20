@@ -59,19 +59,14 @@ function cowpro_issuing_menu() {
 	);
 
 	$items ['issuing/%node'] = array (
-			'title callback' => 'node_page_title',
-			'title arguments' => array (
-					1,
-			),
-			// The page callback also invokes drupal_set_title() in case
-			// the menu router's title is overridden by a menu link.
+			'title' => '贷款详情',
 			'page callback' => 'node_page_view',
 			'page arguments' => array (
 					1,
 			),
-			'access callback' => 'node_access',
+			'access callback' => 'cowopro_issuing_access',
 			'access arguments' => array (
-					'view',
+					'view issuing',
 					1,
 			)
 	);
@@ -374,10 +369,10 @@ function cowpro_issuing_block_view($delta = '') {
 			$revenus = db_query("SELECT SUM(interest) FROM {cowpro_repayment_schedule} WHERE receiver_uid = -1")->fetchField();
 			$capital = db_query("SELECT SUM(capital) FROM {cowpro_repayment_schedule} WHERE receiver_uid = -1")->fetchField();
 			$bids = db_query("SELECT COUNT(*) FROM {cowpro_fund_journal} WHERE type = 'BID'")->fetchField();
-			$msg = '<div id="cowpro-statis"><ul><li class="alpha">收益总额<i>' . number_format($revenus) . '</i></li><li class="alpha">投资总额<i>' . number_format($capital) . '</i></li><li>总投资人次<i>' . number_format($bids) . '</i></li></ul></div>';
+			$msg = ' <div class="container"><div class="row"><div id="cowpro-statis"><ul class="clearfix"><li class="alpha col-md-4">收益总额<i>' . number_format($revenus) . '</i></li><li class="alpha col-md-4">投资总额<i>' . number_format($capital) . '</i></li><li class="col-md-4">总投资人次<i>' . number_format($bids) . '</i></li></ul></div></div></div>';
 			$block['subject'] = '';
 			$block['content'] = array(
-				'#markup' => $msg,
+					'#markup' => $msg,
 			);
 			break;
 		case 'cowpro_news':
@@ -577,6 +572,7 @@ function cowpro_issuing_node_view($node, $view_mode) {
 	if (!$make_loans_time) {
 		$make_loans_time = $issuing['start_time'] + $issuing['deadline'] * 24 * 60 * 60;
 	}
+	$interest_period = _cowpro_issuing_get_interest_period($issuing['start_time'], $issuing ['loan_term']);//计息结束日期
 		ctools_include('modal');
 		ctools_include('ajax');
 		ctools_include('context');
@@ -653,6 +649,7 @@ function cowpro_issuing_node_view($node, $view_mode) {
 						'deadline' => $issuing['deadline'],//投标期（天）
 						'progress' => $progress,
 						'operations' => $operations,
+						'interest_period' => $interest_period,
 				) ),
 				'#weight' => 100,
 		);

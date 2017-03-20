@@ -55,10 +55,19 @@ class cowpro_issuing_handler_field_issuing_operations extends views_handler_fiel
 			$quick_link2['repayment-schedule']['attributes']['class'] = array('ctools-use-modal');
 			$links = array_merge($quick_link2, $links);
 		}
+
+		/*
 		$quick_link1['quick-view'] = menu_get_item("issuing/$issuing_id/brief");
 		if ($quick_link1['quick-view']['access']) {
-			$quick_link1['quick-view']['title'] = '贷款速览';
+			$quick_link1['quick-view']['title'] = '贷款详情';
 			$quick_link1['quick-view']['attributes']['class'] = array('views-megarow-open');
+			$links = array_merge($quick_link1, $links);
+		}
+		*/
+
+		$quick_link1['quick-view'] = menu_get_item("issuing/$issuing_id");
+		if ($quick_link1['quick-view']['access']) {
+			$quick_link1['quick-view']['title'] = '贷款详情';
 			$links = array_merge($quick_link1, $links);
 		}
 

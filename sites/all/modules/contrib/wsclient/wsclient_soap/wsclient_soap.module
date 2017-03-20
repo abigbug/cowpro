@@ -1,0 +1,238 @@
+<?php
+
+/**
+ * @file
+ * Web service client SOAP support.
+ */
+
+/**
+ * Implements hook_wsclient_endpoint_types().
+ */
+function wsclient_soap_wsclient_endpoint_types() {
+  return array(
+    'soap' => array(
+      'label' => t('SOAP'),
+      'class' => 'WSClientSOAPEndpoint',
+    ),
+  );
+}
+
+/**
+ * A remote endpoint type for invoking SOAP services.
+ */
+class WSClientSOAPEndpoint extends WSClientEndpoint {
+
+  public function client() {
+    if (!isset($this->client)) {
+      $options['exceptions'] = TRUE;
+      if (!empty($this->service->settings['options'])) {
+        $options += $this->service->settings['options'];
+      }
+      try {
+        $this->client = new SOAPClient($this->url, $options);
+      }
+      catch (SoapFault $e) {
+        throw new WSClientException('Error initializing SOAP client for service %name', array('%name' => $this->service->name));
+      }
+    }
+    return $this->client;
+  }
+
+  /**
+   * Retrieve metadata from the WSDL about available data types and operations.
+   *
+   * @param boolean $reset
+   *   If TRUE, existing data types and operations will be overwritten.
+   */
+  public function initializeMetadata($reset = TRUE) {
+    $client = $this->client();
+    $data_types = wsclient_soap_parse_types($client->__getTypes());
+    $operations = wsclient_soap_parse_operations($client->__getFunctions());
+    if ($reset) {
+      $this->service->datatypes = $data_types;
+      $this->service->operations = $operations;
+    }
+    else {
+      $this->service->datatypes += $data_types;
+      $this->service->operations += $operations;
+    }
+    $this->service->clearCache();
+  }
+
+  /**
+   * Calls the SOAP service.
+   *
+   * @param string $operation
+   *   The name of the operation to execute.
+   * @param array $arguments
+   *   Arguments to pass to the service with this operation.
+   */
+  public function call($operation, $arguments) {
+    $client = $this->client();
+    try {
+      $response = $client->__soapCall($operation, $arguments);
+      return $response;
+    }
+    catch (SoapFault $e) {
+      throw new WSClientException('Error invoking the SOAP service %name, operation %operation: %error', array('%name' => $this->service->label, '%operation' => $operation, '%error' => $e->getMessage()));
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function wsclient_soap_form_wsclient_service_form_alter(&$form, &$form_state) {
+  $form['#submit'][] = 'wsclient_soap_wsclient_service_form_submit';
+  $form['#validate'][] = 'wsclient_soap_wsclient_service_form_validate';
+}
+
+/**
+ * Validation callback to check if the SOAP service URL points to a valid WSDL
+ * file.
+ */
+function wsclient_soap_wsclient_service_form_validate($form, $form_state) {
+  $service = $form_state['wsclient_service'];
+  if ($form_state['values']['type'] == 'soap') {
+    // The url has to point to a valid WSDL file.
+    try {
+      // If initializing the SOAPClient succeeds we're good, otherwise we catch
+      // the exception below and suppress any further warnings.
+      // WARNING: if you have the xdebug PHP module enabled this can cause a
+      // fatal error on invalid WSDL files (instead of a catchable SoapFault
+      // exception).
+      // xdebug_disable();
+      @$endpoint = new SOAPClient($form_state['values']['url']);
+    }
+    catch (SoapFault $e) {
+      form_set_error('url', t('Error parsing the WSDL file: %message', array('%message' => $e->getMessage())));
+    }
+  }
+}
+
+/**
+ * Submit callback for the web service form to populate operations and data
+ * types of the new SOAP service.
+ */
+function wsclient_soap_wsclient_service_form_submit($form, &$form_state) {
+  if ($form_state['values']['type'] == 'soap' && $form_state['op'] == 'add') {
+    $service = $form_state['wsclient_service'];
+    $endpoint = $service->endpoint();
+    $endpoint->initializeMetadata();
+    $service->save();
+    rules_clear_cache();
+    $service->clearCache();
+    drupal_set_message(t('Operations and data types of the SOAP service have been imported automatically. If the service expects data types with properties as lists (multiple values for the property), please check the multiple flag on those properties. This cannot be auto-detected at the moment.'));
+  }
+}
+
+/**
+ * Convert metadata about data types provided by a SOAPClient into a wsclient
+ * compatible data type array.
+ *
+ * @param array $types
+ *   The array containing the struct strings.
+ * @return
+ *   A data type array with property information.
+ */
+function wsclient_soap_parse_types(array $types) {
+  $wsclient_types = array();
+  foreach ($types as $type_string) {
+    if (strpos($type_string, 'struct') === 0) {
+      $parts = explode('{', $type_string);
+      // Cut off struct and whitespaces from type name.
+      $type_name = trim(substr($parts[0], 6));
+      $wsclient_types[$type_name] = array('label' => $type_name);
+      $property_string = $parts[1];
+      // Cut off trailing '}'
+      $property_string = substr($property_string, 0, -1);
+      $properties = explode(';', $property_string);
+      // Remove last empty element
+      array_pop($properties);
+      // Initialize empty property information.
+      $wsclient_types[$type_name]['property info'] = array();
+      foreach ($properties as $property_string) {
+        // Cut off white spaces.
+        $property_string = trim($property_string);
+        $parts = explode(' ', $property_string);
+        $property_type = $parts[0];
+        $property_name = $parts[1];
+        $wsclient_types[$type_name]['property info'][$property_name] = array(
+          'type' => wsclient_soap_type_mapper($property_type),
+        );
+      }
+    }
+  }
+  return $wsclient_types;
+}
+
+/**
+ * Convert metadata about operations provided by a SOAPClient into a wsclient
+ * compatible operations array.
+ *
+ * @param array $operations
+ *   The array containing the operation signature strings.
+ * @return
+ *   An operations array with parameter information.
+ */
+function wsclient_soap_parse_operations(array $operations) {
+  $wsclient_operations = array();
+  foreach ($operations as $operation) {
+    $parts = explode(' ', $operation);
+    $return_type = wsclient_soap_type_mapper($parts[0]);
+    $name_parts = explode('(', $parts[1]);
+    $op_name = $name_parts[0];
+    $wsclient_operations[$op_name] = array(
+      'label' => $op_name,
+      'result' => array('type' => $return_type, 'label' => $return_type),
+    );
+    $parts = explode('(', $operation);
+    // Cut off trailing ')'.
+    $param_string = substr($parts[1], 0, -1);
+    if ($param_string) {
+      $parameters = explode(',', $param_string);
+      foreach ($parameters as $parameter) {
+        $parameter = trim($parameter);
+        $parts = explode(' ', $parameter);
+        $param_type = $parts[0];
+        // Remove leading '$' from parameter name.
+        $param_name = substr($parts[1], 1);
+        $wsclient_operations[$op_name]['parameter'][$param_name] = array(
+          'type' => wsclient_soap_type_mapper($param_type),
+        );
+      }
+    }
+  }
+  return $wsclient_operations;
+}
+
+/**
+ * Maps data type names from SOAPClient to wsclient/rules internals.
+ */
+function wsclient_soap_type_mapper($type) {
+  $primitive_types = array('string', 'int', 'long', 'float', 'boolean', 'double', 'short', 'decimal');
+  if (in_array($type, $primitive_types)) {
+    switch ($type) {
+      case 'double':
+      case 'float':
+        return 'decimal';
+      case 'int':
+      case 'long':
+      case 'short':
+        return 'integer';
+      case 'string':
+        return 'text';
+    }
+  }
+  // Check for list types.
+  if (strpos($type, 'ArrayOf') === 0) {
+    $type = substr($type, 7);
+    $primitive = strtolower($type);
+    if (in_array($primitive, $primitive_types)) {
+      return 'list<' . $primitive . '>';
+    }
+    return 'list<' . $type . '>';
+  }
+  // Otherwise return the type as is.
+  return $type;
+}

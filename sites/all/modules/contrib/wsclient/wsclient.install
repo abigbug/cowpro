@@ -1,0 +1,165 @@
+<?php
+
+/**
+ * @file
+ * Web service client - installation file.
+ */
+
+function wsclient_enable() {
+  // Force clearing module implements cache.
+  module_implements('services_resources', FALSE, TRUE);
+}
+
+
+
+/**
+ * Implements hook_schema().
+ */
+function wsclient_schema() {
+  $schema['wsclient_service'] = array(
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'The primary identifier for the web service.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '32',
+        'not null' => TRUE,
+        'description' => 'The name of the web service.',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'description' => 'The label of the web service.',
+      ),
+      'url' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'description' => 'The url of the web service.',
+      ),
+      'operations' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'serialize' => TRUE,
+        'size' => 'medium',
+        'description' => 'The operations this web service offers.',
+      ),
+      'datatypes' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'serialize' => TRUE,
+        'size' => 'medium',
+        'description' => 'The complex data types used in the operations.',
+      ),
+      'global_parameters' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'serialize' => TRUE,
+        'description' => 'The global parameters definition of this web service.',
+      ),
+      'type' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'description' => 'The type of the remote endpoint.',
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'serialize' => TRUE,
+        'description' => 'The endpoint type specific settings.',
+      ),
+      'authentication' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'serialize' => TRUE,
+        'description' => 'Data describing the authentication method.',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'unique keys' => array(
+      'name' => array('name'),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Add in the exportable entity db columns as required by the entity API.
+ */
+function wsclient_update_7100() {
+  db_add_field('wsclient_service', 'status', array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => ENTITY_CUSTOM,
+    'size' => 'tiny',
+    'description' => 'The exportable status of the entity.',
+  ));
+  db_add_field('wsclient_service', 'module', array(
+    'description' => 'The name of the providing module if the entity has been defined in code.',
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => FALSE,
+  ));
+}
+
+/**
+ * Add global_parameters column.
+ */
+function wsclient_update_7101() {
+  if (!db_field_exists('wsclient_service', 'global_parameters')) {
+    db_add_field('wsclient_service', 'global_parameters', array(
+      'type' => 'text',
+      'not null' => FALSE,
+      'serialize' => TRUE,
+      'description' => 'The global parameters definition of this web service.',
+    ));
+  }
+}
+
+/**
+ * Increase size of datatypes and operations columns to medium.
+ */
+function wsclient_update_7102() {
+  db_change_field('wsclient_service', 'datatypes', 'datatypes', array(
+    'type' => 'text',
+    'not null' => FALSE,
+    'serialize' => TRUE,
+    'size' => 'medium',
+    'description' => 'The complex data types used in the operations.',
+  ));
+  db_change_field('wsclient_service', 'operations', 'operations', array(
+    'type' => 'text',
+    'not null' => FALSE,
+    'serialize' => TRUE,
+    'size' => 'medium',
+    'description' => 'The operations this web service offers.',
+  ));
+}
+
+/**
+ * Remove unused subscription database tables.
+ */
+function wsclient_update_7103() {
+  db_drop_table('wsclient_info');
+  db_drop_table('wsclient_subscriptions');
+}

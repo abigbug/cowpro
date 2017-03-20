@@ -1,0 +1,168 @@
+<?php
+
+/**
+ * @file
+ * Web service client examples module.
+ */
+
+/**
+ * Implements hook_default_wsclient_service().
+ */
+function wsclient_examples_default_wsclient_service() {
+  // Google Translate service (REST)
+  // Note that this service does not seem to work anymore :-(
+  $service = new WSClientServiceDescription();
+  $service->name = 'google';
+  $service->label = 'Google Ajax APIs';
+  $service->url = 'http://ajax.googleapis.com/ajax/services/';
+  $service->type = 'rest';
+
+  // Add info about the REST service, which the user has to provide via the UI.
+  $service->datatypes = array(
+    'translation_result' => array(
+      'label' => 'Translation result',
+      'property info' => array(
+        'responseData' => array(
+          'type' => 'struct',
+          'label' => 'Response data',
+          'property info' => array(
+            'translatedText' => array(
+              'type' => 'text',
+              'label' => 'Translated text',
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  $operation['label'] = 'Translate text';
+  $operation['url'] = 'language/translate';
+  $operation['parameter']['q'] = array('type' => 'text', 'label' => 'Text');
+  $operation['parameter']['langpair'] = array(
+    'type' => 'text',
+    'label' => 'Language pair',
+    'description' => 'The language pair used for translating, such as de|en.',
+  );
+  // We have to specify the version 1.0
+  $operation['parameter']['v'] = array('type' => 'hidden', 'default value' => '1.0');
+  $operation['result'] = array('type' => 'wsclient_google_translation_result', 'label' => 'Translation result');
+  $service->operations['translate'] = $operation;
+  $services[$service->name] = $service;
+
+  // Geocoder.us service (SOAP)
+  $service = new WSClientServiceDescription();
+  $service->name = 'geocoder';
+  $service->label = 'Geocoder.us';
+  $service->url = 'http://geocoder.us/dist/eg/clients/GeoCoderPHP.wsdl';
+  $service->type = 'soap';
+  try {
+    $service->endpoint()->initializeMetaData();
+    $services[$service->name] = $service;
+  }
+  catch (WSClientException $e) {
+    watchdog('wsclient', $e->__toString());
+  }
+
+  // Twitter search service (REST)
+  $service = new WSClientServiceDescription();
+  $service->name = 'twitter_search';
+  $service->label = 'Twitter Search';
+  $service->url = 'http://search.twitter.com/search.json';
+  $service->type = 'rest';
+
+  $service->datatypes = array(
+    'result' => array(
+      'label' => 'Search result',
+      'property info' => array(
+        'results' => array(
+          'type' => 'list<tweet>',
+          'label' => 'Tweet list',
+        ),
+        'query' => array(
+          'type' => 'text',
+          'label' => 'Requested query text',
+        ),
+      ),
+    ),
+    'tweet' => array(
+      'label' => 'Tweet data',
+      'property info' => array(
+        'text' => array(
+          'type' => 'text',
+          'label' => 'Tweet text',
+        ),
+      ),
+    ),
+  );
+  $operation = array();
+  $operation['label'] = 'Search';
+  $operation['parameter']['q'] = array('type' => 'text', 'label' => 'Search text');
+  $operation['result'] = array('type' => 'wsclient_twitter_search_result', 'label' => 'Search result');
+  $service->operations['search'] = $operation;
+  $services[$service->name] = $service;
+
+  if (module_exists('restws')) {
+    // Local RestWS node service.
+    $service = new WSClientServiceDescription();
+    $service->name = 'restws_node';
+    $service->label = 'RestWS node service';
+    $service->url = url('<front>', array('absolute' => TRUE));
+    $service->type = 'rest';
+
+    $service->datatypes = array(
+      'result' => array(
+        'label' => 'Create result',
+        'property info' => array(
+          'id' => array(
+            'type' => 'integer',
+            'label' => 'resource id',
+          ),
+          'uri' => array(
+            'type' => 'uri',
+            'label' => 'resource URI',
+          ),
+          'resource' => array(
+            'type' => 'text',
+            'label' => 'resource type',
+          ),
+        ),
+      ),
+    );
+    // Node get operation.
+    $operation = array();
+    $operation['label'] = 'Get';
+    $operation['url'] = 'node/@nid.json';
+    $operation['parameter']['nid'] = array('type' => 'integer', 'label' => 'Node id');
+    $operation['result'] = array('type' => 'node', 'label' => 'Node');
+    $service->operations['get'] = $operation;
+    // Node create operation.
+    $operation = array();
+    $operation['label'] = 'Create';
+    $operation['url'] = 'node';
+    $operation['type'] = 'POST';
+    $operation['data'] = 'node';
+    $operation['parameter']['node'] = array('type' => 'node', 'label' => 'Node');
+    $operation['result'] = array('type' => 'result', 'label' => 'Create result');
+    $service->operations['create'] = $operation;
+    // Node update operation.
+    $operation = array();
+    $operation['label'] = 'Update';
+    $operation['url'] = 'node/@nid';
+    $operation['type'] = 'PUT';
+    $operation['data'] = 'node';
+    $operation['parameter']['node'] = array('type' => 'node', 'label' => 'Node');
+    $operation['parameter']['nid'] = array('type' => 'integer', 'label' => 'Node id');
+    $service->operations['update'] = $operation;
+    $services[$service->name] = $service;
+    // Node delete operation.
+    $operation = array();
+    $operation['label'] = 'Delete';
+    $operation['url'] = 'node/@nid';
+    $operation['type'] = 'DELETE';
+    $operation['parameter']['nid'] = array('type' => 'integer', 'label' => 'Node id');
+    $service->operations['delete'] = $operation;
+    $services[$service->name] = $service;
+  }
+
+  return $services;
+}

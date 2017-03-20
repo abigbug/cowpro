@@ -24,12 +24,14 @@ class cowpro_creditor_assignment_handler_field_operations extends views_handler_
 			$quick_link2['repayment-schedule']['attributes']['class'] = array('views-megarow-open');
 			$links = array_merge($quick_link2, $links);
 		}
+		/*
 		$quick_link1['quick-view'] = menu_get_item("issuing/$issuing_id/brief");
 		if ($quick_link1['quick-view']['access']) {
 			$quick_link1['quick-view']['title'] = '贷款速览';
 			$quick_link1['quick-view']['attributes']['class'] = array('views-megarow-open');
 			$links = array_merge($quick_link1, $links);
 		}
+		*/
 
 		ctools_include('modal');
 		ctools_include('ajax');

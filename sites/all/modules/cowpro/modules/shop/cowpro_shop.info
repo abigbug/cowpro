@@ -1,0 +1,10 @@
+name = cowpro_shop
+description = 利用WEBSERVICE向commerce-kickstart请求商品列表并显示给用户，用户可以用自己的points兑换商品
+package = _CowPro
+
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"

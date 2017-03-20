@@ -1,0 +1,38 @@
+name = sopuopc
+description = Please provide a description for your theme.
+base theme = bootstrap
+core = 7.x
+
+; ========================================
+; Regions
+; ========================================
+regions[header_top] = header top
+regions[header] = Header Content
+regions[header_left] = header Left
+regions[navigation] = Header navigation
+regions[banner] = Sopuo Banner
+regions[zhuanti_content] = Zhuanti content
+regions[highlighted] = Highlighted
+regions[help] = Help
+regions[content] = Content
+regions[content_bottom] = Content Botoom
+regions[sidebar_first] = Primary
+regions[sidebar_second] = Secondary
+regions[sidebar_right] = Right Block
+regions[footer_top] = Footer Top Content
+regions[footer] = Footer Content
+regions[page_top] = Page top
+regions[page_bottom] = Page bottom
+
+; ========================================
+; Stylesheets
+; ========================================
+scripts[] = assets/bootstrap/js/bootstrap.min.js
+scripts[] = assets/jasny/js/jasny-bootstrap.min.js
+scripts[] = js/sopuo.js
+stylesheets[all][] = assets/font-awesome/css/font-awesome.min.css
+stylesheets[all][] = assets/bootstrap/css/bootstrap.min.css
+stylesheets[all][] = assets/jasny/css/jasny-bootstrap.min.css
+stylesheets[all][] = assets/animate/animate.min.css
+stylesheets[all][] = css/sopuo-color-ui.css
+stylesheets[all][] = css/style.css

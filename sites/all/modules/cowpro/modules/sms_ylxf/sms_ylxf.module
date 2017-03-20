@@ -248,13 +248,13 @@ function _sms_ylxf_check_balance() {
 
 function _sms_ylxf_post($action, $param = array()) {
 	$gateway = sms_gateways('gateway', 'ylxf');
-	$url = $gateway['configuration']['server_url'];
-	if (empty($url)) {
+	if ((!isset($gateway['configuration']['server_url'])) || empty($gateway['configuration']['server_url'])) {
 		global $base_url;
 		$link = $base_url . '/admin/smsframework/gateways/ylxf';
 		drupal_set_message(t('请<a href="!url">配置</a>“屹立雄风”的服务器参数', array('!url' => $link,)), 'warning');
 		return 'sms_ylxf_error';
 	}
+	$url = $gateway['configuration']['server_url'];
 	$url = $url . $action;
 	$param['user'] = $gateway['configuration']['username'];
 	$param['password'] = md5($gateway['configuration']['password']);
