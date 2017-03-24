@@ -58,7 +58,8 @@ function cowpro_shop_list($page = 0) {
 	$service = new WSClientServiceDescription();
 	$service->name = 'commerce-kickstart';
 	$service->label = 'commerce kickstart';
-	$service->url = 'http://localhost/cms/commerce-kickstart/service/';
+	//$service->url = 'http://localhost/cms/commerce-kickstart/service/';
+	$service->url = 'http://shop.jinbeizeng.com//service/';
 	$service->type = 'rest';
 
 	$operation = array();
