@@ -31,9 +31,6 @@ if ( $user->uid ) :
 <?php endif; ?>
 <div class="sopuo-body-warp ">
   <div class="clearfix sopuo-title-bg">
-    <?php if (!empty($title)): ?>
-    <h1 class="page-header text-center"><?php print $title; ?></h1>
-    <?php endif; ?>
     <?php print render($title_suffix); ?> </div>
   <section  class="container" id="sopuo-mainbody">
     <div class="row">

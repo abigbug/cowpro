@@ -54,7 +54,7 @@ function cowpro_shop_theme() {
 	);
 }
 
-function cowpro_shop_list($page) {
+function cowpro_shop_list($page = 0) {
 	$service = new WSClientServiceDescription();
 	$service->name = 'commerce-kickstart';
 	$service->label = 'commerce kickstart';
@@ -70,7 +70,6 @@ function cowpro_shop_list($page) {
 	$service->operations['index'] = $operation;
 	$result = $service->index($page);
 
-	drupal_set_title($result['title']);
 	$html = theme('cowpro_commerce_list', array('list' => $result));
 
 	return $html;

@@ -192,18 +192,18 @@ ul,li{ list-style:none; padding:0; margin:0;}
     display: block; margin-bottom:10px; text-align:center;
    }
 .loan_bg_red:hover{ color:#fff;}
-.the-xiangx .ctools-dropbutton-processed{ border:0;width:100%;
+.the-xiangx .ctools-button{ border:0;width:100%;
     height:40px;
     line-height:40px;
     background:#ED5345;
     color: #ffffff; border-bottom:2px solid #E33D2E;text-align:center;}
-.the-xiangx .ctools-dropbutton-processed li.quick-view a,.the-xiangx .ctools-link a{ color:#fff; line-height:40px;}
+.the-xiangx .ctools-button li.quick-view a,.the-xiangx .ctools-link a{ color:#fff; line-height:40px;}
 .ctools-twisty{width: 0;
 	height: 0;
 	border-top: 6px solid #fff;
 	border-left: 6px solid transparent;
 	border-right: 6px solid transparent; top:18px;}
-.the-xiangx .ctools-dropbutton-processed .ctools-link{ right:10px;}
+.the-xiangx .ctools-button .ctools-link{ right:10px;}
 .jqm-round-wrap{display:block;position:relative;width:60px;height:60px;overflow:hidden;border-radius:65px;-webkit-border-radius:65px}
 .jqm-round-sector{position:absolute;width:60px;height:60px}
 .jqm-round-bg{position:absolute;width:59px;height:60px;background-color:#e8e8e8;border-radius:65px;-webkit-border-radius:65px}
@@ -213,12 +213,12 @@ ul,li{ list-style:none; padding:0; margin:0;}
 .ctools-content li{ width:100%; background:#fff; border:1px solid #ccc; line-height:35px; border-top:0;}
 .ctools-content li.first{ background:none; border:0;}
 .ctools-content li:nth-child(2){ margin-top:-2px;}
-.ctools-dropbutton-processed.open .ctools-twisty{width: 0; 
+.ctools-button.open .ctools-twisty{width: 0; 
    height: 0;  
    border-bottom:6px solid #fff; 
    border-left:6px solid transparent; 
    border-right:6px solid transparent; top:12px; }
-   .ctools-dropbutton-processed{ padding-right:0;}
+   .ctools-button{ padding-right:0;}
 .btn-red-user{ float:none;}
 .particular_center{ background:#fff; margin:20px 0;}
 .node-type-cowpro-issuing .page-header,.page-issuing-list .page-header{ display:none;}
@@ -407,6 +407,12 @@ ul.userpoints-points em{ font-style:normal;}
 #cowpro-fund-add-bankcard .btn-primary{ margin-left:37%;background: #ed5345;color: #fff; line-height:32px; padding:0 20px; display:inline-block; border:0;}
 #cowpro-fund-add-bankcard a.ctools-close-modal-processed{ background:#DEDEDD; line-height:32px; padding:0 20px; margin-left:15px; display:inline-block; border-radius:4px;}
 .page-cowpro-fund-widthdraw .modal-dialog,.page-cowpro-fund-widthdraw #modal-content{ width:785px!important;}
-.page-cowpro-fund-widthdraw #modalBackdrop{    background: rgb(0, 0, 0) !important;opacity: 0.65 !important; }
-.page-cowpro-fund-widthdraw .modal-content{ border:5px solid #585858;}
+#modalBackdrop{ background: rgb(0, 0, 0) !important;opacity: 0.65 !important; }
+.page-cowpro-fund-widthdraw .modal-content,#modalContent .modal-content{ border:5px solid #585858;}
 .page-cowpro-fund-widthdraw #modalContent{ left:50% !important; margin-left:-361px;}
+#modalContent{ top:300px !important;left:50% !important; margin-left:-500px;}
+#modalContent,#modalContent .modal-dialog{ width:1000px !important;}
+#modal-content{ width:970px !important; height:600px !important; overflow-y:scroll;}
+.page-issuing #modalContent{ top:100px !important;}
+.ctools-use-modal-processed{ line-height:28px;}
+body{ position:relative;}
