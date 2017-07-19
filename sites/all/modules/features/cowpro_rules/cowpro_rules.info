@@ -7,7 +7,6 @@ dependencies[] = cowpro_message
 dependencies[] = entity
 dependencies[] = path
 dependencies[] = php
-dependencies[] = rewards
 dependencies[] = rules
 dependencies[] = userpoints_rules
 features[features_api][] = api:2

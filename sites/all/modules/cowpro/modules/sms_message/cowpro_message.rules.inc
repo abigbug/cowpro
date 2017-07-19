@@ -466,6 +466,10 @@ function _cowpro_message_cowpro_fund_buy_creditor_assignment_finished($success, 
  * The action function for 'cowpro_fund_make_loans_to_finished'.
  */
 function _cowpro_message_cowpro_fund_make_loans_to_finished($success, $node, $fund_journals) {
+	_cowpro_message_cowpro_fund_make_loans_to_finished_message_send($success, $node, $fund_journals);
+}
+
+function _cowpro_message_cowpro_fund_make_loans_to_finished_message_send($success, $node, $fund_journals) {
 	//const COWPRO_SMS_MAKE_LOANS_TO_LENDER_MESSAGE = '尊敬的用户[user:name]，您投标的贷款“[cowpro_issuing:title]”已于[cowpro_issuing:sign_date]满标，资金已划拨给贷款人。';
 	//const COWPRO_SMS_MAKE_LOANS_TO_BORROWER_MESSAGE = '尊敬的用户[user:name]，您的贷款“[cowpro_issuing:title]”已于[cowpro_issuing:sign_date]满标，资金已划拨到您指定的账户，请注意查收。';
 	if ($success) {
@@ -479,6 +483,7 @@ function _cowpro_message_cowpro_fund_make_loans_to_finished($success, $node, $fu
 			$data['node'] = $node;
 			$data['cowpro_issuing'] = $node;//->field_issuing [LANGUAGE_NONE] [0];
 			$data['user'] = $user;
+			$data['cowpro_fund_journal'] = $journal;
 			$content = token_replace(variable_get ( 'cowpro_sms_make_loans_to_lender_message', COWPRO_SMS_MAKE_LOANS_TO_LENDER_MESSAGE ), $data);
 			cowpro_message_send($phone_number, $content);
 		}

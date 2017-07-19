@@ -1,0 +1,147 @@
+<?php
+
+/**
+ * @file
+ * Adds link for refreshing captcha.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function image_captcha_refresh_menu() {
+  $items = array();
+  $items['captcha/refresh'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'image_captcha_refresh_ajax_refresh',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function image_captcha_refresh_theme() {
+  return array(
+    'image_captcha_refresh_link' => array(
+      'variables' => array('url' => NULL),
+    ),
+  );
+}
+
+/**
+ * Image captcha refresh ajax handler.
+ 
+ * @param $form_id For which form need refresh captcha image.
+ *
+ * @return Data in json format.
+ */
+function image_captcha_refresh_ajax_refresh($form_id) {
+  $GLOBALS['conf']['cache'] = FALSE;
+  $result = array(
+    'status' => 0,
+    'message' => '',
+  );
+  try {
+    module_load_include('inc', 'captcha');
+    $captcha_sid = _captcha_generate_captcha_session($form_id);
+    $captcha_token = md5(mt_rand());
+
+    $allowed_chars = _image_captcha_utf8_split(variable_get('image_captcha_image_allowed_chars', IMAGE_CAPTCHA_ALLOWED_CHARACTERS));
+    $code_length = (int) variable_get('image_captcha_code_length', 5);
+    $code = '';
+    for ($i = 0; $i < $code_length; $i++) {
+      $code .= $allowed_chars[array_rand($allowed_chars)];
+    }
+
+    db_update('captcha_sessions')->fields(array(
+        'token' => $captcha_token,
+        'solution' => $code,
+      ))->condition('csid', $captcha_sid)->execute();
+
+    $query = array(
+      'query' => array(
+        'sid' => $captcha_sid,
+        'ts' => REQUEST_TIME,
+      ),
+    );
+
+    $result['data'] = array(
+      'url' => url("image_captcha/$captcha_sid", $query),
+      'token' => $captcha_token,
+      'sid' => $captcha_sid,
+    );
+    $result['status'] = 1;
+  }
+  catch (Exception $e) {
+    if ($message = $e->getMessage()) {
+      $result['message'] = $message;
+    }
+    else {
+      $result['message'] = t('Error has occurred. Please contact to site administrator.');
+    }
+  }
+  drupal_json_output($result);
+}
+
+/**
+ * Implementation of hook_form_alter().
+ *
+ * This function adds the CAPTCHA refresh script to forms for untrusted users if needed.
+ */
+function image_captcha_refresh_form_alter(&$form, &$form_state, $form_id) {
+  if (arg(0) != 'admin' || variable_get('captcha_allow_on_admin_pages', FALSE)) {
+    module_load_include('inc', 'captcha', 'captcha');
+    $captcha_point = captcha_get_form_id_setting($form_id);
+    if ($captcha_point && $captcha_point->captcha_type && $captcha_point->captcha_type == 'Image') {
+      $form['#attached']['js'][] = drupal_get_path('module', 'image_captcha_refresh') . '/image_captcha_refresh.js';
+    }
+  }
+}
+
+/**
+ * Returns a link for refreshing captcha image.
+ *
+ * @ingroup themeable
+ */
+function theme_image_captcha_refresh_link($variables) {
+  $output = '<div class="reload-captcha-wrapper">';
+  $output .= l(t('Generate a new captcha'), $variables['url'], array('attributes' => array('class' => array('reload-captcha'))));
+  $output .= '</div>';
+  return $output;
+}
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function image_captcha_refresh_element_info_alter(&$element) {
+  if (isset($element['captcha'])) {
+    $element['captcha']['#after_build'][] = 'image_captcha_refresh_after_build_process';
+  }
+}
+
+/**
+ * Add image refresh button to captcha form element.
+ *
+ * @return
+ *   The processed element.
+ *
+ * @see captcha_element_info()
+ * @see image_captcha_refresh_element_info_alter()
+ */
+function image_captcha_refresh_after_build_process($element, $form_state) {
+  $form_id = $element['#captcha_info']['form_id'];
+  $captcha_point = captcha_get_form_id_setting($form_id);
+  if ($captcha_point && $captcha_point->captcha_type &&
+    $captcha_point->captcha_type == 'Image' &&
+    isset($element['captcha_widgets']['captcha_image'])
+  ) {
+    $element['captcha_widgets']['captcha_refresh'] = array(
+      '#markup' => theme('image_captcha_refresh_link', array(
+        'url' => 'captcha/refresh/' . $form_id,
+      )),
+    );
+  }
+  return $element;
+}

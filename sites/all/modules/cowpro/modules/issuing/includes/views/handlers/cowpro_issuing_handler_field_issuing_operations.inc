@@ -75,8 +75,34 @@ class cowpro_issuing_handler_field_issuing_operations extends views_handler_fiel
 		ctools_include('ajax');
 		ctools_modal_add_js();
 
+		$node = node_load($issuing_id);
+		include_once drupal_get_path('module', 'cowpro_issuing') . '/includes/cowpro_issuing_status.inc';
+		switch ($node->field_issuing[LANGUAGE_NONE][0]['status']) {
+		case COWPRO_ISSUING_STATUS_UNAUDITED :
+			$status_class = 'default';
+			break;
+		case COWPRO_ISSUING_STATUS_AUDITED :
+			$status_class = 'default';
+			break;
+		case COWPRO_ISSUING_STATUS_INVITE_BIDS_START :
+			$status_class = 'green';
+			break;
+		case COWPRO_ISSUING_STATUS_INVITE_BIDS_FAILED :
+			$status_class = 'default';
+			break;
+		case COWPRO_ISSUING_STATUS_INVITE_BIDS_SUCCEED :
+			$status_class = 'yellow';
+			break;
+		case COWPRO_ISSUING_STATUS_REPAYMENT :
+			$status_class = 'default';
+			break;
+		case COWPRO_ISSUING_STATUS_FINISHED :
+			$status_class = 'default';
+		}
+
+
 		$element = array(
-				'#markup' => theme('links__ctools_dropbutton', array('links' => $links, 'attributes' => array('class' => array('links', 'inline')))),
+				'#markup' => theme('links__ctools_dropbutton', array('links' => $links, 'attributes' => array('class' => array('links', 'inline', $status_class)))),
 		);
 
 		return $element;

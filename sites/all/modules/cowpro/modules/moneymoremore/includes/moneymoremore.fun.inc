@@ -1,7 +1,7 @@
 <?php
 function moneymoremore_callback($action) {
 	$msg = print_r($_POST, true);
-	watchdog('moneymoremore', "callback $action: $msg", NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore', "callback $action: $msg", NULL, WATCHDOG_DEBUG);
 
 	$result = TRUE;
 	switch ($action) {
@@ -68,7 +68,11 @@ function moneymoremore_response($action) {
 
 function _moneymoremore_goto_response_page($op) {
 	$result_code = $_POST ["ResultCode"];
-	$message = $_POST ["Message"];
+	if (isset($_POST ["Message"])) {
+		$message = $_POST ["Message"];
+	} else {
+		$message = '';
+	}
 	if ($result_code == '88') {
 		$message_type = 'status';
 	} else {

@@ -110,6 +110,21 @@ function sms_user_admin_settings($form, &$form_state) {
     '#default_value' => variable_get('sms_user_allow_opt_out', 1),
   );
 
+  // Opt-in to user account switching on incoming SMS messages.
+  $form['incoming'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Incoming SMS Options'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['incoming']['sms_user_switch_account_incoming'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Automatically switch to authenticated incoming user.'),
+    '#description' => t('If checked, a user will be logged in if an incoming message is received with their registered number as recipient.'),
+    '#default_value' => variable_get('sms_user_switch_account_incoming', 0),
+  );
+
   // Registration settings.
   $form['registration'] = array(
     '#type' => 'fieldset',

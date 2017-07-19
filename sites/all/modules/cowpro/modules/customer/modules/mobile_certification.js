@@ -5,11 +5,18 @@
 		$(".send-verify-code").unbind('click').click(
 				function(event) {
 					event.preventDefault();
+					var mobile_number = $(".mobile_number").val();
+					/*
 					var number_object = $(".mobile_number");
 					if (number_object.length == 0) {
 						number_object = $("#edit-name");
 					}
 					var mobile_number = number_object.val();
+					*/
+					var captcha_response = $("[name='captcha_response']").val();
+					var captcha_sid = $("[name='captcha_sid']").val();
+					var captcha_token = $("[name='captcha_token']").val();
+					var form_id = $("[name='form_id']").val();
 
 					if (!mobile_number_vailidate(mobile_number)) {
 						$("#mobile_verify_help").text('请输入有效的手机号码');
@@ -19,7 +26,15 @@
 							url : Drupal.settings.basePath
 									+ "/cowpro/mobile-verify-send-code",
 							data : "mobile_number="
-									+ encodeURIComponent(mobile_number),
+									+ encodeURIComponent(mobile_number)
+									+ "&captcha_response="
+									+ encodeURIComponent(captcha_response)
+									+ "&captcha_sid="
+									+ encodeURIComponent(captcha_sid)
+									+ "&captcha_token="
+									+ encodeURIComponent(captcha_token)
+									+ "&form_id="
+									+ encodeURIComponent(form_id),
 							dataType : 'json',
 							success : function(response) {
 								if (response.status == 200) {
@@ -50,7 +65,8 @@
 			minutes = minutes < 10 ? "0" + minutes : minutes;
 			seconds = seconds < 10 ? "0" + seconds : seconds;
 
-			$('#send_verify').val(minutes + ":" + seconds);
+			//$('#send_verify').val(minutes + ":" + seconds);
+			$("#mobile_verify_help_2").text(minutes + ":" + seconds + '之后可重新发送验证码');
 
 			if (--timer < 0) {
 				stopTimer();
@@ -61,8 +77,9 @@
 
 	function stopTimer() {
 		clearInterval(smsTimer);
-		$('#send_verify').val("发送验证码");
+		//$('#send_verify').val("发送验证码");
 		$('#send_verify').removeAttr('disabled');
+		$("#mobile_verify_help_2").text('');
 	}
 	;
 

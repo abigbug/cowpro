@@ -91,6 +91,7 @@ function moneymoremore_cowpro_customer_profile_moneymoremore_save($profile) {
 	$data['mmm_authorize_type_2'] = $profile->mmm_authorize_type_2;
 	$data['mmm_authorize_type_3'] = $profile->mmm_authorize_type_3;
 	$profile->data = $data;
+	$profile->search_field = $profile->mmm_account_number . ';' . $profile->mmm_id;
 	return $profile;
 }
 

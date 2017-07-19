@@ -1,4 +1,5 @@
 <?php
+
 /*
  * 迁移方维P2P3.5的数据到COWPRO系统
  * 要迁移的数据包括：用户信息、贷款申请表、投标记录、还款记录
@@ -41,7 +42,7 @@ function migrate_fanwe_settings_form($configuration) {
 			'fanwe_database' => variable_get ( 'fanwe_database', '' ),
 			'fanwe_username' => variable_get ( 'fanwe_username', '' ),
 			'fanwe_password' => variable_get ( 'fanwe_password', '' ),
-			'fanwe_mobile_as_username' => variable_get ( 'fanwe_mobile_as_username', TRUE ),
+			'fanwe_mobile_as_username' => variable_get ( 'fanwe_mobile_as_username', FALSE ),
 	);
 	$form = array ();
 	$form ['fanwe_host'] = array (
@@ -77,6 +78,10 @@ function migrate_fanwe_settings_form($configuration) {
 	return $form;
 }
 function migrate_fanwe_go_form($form, &$form_state) {
+	$form['clear_database'] = array(
+			'#type' => 'checkbox',
+			'#title' => '清理数据库（删除业务数据）',
+	);
 	$form ['description'] = array (
 			'#type' => 'markup',
 			'#markup' => t ( '将方维P2P数据库中的注册用户资料、贷款申请表、投标记录、还款记录等等，导入到CowPro数据库.<br/><br/>' )
@@ -98,6 +103,44 @@ function migrate_fanwe_go_form($form, &$form_state) {
  */
 function migrate_fanwe_go_form_submit($form, &$form_state) {
 	migrate_fanwe_add_connection_info ();
+
+	if ($form_state['values']['clear_database']) {
+		db_delete('users', array('target'=>'default'))->condition ( 'uid', 1, '>')->execute();
+		db_delete('users_roles', array('target'=>'default'))->condition ( 'uid', 1, '>')->execute();
+		db_delete('cowpro_customer_profile', array('target'=>'default'))->execute();
+		db_delete('cowpro_customer_profile_revision', array('target'=>'default'))->execute();
+		db_delete('cowpro_fund_bankcard', array('target'=>'default'))->execute();
+		db_delete('cowpro_fund_journal', array('target'=>'default'))->execute();
+		db_delete('cowpro_repayment_schedule', array('target'=>'default'))->execute();
+		db_delete('field_data_body', array('target'=>'default'))->condition ( 'bundle', 'cowpro_issuing')->execute();
+		db_delete('field_data_field_applicant', array('target'=>'default'))->execute();
+		db_delete('field_data_field_category', array('target'=>'default'))->execute();
+		db_delete('field_data_field_contract_credit_assignment', array('target'=>'default'))->execute();
+		db_delete('field_data_field_contract_loan', array('target'=>'default'))->execute();
+		db_delete('field_data_field_issuing', array('target'=>'default'))->execute();
+		db_delete('field_data_field_risk_management', array('target'=>'default'))->execute();
+		db_delete('field_revision_body', array('target'=>'default'))->condition ( 'bundle', 'cowpro_issuing')->execute();
+		db_delete('field_revision_field_applicant', array('target'=>'default'))->execute();
+		db_delete('field_revision_field_category', array('target'=>'default'))->execute();
+		db_delete('field_revision_field_contract_credit_assignment', array('target'=>'default'))->execute();
+		db_delete('field_revision_field_contract_loan', array('target'=>'default'))->execute();
+		db_delete('field_revision_field_issuing', array('target'=>'default'))->execute();
+		db_delete('field_revision_field_risk_management', array('target'=>'default'))->execute();
+		db_delete('node', array('target'=>'default'))->condition ( 'type', 'cowpro_issuing')->execute();
+
+		db_delete('node_comment_statistics', array('target'=>'default'))
+		->notExists(db_select('node', 'n', array('target'=>'default'))->fields('n', array('nid'))->where('n.nid = {node_comment_statistics}.nid'))->execute();
+		db_delete('node_revision', array('target'=>'default'))
+		->notExists(db_select('node', 'n', array('target'=>'default'))->fields('n', array('nid'))->where('n.nid = {node_revision}.nid'))->execute();
+
+		db_delete('search_index', array('target'=>'default'))->execute();
+		db_delete('search_total', array('target'=>'default'))->execute();
+		db_delete('userpoints', array('target'=>'default'))->execute();
+		db_delete('userpoints_total', array('target'=>'default'))->execute();
+		db_delete('userpoints_txn', array('target'=>'default'))->execute();
+		db_delete('user_relationships', array('target'=>'default'))->execute();
+		db_delete('watchdog', array('target'=>'default'))->execute();
+	}
 	$function = 'migrate_fanwe_go_batch';
 	$batch = $function ();
 	batch_set ( $batch );
@@ -197,6 +240,8 @@ function migrate_fanwe_batch_op_issuing($fanwe_dealid, $operation_details, &$con
 	) ) . ' ' . $operation_details;
 
 	$applicant_user = migrate_fanwe_user_load_by_fanwe_uid($fanwe_deal->user_id);
+	$role = user_role_load_by_name('debtor');
+	user_multiple_role_edit(array($applicant_user->uid), 'add_role', $role->rid);
 
 	$issuing = new stdClass;
 	$issuing->type = 'cowpro_issuing';
@@ -487,7 +532,7 @@ function migrate_fanwe_batch_op_issuing($fanwe_dealid, $operation_details, &$con
 	}
 }
 function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) {
-	$mobile_as_username = variable_get ( 'fanwe_mobile_as_username', TRUE );
+	$mobile_as_username = variable_get ( 'fanwe_mobile_as_username', FALSE );
 	migrate_fanwe_add_connection_info ();
 	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'user', 'u' )->fields ( 'u', array (
 			'id',
@@ -512,7 +557,6 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 	if ((!$fanwe_user) || ($fanwe_user->is_effect == 0) || ($fanwe_user->is_delete == 1)) {
 		return;
 	}
-	/*
 	if (($mobile_as_username) && (!$fanwe_user->mobilepassed)) {
 		//管理员设定以手机号作为用户登录名，如果该用户在方维平台上没有认证手机号，就不导入这个用户
 		return;
@@ -520,7 +564,6 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 	if (($mobile_as_username) && ($fanwe_user->mobile == '')) {
 		return;
 	}
-	*/
 
 	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'mmm_create_new_acct', 'm' )->fields ( 'm', array (
 			'account_number',
@@ -528,7 +571,7 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 			'auth_state',
 			'result_code',
 			'result_message',
-	) )->condition ( 'user_id', $fanwe_uid )->condition('result_code', '88');
+	) )->condition ( 'user_id', $fanwe_uid )->condition('result_code', array('88', '16'), 'IN');
 	$fanwe_mmm = $select->execute ()->fetchObject ();
 
 	$role_debtor = user_role_load_by_name ( 'debtor' );
@@ -536,7 +579,7 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 
 	$new_user = array(
 			'name' => $fanwe_user->user_name,
-			'pass' => $fanwe_user->user_pwd,
+			'pass' => 'FANWE$' . $fanwe_user->user_pwd,
 			'mail' => $fanwe_user->email,
 			'created' => $fanwe_user->create_time,
 			'status' => 1,
@@ -550,7 +593,7 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 	if ($mobile_as_username) {
 		//实际导入数据的时候，遇到问题：
 		//不同的用户可能用了同一个手机号认证，这样的话，如果以手机号做为用户名导入，就行不通了，所以老平台上的用户，仍然继承原来的用户名
-		//$new_user['name'] = $fanwe_user->mobile;
+		$new_user['name'] = $fanwe_user->mobile;
 	}
 	$user = user_save(NULL, $new_user);
 	if (!$user) {
@@ -585,7 +628,7 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 	$profile->verified = $fanwe_user->mobilepassed;
 	cowpro_customer_profile_save($profile);
 
-	if ($fanwe_mmm && ($fanwe_mmm->result_code == '88')) {
+	if ($fanwe_mmm) {
 		$profile = cowpro_customer_profile_new('moneymoremore', $user->uid);
 		$profile->mmm_account_number =  $fanwe_mmm->account_number;
 		$profile->mmm_id = $fanwe_mmm->mmm_id;
@@ -604,32 +647,84 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 	$profile->plaintext = FALSE;
 	cowpro_customer_profile_save($profile);
 
-	if ($fanwe_user->score > 0) {
+	//导入用户积分
+	$score = round($fanwe_user->score / 5.625);//新老平台的积分按1:5.625进行折算
+	if ($score > 0) {
 		$params = array (
 				'uid' => $user->uid,
-				'points' => $fanwe_user->score,
+				'points' => $score,
 				'description' => '数据迁移',
 				'display' => FALSE,
 		);
 		userpoints_userpointsapi($params);
 	}
 
+	//导入用户奖金
+	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'user_money_log', 'u' )->fields ( 'u', array (
+			'account_money'//奖金
+	) )->orderBy('id', 'DESC')->condition ( 'user_id', $fanwe_user->pid );
+	$fanwe_account_money = $select->execute ()->fetchObject ();
+	if ($fanwe_account_money && $fanwe_account_money->account_money > 0) {
+		$term = current(taxonomy_get_term_by_name('奖金'));
+		$params = array (
+				'uid' => $user->uid,
+				'tid' => $term->tid,
+				'points' => $fanwe_account_money->account_money,
+				'description' => '数据迁移',
+				'display' => FALSE,
+		);
+		userpoints_userpointsapi($params);
+	}
+
+	//导入好友关系
 	if ($fanwe_user->pid > 0) {//推荐人，referrer
 		$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'user', 'u' )->fields ( 'u', array (
 				'id',
 				'user_name', //用户名
+				'mobile',
 		) )->condition ( 'id', $fanwe_user->pid );
 		$fanwe_referrer = $select->execute ()->fetchObject ();
-		$referrer_user = user_load_by_name($fanwe_referrer->user_name);
+		if ($mobile_as_username) {
+			$referrer_user = user_load_by_name($fanwe_referrer->mobile);
+		} else {
+			$referrer_user = user_load_by_name($fanwe_referrer->user_name);
+		}
 		if ($referrer_user) {
 			$op = 'approve';
 			$relationship_type = user_relationships_type_load(array('name' => '朋友'));
-    	$relationship = new stdClass;
-	    $relationship->requester_id = $user->uid;
-	    $relationship->requestee_id = $referrer_user->uid;
-	    $relationship->rtid = $relationship_type->rtid;
+	    	$relationship = new stdClass;
+    		$relationship->requester_id = $user->uid;
+    		$relationship->requestee_id = $referrer_user->uid;
+    	    $relationship->rtid = $relationship_type->rtid;
 			user_relationships_save_relationship($relationship, $op);
 		}
+	}
+
+	//迁移用户登记的银行卡资料
+	$select_ub = Database::getConnection ( 'default', 'fanwe' )->select ( 'user_bank', 'ub' )->fields ( 'ub', array (
+			'bank_id',
+			'bankcard',
+			'real_name',
+			'region_lv2',
+			'region_lv3',
+			'bankzone',
+	) )->condition ( 'user_id', $fanwe_user->id );
+	$results_ub = $select_ub->execute ();
+	require drupal_get_path('module', 'moneymoremore') . '/includes/moneymoremore.const.code.inc';
+	foreach ($results_ub as $fanwe_bank_card) {
+		$bank_name = array_search($fanwe_bank_card->bank_id, $MMM_BANK_CODE, FALSE);
+		$province = array_search($fanwe_bank_card->region_lv2, $MMM_PROVINCE_CODE, FALSE);
+		$city = array_search($fanwe_bank_card->region_lv3, $MMM_CITY_CODE[$fanwe_bank_card->region_lv2], FALSE);
+		$card = entity_create ( 'cowpro_fund_bankcard', array () );
+		$card->uid = $user->uid;
+		$card->type = 0;//借记卡
+		$card->card_no = str_replace(' ', '', $fanwe_bank_card->bankcard);//去除卡号间的空格
+		$card->cardholder = $fanwe_bank_card->real_name;
+		$card->bank_name = $bank_name;
+		$card->bank_branch = $fanwe_bank_card->bankzone;
+		$card->province = $province;
+		$card->city = $city;
+		entity_get_controller ( 'cowpro_fund_bankcard' )->save ( $card );
 	}
 
 	// Optional message displayed under the progressbar.
@@ -691,9 +786,14 @@ function migrate_fanwe_get_dealid_range(&$lowest_dealid, &$highest_dealid) {
 }
 function migrate_fanwe_user_load_by_fanwe_uid($fanwe_uid) {
 	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'user', 'u' )->fields ( 'u', array (
-			'user_name', //用户名
+			'user_name', 'mobile',
 	) )->condition ( 'id', $fanwe_uid );
 	$fanwe_user = $select->execute ()->fetchObject ();
-	$user = user_load_by_name($fanwe_user->user_name);
+	$mobile_as_username = variable_get ( 'fanwe_mobile_as_username', FALSE );
+	if ($mobile_as_username) {
+		$user = user_load_by_name($fanwe_user->mobile);
+	} else {
+		$user = user_load_by_name($fanwe_user->user_name);
+	}
 	return $user;
 }

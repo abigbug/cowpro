@@ -61,7 +61,20 @@
       <div class="details_left">
          <div class="details_words">
             <ul class="bidAmount">
-               <li class="repayment">借款人<span><?php print theme('username', array('account' => $applicant)); ?></span></li>
+               <li class="repayment">借款人<span>
+               <?php
+               $maskit = TRUE;
+               global $user;
+               $account = $applicant;
+               if ($maskit && $user->uid != $applicant->uid) {
+               	if (mb_strlen($applicant->name) < 11) {
+               		$account->name = mb_substr($applicant->name, 0, 2) . '***';
+               	} else {
+               		$account->name = mb_substr($applicant->name, 0, 4) . '****' . mb_substr($applicant->name, -3, 3);
+               	}
+               }
+               print theme('username', array('account' => $account)); ?>
+               </span></li>
                <li class="safeguard">保障方式<span>本金+利息</span></li>
                <li class="repayment">还款方式<span><?php print $method_repayment_readable; ?></span></li>
                <li class="join">

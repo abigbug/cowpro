@@ -335,7 +335,9 @@ function invite_by_sms_form_invite_form_alter(&$form, &$form_state, $form_id) {
 
     //隐藏好友类型的选择列表，邀请的好友关系为缺省的第一个 relation type
     //这样做的好处是降低“邀请好友”界面的复杂程度，提高易用性
-    $form['field_invite_user_relation_type']['#access'] = FALSE;
+    //$form['field_invite_user_relation_type']['#access'] = FALSE;
+    $form['field_invite_user_relation_type'][LANGUAGE_NONE]['#title'] = '好友关系';
+    $form['field_invite_user_relation_type'][LANGUAGE_NONE][0]['rtid']['#title'] = '好友关系';
 
     $form['#validate'][] = 'invite_by_sms_form_invite_form_validate';
     $form['actions']['submit']['#value'] = t('Send Invitation');
@@ -404,7 +406,7 @@ function invite_by_sms_form_user_register_form_alter(&$form, &$form_state, $form
 function invite_by_sms_entity_view( $entity, $type, $view_mode, $langcode ) {
 	switch ($type) {
 		case 'invite':
-			unset($entity->content['field_invite_user_relation_type']);
+			//unset($entity->content['field_invite_user_relation_type']);
 			$entity->content['field_invitation_sms_body']['#title'] = '正文';
 			$entity->content['field_invitation_sms_body'][0] = array (
 				'#markup' => $entity->data['message'],

@@ -1,75 +1,154 @@
-
 /**
- *  @file
- *  This file handles the JS for Media Module functions.
+ * @file
+ * Provides JavaScript additions to the media field widget.
+ *
+ * This file provides support for launching the media browser to select existing
+ * files and disabling of other media fields during Ajax uploads (which prevents
+ * separate media fields from accidentally attaching files).
  */
 
 (function ($) {
 
 /**
- * Loads media browsers and callbacks, specifically for media as a field.
+ * Attach behaviors to media element upload fields.
  */
 Drupal.behaviors.mediaElement = {
   attach: function (context, settings) {
-    // Options set from media.fields.inc for the types, etc to show in the browser.
+    var $context = $(context);
+    var elements;
 
-    // For each widget (in case of multi-entry)
-    $('.media-widget', context).once('mediaBrowserLaunch', function () {
-      var options = settings.media.elements[this.id];
-      globalOptions = {};
-      if (options.global != undefined) {
-        var globalOptions = options.global;
-      }
-      //options = Drupal.settings.media.fields[this.id];
-      var fidField = $('.fid', this);
-      var previewField = $('.preview', this);
-      var removeButton = $('.remove', this); // Actually a link, but looks like a button.
+    function initMediaBrowser(selector) {
+      $context.find(selector)
+        .once('media-browser-launch')
+        .siblings('.browse').show()
+        .siblings('.upload').hide()
+        .siblings('.attach').hide()
+        .siblings('.browse').bind('click', {configuration: settings.media.elements[selector]}, Drupal.media.openBrowser);
+    }
 
-      // Show the Remove button if there's an already selected media.
-      if (fidField.val() != 0) {
-        removeButton.css('display', 'inline-block');
-      }
+    if (settings.media && settings.media.elements) {
+      elements = settings.media.elements;
+      Object.keys(elements).forEach(initMediaBrowser);
+    }
+  },
+  detach: function (context, settings, trigger) {
+    var $context = $(context);
+    var elements;
 
-      // When someone clicks the link to pick media (or clicks on an existing thumbnail)
-      $('.launcher', this).bind('click', function () {
-        // Launch the browser, providing the following callback function
-        // @TODO: This should not be an anomyous function.
-        Drupal.media.popups.mediaBrowser(function (mediaFiles) {
-          if (mediaFiles.length < 0) {
-            return;
-          }
-          var mediaFile = mediaFiles[0];
-          // Set the value of the filefield fid (hidden).
-          fidField.val(mediaFile.fid);
-          // Set the preview field HTML.
-          previewField.html(mediaFile.preview);
-          // Show the Remove button.
-          removeButton.show();
-        }, globalOptions);
-        return false;
-      });
+    function removeMediaBrowser(selector) {
+      $context.find(selector)
+        .removeOnce('media-browser-launch')
+        .siblings('.browse').hide()
+        .siblings('.upload').show()
+        .siblings('.attach').show()
+        .siblings('.browse').unbind('click', Drupal.media.openBrowser);
+    }
 
-      // When someone clicks the Remove button.
-      $('.remove', this).bind('click', function () {
-        // Set the value of the filefield fid (hidden).
-        fidField.val(0);
-        // Set the preview field HTML.
-        previewField.html('');
-        // Hide the Remove button.
-        removeButton.hide();
-        return false;
-      });
-
-      $('.media-edit-link', this).bind('click', function () {
-        var fid = fidField.val();
-        if (fid) {
-          Drupal.media.popups.mediaFieldEditor(fid, function (r) { alert(r); });
-        }
-        return false;
-      });
-
-    });
+    if (trigger === 'unload' && settings.media && settings.media.elements) {
+      elements = settings.media.elements;
+      Object.keys(elements).forEach(removeMediaBrowser);
+    }
   }
+};
+
+/**
+ * Attach behaviors to the media attach and remove buttons.
+ */
+Drupal.behaviors.mediaButtons = {
+  attach: function (context) {
+    $('input.form-submit', context).bind('mousedown', Drupal.media.disableFields);
+  },
+  detach: function (context) {
+    $('input.form-submit', context).unbind('mousedown', Drupal.media.disableFields);
+  }
+};
+
+/**
+ * Media attach utility functions.
+ */
+Drupal.media = Drupal.media || {};
+
+/**
+ * Opens the media browser with the element's configuration settings.
+ */
+Drupal.media.openBrowser = function (event) {
+  var clickedButton = this;
+  var configuration = event.data.configuration.global;
+
+  // Find the file ID, preview and upload fields.
+  var fidField = $(this).siblings('.fid');
+  var previewField = $(this).siblings('.preview');
+  var uploadField = $(this).siblings('.upload');
+
+  // Find the edit and remove buttons.
+  var editButton = $(this).siblings('.edit');
+  var removeButton = $(this).siblings('.remove');
+
+  // Launch the media browser.
+  Drupal.media.popups.mediaBrowser(function (mediaFiles) {
+    // Ensure that there was at least one media file selected.
+    if (mediaFiles.length < 0) {
+      return;
+    }
+
+    var mediaFileValue;
+    // Process the value based on multiselect.
+    if (mediaFiles.length > 1) {
+      // Concatenate the array into a comma separated string.
+      mediaFileValue = mediaFiles.map(function(file) {
+        return file.fid;
+      }).join(',');
+    }
+    else {
+      // Grab the first of the selected media files.
+      mediaFileValue = mediaFiles[0].fid;
+
+      // Display a preview of the file using the selected media file's display.
+      previewField.html(mediaFileValue.preview);
+    }
+
+    // Set the value of the hidden file ID field and trigger a change.
+    uploadField.val(mediaFileValue);
+    uploadField.trigger('change');
+
+    // Find the attach button and automatically trigger it.
+    var attachButton = uploadField.siblings('.attach');
+    attachButton.trigger('mousedown');
+  }, configuration);
+
+  return false;
+};
+
+/**
+ * Prevent media browsing when using buttons not intended to browse.
+ */
+Drupal.media.disableFields = function (event) {
+  var clickedButton = this;
+
+  // Only disable browse fields for Ajax buttons.
+  if (!$(clickedButton).hasClass('ajax-processed')) {
+    return;
+  }
+
+  // Check if we're working with an "Attach" button.
+  var $enabledFields = [];
+  if ($(this).closest('div.media-widget').length > 0) {
+    $enabledFields = $(this).closest('div.media-widget').find('input.attach');
+  }
+
+  // Temporarily disable attach fields other than the one we're currently
+  // working with. Filter out fields that are already disabled so that they
+  // do not get enabled when we re-enable these fields at the end of behavior
+  // processing. Re-enable in a setTimeout set to a relatively short amount
+  // of time (1 second). All the other mousedown handlers (like Drupal's Ajax
+  // behaviors) are excuted before any timeout functions are called, so we
+  // don't have to worry about the fields being re-enabled too soon.
+  // @todo If the previous sentence is true, why not set the timeout to 0?
+  var $fieldsToTemporarilyDisable = $('div.media-widget input.attach').not($enabledFields).not(':disabled');
+  $fieldsToTemporarilyDisable.attr('disabled', 'disabled');
+  setTimeout(function (){
+    $fieldsToTemporarilyDisable.attr('disabled', false);
+  }, 1000);
 };
 
 })(jQuery);

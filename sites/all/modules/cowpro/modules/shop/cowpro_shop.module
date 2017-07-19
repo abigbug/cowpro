@@ -1,5 +1,7 @@
 <?php
 
+define('COMMERCE_SERVICE_URL', 'http://shop.jinbeizeng.com/service/');
+
 /**
  * Implements hook_menu().
  */
@@ -46,6 +48,11 @@ function cowpro_shop_theme() {
 					'file' => 'cowpro_shop.pages.inc',
 					'template' => 'cowpro-commerce-list',
 			),
+			'cowpro_commerce_list_item' => array(
+					'variables' => array('item' => NULL),
+					'file' => 'cowpro_shop.pages.inc',
+					'template' => 'cowpro-commerce-list-item',
+			),
 			'cowpro_commerce_item' => array(
 					'variables' => array('item' => NULL),
 					'file' => 'cowpro_shop.pages.inc',
@@ -58,8 +65,7 @@ function cowpro_shop_list($page = 0) {
 	$service = new WSClientServiceDescription();
 	$service->name = 'commerce-kickstart';
 	$service->label = 'commerce kickstart';
-	//$service->url = 'http://localhost/cms/commerce-kickstart/service/';
-	$service->url = 'http://shop.jinbeizeng.com//service/';
+	$service->url = COMMERCE_SERVICE_URL;
 	$service->type = 'rest';
 
 	$operation = array();
@@ -76,11 +82,11 @@ function cowpro_shop_list($page = 0) {
 	return $html;
 }
 
-function cowpro_shop_detail($nid) {
+function _cowpro_shop_retrieve_detail($nid) {
 	$service = new WSClientServiceDescription();
 	$service->name = 'commerce-kickstart';
 	$service->label = 'commerce kickstart';
-	$service->url = 'http://localhost/cms/commerce-kickstart/service/';
+	$service->url = COMMERCE_SERVICE_URL;
 	$service->type = 'rest';
 
 	$operation = array();
@@ -91,9 +97,106 @@ function cowpro_shop_detail($nid) {
 	$operation['result'] = array('type' => 'node', 'label' => 'Node');
 	$service->operations['retrieve'] = $operation;
 	$result = $service->retrieve($nid);
+	return $result;
+}
+
+function cowpro_shop_detail($nid) {
+	$result = _cowpro_shop_retrieve_detail($nid);
 
 	drupal_set_title($result['title']);
 	$html = theme('cowpro_commerce_item', array('item' => $result));
 
 	return $html;
 }
+
+function cowpro_shop_buy($nid, $vid) {
+	$result = _cowpro_shop_retrieve_detail($nid);
+	$found = FALSE;
+	$title = NULL;
+	$price = NULL;
+	foreach ($result['products'] as $p) {
+		if ($p['revision_id'] === $vid) {
+			$found = TRUE;
+			$title = $p['title'];
+			$price = $p['commerce_price']['und'][0]['amount'];
+			break;
+		}
+	}
+
+	if (!$found) {
+		drupal_set_message('没有找到所需商品！', 'error');
+	} else {
+		$qty = $_GET['qty'];
+		_cowpro_shop_buy_item($nid, $vid, $title, $price, $qty);
+	}
+	return '';
+}
+
+function _cowpro_shop_buy_item($nid, $vid, $title, $price, $qty) {
+	$qty = intval($qty);
+	if ($qty <= 0) {
+		drupal_set_message('要兑换的商品数量不正确！', 'error');
+		return;
+	}
+
+	global $user;
+	$points = userpoints_get_current_points($user->uid);
+	$amount = ($price / 100) * $qty;
+	if ($points < $amount) {
+		drupal_set_message('积分不足！', 'error');
+		return;
+	}
+
+	//$tid = _blackhat_leadsdata_get_user_points_tid();
+	$desc = "(数量=$qty;nid=$nid;vid=$vid)$title";
+	$params = array (
+			'uid' => $user->uid,
+			'points' => 0-$amount,
+			'moderate' => false,
+			'description' => $desc,
+			'display' => false,
+			//'tid' => $tid,
+			'entity_id' => $nid,
+			'entity_type' => 'order',
+	);
+	$result = userpoints_userpointsapi($params);
+	if ($result['status']) {
+		drupal_set_message('兑换申请已成功提交，我们的客服会与你联系！');
+	} else {
+		return drupal_set_message($result['reason'], 'error');
+	}
+
+}
+
+function cowpro_shop_userpoints_list_transactions_alter(&$output) {
+	$account = $output['#account'];
+	$output['list']['summary_table'] = array(
+			'#theme' => 'table',
+			'#header' => array(
+					array(
+							'data' => '积分与奖金',
+							'colspan' => 2,
+					),
+			),
+			'#rows' => array(
+					array(
+							'data' => array('积分', userpoints_get_current_points($account->uid)),
+							'class' => array('userpoints-myuserpoints-total-approved'),
+					),
+					array(
+							'data' => array('奖金', userpoints_get_current_points($account->uid, _cowpro_get_user_points_money_tid())),
+							'class' => array('userpoints-myuserpoints-total-approved'),
+					),
+			),
+			'#weight' => 10,
+			'#attributes' => array('class' => array('userpoints-myuserpoints-total')),
+	);
+}
+
+define('COWPRO_USERPOINTS_MONEY', '奖金');
+function _cowpro_get_user_points_money_tid()
+{
+	$term = current(taxonomy_get_term_by_name(COWPRO_USERPOINTS_MONEY));
+	return $term->tid;
+}
+

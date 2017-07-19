@@ -148,7 +148,8 @@ function moneymoremore_withdraw_callback() {
 	}
 	unset($result['SignInfo']);
 
-	custodian_cowpro_fund_withdraw_callback(TRUE, $journal_id, $external_reference_id, 'moneymoremore', $result);
+	$success = $result['ResultCode'] == '88';
+	custodian_cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, 'moneymoremore', $result);
 
 	return TRUE;
 }

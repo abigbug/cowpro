@@ -117,4 +117,5 @@ class InviteMetadataController extends EntityDefaultMetadataController {
 
     return $info;
   }
+
 }

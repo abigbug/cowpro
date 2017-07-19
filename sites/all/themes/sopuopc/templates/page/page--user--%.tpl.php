@@ -20,9 +20,9 @@
 
 if ( $user->uid ) :
 	?>
-        <a href="/user" class="btn-red btn-red-user"><?php echo t('我的金贝增'); ?></a> </div>
+        <a href="<?php global $base_url; print $base_url;?>/user" class="btn-red btn-red-user"><?php echo t('我的金贝增'); ?></a> </div>
       <?php else :?>
-      <a href="/user/register" class="btn-red">注册</a><a href="/user/login" class="btn-red btn-red01">登录</a> </div>
+      <a href="<?php global $base_url; print $base_url;?>/user/register" class="btn-red">注册</a><a href="<?php global $base_url; print $base_url;?>/user/login" class="btn-red btn-red01">登录</a> </div>
     <?php endif; ?>
   </div>
 </header>
@@ -41,9 +41,11 @@ $block = block_load('system', 'navigation');
 $output = @drupal_render(_block_get_renderable_array(_block_render_blocks(array($block))));
 print $output;
 ?>
-        <?php if (!empty($tabs)): ?>
-        <?php print render($tabs); ?>
-        <?php endif; ?>
+<?php
+$block = block_load('block', '6');
+$output = @drupal_render(_block_get_renderable_array(_block_render_blocks(array($block))));
+print $output;
+?>
       </div>
       <div class="col-md-10" id="frame_content"> <?php print $messages; ?>
         <?php if (!empty($page['help'])): ?>

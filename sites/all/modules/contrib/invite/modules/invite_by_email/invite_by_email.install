@@ -4,6 +4,13 @@
  * Implements hook_install().
  */
 function invite_by_email_install() {
+  invite_by_email_add_fields();
+}
+
+/**
+ * Implements hook_enable().
+ */
+function invite_by_email_enable() {
   variable_set('invite_default_mail_body', t(<<<TEMPLATE
 [invite:inviter:name] has invited you to join [site:name] at [site:url].
 
@@ -40,12 +47,24 @@ TEMPLATE
 }
 
 /**
- * Implements hook_uninstall().
+ * Implements hook_disable().
  */
-function invite_by_email_uninstall() {
+function invite_by_email_disable() {
+  $invite_type = invite_type_load('invite_by_email');
+  invite_type_delete($invite_type);
+
   db_delete('invite_sending_controller')
     ->condition('name', 'invite_by_email')
     ->execute();
+
+  variable_del('invite_default_mail_body');
+  variable_del('invite_default_mail_subject');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function invite_by_email_uninstall() {
 
   $fields = array(
     'field_invitation_email_address',
@@ -56,4 +75,143 @@ function invite_by_email_uninstall() {
   foreach ($fields as $field) {
     field_delete_field($field);
   }
+
+  $num_deleted = db_delete('field_config_instance')
+    ->condition('bundle', 'invite_by_email')
+    ->execute();
+
+  drupal_cron_run();
+}
+
+function invite_by_email_add_fields() {
+  $fields = array(
+    'field_invitation_email_address' => array(
+      'definition' => array(
+        'field_name' => 'field_invitation_email_address',
+        'type' => 'text',
+        'cardinality' => 1,
+      ),
+      'instance' => array(
+        'field_name' => 'field_invitation_email_address',
+        'entity_type' => 'invite',
+        'label' => t('E-mail'),
+        'bundle' => 'invite_by_email',
+        'description' => t('Type the e-mail address of the person you wish to invite.'),
+        'widget' => array(
+          'type' => 'text_textfield',
+          'weight' => 10,
+        ),
+        'display' => array(
+          'default' => array(
+            'type' => 'text_textfield',
+            'weight' => 10,
+          ),
+        ),
+      ),
+    ),
+    'field_invitation_email_subject' => array(
+      'definition' => array(
+        'field_name' => 'field_invitation_email_subject',
+        'type' => 'text',
+        'cardinality' => 1,
+      ),
+      'instance' => array(
+        'field_name' => 'field_invitation_email_subject',
+        'entity_type' => 'invite',
+        'label' => t('Subject'),
+        'bundle' => 'invite_by_email',
+        'description' => t('Enter e-mail subject.'),
+        'default_value' => array(
+          array(
+            'value' => variable_get('invite_default_mail_subject', ''),
+          ),
+        ),
+        'widget' => array(
+          'type' => 'text_textfield',
+          'weight' => 20,
+        ),
+        'settings' => array(
+          'text_processing' => 0,
+        ),
+        'format' => 'plain_text',
+        'display' => array(
+          'default' => array(
+            'type' => 'text_textfield',
+            'weight' => 20,
+          ),
+        ),
+      ),
+    ),
+    'field_invitation_email_body' => array(
+      'definition' => array(
+        'field_name' => 'field_invitation_email_body',
+        'type' => 'text_long',
+        'cardinality' => 1,
+      ),
+      'instance' => array(
+        'field_name' => 'field_invitation_email_body',
+        'entity_type' => 'invite',
+        'label' => t('Body'),
+        'bundle' => 'invite_by_email',
+        'description' => t('Enter e-mail body.'),
+        'default_value' => array(
+          array(
+            'value' => variable_get('invite_default_mail_body', ''),
+          ),
+        ),
+        'widget' => array(
+          'type' => 'text_textarea',
+          'weight' => 30,
+        ),
+        'settings' => array(
+          'text_processing' => 0,
+        ),
+        'format' => 'plain_text',
+        'display' => array(
+          'default' => array(
+            'type' => 'text_textarea',
+            'weight' => 30,
+          ),
+        ),
+      ),
+    ),
+  );
+
+  foreach ($fields as $field) {
+    $info = field_read_field(array('field_name' => $field['definition']['field_name']));
+    if (empty($info)) {
+      field_create_field($field['definition']);
+    }
+
+    // Ensure that field wasn't added previously.
+    $prior_instance = field_read_instance($field['instance']['entity_type'], $field['instance']['field_name'], $field['instance']['bundle']);
+    if (!$prior_instance) {
+      field_create_instance($field['instance']);
+    }
+  }
+}
+
+/**
+ * Create field_invitation_email_address, field_invitation_email_subject,
+ * and field_invitation_email_body exist if they don't already exist.
+ */
+function invite_by_email_update_7001(&$sandbox) {
+  invite_by_email_add_fields();
+}
+
+/**
+ * Update field instance info for email subject and body if empty set default value.
+ */
+function invite_by_email_update_7002(&$sandbox) {
+  $instance_info = field_info_instance('invite', 'field_invitation_email_subject', 'invite_by_email');
+  if (empty($instance_info['default_value'][0]['value'])) {
+    $instance_info['default_value'][0]['value'] = variable_get('invite_default_mail_subject', '');
+  }
+  field_update_instance($instance_info);
+
+  $instance_info = field_info_instance('invite', 'field_invitation_email_body', 'invite_by_email');
+  if (empty($instance_info['default_value'][0]['value'])) {
+    $instance_info['default_value'][0]['value'] = variable_get('invite_default_mail_body', '');
+  }
+  field_update_instance($instance_info);
 }

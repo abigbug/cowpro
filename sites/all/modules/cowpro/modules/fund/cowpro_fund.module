@@ -25,7 +25,7 @@ function cowpro_fund_menu() {
 			'file' => 'includes/cowpro_fund_topup.inc',
 			'weight' => 20
 	);
-	$items ['cowpro/fund/widthdraw'] = array (
+	$items ['cowpro/fund/withdraw'] = array (
 			'title' => '提现',
 			'description' => '提现',
 	    'page callback' => 'drupal_get_form',
@@ -304,6 +304,12 @@ function cowpro_fund_block_info() {
 			'region' => BLOCK_REGION_NONE,
   	  //'pages' => '/',
 	);
+	$blocks['cowpro_fund_user'] = array(
+			'info' => '显示与登录用户相关的快捷链接',
+			'status' => TRUE,
+			'region' => BLOCK_REGION_NONE,
+			//'pages' => '/',
+	);
 
 	return $blocks;
 }
@@ -322,6 +328,15 @@ function cowpro_fund_block_view($delta = '') {
 	      $block['content'] = _cowpro_fund_balance_contents();
     	}
       break;
+    case 'cowpro_fund_user':
+      	if (user_is_logged_in()) {
+      		require_once 'includes/cowpro_fund_user.inc';
+      		$block['subject'] = '';
+      		$block['content'] = _cowpro_fund_user_contents();
+      	}
+    	break;
+   	default:
+   		break;
   }
   if ($block) {
   	return $block;

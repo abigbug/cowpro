@@ -49,6 +49,7 @@ function mobile_certification_cowpro_customer_profile_mobile_save($profile) {
 	$data ['mobile_number'] = $profile->mobile_number;
 	$profile->data = $data;
 	$profile->verified = TRUE;
+	$profile->search_field = $profile->mobile_number;
 	return $profile;
 }
 function mobile_certification_cowpro_customer_profile_mobile_load($profile) {
@@ -59,6 +60,7 @@ function mobile_certification_cowpro_customer_profile_mobile_form($form, &$form_
 	global $base_url;
 	drupal_add_js(array('basePath' => $base_url), 'setting');
 	drupal_add_js ( drupal_get_path ( 'module', 'mobile_certification' ) . '/mobile_certification.js' );
+	drupal_add_js ( drupal_get_path('module', 'image_captcha_refresh') . '/image_captcha_refresh.js');
 	$form ['mobile_number'] = array (
 			'#type' => 'textfield',
 			'#title' => '手机号码',
@@ -71,7 +73,20 @@ function mobile_certification_cowpro_customer_profile_mobile_form($form, &$form_
 							'mobile_number',
 					)
 			),
-			'#weight' => - 10,
+			'#weight' => - 20,
+	);
+
+	$form['captcha'] = array(
+			'#type' => 'captcha',
+			'#weight' => - 15,
+	);
+
+	$form_id = $form_state['build_info']['form_id'];
+	$form['captcha_refresh'] = array(
+			'#markup' => theme('image_captcha_refresh_link', array(
+					'url' => 'captcha/refresh/' . $form_id,
+			)),
+			'#weight' => - 14,
 	);
 
 	$form ['verify_code'] = array (
@@ -104,31 +119,48 @@ function mobile_certification_cowpro_customer_profile_mobile_form($form, &$form_
 			'#markup' => '<div id=mobile_verify_help><p></p></div>',
 			'#weight' => 5,
 	);
+	$form ['mobile_verify_help_2'] = array (
+			'#markup' => '<div id=mobile_verify_help_2><p></p></div>',
+			'#weight' => 5,
+	);
 
 	return $form;
 }
 function mobile_certification_cowpro_customer_profile_mobile_form_validate($form, &$form_state) {
-	$validate_result = TRUE;
+	$matches = array();
+	$regex = '/^\d+$/';
+	if (isset($form_state ['values']['name'])) {
+		if(preg_match($regex, trim($form_state ['values']['name']), $matches)){
+			form_set_error ( '昵称', '昵称(用户名)不能全部是数字.' );
+		}
+	}
+
+	$validate_mobile = TRUE;
 	if (!isset($_SESSION ['mobile_verification_mobile_number'])) {
-		$validate_result = FALSE;
+		$validate_mobile = FALSE;
 	}
 	if (!isset($_SESSION ['mobile_verification_code'])) {
-		$validate_result = FALSE;
+		$validate_mobile = FALSE;
 	}
-	if (isset($form_state ['values'] ['mobile_number'])) {
-		if ($validate_result && ($_SESSION ['mobile_verification_mobile_number'] != trim ( $form_state ['values'] ['mobile_number'] ))) {
-			$validate_result = FALSE;
-		}
-	} else if (isset($form_state ['values'] ['name'])) {//注册新用户的时候，以手机号做为登录用户名
-		if ($validate_result && ($_SESSION ['mobile_verification_mobile_number'] != trim ( $form_state ['values'] ['name'] ))) {
-			$validate_result = FALSE;
-		}
+	if ($validate_mobile && ($_SESSION ['mobile_verification_mobile_number'] != trim ( $form_state ['values'] ['mobile_number'] ))) {
+		$validate_mobile = FALSE;
 	}
-	if ($validate_result && ($_SESSION ['mobile_verification_code'] != trim ( $form_state ['values'] ['verify_code'] ))) {
-			$validate_result = FALSE;
+	if ($validate_mobile && ($_SESSION ['mobile_verification_code'] != trim ( $form_state ['values'] ['verify_code'] ))) {
+		$validate_mobile = FALSE;
 	}
-	if (!$validate_result) {
+	if (!$validate_mobile) {
 		form_set_error ( '验证码', '您输入的验证码不正确.' );
+	}
+
+	$validate_profile = TRUE;
+	if ($validate_mobile) {
+		$result = db_select('cowpro_customer_profile', 'profile')->fields('profile', array('search_field'))->condition('type', 'mobile')->condition('search_field',  trim ( $form_state ['values'] ['mobile_number'] ))->execute()->fetchAssoc();
+		if ($result !== FALSE) {
+			$validate_profile = FALSE;
+		}
+	}
+	if (!$validate_profile) {
+		form_set_error ( '手机号码', '该手机号码已被使用.' );
 	}
 }
 function mobile_certification_cowpro_customer_profile_mobile_form_submit($form, &$form_state, &$profile) {
@@ -172,8 +204,30 @@ function mobile_certification_cowpro_customer_profile_type_info() {
 	return $profile_types;
 }
 function mobile_certification_send_code() {
+	if (!isset($_GET ['captcha_response'])) {
+		return;
+	}
+	if (!isset($_GET ['captcha_sid'])) {
+		return;
+	}
+	if (!isset($_GET ['captcha_token'])) {
+		return;
+	}
+	if (!isset($_GET ['form_id'])) {
+		return;
+	}
+
 	$mobile_number = $_GET ['mobile_number'];
-	if ($mobile_number) {
+	$captcha_response = $_GET ['captcha_response'];
+	$captcha_sid = $_GET ['captcha_sid'];
+	$captcha_token = $_GET ['captcha_token'];
+	$form_id = $_GET ['form_id'];
+	if (FALSE === _mobile_certification_captcha_validate($form_id, $captcha_response, $captcha_sid)){
+		$response = array (
+				'status' => 500,
+				'message' => '请正确输入图片中的代码.',
+		);
+	} else if ($mobile_number) {
 		// 4-digit random code
 		$code = rand ( pow ( 10, 3 ), pow ( 10, 4 ) - 1 );
 
@@ -207,6 +261,67 @@ function mobile_certification_send_code() {
 	}
 	drupal_json_output ( $response );
 }
+function _mobile_certification_captcha_validate($form_id, $captcha_response, $captcha_sid) {
+	//参考 captcha.module function captcha_validate()
+	$csid = $captcha_sid;
+
+	$solution = db_query(
+			'SELECT solution FROM {captcha_sessions} WHERE csid = :csid',
+			array(':csid' => $csid)
+			)
+			->fetchField();
+	if ($solution === FALSE) {
+		return FALSE;
+	} else {
+		$captcha_validate = 'captcha_validate_case_insensitive_equality';
+		if ($captcha_validate($solution, $captcha_response)) {
+			// Correct answer.
+
+			// Store form_id in session (but only if it is useful to do so, avoid setting stuff in session unnecessarily).
+			$captcha_persistence = variable_get('captcha_persistence', CAPTCHA_PERSISTENCE_SKIP_ONCE_SUCCESSFUL_PER_FORM_INSTANCE);
+			if ($captcha_persistence == CAPTCHA_PERSISTENCE_SKIP_ONCE_SUCCESSFUL || $captcha_persistence == CAPTCHA_PERSISTENCE_SKIP_ONCE_SUCCESSFUL_PER_FORM_TYPE) {
+				$_SESSION['captcha_success_form_ids'][$form_id] = $form_id;
+			}
+
+			// Record success.
+			db_update('captcha_sessions')
+			->condition('csid', $csid)
+			->fields(array('status' => CAPTCHA_STATUS_SOLVED))
+			->expression('attempts', 'attempts + 1')
+			->execute();
+			return TRUE;
+		}
+		else {
+			// Wrong answer.
+			db_update('captcha_sessions')
+			->condition('csid', $csid)
+			->expression('attempts', 'attempts + 1')
+			->execute();
+			// Set form error.
+			form_set_error('captcha_response', t('The answer you entered for the CAPTCHA was not correct.'));
+			// Update wrong response counter.
+			if (variable_get('captcha_enable_stats', FALSE)) {
+				variable_set('captcha_wrong_response_counter', variable_get('captcha_wrong_response_counter', 0) + 1);
+			}
+			// Log to watchdog if needed.
+			if (variable_get('captcha_log_wrong_responses', FALSE)) {
+				watchdog('CAPTCHA',
+						'%form_id post blocked by CAPTCHA module: challenge %challenge (by module %module), user answered "@response", but the solution was "@solution".',
+						array(
+								'%form_id' => $form_id,
+								'@response' => $captcha_response,
+								'@solution' => $solution,
+								'%challenge' => $captcha_validate,
+								'%module' => 'mobile_certification',
+						),
+						WATCHDOG_NOTICE);
+			}
+			return FALSE;
+		}
+	}
+
+
+}
 function mobile_certification_settings_form($form, &$form_state) {
 	$form = array ();
 	$form ['mobile_verify_sms_template'] = array (
@@ -237,18 +352,46 @@ function mobile_certification_form_user_register_form_alter(&$form, &$form_state
 	global $base_url;
 	drupal_add_js(array('basePath' => $base_url), 'setting');
 	drupal_add_js ( drupal_get_path ( 'module', 'mobile_certification' ) . '/mobile_certification.js' );
-	$form ['verify_code'] = array (
+	$form['#attached']['js'][] = drupal_get_path('module', 'image_captcha_refresh') . '/image_captcha_refresh.js';
+
+	$form ['mobile_number'] = array (
 			'#type' => 'textfield',
-			'#title' => '验证码',
+			'#title' => '手机号码',
+			'#description' => '',
 			'#default_value' => '',
 			'#maxlength' => 20,
-			'#required' => FALSE,//在通过 registration_wizard 模块显示这个 form 的时候，用户有可能只是在向导翻页的时候路过
+			'#required' => TRUE,
+			'#attributes' => array (
+					'class' => array (
+							'mobile_number',
+					)
+			),
+			'#weight' => - 6,
+	);
+
+	$form['captcha'] = array(
+			'#type' => 'captcha',
+			'#weight' => - 5,
+	);
+	$form['captcha_refresh'] = array(
+			'#markup' => theme('image_captcha_refresh_link', array(
+					'url' => 'captcha/refresh/' . $form_id,
+			)),
+			'#weight' => - 4,
+	);
+
+	$form ['verify_code'] = array (
+			'#type' => 'textfield',
+			'#title' => '手机验证码',
+			'#default_value' => '',
+			'#maxlength' => 20,
+			'#required' => TRUE,
 			'#attributes' => array (
 					'class' => array (
 							'verify_code',
 					)
 			),
-			'#weight' => - 5,
+			'#weight' => 0,
 	);
 
 	$form ['send_verify'] = array (
@@ -267,17 +410,22 @@ function mobile_certification_form_user_register_form_alter(&$form, &$form_state
 			'#markup' => '<div id=mobile_verify_help><p></p></div>',
 			'#weight' => 5,
 	);
+	$form ['mobile_verify_help_2'] = array (
+			'#markup' => '<div id=mobile_verify_help_2><p></p></div>',
+			'#weight' => 5,
+	);
 
-	$form['account']['name']['#title'] = '请输入您的手机号作为登录用户名';
-	$form['account']['name']['#description'] = '手机号码，11位数字';
+	$form['account']['name']['#title'] = '昵称(不能全部是数字)';
+	//$form['account']['name']['#description'] = '手机号码，11位数字';
 	$form['#validate'][] = 'mobile_certification_cowpro_customer_profile_mobile_form_validate';
 	$form['#submit'][] = 'mobile_certification_register_form_submit';
+
 }
 
 function mobile_certification_register_form_submit($form, &$form_state) {
 	global $user;
 	$profile = cowpro_customer_profile_new('mobile', $user->uid);
-	$profile->mobile_number = $form_state ['values'] ['name'];
+	$profile->mobile_number = $form_state ['values'] ['mobile_number'];
 	$profile->verified = 1;
 	cowpro_customer_profile_save($profile);
 	$form_state['redirect'] = 'registration_wizard';
@@ -303,7 +451,11 @@ function mobile_certification_form_user_admin_settings_alter($form, &$form_state
  * Implementation of hook_menu_alter().
  */
 function mobile_certification_menu_alter(&$items) {
-	$items['user/password']['access callback'] = 'mobile_certification_access_check';
+	//$items['user/password']['access callback'] = 'mobile_certification_access_check';
+	if (!mobile_certification_access_check()) {
+		$items['user/password']['page callback'] = 'drupal_goto';
+		$items['user/password']['page arguments'] = array('user/password_by_sms');
+	}
 }
 
 function mobile_certification_access_check() {
@@ -311,4 +463,69 @@ function mobile_certification_access_check() {
 		return FALSE;
 	}
 	return TRUE;
+}
+
+function mobile_certification_form_user_login_alter(&$form, &$form_state) {
+	$form['#validate'] = array('user_login_name_validate', 'user_login_authenticate_validate', 'mobile_certification_user_login_authenticate_validate', 'user_login_final_validate');
+	//$form['#submit'][] = 'user_login_submit';
+
+	return $form;
+}
+
+function mobile_certification_user_login_authenticate_validate($form, &$form_state) {
+	if (! isset($form_state ['values']['name'])) {
+		return;
+	}
+	if ((isset($form_state['uid'])) && ($form_state['uid'] !== FALSE)) {
+		//如果前面的validate方法已经设置了$form_state['uid'],本方法就不再做处理
+		return;
+	}
+
+	$user_name_or_mobile = trim($form_state['values']['name']);
+	$password = trim($form_state['values']['pass']);
+	$matches = array();
+	$regex = '/^\d+$/';
+	if(! preg_match($regex, trim($form_state ['values']['name']), $matches)){
+		//如果用户在‘name’输入框中填的不是手机号码（手机号码全是数字）
+		$form_state['uid'] = _fanwe_user_authenticate($user_name_or_mobile, $password);
+		return;
+	}
+
+	$result = db_select('cowpro_customer_profile', 'profile')->fields('profile', array('search_field', 'uid'))->condition('type', 'mobile')->condition('search_field',  $user_name_or_mobile)->execute()->fetchAssoc();
+	if ($result) {
+		$account_uid = $result['uid'];
+		$user = user_load($account_uid);
+		$account_name = $user->name;
+		$form_state['uid'] = user_authenticate($account_name, $password);
+	}
+}
+
+/*
+ * 验证从方维系统迁移过来的用户的密码
+ */
+function _fanwe_user_authenticate($name, $password) {
+	$uid = FALSE;
+	if (!empty($name) && strlen(trim($password)) > 0) {
+		$account = user_load_by_name($name);
+		if ($account) {
+			if (_fanwe_user_check_password($password, $account)) {
+				// Successful authentication.
+				$uid = $account->uid;
+
+				// Update user to new password scheme.
+				user_save($account, array('pass' => $password));
+			}
+		}
+	}
+	return $uid;
+}
+
+function _fanwe_user_check_password($password, $account) {
+	if (substr($account->pass, 0, 6) == 'FANWE$') {
+		$stored_hash = substr($account->pass, 6);
+		$password = md5($password);
+		return $password == $stored_hash;
+	} else {
+		return FALSE;
+	}
 }

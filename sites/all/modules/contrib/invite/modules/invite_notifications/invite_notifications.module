@@ -21,7 +21,7 @@ function invite_notifications_init() {
     }
     $result = db_query('SELECT count(*) FROM {invite_notifications} WHERE uid = :uid and status = :status', array(
       ':uid' => $account->uid,
-      ':status' => 1
+      ':status' => 1,
     ))->fetchField();
 
     if ($result == 0) {
@@ -61,6 +61,7 @@ function invite_notifications_get_message($message_type, $params) {
         ->condition('iid', $invitation->iid, '=')
         ->execute();
       break;
+
     case 'registered_user_notification':
       $result = t('!user has sent you invitation. You could !accept or !withdrawn it.', array(
         '!user' => theme('username', array('account' => $inviter)),
@@ -101,7 +102,7 @@ function theme_invite_registered_user_notification($variables) {
         '!accept' => l('accept', 'invite/accept/' . $invitation->reg_code),
         '!withdrawn' => l('accept', 'invite/withdraw/' . $invitation->reg_code),
       )),
-    )
+    ),
   );
 }
 
@@ -130,8 +131,8 @@ function invite_notifications_invite_accept($invite) {
     user_save($invitee, array('data' => array('notification_received' => FALSE)));
     db_update('invite_notifications')
       ->fields(array(
-      'status' => 0,
-    ))
+        'status' => 0,
+      ))
       ->condition('iid', $invite->iid, '=')
       ->execute();
 
@@ -190,12 +191,13 @@ function invite_notifications_invite_withdraw($invite) {
  * Helper function to retrieve notifications for user.
  *
  * @param $user
+ *
  * @return bool
  */
 function _invite_notifications_user_messages($user) {
   $result = db_query('SELECT * FROM {invite_notifications} WHERE uid = :uid and status = :status', array(
     ':uid' => $user->uid,
-    ':status' => 1
+    ':status' => 1,
   ))->fetchAll();
 
   return (!empty($result)) ? $result : FALSE;

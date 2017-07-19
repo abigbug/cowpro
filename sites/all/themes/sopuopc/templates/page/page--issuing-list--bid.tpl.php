@@ -20,9 +20,9 @@
 
 if ( $user->uid ) :
 	?>
-        <a href="/user" class="btn-red btn-red-user"><?php echo t('我的金贝增'); ?></a> </div>
+        <a href="<?php global $base_url; print $base_url;?>/user" class="btn-red btn-red-user"><?php echo t('我的金贝增'); ?></a> </div>
       <?php else :?>
-      <a href="/user/register" class="btn-red">注册</a><a href="/user/login" class="btn-red btn-red01">登录</a> </div>
+      <a href="<?php global $base_url; print $base_url;?>/user/register" class="btn-red">注册</a><a href="<?php global $base_url; print $base_url;?>/user/login" class="btn-red btn-red01">登录</a> </div>
     <?php endif; ?>
   </div>
 </header>
@@ -42,7 +42,7 @@ $output = @drupal_render(_block_get_renderable_array(_block_render_blocks(array(
 print $output;
 ?>
 <?php
-$block = block_load('block', '5');
+$block = block_load('block', '6');
 $output = @drupal_render(_block_get_renderable_array(_block_render_blocks(array($block))));
 print $output;
 ?>

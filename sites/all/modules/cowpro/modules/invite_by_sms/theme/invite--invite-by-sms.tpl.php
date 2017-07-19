@@ -28,7 +28,7 @@
  * @see template_process()
  */
 ?>
-这里需要对主题做定制=============================
+邀请函已发出
 <div class="<?php print $classes; ?> clearfix"<?php print $attributes; ?>>
 
   <?php if (!$page): ?>
@@ -43,6 +43,9 @@
 
   <div class="content"<?php print $content_attributes; ?>>
     <?php
+      unset($content['author']);
+      unset($content['status']);
+      unset($content['field_invite_user_relation_type']);
       print render($content);
     ?>
   </div>

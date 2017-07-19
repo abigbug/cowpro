@@ -133,14 +133,14 @@ function _cowpro_issuing_repayment_action(&$entities, $context = array()) {
 
 	if ($result['success']) {
 		$message = '还款成功';
+		drupal_set_message($message);
 	} else {
 		$message = '还款失败:' . $result['message'] . '<br/>代码：' . $result['result_code'];
+		drupal_set_message($message, 'error');
 	}
-	drupal_set_message($message);
 
 	ctools_include ( 'modal' );
 	ctools_include ( 'ajax' );
-	ctools_add_js('ajax-responder','ajax-responder');
 	$commands = array ();
 	$commands[] = ctools_ajax_command_reload();
 	print ajax_render ( $commands );

@@ -39,7 +39,8 @@
 			minutes = minutes < 10 ? "0" + minutes : minutes;
 			seconds = seconds < 10 ? "0" + seconds : seconds;
 
-			$('#send_verify').val(minutes + ":" + seconds);
+			//$('#send_verify').val(minutes + ":" + seconds);
+			$("#mobile_verify_help_2").text(minutes + ":" + seconds + '之后可重新发送验证码');
 
 			if (--timer < 0) {
 				stopTimer();
@@ -50,8 +51,9 @@
 
 	function stopTimer() {
 		clearInterval(smsTimer);
-		$('#send_verify').val("发送验证码");
+		//$('#send_verify').val("发送验证码");
 		$('#send_verify').removeAttr('disabled');
+		$("#mobile_verify_help_2").text('');
 	}
 	;
 

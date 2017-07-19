@@ -22,6 +22,16 @@ function cowpro_fund_withdraw($form, &$form_state) {
 			'#markup' => ctools_modal_text_button ( '添加银行卡', 'cowpro/fund/bankcard/add', '添加银行卡' )
 	);
 
+	GLOBAL $user;
+	$balance = custodian_get_balance($user);
+	$withdraw = 0;
+	if ($balance) {
+		$withdraw = $balance ['withdraw'];
+	}
+
+	$form ['withdraw_balance'] = array (
+			'#markup' => "<p>可提现余额(元)：$withdraw</p>",
+	);
 	$form ['amount'] = array (
 			'#type' => 'numberfield',
 			'#title' => '提现金额(元)',
@@ -66,6 +76,14 @@ function cowpro_fund_withdraw_submit($form, &$form_state) {
 
 	$result = custodian_cowpro_fund_withdraw($uid, $amount,	$card, $journal_id);
 }
+function _cowpro_fund_get_bankcards($reset = FALSE) {
+	// Get the bankcard data.
+	$conditions = array (
+			'uid' => $GLOBALS ['user']->uid
+	);
+	$cards = entity_load ( 'cowpro_fund_bankcard', array (), $conditions, $reset );
+	return $cards;
+}
 function cowpro_fund_bankcard_list($reset = FALSE) {
 	ctools_include ( 'modal' );
 	ctools_include ( 'ajax' );
@@ -85,16 +103,16 @@ function cowpro_fund_bankcard_list($reset = FALSE) {
 			'operation' => '操作'
 	);
 
-	// Get the bankcard data.
-	$conditions = array (
-			'uid' => $GLOBALS ['user']->uid
-	);
-	$cards = entity_load ( 'cowpro_fund_bankcard', array (), $conditions, $reset );
+	$cards = _cowpro_fund_get_bankcards($reset);
 
 	// Build the rows.
 	$options = array ();
+	$default_value = NULL;
 	foreach ( $cards as $card ) {
 		$bankcard_id = $card->bankcard_id;
+		if (is_null($default_value)) {
+			$default_value = $bankcard_id;
+		}
 		$options [$bankcard_id] = array (
 				'card_no' => $card->card_no,
 				'bank_name' => $card->bank_name,
@@ -113,8 +131,9 @@ function cowpro_fund_bankcard_list($reset = FALSE) {
 			'#type' => 'tableselect',
 			'#header' => $header,
 			'#options' => $options,
+			'#default_value' => $default_value,
 			'#multiple' => FALSE,
-			'#empty' => '请添加银行卡',
+			//'#empty' => ctools_modal_text_button ( '添加银行卡', 'cowpro/fund/bankcard/add', '添加银行卡' ),//'请添加银行卡',
 			'#attributes' => array (
 					'class' => array (
 							'bankcard-table'
@@ -174,10 +193,13 @@ function cowpro_fund_add_bankcard($form, &$form_state) {
 	);
 
 	$provinces = china_address_api_get_province_list ( 'region_name_cn' );
+	$default_province = '湖北';
+	$default_city = '襄樊';
 	$form ['bank_located'] ['province'] = array (
 			'#type' => 'select',
 			'#title' => '省',
 			'#options' => $provinces,
+			'#default_value' => $default_province,
 			'#description' => '',
 			'#ajax' => array (
 					'callback' => 'cowpro_fund_refresh_city_list',
@@ -187,7 +209,7 @@ function cowpro_fund_add_bankcard($form, &$form_state) {
 			)
 	);
 
-	$form ['bank_located'] ['city'] = _cowpro_fund_build_city_select ( array_shift ( $provinces ) );
+	$form ['bank_located'] ['city'] = _cowpro_fund_build_city_select ( $default_province, $default_city );
 
 	$form ['subbranch'] = array (
 			'#type' => 'textfield',
@@ -234,7 +256,7 @@ function cowpro_fund_refresh_city_list($form, &$form_state) {
 	$element ['#name'] = 'city';
 	return $element;
 }
-function _cowpro_fund_build_city_select($province = NULL) {
+function _cowpro_fund_build_city_select($province = NULL, $city = NULL) {
 	if (! is_null ( $province )) {
 		$cities = china_address_api_get_city_list_by_name ( $province, 'region_name_cn' );
 	} else {
@@ -242,12 +264,16 @@ function _cowpro_fund_build_city_select($province = NULL) {
 	}
 
 	$values = array_values($cities);
-	$value = array_shift($values);
+	if (! is_null ( $province )) {
+		$value = $city;
+	} else {
+		$value = array_shift($values);
+	}
 	$element = array (
 			'#type' => 'select',
 			'#title' => '市',
 			'#options' => $cities,
-			'#value' => $value,
+			'#default_value' => $value,
 			'#description' => '',
 			'#prefix' => '<div id="bank_located_city">',
 			'#suffix' => '</div>'

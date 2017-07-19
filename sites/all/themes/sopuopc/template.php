@@ -6,12 +6,12 @@
 function sopuopc_process_page(&$variables) {
 
     // Page template suggestions based off of content types
-   if (isset($variables['node'])) { 
-     
+   if (isset($variables['node'])) {
+
                 $variables['theme_hook_suggestions'][] = 'page__type__'. $variables['node']->type;
                 $variables['theme_hook_suggestions'][] = "page__node__" . $variables['node']->nid;
 				$variables['theme_hook_suggestions'][] = 'page__node__' . str_replace('_', '--', $variables['node']->type);
-			    
+
 				  				//use page path
 				$alias = drupal_get_path_alias($_GET['q']);
     if ($alias != $_GET['q']) {
@@ -22,7 +22,7 @@ function sopuopc_process_page(&$variables) {
             $template_filename = $template_filename . '__' . $path_part;
             $variables['theme_hook_suggestions'][] = $template_filename;
             }
-        
+
         }
    }
     if (arg(0) == 'taxonomy' && arg(1) == 'term' && is_numeric(arg(2))) {
@@ -93,6 +93,11 @@ function sopuopc_menu_link($variables) {
   return theme_menu_link($variables);
 }
 
+function sopuopc_preprocess_menu_tree__navigation(&$variables) {
+	//print_r($variables);
+}
 
-
+function sopuopc_preprocess_menu__navigation(&$variables) {
+	//print_r($variables);
+}
 

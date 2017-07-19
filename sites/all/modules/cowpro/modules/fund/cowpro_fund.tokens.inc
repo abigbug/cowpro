@@ -111,10 +111,10 @@ function cowpro_fund_tokens($type, $tokens, array $data = array(), array $option
 					$replacements [$original] = $content;
 					break;
 				case 'created' :
-					$replacements[$original] = format_date($journal->created, 'medium', '', NULL, $language_code);
+					$replacements [$original] = gmdate ( "Y年m月d日", $journal->created );
 					break;
 				case 'changed' :
-					$replacements[$original] = format_date($journal->created, 'medium', '', NULL, $language_code);
+					$replacements [$original] = gmdate ( "Y年m月d日", $journal->changed );
 					break;
 			}
 		}

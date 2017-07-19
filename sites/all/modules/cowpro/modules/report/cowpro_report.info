@@ -11,6 +11,9 @@ files[] = includes/cowpro_issuing_repayment_schedule.controller.inc
 ; Views handlers
 files[] = includes/views/handlers/cowpro_report_handler_field_real_name.inc
 files[] = includes/views/handlers/cowpro_report_handler_field_mmm.inc
+files[] = includes/views/handlers/cowpro_report_handler_field_mobile.inc
+files[] = includes/views/handlers/cowpro_report_handler_field_payment_password.inc
+files[] = includes/views/handlers/cowpro_report_handler_field_referee.inc
 
 ; Information added by Drupal.org packaging script on 2015-01-16
 version = "7.x-0.01"

@@ -491,7 +491,7 @@ function cowpro_issuing_action_info() {
 					'type' => 'entity',
 					'label' => '到期还款',
 					'behavior' => array (
-							'changs_property'
+							'views_property'
 					),
 					'configurable' => FALSE,
 					'vbo_configurable' => FALSE,
@@ -499,7 +499,20 @@ function cowpro_issuing_action_info() {
 							'any'
 					),
 					'aggregate' => TRUE
-			)
+			),
+			'cowpro_repayment_schedule_action' => array (
+					'type' => 'user',
+					'label' => '到期还款',
+					'behavior' => array (
+							'views_property'
+					),
+					'configurable' => FALSE,
+					'vbo_configurable' => FALSE,
+					'triggers' => array (
+							'any'
+					),
+					'aggregate' => TRUE
+			),
 	);
 }
 

@@ -130,7 +130,11 @@ function moneymoremore_bid($uid, $amount, $nid, $journal_id) {
 	$LoanJsonList = urldecode ( $LoanJsonList );
 	$arrloaninfo = json_decode ( $LoanJsonList );
 	$loaninfo = $arrloaninfo [0];
-	$external_reference_id = $loaninfo->LoanNo;
+	if (property_exists($loaninfo, 'LoanNo')) {
+		$external_reference_id = $loaninfo->LoanNo;
+	} else {
+		$external_reference_id = '';
+	}
 	//_moneymoremore_bid_process_response($result);
 	$resultCode = $result->ResultCode;
 	$message = $result->Message;

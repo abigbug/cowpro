@@ -45,6 +45,17 @@ js;
 
 function _cowpro_issuing_bid_form($form, &$form_state) {
 	$bid_avail = _cowpro_issuing_bid_avail ( $form_state['nid'], $form_state['loan_amounts'] );
+	GLOBAL $user;
+	$balance = custodian_get_balance($user);
+	$balance_available = 0;
+	if ($balance) {
+		$balance_available = $balance ['balance'];
+	}
+
+	$form ['$balance_available'] = array (
+			'#markup' => "<p>可用余额(元)：$balance_available</p>",
+	);
+
 	$form ['amount'] = array (
 			'#type' => 'numberfield',
 			'#title' => '投资金额(元)',
@@ -121,7 +132,7 @@ function _cowpro_issuing_bid_form_submit(&$form, &$form_state) {
 				'status' => FALSE,
 				'type' => 'BID',
 				'amount' => $amount,
-				'issuing_id' => $issuing->nid,
+				'issuing_id' => $nid,
 				'internal_reference_id' => 'ISSUING-' . $nid,
 		);
 		$entity = entity_create('cowpro_fund_journal', $entity_value);
@@ -144,23 +155,23 @@ function _cowpro_issuing_bid_form_submit(&$form, &$form_state) {
 		_cowpro_issuing_bid_finished($result['success'], $nid, $journal_id);
 		if ($result['success']) {
 			$message = '投标成功';
+			drupal_set_message($message);
 		} else {
 			$message = '投标失败:' . $result['message'] . '<br/>代码：' . $result['result_code'];
+			drupal_set_message($message, 'error');
 		}
-		drupal_set_message($message);
 
 		ctools_include ( 'modal' );
 		ctools_include ( 'ajax' );
-		ctools_add_js('ajax-responder','ajax-responder');
 		$commands = array ();
 		$commands[] = ctools_ajax_command_reload();
 		print ajax_render ( $commands );
-		exit ();
+		drupal_exit ();
 	} else {
 		$commands = array ();
 		$commands [] = ctools_modal_command_dismiss ();
 		print ajax_render ( $commands );
-		exit ();
+		drupal_exit ();
 	}
 }
 

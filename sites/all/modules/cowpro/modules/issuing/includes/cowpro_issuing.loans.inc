@@ -46,14 +46,14 @@ function _cowpro_issuing_make_loans_to_form_submit(&$form, &$form_state) {
 		_cowpro_issuing_loans_finished($result['success'], $nid);
 		if ($result['success']) {
 			$message = '放款成功';
+			drupal_set_message($message);
 		} else {
 			$message = '放款失败:' . $result['message'] . '<br/>代码：' . $result['result_code'];
+			drupal_set_message($message, 'error');
 		}
-		drupal_set_message($message);
 
 		ctools_include ( 'modal' );
 		ctools_include ( 'ajax' );
-		ctools_add_js('ajax-responder','ajax-responder');
 		$commands = array ();
 		$commands[] = ctools_ajax_command_reload();
 		print ajax_render ( $commands );

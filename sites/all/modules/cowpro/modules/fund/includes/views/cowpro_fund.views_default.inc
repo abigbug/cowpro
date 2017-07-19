@@ -133,6 +133,7 @@ function cowpro_fund_views_default_views() {
 	$handler->display->display_options ['fields'] ['created'] ['id'] = 'created';
 	$handler->display->display_options ['fields'] ['created'] ['table'] = 'cowpro_fund_journal';
 	$handler->display->display_options ['fields'] ['created'] ['field'] = 'created';
+	$handler->display->display_options['fields']['created']['date_format'] = 'short';
 	/* 字段: 资金明细: 结果 */
 	$handler->display->display_options ['fields'] ['status'] ['id'] = 'status';
 	$handler->display->display_options ['fields'] ['status'] ['table'] = 'cowpro_fund_journal';

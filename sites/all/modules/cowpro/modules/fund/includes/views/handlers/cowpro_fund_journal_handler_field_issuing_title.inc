@@ -41,7 +41,7 @@ class cowpro_fund_journal_handler_field_issuing_title extends views_handler_fiel
     	$repayment_query->addField('s', 'issuing_id');
     	$repayment_query->condition ( 'schedule_id', $repayment_schedule, '=' );
     	$repayment = $repayment_query->execute ()->fetchAssoc();
-    	$nid = $repayment->issuing_id;
+    	$nid = $repayment['issuing_id'];
     }
 
     $node = node_load ( $nid );

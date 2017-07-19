@@ -1,17 +1,12 @@
 <?php
 
 /**
- * @file invite.api.php
+ * @file
  * Hooks provided by the Invite module.
  */
 
 /**
- * @addtogroup hooks
- * @{
- */
-
-/**
- * Allow other modules to act on invite's withdrawn
+ * Allow other modules to act on invite's withdrawn.
  *
  * @param Invite $invite
  */
@@ -26,6 +21,7 @@ function hook_invite_withdraw($invite) {
  * Allow other modules to act when invite accepted.
  *
  * @param Invite $invite
+ *   Invite object.
  */
 function hook_invite_accept($invite) {
   global $user;
@@ -50,12 +46,12 @@ function hook_invite_accept($invite) {
  * @param array $targets
  *   Array of roles which will be added to invited user account.
  * @param Invite $invite
- *   Invite's object
+ *   Invite object.
  * @param object $account
  *   Invited user account object.
  */
 function hook_invite_target_roles_alter($targets, $invite, $account) {
-  // Add 'friday invited' role if user registering on Friday
+  // Add 'friday invited' role if user registering on Friday.
   if (date("N", time()) == 5) {
     $targets[ROLE_FRIDAY_INVITED] = ROLE_FRIDAY_INVITED;
   }
@@ -64,7 +60,7 @@ function hook_invite_target_roles_alter($targets, $invite, $account) {
 /**
  * Defines the module as being an invite sending controller.
  *
- * @return
+ * @return array
  *   An array of settings containing the keys:
  *   - label: A human readable, translated label for the controller.
  */
@@ -105,7 +101,3 @@ function hook_invite_accept_alter($data) {
     $data['type'] = 'error';
   }
 }
-
-/**
- * @} End of "addtogroup hooks".
- */

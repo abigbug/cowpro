@@ -7,9 +7,9 @@ files[] = sms_sendtophone.css
 files[] = sms_sendtophone.module
 files[] = sms_sendtophone.test
 
-; Information added by Drupal.org packaging script on 2015-06-13
-version = "7.x-1.0-alpha1"
+; Information added by Drupal.org packaging script on 2017-01-07
+version = "7.x-1.0"
 core = "7.x"
 project = "smsframework"
-datestamp = "1434196688"
+datestamp = "1483787346"
 

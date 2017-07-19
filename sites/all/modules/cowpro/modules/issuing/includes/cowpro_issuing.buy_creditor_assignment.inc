@@ -120,14 +120,14 @@ function _cowpro_issuing_buy_creditor_assignment_form_submit(&$form, &$form_stat
 		cowpro_issuing_buy_creditor_assignment_finished($result['success'], $repayment_schedules, $buyer_uid, $seller_uid, $amount, $result);
 		if ($result['success']) {
 			$message = '已成功购买债权';
+			drupal_set_message($message);
 		} else {
 			$message = '购买债权失败:' . $result['message'] . '<br/>代码：' . $result['result_code'];
+			drupal_set_message($message, 'error');
 		}
-		drupal_set_message($message);
 
 		ctools_include ( 'modal' );
 		ctools_include ( 'ajax' );
-		ctools_add_js('ajax-responder','ajax-responder');
 		$commands = array ();
 		$commands[] = ctools_ajax_command_reload();
 		print ajax_render ( $commands );

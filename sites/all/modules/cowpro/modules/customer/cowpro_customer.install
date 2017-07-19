@@ -52,7 +52,14 @@ function cowpro_customer_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'data' => array(
+	'search_field' => array(
+		'description' => '用于搜索data字段的内容.',
+		'type' => 'varchar',
+		'length' => 255,
+		'not null' => FALSE,
+		'default' => '',
+	),
+	'data' => array(
         'type' => 'blob',
         'not null' => FALSE,
         'size' => 'big',

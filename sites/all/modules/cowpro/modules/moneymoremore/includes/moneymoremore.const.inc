@@ -19,7 +19,7 @@ const MMM_URL_NOTIRY = '/cowpro/moneymoremore/callback/';
  const MMM_URL_ORDER_QUERY = 'https://query.moneymoremore.com/loan/loanorderquery.action';//对账接口
  const MMM_URL_AUTHORIZE = 'https://auth.moneymoremore.com/loan/toloanauthorize.action';
  const MMM_URL_AUDIT = 'https://audit.moneymoremore.com/loan/toloantransferaudit.action';
-*/
+ */
 
  //测试环境
  const MMM_URL_REGISTER = 'http://test.moneymoremore.com:88/main/loan/toloanregisterbind.action';

@@ -16,9 +16,9 @@ configure = admin/config/people/invite
 dependencies[] = entity
 dependencies[] = ctools
 
-; Information added by Drupal.org packaging script on 2015-10-12
-version = "7.x-4.0-beta2"
+; Information added by Drupal.org packaging script on 2016-12-12
+version = "7.x-4.0-beta5"
 core = "7.x"
 project = "invite"
-datestamp = "1444637946"
+datestamp = "1481583190"
 

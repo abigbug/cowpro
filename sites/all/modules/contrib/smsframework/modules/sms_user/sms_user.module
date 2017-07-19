@@ -251,22 +251,19 @@ function sms_user_settings($account) {
   $output = array();
   switch (isset($account->sms_user) ? $account->sms_user['status'] : 0) {
     case 0:
-      $output = drupal_get_form('sms_user_settings_add_form', $account);
+      $output['number_form'] = drupal_get_form('sms_user_settings_add_form', $account);
       break;
     case SMS_USER_PENDING:
-      $output = drupal_get_form('sms_user_settings_confirm_form', $account);
+      $output['number_form'] = drupal_get_form('sms_user_settings_confirm_form', $account);
       break;
     case SMS_USER_CONFIRMED:
     case SMS_USER_SMS_REGISTERED:
-      $output = drupal_get_form('sms_user_settings_reset_form', $account);
+      $output['number_form'] = drupal_get_form('sms_user_settings_reset_form', $account);
       break;
   }
 
   if (variable_get('sms_user_sleep', 1) && $account->sms_user['number'] && $account->sms_user['status'] == SMS_USER_CONFIRMED) {
-    $output2 = Array();
-    $output2['phoneform'] = $output;
-    $output2['sleepform'] = drupal_get_form('sms_user_settings_sleep_form', $account);
-    $output = $output2;
+    $output['sleep_form'] = drupal_get_form('sms_user_settings_sleep_form', $account);
   }
 
   if (variable_get('sms_user_allow_opt_out', 1) && $account->sms_user['number'] && $account->sms_user['status'] == SMS_USER_CONFIRMED) {
@@ -422,11 +419,10 @@ function sms_user_settings_reset_form($form, &$form_state, $account) {
     '#type' => 'hidden',
     '#value' => $account->uid,
   );
-  $form['sms_user']['number'] = array(
+  $form['number'] = array(
     '#type' => 'item',
     '#title' => t('Your mobile phone number'),
     '#markup' => $account->sms_user['number'],
-//    '#markup' => $account->sms_user['number'] . '@' . $account->sms_user['gateway']['carrier'],
     '#description' => t('Your mobile phone number has been confirmed.'),
   );
 
@@ -657,7 +653,7 @@ function sms_user_user_insert(&$edit, $account, $category) {
  */
 function sms_user_user_view($account, $view_mode) {
   global $user;
-  if (user_access('receive sms', $account) && ($user->uid == $account->uid || user_access('administer smsframework'))) {
+  if (user_access('receive sms', $account) && ($user->uid == $account->uid || user_access('access user profiles'))) {
     if (isset($account->sms_user['status']) &&
             $account->sms_user['status'] == SMS_USER_PENDING) {
       drupal_set_message(t('You need to confirm your mobile number, <a href="@mobile_url">enter the confirmation code sent to your mobile</a>.', array('@mobile_url' => url('user/' . $account->uid . '/edit/mobile'))));
@@ -919,15 +915,17 @@ function sms_user_token_info() {
 function sms_user_sms_incoming($op, $number, $message, $options) {
   switch ($op) {
     case 'pre process':
-      if ($account = sms_user_authenticate($number)) {
-        $metadata = array(
-          'login' => TRUE,
-          'number' => $number,
-          'message' => $message,
-          'options' => $options,
-        );
-        sms_user_login_metadata($account->uid, $metadata);
-        _sms_user_switch($account);
+      if (variable_get('sms_user_switch_account_incoming', 0)) {
+        if ($account = sms_user_authenticate($number)) {
+          $metadata = array(
+            'login' => TRUE,
+            'number' => $number,
+            'message' => $message,
+            'options' => $options,
+          );
+          sms_user_login_metadata($account->uid, $metadata);
+          _sms_user_switch($account);
+        }
       }
       elseif (variable_get('sms_user_registration_enabled', 0) && $number) {
         if ($account = sms_user_register_new_user($number, $message, $options)) {
@@ -939,7 +937,9 @@ function sms_user_sms_incoming($op, $number, $message, $options) {
       }
       break;
     case 'post process':
-      _sms_user_switch();
+      if (variable_get('sms_user_switch_account_incoming', 0)) {
+        _sms_user_switch();
+      }
       break;
   }
 }
@@ -1235,7 +1235,7 @@ function sms_user_entity_property_info_alter(&$info) {
       'type' => 'text',
       'getter callback' => 'entity_property_sms_user_get_properties',
       'computed' => TRUE,
-      'required' => TRUE,
+      'required' => FALSE,
   );
   $properties['sms_user_gateway'] = array(
       'label' => t("SMS Gateway"),

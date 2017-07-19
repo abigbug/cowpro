@@ -212,7 +212,7 @@ function _cowpro_issuing_tokens_repayment($type, $tokens, array $data = array(),
 					$replacements [$original] = $schedule->received_amount;
 					break;
 				case 'deadline' :
-					$replacements [$original] = format_date ( $schedule->deadline, 'medium', '', NULL, $language_code );
+					$replacements [$original] = gmdate ( "Y年m月d日", $schedule->deadline );
 					break;
 				case 'status' :
 					include_once 'includes/cowpro_repayment_schedule_status.inc';
@@ -220,10 +220,10 @@ function _cowpro_issuing_tokens_repayment($type, $tokens, array $data = array(),
 					$replacements [$original] = $content;
 					break;
 				case 'created' :
-					$replacements [$original] = format_date ( $schedule->created, 'medium', '', NULL, $language_code );
+					$replacements [$original] = gmdate ( "Y年m月d日", $schedule->created );
 					break;
 				case 'changed' :
-					$replacements [$original] = format_date ( $schedule->created, 'medium', '', NULL, $language_code );
+					$replacements [$original] = gmdate ( "Y年m月d日", $schedule->changed );
 					break;
 			}
 		}
@@ -254,6 +254,10 @@ function _cowpro_issuing_tokens_issuing($type, $tokens, array $data = array(), a
 				case 'number' :
 					$replacements [$original] = sprintf ( "%'.06d", $issuing->nid );
 					break;
+				case 'amount' :
+					$amount = $issuing->field_issuing[LANGUAGE_NONE][0]['loan_amounts'];
+					$replacements [$original] = $amount;
+					break;
 				case 'applicant' :
 					$applicant_uid = $issuing->field_applicant [LANGUAGE_NONE] [0] ['uid'];
 					$u = user_load ( $applicant_uid );
@@ -261,13 +265,13 @@ function _cowpro_issuing_tokens_issuing($type, $tokens, array $data = array(), a
 					break;
 				case 'applicant_idno' :
 					$applicant_uid = $issuing->field_applicant [LANGUAGE_NONE] [0] ['uid'];
-					$u = user_load ( $applicant_uid );
-					$replacements [$original] = $u->idno;
+					$profile = cowpro_customer_profile_new('real_name', $applicant_uid);
+					$replacements [$original] = $profile->idno;
 					break;
 				case 'applicant_seal' :
 					$applicant_uid = $issuing->field_applicant [LANGUAGE_NONE] [0] ['uid'];
 					$u = user_load ( $applicant_uid );
-					$replacements [$original] = $u->seal;
+					$replacements [$original] = $u->seal; //TODO:获取seal的方式不对，还要改
 					break;
 				case 'lender_detail_list':
 					include_once 'includes/cowpro_issuing.repayment_schedule.fun.inc';
@@ -318,7 +322,7 @@ EOF;
 					$replacements [$original] = $content;
 					break;
 				case 'lender_list' :
-					$journal_list = cowpro_issuing_bid_list ( $nid );
+					$journal_list = cowpro_issuing_bid_list ( $issuing->nid );
 					$lender_list = array ();
 					foreach ( $journal_list as $journal ) {
 						$u = user_load ( $journal->uid );

@@ -21,9 +21,9 @@
 
 if ( $user->uid ) :
 	?>
-          <a href="/user" class="btn-red btn-red-user" ><?php echo t('我的金贝增'); ?></a> </div>
+          <a href="<?php global $base_url; print $base_url;?>/user" class="btn-red btn-red-user" ><?php echo t('我的金贝增'); ?></a> </div>
         <?php else :?>
-        <a href="/user/register" class="btn-red">注册</a><a href="/user/login" class="btn-red btn-red01">登录</a> </div>
+        <a href="<?php global $base_url; print $base_url;?>/user/register" class="btn-red">注册</a><a href="<?php global $base_url; print $base_url;?>/user/login" class="btn-red btn-red01">登录</a> </div>
 
         <?php endif; ?>
 
@@ -31,6 +31,9 @@ if ( $user->uid ) :
 </header>
  <?php if (!empty($page['banner'])): ?>
   <div id="sopuo-banner" class="clearfix"><?php print render($page['banner']); ?></div>
+ <?php endif; ?>
+ <?php if (!empty($page['header_left'])): ?>
+  <div id="header_left" class="clearfix"><?php print render($page['header_left']); ?></div>
  <?php endif; ?>
 <div class="sopuo-body-warp">
   <div class="container">

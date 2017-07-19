@@ -57,6 +57,7 @@ function sms_test_gateway_result($reset = FALSE) {
  */
 function sms_test_gateway_sms_incoming($op, $number, $message, $options) {
   // Save incoming result for later retrieval.
+  global $user;
   $key = 'sms_test_gateway_get_incoming' . $op;
   $result = &drupal_static($key);
 
@@ -64,6 +65,7 @@ function sms_test_gateway_sms_incoming($op, $number, $message, $options) {
     $result['number'] = $number;
     $result['message'] = $message;
     $result['options'] = $options;
+    $result['uid'] = $user->uid;
     variable_set($key, $result);
   }
 }
@@ -163,4 +165,13 @@ function sms_test_gateway_validate_number($number) {
     $errors[] = t('Country code not allowed');
   }
   return $errors;
+}
+
+/**
+ * Implements hook_gateway_info_alter().
+ */
+function sms_test_gateway_gateway_info_alter(&$info, $identifier) {
+  if ($identifier == 'test' && variable_get('GATEWAY_INFO_ALTER_TEST')) {
+    $info['x-testing'] = __FUNCTION__;
+  }
 }

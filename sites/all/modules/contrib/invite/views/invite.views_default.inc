@@ -18,7 +18,6 @@ function invite_views_default_views() {
   return $views;
 }
 
-
 /**
  * Invite entity Views definition.
  */

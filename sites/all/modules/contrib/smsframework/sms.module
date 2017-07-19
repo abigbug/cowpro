@@ -420,6 +420,8 @@ function _gateways_build() {
   $gateway_array = module_invoke_all('gateway_info');
   foreach ($gateway_array as $identifier => $info) {
     $info['configuration'] = variable_get('sms_' . $identifier . '_settings', array());
+    // Allow other modules to alter this gateway info.
+    drupal_alter('gateway_info', $info, $identifier);
     $_gateways[$identifier] = $info;
     $_names[$identifier] = $info['name'];
   }
@@ -703,9 +705,9 @@ function sms_formatter($number, $format = 1) {
  */
 function sms_validate_number(&$number, $options = array()) {
   $errors = array();
-  // Ensure there are actual numeric characters.
-  if (!strlen(preg_replace('/[^0-9]/', '', $number))) {
-    $errors[] = t('No phone number provided.');
+  // Ensure there are actual numeric characters, but allow empty strings.
+  if ($number !== '' && preg_replace('/[^0-9]/', '', $number) === '') {
+    $errors[] = t('Invalid phone number provided.');
     // No need for further validation.
     return $errors;
   }

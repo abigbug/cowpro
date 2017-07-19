@@ -1,9 +1,23 @@
 <?php
 /**
+ * Implementation of hook_menu()
+ */
+function assign_register_referee_menu() {
+	$items['cowpro/referee/autocomplete'] = array(
+			'title' => 'User & Mobile autocomplete',
+			'page callback' => 'assign_register_referee_autocomplete',
+			'access callback' => TRUE,
+			'type' => MENU_CALLBACK,
+	);
+
+	return $items;
+}
+
+/**
  * Implements hook_menu_alter().
  */
 function assign_register_referee_menu_alter(&$items) {
-  $items['user/autocomplete']['access callback'] = TRUE;
+  //$items['user/autocomplete']['access callback'] = TRUE;
 }
 
 /**
@@ -16,33 +30,67 @@ function assign_register_referee_form_user_register_form_alter(&$form, &$form_st
 		$invite = invite_by_code_load($_SESSION[INVITE_SESSION_CODE]);
 		$user = user_load($invite->uid);
 		$form['register_referee_reminder'] = array(
-				'#markup' => '推荐人：' . $user->name,
-				'#weight' => - 3,
+				'#markup' => '<br/>' . '推荐人：' . $user->name,
+				'#weight' => 12,
 		);
 	} else {
 		$form ['register_referee'] = array (
 				'#type' => 'textfield',
 				'#title' => '推荐人',
+				'#description' => '推荐人手机号或者昵称(用户名)',
 				'#default_value' => '',
 				'#maxlength' => 20,
-				'#autocomplete_path' =>	'user/autocomplete',
+				'#autocomplete_path' =>	'cowpro/referee/autocomplete',
 				'#required' => FALSE,
 				'#attributes' => array (
 						'class' => array (
 								'register_referee',
 						)
 				),
-				'#weight' => - 3,
+				'#weight' => 12,
 		);
+		$form['#validate'][] = 'assign_register_referee_register_form_validate';
 		$form['#submit'][] = 'assign_register_referee_register_form_submit';
 	}
 }
 
+function assign_register_referee_register_form_validate($form, &$form_state) {
+	$validate_referrer = TRUE;
+	$matches = array();
+	$regex = '/^\d+$/';
+	$referrer = trim($form_state ['values']['register_referee']);
+	if(preg_match($regex, $referrer, $matches)){
+		$result = db_select('cowpro_customer_profile', 'profile')->fields('profile', array('search_field'))->condition('type', 'mobile')->condition('search_field', $referrer)->execute()->fetchAssoc();
+		if ($result === FALSE) {
+			$validate_referrer = FALSE;
+		}
+	} else if ($referrer != '') {
+		$result = user_load_by_name($referrer);
+		if ($result === FALSE) {
+			$validate_referrer = FALSE;
+		}
+	}
+	if (!$validate_referrer) {
+		form_set_error ( '推荐人', '未找到该推荐人.' );
+	}
+}
+
 function assign_register_referee_register_form_submit($form, &$form_state) {
-	if (isset($form_state ['values'] ['register_referee'])) {
+	if (isset($form_state ['values'] ['register_referee']) && ($form_state ['values'] ['register_referee'] != '')) {
 		global $user;
+		$matches = array();
+		$regex = '/^\d+$/';
+		$referrer = trim($form_state ['values']['register_referee']);
+		if(preg_match($regex, $referrer, $matches)){
+			$result = db_select('cowpro_customer_profile', 'profile')->fields('profile', array('uid', 'search_field'))->condition('type', 'mobile')->condition('search_field', $referrer)->execute()->fetchAssoc();
+			$uid = $result['uid'];
+			$requestee = user_load($uid);
+		} else {
+			$requestee = user_load_by_name($form_state ['values'] ['register_referee']);
+		}
+
 		$relationship_type = user_relationships_type_load(array('name'=>'朋友'));
-		$requestee = user_load_by_name($form_state ['values'] ['register_referee']);
+		$relationship = new stdClass;
 		$relationship->requester_id = $user->uid;
 		$relationship->requestee_id = $requestee->uid;
 		$relationship->approved = TRUE;
@@ -72,4 +120,23 @@ function assign_register_referee_user_relationships_ui_table_row_alter(&$row, $r
 	}
 	//$insert_index = variable_get('user_relationships_show_user_pictures', 0) + 2;
 	//$row = array_merge(array_slice($row, 0, $insert_index), array($relationship->elaboration), array_slice($row, $insert_index));
+}
+
+function assign_register_referee_autocomplete($string = '') {
+	$matches = array();
+	$regex = '/^\d+$/';
+	if(preg_match($regex, $string, $matches)){
+		$matches = array();
+		if ($string) {
+			$result = db_select('cowpro_customer_profile', 'profile')->fields('profile', array('search_field'))->condition('type', 'mobile')->condition('search_field', db_like($string) . '%', 'LIKE')->range(0, 10)->execute();
+			foreach ($result as $item) {
+				$matches[$item->search_field] = check_plain($item->search_field);
+			}
+		}
+
+		drupal_json_output($matches);
+	} else {
+		include_once drupal_get_path('module', 'user') . '/user.pages.inc';
+		user_autocomplete($string);
+	}
 }

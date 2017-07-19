@@ -120,7 +120,7 @@ class SmsActionWebTest extends DrupalWebTestCase {
     $this->drupalLogout();
     $this->drupalGet('node/' . $node->nid);
     $this->assertResponse(200);
-    $this->assertText($node->body['und'][0]['value']);
+    $this->assertText($node->body[LANGUAGE_NONE][0]['value']);
     $this->assertTrue($node->status, 'Test node published.');
   }
 

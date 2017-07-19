@@ -29,12 +29,12 @@ class InviteController extends EntityAPIController {
     $content['author'] = array(
       '#prefix' => '<div>',
       '#suffix' => '</div>',
-      '#markup' => t('Created by: <strong>!author</strong>', array('!author' => theme('username', array('account' => $account))))
+      '#markup' => t('Created by: <strong>!author</strong>', array('!author' => theme('username', array('account' => $account)))),
     );
     $content['status'] = array(
       '#prefix' => '<div>',
       '#suffix' => '</div>',
-      '#markup' => t('Status: <strong>!status</strong>', array('!status' => $entity->status(TRUE)))
+      '#markup' => t('Status: <strong>!status</strong>', array('!status' => $entity->status(TRUE))),
     );
 
     return parent::buildContent($entity, $view_mode, $langcode, $content);
@@ -62,12 +62,14 @@ class InviteTypeController extends EntityAPIControllerExportable {
     // @see _http://drupal.org/node/1399618
     variable_set('menu_rebuild_needed', TRUE);
   }
+
 }
 
 /**
  * UI controller for Task Type.
  */
 class InviteTypeUIController extends EntityDefaultUIController {
+
   /**
    * Overrides hook_menu() defaults.
    */
@@ -76,6 +78,7 @@ class InviteTypeUIController extends EntityDefaultUIController {
     $items[$this->path]['description'] = 'Manage Invite types.';
     return $items;
   }
+
 }
 
 /**
@@ -85,7 +88,7 @@ class Invite extends Entity {
   /**
    * The user id of the profile owner.
    *
-   * @var integer
+   * @var int
    */
   public $uid;
 
@@ -214,7 +217,7 @@ class InviteType extends Entity {
     }
   }
 
-  function hasSendingController($controller_name) {
+  public function hasSendingController($controller_name) {
     $result = FALSE;
     if (!empty($this->invite_sending_controller[$controller_name])) {
       $result = TRUE;
@@ -222,7 +225,7 @@ class InviteType extends Entity {
     return $result;
   }
 
-  function isLocked() {
+  public function isLocked() {
     return isset($this->status) && empty($this->is_new) && (($this->status & ENTITY_IN_CODE) || ($this->status & ENTITY_FIXED));
   }
 
@@ -255,6 +258,7 @@ class InviteType extends Entity {
       ->condition('type', $this->type)
       ->execute();
   }
+
 }
 
 /**

@@ -118,4 +118,16 @@ class SmsFrameworkWebTest extends DrupalWebTestCase {
     }
   }
 
+  public function testGatewayInfoAlter() {
+    variable_set('GATEWAY_INFO_ALTER_TEST', FALSE);
+    $gateway = sms_gateways('gateway', 'test');
+    $this->assertFalse(isset($gateway['x-testing']));
+
+    variable_set('GATEWAY_INFO_ALTER_TEST', TRUE);
+    $gateway = sms_gateways('gateway', 'test');
+    $this->assertEqual($gateway['x-testing'], 'sms_test_gateway_gateway_info_alter');
+
+    variable_del('GATEWAY_INFO_ALTER_TEST');
+  }
+
 }

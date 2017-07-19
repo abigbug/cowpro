@@ -912,8 +912,8 @@ function _user_reference_potential_references_standard($field, $options) {
  * Menu callback; Retrieve a pipe delimited string of autocomplete suggestions for existing users
  */
 function user_reference_autocomplete($entity_type, $bundle, $field_name, $string = '') {
-  $field = field_info_field($field_name);
   $instance = field_info_instance($entity_type, $field_name, $bundle);
+  $field = field_info_field($field_name);
 
   $options = array(
     'string' => $string,
@@ -1205,24 +1205,4 @@ function user_reference_views_filter_options($field_name) {
   }
 
   return $options;
-}
-
-/*
- * drupal 的文档中提到 field 有一个属性 default_value_function，可以在运行时刻提供默认值
- * 但是在 field ui 的编辑界面中，只提供了 default_value 属性的设置，
- * 并没有提供 default_value_function 的设置
- * 所以我们在 cowpro_features.features.field_instance.inc 文件中直接修改
- * 就是在数组 $field_instances['node-cowpro_issuing-field_applicant'] 里面增加一个下标：
- * 'default_value_function' => 'cowpro_issuing_get_default_applicant',
- *
- * 注意：这个函数需要移到 user_reference.module 文件中，
- * 以后如果找到更好的方法，再调整
- */
-function cowpro_issuing_get_default_applicant() {
-	$default_value = array(
-			0 => array(
-					'uid'=>$GLOBALS['user']->uid,
-			),
-	);
-	return $default_value;
 }

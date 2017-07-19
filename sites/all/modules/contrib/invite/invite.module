@@ -1,8 +1,8 @@
 <?php
 
-define('INVITE_SESSION_CODE',   'invite_code');
+define('INVITE_SESSION_CODE', 'invite_code');
 define('INVITE_SESSION_FAILED', 'invite_failed');
-define('INVITE_SESSION_ADMIN',  'invite_admin_filter');
+define('INVITE_SESSION_ADMIN', 'invite_admin_filter');
 
 /**
  * Validity constants.
@@ -16,6 +16,10 @@ define('INVITE_EXPIRED', 4);
 // - a way to update invite "status" for expired invite, cron likely. Until then,
 //   checking expiry is the best way.
 // - "canceled" is obsolete with "status", remove it.
+/**
+ * Registration settings form values.
+ */
+define('USER_REGISTER_INVITATION_ONLY', 3);
 
 /**
  * Implements hook_entity_info().
@@ -94,8 +98,6 @@ function invite_entity_info_alter(&$entity_info) {
 
 /**
  * Implements hook_block_info().
- *
- * @return array
  */
 function invite_block_info() {
   $blocks = array();
@@ -109,9 +111,6 @@ function invite_block_info() {
 
 /**
  * Implements hook_block_view().
- *
- * @param $delta
- * @return mixed
  */
 function invite_block_view($delta) {
   $type = str_replace('invite_add_', '', $delta);
@@ -199,7 +198,7 @@ function invite_menu() {
     );
   }
 
-  // Admin menu items
+  // Admin menu items.
   $items['admin/config/people/invite'] = array(
     'title' => 'Invite',
     'description' => 'Modify invitation settings.',
@@ -217,7 +216,7 @@ function invite_menu() {
     'weight' => 10,
   );
 
-  // Frontend menu items
+  // Frontend menu items.
   $weight = 20;
   foreach (invite_get_types() as $type => $info) {
     $items['user/%/invites/' . $type] = array(
@@ -277,13 +276,99 @@ function invite_menu() {
 }
 
 /**
+ * Alter Account Settings form.
+ *
+ * Add new registration mode 'by invitation only'. By prepending the
+ * option value with a numeric value, other modules still work as
+ * expected, as long as they are using the non-strict PHP comparison
+ * operator (since '1-inviteonly' == 1 yields TRUE). To determine the real
+ * setting use invite_user_registration_by_invite_only().
+ *
+ * However, setting the new mode is only allowed if no other module
+ * has overridden the menu access handler for the user registration form.
+ *
+ * @param array $form
+ *   Array with form.
+ * @param aray $form_state
+ *   Array with form state.
+ * @param string $form_id
+ *   The ID of form.
+ */
+function invite_form_user_admin_settings_alter(&$form, &$form_state, $form_id) {
+  $item = menu_get_item('user/register');
+  if (in_array($item['access_callback'], array('user_register_access', 'invite_user_register_access'))) {
+    $form['registration_cancellation']['user_register']['#options'][USER_REGISTER_INVITATION_ONLY] = t('Invitees only');
+  }
+  // Clear menu cache on submit to allow our custom access handler to snap in.
+  $form['#submit'][] = 'menu_rebuild';
+}
+
+/**
+ * Implements hook_menu_alter().
+ *
+ * Override the user/register menu access handler with a custom
+ * implementation.
+ */
+function invite_menu_alter(&$items) {
+  if (invite_user_registration_by_invite_only()) {
+    $items['user/register']['access callback'] = 'invite_user_register_access';
+  }
+}
+
+/**
+ * Determine if user registration mode is set to invite only.
+ */
+function invite_user_registration_by_invite_only() {
+  return (variable_get('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL) == USER_REGISTER_INVITATION_ONLY);
+}
+
+/**
+ * Access callback; determine access to user registration form.
+ */
+function invite_user_register_access() {
+  $invite = invite_load_from_session();
+
+  if ((empty($invite) || invite_validate($invite) != INVITE_VALID) && !user_access('administer users')) {
+    return FALSE;
+  }
+
+  // Let the default handler take care of standard conditions.
+  return user_register_access();
+}
+
+/**
+ * Checks the status of an invite.
+ *
+ * @param object $invite
+ *   An invite object as returned by invite_load().
+ *
+ * @return int
+ *   The constant corresponding to the status of the invite.
+ */
+function invite_validate($invite) {
+  if (!$invite || $invite->canceled != 0) {
+    return INVITE_WITHDRAWN;
+  }
+  elseif ($invite->joined != 0) {
+    return INVITE_USED;
+  }
+  elseif ($invite->expiry < REQUEST_TIME) {
+    return INVITE_EXPIRED;
+  }
+  else {
+    return INVITE_VALID;
+  }
+}
+
+/**
  * Access callback for invite type.
  *
- * @param $invite
+ * @param object $invite
  *   Either an invite entity or in case $op is 'create' either an entity or
  *   an invite type name.
  *
  * @return bool
+ *   TRUE/FALSE for access.
  *
  * @see entity_access()
  */
@@ -298,14 +383,17 @@ function invite_access($op, $invite = NULL, $account = NULL, $entity_type = NULL
       return user_access('administer invite entities', $account)
       || user_access('create any invite entities', $account)
       || user_access('create ' . $type . ' entity');
+
     case 'view':
       return user_access('administer invite entities', $account)
       || user_access('view any invite entities', $account)
       || ($invite->uid == $account->uid);
+
     case 'edit':
       return user_access('administer invite entities')
       || user_access('edit any invite entities')
       || isset($invite) && (user_access('edit own invite entities') && ($invite->uid == $account->uid));
+
     case 'withdraw':
       return user_access('withdraw invitations')
       || isset($invite) && (user_access('edit own invite entities') && ($invite->invitee == $account->uid));
@@ -325,19 +413,19 @@ function invite_access($op, $invite = NULL, $account = NULL, $entity_type = NULL
 function invite_withdraw_access($invite) {
   global $user;
 
-  if ($invite->status = INVITE_WITHDRAWN) {
+  if ($invite->status == INVITE_WITHDRAWN) {
     drupal_set_message(t('The invitation has already been withdrawn.'), 'error');
     return FALSE;
   }
 
-  if (!$invite->joined ) {
+  if (!$invite->joined) {
     $permission = 'withdraw own invitations';
   }
   else {
     $permission = 'withdraw own accepted invitations';
   }
 
-  if (($invite->uid == $user->uid && user_access($permission)) || user_access('administer invitations')) {
+  if ((($invite->uid == $user->uid || $invite->invitee == $user->uid) && user_access($permission)) || user_access('administer invitations')) {
     return TRUE;
   }
   else {
@@ -371,7 +459,6 @@ function invite_resend_access($invite) {
 function invite_type_access($op, $entity = NULL) {
   return user_access('administer invite types');
 }
-
 
 /**
  * Implements hook_permission().
@@ -456,6 +543,7 @@ function invite_permission() {
  * Loads Invite by registration code.
  *
  * @param string $reg_code
+ *
  * @return Invite
  */
 function invite_by_code_load($reg_code) {
@@ -467,6 +555,7 @@ function invite_by_code_load($reg_code) {
  * Loads Invite using information stored in session.
  *
  * @return bool|Invite
+ *   Return invite or FALSE.
  */
 function invite_load_from_session() {
   if (isset($_SESSION[INVITE_SESSION_CODE])) {
@@ -491,8 +580,11 @@ function invite_load_from_session() {
  * Loads Invite by Id.
  *
  * @param int $iid
+ *   Invite entity ID.
  * @param bool $reset
- * @return mixed
+ *   Whether to reset the internal cache for the requested entity type.
+ *
+ * @return Invite
  */
 function invite_load($iid, $reset = FALSE) {
   $invites = invite_load_multiple(array($iid), array(), $reset);
@@ -503,18 +595,25 @@ function invite_load($iid, $reset = FALSE) {
  * Load multiple invites based on certain conditions.
  *
  * @param array|bool $iids
+ *   Array with ID's or bool.
  * @param array $conditions
+ *   Array with conditions.
  * @param bool $reset
+ *   Whether to reset the internal cache for the requested entity type.
+ *
  * @return mixed
+ *   An array of entity objects indexed by their ids. When no results are
+ *   found, an empty array is returned.
  */
 function invite_load_multiple($iids, $conditions = array(), $reset = FALSE) {
   return entity_load('invite', $iids, $conditions, $reset);
 }
 
 /**
- * Saves Invite
+ * Saves Invite.
  *
  * @param Invite $invite
+ *
  * @return bool
  */
 function invite_save($invite) {
@@ -527,7 +626,7 @@ function invite_save($invite) {
  * @param Invite $invite
  */
 function invite_delete($invite) {
-  entity_delete('invite', entity_id('invite' ,$invite));
+  entity_delete('invite', entity_id('invite', $invite));
 }
 
 /**
@@ -564,7 +663,9 @@ function invite_invite_insert($entity) {
  * @param array $options
  * @param $name
  * @param $entity_type
+ *
  * @return string
+ *   String with URL.
  */
 function invite_metadata_entity_get_properties($entity, array $options, $name, $entity_type) {
   $invite = entity_metadata_wrapper('invite', $entity);
@@ -572,12 +673,15 @@ function invite_metadata_entity_get_properties($entity, array $options, $name, $
     case 'invite_accept_link':
       $result = url('invite/accept/' . $invite->reg_code->value(), array('absolute' => TRUE));
       break;
+
     case 'invite_withdraw_link':
       $result = url('invite/withdraw/' . $invite->reg_code->value(), array('absolute' => TRUE));
       break;
+
     case 'invite_resend_link':
       $result = url('invite/resend/' . $invite->reg_code->value(), array('absolute' => TRUE));
       break;
+
     default:
       $result = '';
   }
@@ -589,6 +693,7 @@ function invite_metadata_entity_get_properties($entity, array $options, $name, $
  * Load Invite Type.
  *
  * @param string $invite_type_name
+ *
  * @return array|mixed
  */
 function invite_type_load($invite_type_name) {
@@ -599,6 +704,7 @@ function invite_type_load($invite_type_name) {
  * List of Invite Types.
  *
  * @param string $type_name
+ *
  * @return array|mixed
  */
 function invite_get_types($type_name = NULL) {
@@ -644,7 +750,8 @@ function invite_views_api() {
 }
 
 /**
- * Implementation of hook_views_data_alter().
+ * Implements hook_views_data_alter().
+ *
  * - Allow views filter selection based on status text.
  */
 function invite_views_data_alter(&$data) {
@@ -683,11 +790,7 @@ function invite_user_login($edit, $account) {
 }
 
 /**
- * Implements hook_user_insert.
- *
- * @param $edit
- * @param $account
- * @param $category
+ * Implements hook_user_insert().
  */
 function invite_user_insert(&$edit, $account, $category) {
   $invite = invite_load_from_session();
@@ -746,6 +849,7 @@ function invite_user_presave(&$edit, $account, $category) {
  *   An invite object.
  * @param $account
  *   The user for whom the role is being determined.
+ *
  * @return array
  *   Array of target roles for an invited user.
  */

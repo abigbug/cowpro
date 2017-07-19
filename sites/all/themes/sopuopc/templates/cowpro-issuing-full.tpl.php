@@ -20,7 +20,23 @@
       </div>
       <div class="clearfix details-list-all">
         <div class="clearfix the-one row">
-          <div class="col-md-4">第一还款源：<span class="the-post2017"><?php print theme('username', array('account' => $applicant)); ?></span></div>
+          <!-- <div class="col-md-4">第一还款源：<span class="the-post2017"> -->
+               <?php
+               /*
+               $maskit = TRUE;
+               global $user;
+               $account = $applicant;
+               if ($maskit && $user->uid != $applicant->uid) {
+               	if (mb_strlen($applicant->name) < 11) {
+               		$account->name = mb_substr($applicant->name, 0, 2) . '***';
+               	} else {
+               		$account->name = mb_substr($applicant->name, 0, 4) . '****' . mb_substr($applicant->name, -3, 3);
+               	}
+               }
+               print theme('username', array('account' => $account));
+               */
+               ?>
+          <!-- </span></div> -->
           <div class="col-md-4">融资金额:<span class="the-post2017"><font id="appAmount"><?php print $loan_amounts; ?></font>元</span></div>
           <div class="col-md-4 join">融资进度： <span class="chart_1"><?php print $progress; ?>%</span> <span class="chart_bar">
             <ul class="barbox">
@@ -32,7 +48,7 @@
         </div>
         <div class="clearfix the-two row">
           <div class="col-md-4">计息结束日：<span class="the-post2017"><?php print $interest_period; ?></span></div>
-          <div class="col-md-4">还款方式：<span class="the-post2017"><?php print $method_repayment_readable; ?></span></div>
+          <div class="col-md-4"><!-- 还款方式：--><span class="the-post2017"><?php print $method_repayment_readable; ?></span></div>
           <div class="col-md-4">贷款状态：
             <?php
 /*
@@ -82,17 +98,17 @@ print "<span class=\"issuing-status $class\">".$issuing_text2017 ."</span>";
 ?>
           </div>
         </div>
-        
-        
-        
+
+
+
       </div>
     </div>
-    
-    <!-------------------------- 条件语句     --------------------------------> 
-    
+
+    <!-------------------------- 条件语句     -------------------------------->
+
     <!------------------------ 可投资 ------------------------>
     <div class="particular_center_r col-md-3">
-    
+
      <div class="details_links clearfix"> <?php print $operations; ?> </div>
      </div>
   </div>

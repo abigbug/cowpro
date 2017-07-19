@@ -288,3 +288,13 @@ function custodian_cowpro_fund_buy_creditor_assignment($amount, $issuing_id, $se
 		watchdog('custodian', '方法"%function"未定义', $msg, WATCHDOG_ERROR);
 	}
 }
+
+function custodian_get_balance($account) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_user_view_fund';
+	$balance = NULL;
+	if (function_exists($function)) {
+		$balance = $function($account->uid);
+	}
+	return $balance;
+}

@@ -117,20 +117,39 @@ class SmsUserWebTest extends DrupalWebTestCase {
     }
 
     // Check that the user registration page honors the mobile number field
-    // visibility settings.
+    // visibility and required options.
     $this->drupalLogout();
+    // Mobile fields disabled.
     variable_set('sms_user_registration_form', 0);
     $this->drupalGet('user/register');
     $this->assertNoField('sms_user[number]', 'No number field in registration form.');
 
+    // Mobile fields optional.
     variable_set('sms_user_registration_form', 1);
     $this->drupalGet('user/register');
     $this->assertField('sms_user[number]', 'Number field in registration form.');
+    // Post without the mobile number and confirm success.
+    $edit = array(
+      'name' => $this->randomName(),
+      'mail' => $this->randomName() . '@example.com',
+    );
+    $this->drupalPost(NULL, $edit, 'Create new account');
+    $this->assertUrl('<front>');
+    $this->assertText('Thank you for applying for an account.', 'Successfully posted registration form without optional mobile number.');
 
+    // Mobile fields required.
     variable_set('sms_user_registration_form', 2);
     $this->drupalGet('user/register');
     $this->assertField('sms_user[number]', 'Number field in registration form.');
     $this->assertText('Phone number *', 'Number field is required.');
+    // Post without the mobile number and confirm validation failure.
+    $edit = array(
+      'name' => $this->randomName(),
+      'mail' => $this->randomName() . '@example.com',
+    );
+    $this->drupalPost(NULL, $edit, 'Create new account');
+    $this->assertUrl('user/register');
+    $this->assertText('Phone number field is required.', 'Failed to post registration form without required mobile number.');
   }
 
   /**
@@ -224,6 +243,78 @@ class SmsUserWebTest extends DrupalWebTestCase {
     $this->assertText('Form submitted ok for number ' . $test_message1['number'] . ' and message: ' . $test_message1['message'], 'Successfully sent message to recipient with registered number');
     $gw_result = sms_test_gateway_result();
     $this->assertTrue(in_array($test_message1['number'], explode(',', $gw_result['number'])),  t('Message was sent to user who opted out due to global override.'));
+  }
+
+  public function testSmsUserProfileView() {
+    $user1 = $this->drupalCreateUser(array('receive sms', 'access user profiles'));
+    $edit['sms_user']['status'] = SMS_USER_CONFIRMED;
+    $edit['sms_user']['number'] = '1234567890';
+    $account1 = user_load($user1->uid);
+    user_save($account1, $edit, 'mobile');
+
+    $user2 = $this->drupalCreateUser(array('receive sms'));
+    $account2 = user_load($user2->uid);
+    $edit['sms_user']['number'] = '23456788901';
+    user_save($account2, $edit, 'mobile');
+
+    // Allow phone numbers to be displayed in profiles.
+    variable_set('sms_user_sleep', FALSE);
+    variable_set('sms_user_allow_opt_out', TRUE);
+
+    // Test that $user1 can see his mobile number and $user2's number also.
+    $this->drupalLogin($user1);
+    $this->drupalGet('user');
+    $this->assertText('1234567890');
+    $this->drupalGet('user/' . $user2->uid);
+    $this->assertText('23456788901');
+    $this->assertResponse(200);
+
+    // Test that $user2 can see his mobile number but not see $user1's number.
+    $this->drupalLogin($user2);
+    $this->drupalGet('user');
+    $this->assertText('23456788901');
+    $this->drupalGet('user/' . $user1->uid);
+    $this->assertNoText('1234567890');
+    $this->assertResponse(403);
+  }
+
+  public function testIncomingUserSwitch() {
+    $user1 = $this->drupalCreateUser(array('administer smsframework', 'receive sms'));
+
+    $user2 = $this->drupalCreateUser(array('receive sms'));
+    $edit['sms_user']['status'] = SMS_USER_CONFIRMED;
+    $edit['sms_user']['number'] = '1234567890';
+    $account2 = user_load($user2->uid);
+    user_save($account2, $edit, 'mobile');
+
+    // Login as user one and receive SMS message. Verify that $user1 is the user.
+    $this->drupalLogin($user1);
+    $test_message1 = array(
+      'number' => '1234567890',
+      'message' => 'Test opting out of incoming user switch',
+    );
+    $this->drupalPost('admin/smsframework/devel', $test_message1, t('Receive Message'));
+    $this->assertResponse(200);
+    $this->assertText('Message received from number ' . $test_message1['number'] . ' and message: ' . $test_message1['message'], 'Successfully received message to recipient with registered number');
+    $result = sms_test_gateway_get_incoming('process');
+    $this->assertEqual($result['uid'], $user1->uid);
+
+    // Activate user switching and receive SMS message. Verify that user was
+    // switched to $user2.
+    $edit = array(
+      'sms_user_switch_account_incoming' => TRUE,
+    );
+    $this->drupalPost('admin/smsframework/sms_user_options', $edit, t('Save configuration'));
+    $test_message2 = array(
+      'number' => '1234567890',
+      'message' => 'Test opting in to incoming user switch',
+    );
+    sms_test_gateway_get_incoming('process', TRUE);
+    $this->drupalPost('admin/smsframework/devel', $test_message2, t('Receive Message'));
+    $this->assertResponse(200);
+    $this->assertText('Message received from number ' . $test_message2['number'] . ' and message: ' . $test_message2['message'], 'Successfully received message to recipient with registered number');
+    $result = sms_test_gateway_get_incoming('process');
+    $this->assertEqual($result['uid'], $user2->uid);
   }
 
 }

@@ -66,9 +66,11 @@ function cowpro_issuing_views_data() {
 	$data['cowpro_repayment_schedule']['table']['group']  = '还款详情';
 
 	$data['cowpro_repayment_schedule']['table']['base'] = array(
+			'field' => 'schedule_id',
 			'title' => '还款详情',
 			'help' => '还款详情',
 	);
+	$data['cowpro_repayment_schedule']['table']['entity type'] = 'cowpro_repayment_schedule';
 
 	// For other base tables, explain how we join
 	$data['cowpro_repayment_schedule']['table']['join'] = array(

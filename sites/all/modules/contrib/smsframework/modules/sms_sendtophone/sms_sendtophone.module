@@ -83,10 +83,6 @@ function sms_sendtophone_page($type = NULL) {
   }
   $output = !empty($form) ? drupal_render($form) : $register;
 
-  if (isset($_GET['thickbox'])) {
-    print $output;
-    exit;
-  }
   return $output;
 }
 
@@ -501,10 +497,6 @@ function sms_sendtophone_node_view($node, $view_mode, $langcode) {
       '#links' => $links,
       '#attributes' => array('class' => array('links', 'inline')),
     );
-  }
-  // Add thickbox js if module exists.
-  if (module_exists('thickbox')) {
-    drupal_add_js(drupal_get_path('module', 'sms_sendtophone') . '/sms_sendtophone.js');
   }
 }
 
