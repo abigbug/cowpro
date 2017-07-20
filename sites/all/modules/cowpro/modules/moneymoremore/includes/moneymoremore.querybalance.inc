@@ -74,6 +74,6 @@ function _moneymoremore_cowpro_fund_query_balance($uid) {
 		$result ['account_number'] = $platformId;
 	}
 
-	//watchdog('moneymoremore', "moneymoremore_cowpro_fund_query_balance: $response", NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', "moneymoremore_cowpro_fund_query_balance: $response", NULL, WATCHDOG_DEBUG);
 	return $result;
 }

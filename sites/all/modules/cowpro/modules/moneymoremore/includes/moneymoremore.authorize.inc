@@ -57,14 +57,14 @@ function moneymoremore_authorize($user, $typeOpen='1,2,3') {
 			';
 	echo $html;
 	$h = htmlentities($html, NULL, 'UTF-8');
-	watchdog('moneymoremore', 'moneymoremore_authorize: ' . $h, NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', 'moneymoremore_authorize: ' . $h, NULL, WATCHDOG_DEBUG);
 	drupal_exit();
 }
 
 // 用户授权回调
 function moneymoremore_authorize_callback() {
 	//$msg = print_r($_POST, true);
-	//watchdog('moneymoremore', "moneymoremore_authorize_callback: $msg", NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', "moneymoremore_authorize_callback: $msg", NULL, WATCHDOG_DEBUG);
 	if (! _moneymoremore_authorize_verify_signature ()) {
 		return FALSE;
 	}

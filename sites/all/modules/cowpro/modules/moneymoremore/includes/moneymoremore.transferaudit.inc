@@ -68,8 +68,8 @@ function moneymoremore_transfer_audit($nid, $auditType, $notifyURL, &$resultCode
 	$response = file_get_contents ( $url, false, $context );
 	$h = var_export($param, true);
 	$h = "nid=$nid;$h";
-	//watchdog('moneymoremore', 'moneymoremore_transfer_audit: ' . $h, NULL, WATCHDOG_DEBUG);
-	//watchdog('moneymoremore', 'moneymoremore_transfer_audit_response: ' . $response, NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', 'moneymoremore_transfer_audit: ' . $h, NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', 'moneymoremore_transfer_audit_response: ' . $response, NULL, WATCHDOG_DEBUG);
 
 	//$resultCode,$message将做为“形参”返回给调用者
 	$result = json_decode ( $response );

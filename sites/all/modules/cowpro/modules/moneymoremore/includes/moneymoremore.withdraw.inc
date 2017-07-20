@@ -49,7 +49,7 @@ function moneymoremore_withdraw($uid, $amount, $card, $journal_id) {
 	}
 	if (!$found) {
 		$msg = '乾多多不支持的地区(省)：' . $card->province . '，日记帐流水号：' . $orderNo . ', 请联系网站管理员。';
-		watchdog('moneymoremore', 'moneymoremore_withdraw: ' . $msg, NULL, WATCHDOG_WARNING);
+		watchdog('moneymoremore_watchdog', 'moneymoremore_withdraw: ' . $msg, NULL, WATCHDOG_WARNING);
 		drupal_set_message($msg, 'warning');
 		return;
 	}
@@ -65,7 +65,7 @@ function moneymoremore_withdraw($uid, $amount, $card, $journal_id) {
 	}
 	if (!$found) {
 		$msg = '乾多多不支持的地区(市)：' . $card->province . '-' . $card->city . '，日记帐流水号：' . $orderNo . ', 请联系网站管理员。';
-		watchdog('moneymoremore', 'moneymoremore_withdraw: ' . $msg, NULL, WATCHDOG_WARNING);
+		watchdog('moneymoremore_watchdog', 'moneymoremore_withdraw: ' . $msg, NULL, WATCHDOG_WARNING);
 		drupal_set_message($msg, 'warning');
 		return;
 	}
@@ -74,7 +74,7 @@ function moneymoremore_withdraw($uid, $amount, $card, $journal_id) {
 		$bankCode = $MMM_BANK_CODE[$card->bank_name];
 	} else {
 		$msg = '乾多多不支持的银行：' . $card->bank_name . '，日记帐流水号：' . $orderNo . ', 请联系网站管理员。';
-		watchdog('moneymoremore', 'moneymoremore_withdraw: ' . $msg, NULL, WATCHDOG_WARNING);
+		watchdog('moneymoremore_watchdog', 'moneymoremore_withdraw: ' . $msg, NULL, WATCHDOG_WARNING);
 		drupal_set_message($msg, 'warning');
 		return;
 	}
@@ -126,14 +126,14 @@ function moneymoremore_withdraw($uid, $amount, $card, $journal_id) {
 			';
 	echo $html;
 	$h = htmlentities($html, NULL, 'UTF-8');
-	watchdog('moneymoremore', 'moneymoremore_withdraw: ' . $h, NULL, WATCHDOG_DEBUG);
+	watchdog('moneymoremore_watchdog', 'moneymoremore_withdraw: ' . $h, NULL, WATCHDOG_DEBUG);
 	drupal_exit();
 }
 
 // 提现回调
 function moneymoremore_withdraw_callback() {
 	//$msg = print_r($_POST, true);
-	//watchdog('moneymoremore', "moneymoremore_withdraw_callback: $msg", NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', "moneymoremore_withdraw_callback: $msg", NULL, WATCHDOG_DEBUG);
 	if (! _moneymoremore_withdraw_verify_signature ()) {
 		return FALSE;
 	}

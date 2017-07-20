@@ -186,7 +186,7 @@ function _moneymoremore_bid_process_response($result) {
  */
 function moneymoremore_bid_callback() {
 	//$msg = print_r($_POST, true);
-	//watchdog('moneymoremore', "moneymoremore_bid_callback: $msg", NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', "moneymoremore_bid_callback: $msg", NULL, WATCHDOG_DEBUG);
 	if (! _moneymoremore_bid_verify_signature ()) {
 		return FALSE;
 	}

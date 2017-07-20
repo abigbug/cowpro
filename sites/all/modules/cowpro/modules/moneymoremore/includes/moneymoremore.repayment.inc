@@ -150,7 +150,7 @@ function moneymoremore_repayment($repayment_schedules) {
 	);
 	$context = stream_context_create ( $options );
 	$response = file_get_contents ( $url, false, $context );
-	watchdog('moneymoremore', 'moneymoremore_repayment: ' . $response, NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', 'moneymoremore_repayment: ' . $response, NULL, WATCHDOG_DEBUG);
 
 	// 双乾接口文档：
 	// 自动转账除了会通知NotifyURL外，还会将参数以JSON字符串的形式直接输出在页面上，
@@ -191,7 +191,7 @@ function moneymoremore_repayment($repayment_schedules) {
  */
 function moneymoremore_repayment_callback() {
 	//$msg = print_r($_POST, true);
-	//watchdog('moneymoremore', "moneymoremore_repayment_callback: $msg", NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', "moneymoremore_repayment_callback: $msg", NULL, WATCHDOG_DEBUG);
 	if (! _moneymoremore_repayment_verify_signature ()) {
 		return FALSE;
 	}

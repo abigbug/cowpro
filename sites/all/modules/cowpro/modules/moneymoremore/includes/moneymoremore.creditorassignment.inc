@@ -158,7 +158,7 @@ function moneymoremore_creditor_assignment($amount, $issuing_id, $seller_uid, $b
  */
 function moneymoremore_creditor_assignment_callback() {
 	//$msg = print_r($_POST, true);
-	//watchdog('moneymoremore', "moneymoremore_repayment_callback: $msg", NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', "moneymoremore_repayment_callback: $msg", NULL, WATCHDOG_DEBUG);
 	if (! _moneymoremore_creditor_assignment_verify_signature ()) {
 		return FALSE;
 	}

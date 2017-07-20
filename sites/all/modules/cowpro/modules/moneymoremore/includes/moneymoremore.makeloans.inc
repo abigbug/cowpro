@@ -33,7 +33,7 @@ function moneymoremore_make_loans_to($nid) {
 
 function moneymoremore_make_loans_to_callback() {
 	//$msg = print_r($_POST, true);
-	//watchdog('moneymoremore', "moneymoremore_make_loans_to_callback: $msg", NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', "moneymoremore_make_loans_to_callback: $msg", NULL, WATCHDOG_DEBUG);
 	if (! _moneymoremore_transfer_audit_verify_signature ()) {
 		return FALSE;
 	}

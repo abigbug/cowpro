@@ -100,14 +100,14 @@ function moneymoremore_topup($uid, $amount, $rechargeType, $journal_id) {
 				';
 	echo $html;
 	//$h = htmlentities($html, NULL, 'UTF-8');
-	//watchdog('moneymoremore', 'moneymoremore_topup: ' . $h, NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', 'moneymoremore_topup: ' . $h, NULL, WATCHDOG_DEBUG);
 	drupal_exit();
 }
 
 // 充值回调
 function moneymoremore_topup_callback() {
 	//$msg = print_r($_POST, true);
-	//watchdog('moneymoremore', "moneymoremore_topup_callback: $msg", NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', "moneymoremore_topup_callback: $msg", NULL, WATCHDOG_DEBUG);
 	if (! _moneymoremore_topup_verify_signature ()) {
 		return FALSE;
 	}

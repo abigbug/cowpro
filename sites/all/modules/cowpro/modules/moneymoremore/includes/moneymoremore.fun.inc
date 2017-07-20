@@ -1,7 +1,7 @@
 <?php
 function moneymoremore_callback($action) {
 	$msg = print_r($_POST, true);
-	//watchdog('moneymoremore', "callback $action: $msg", NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', "callback $action: $msg", NULL, WATCHDOG_DEBUG);
 
 	$result = TRUE;
 	switch ($action) {

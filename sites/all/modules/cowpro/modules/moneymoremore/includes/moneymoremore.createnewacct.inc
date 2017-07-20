@@ -83,14 +83,14 @@ function moneymoremore_create_new_acct($user) {
 
 	echo $html;
 	$h = htmlentities($html, NULL, 'UTF-8');
-	watchdog('moneymoremore', 'moneymoremore_create_new_acct: ' . $h, NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdog', 'moneymoremore_create_new_acct: ' . $h, NULL, WATCHDOG_DEBUG);
 	drupal_exit();
 }
 
 // 创建新帐户回调
 function moneymoremore_create_new_acct_callback() {
 	//$msg = print_r($_POST, true);
-	//watchdog('moneymoremore', "moneymoremore_create_new_acct_callback: $msg", NULL, WATCHDOG_DEBUG);
+	//watchdog('moneymoremore_watchdogs', "moneymoremore_create_new_acct_callback: $msg", NULL, WATCHDOG_DEBUG);
 	if (! _moneymoremore_create_new_acct_verify_signature ()) {
 		return FALSE;
 	}
