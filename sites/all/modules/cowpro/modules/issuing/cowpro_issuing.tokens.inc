@@ -192,7 +192,7 @@ function _cowpro_issuing_tokens_repayment($type, $tokens, array $data = array(),
 					break;
 				case 'payable_total_current_period' :
 					$query = new EntityFieldQuery ();
-					$query->entityCondition ( 'entity_type', 'cowpro_repayment_schedule' )->propertyCondition ( 'issuing_id', $schedule->issuing_id )->propertyCondition ( 'period', $schedule->period );
+					$query->entityCondition ( 'entity_type', 'cowpro_repayment_schedule' )->propertyCondition ( 'issuing_id', $schedule->issuing_id )->propertyCondition ( 'period', $schedule->period )->propertyCondition ( 'receiver_uid', -1 );
 					$result = $query->execute ();
 					$ids = array_keys ( $result ['cowpro_repayment_schedule'] );
 					$repayment_schedules = entity_load ( 'cowpro_repayment_schedule', $ids );
