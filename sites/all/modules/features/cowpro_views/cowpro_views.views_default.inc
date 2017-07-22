@@ -26,30 +26,51 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['use_more_text'] = '更多';
-  $handler->display->display_options['access']['type'] = 'role';
-  $handler->display->display_options['access']['role'] = array(
-    4 => '4',
-  );
+  $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
-  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
   $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
   $handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
   $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = '排序依据';
   $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
   $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
-  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['exposed_form']['options']['bef'] = array(
+    'general' => array(
+      'input_required' => 0,
+      'text_input_required' => array(
+        'text_input_required' => array(
+          'value' => 'Select any filter and click on Apply to see results',
+          'format' => 'filtered_html',
+        ),
+      ),
+      'allow_secondary' => 0,
+      'secondary_label' => '高级选项',
+      'secondary_collapse_override' => '0',
+    ),
+    'field_issuing_status_1' => array(
+      'bef_format' => 'default',
+      'more_options' => array(
+        'bef_select_all_none' => 0,
+        'bef_collapsible' => 0,
+        'autosubmit' => 0,
+        'is_secondary' => 0,
+        'any_label' => '',
+        'bef_filter_description' => '',
+        'tokens' => array(
+          'available' => array(
+            0 => 'global_types',
+          ),
+        ),
+        'rewrite' => array(
+          'filter_rewrite_values' => '',
+        ),
+      ),
+    ),
+  );
+  $handler->display->display_options['pager']['type'] = 'some';
   $handler->display->display_options['pager']['options']['items_per_page'] = '5';
   $handler->display->display_options['pager']['options']['offset'] = '0';
-  $handler->display->display_options['pager']['options']['id'] = '0';
-  $handler->display->display_options['pager']['options']['quantity'] = '9';
-  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = '每页条目数';
-  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- 全部 -';
-  $handler->display->display_options['pager']['options']['expose']['offset_label'] = '偏移量';
-  $handler->display->display_options['pager']['options']['tags']['first'] = '|< 第一页';
-  $handler->display->display_options['pager']['options']['tags']['previous'] = '< 前一页';
-  $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 >';
-  $handler->display->display_options['pager']['options']['tags']['last'] = '末页 >|';
   $handler->display->display_options['style_plugin'] = 'table_megarows';
   $handler->display->display_options['style_options']['columns'] = array(
     'title' => 'title',
@@ -81,6 +102,24 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['style_options']['scroll_padding'] = '120';
   $handler->display->display_options['style_options']['loading_text'] = '正在加载...';
   $handler->display->display_options['row_plugin'] = 'fields';
+  /* 页眉: 全局: 文本域 */
+  $handler->display->display_options['header']['area']['id'] = 'area';
+  $handler->display->display_options['header']['area']['table'] = 'views';
+  $handler->display->display_options['header']['area']['field'] = 'area';
+  $handler->display->display_options['header']['area']['content'] = '<div class="content_head container-fluid">
+  <ul class="row">
+    <li class="project col-md-8">投资项目<span class="inearnings">为投资者创造<i>34,844,127</i>元收益</span></li>
+    <li class="inmoney col-md-4 text-right"><a href="/issuing-list" style="color:#ec5245">更多项目</a></li>
+  </ul>
+</div>';
+  $handler->display->display_options['header']['area']['format'] = 'full_html';
+  /* 无任何结果时的行为: 全局: 文本域 */
+  $handler->display->display_options['empty']['area']['id'] = 'area';
+  $handler->display->display_options['empty']['area']['table'] = 'views';
+  $handler->display->display_options['empty']['area']['field'] = 'area';
+  $handler->display->display_options['empty']['area']['empty'] = TRUE;
+  $handler->display->display_options['empty']['area']['content'] = '<h1>暂无内容，等待添加！</h1>';
+  $handler->display->display_options['empty']['area']['format'] = 'full_html';
   /* 字段: 内容: 标题 */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -104,11 +143,13 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['fields']['view_issuing']['id'] = 'view_issuing';
   $handler->display->display_options['fields']['view_issuing']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['view_issuing']['field'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['view_issuing']['add_destination'] = 1;
   /* 字段: Issuing: progress */
   $handler->display->display_options['fields']['progress']['id'] = 'progress';
   $handler->display->display_options['fields']['progress']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['progress']['field'] = 'progress';
+  $handler->display->display_options['fields']['progress']['label'] = '进度';
   /* 排序标准: 内容: 发布日期 */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
@@ -401,6 +442,279 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['title'] = '全部贷款';
   $handler->display->display_options['defaults']['access'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['defaults']['exposed_form'] = FALSE;
+  $handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
+  $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
+  $handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
+  $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = '排序依据';
+  $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
+  $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
+  $handler->display->display_options['exposed_form']['options']['autosubmit'] = TRUE;
+  $handler->display->display_options['exposed_form']['options']['bef'] = array(
+    'general' => array(
+      'input_required' => 0,
+      'text_input_required' => array(
+        'text_input_required' => array(
+          'value' => 'Select any filter and click on Apply to see results',
+          'format' => 'filtered_html',
+        ),
+      ),
+      'allow_secondary' => 0,
+      'secondary_label' => '高级选项',
+      'secondary_collapse_override' => '0',
+    ),
+    'field_issuing_status_1' => array(
+      'bef_format' => 'bef_links',
+      'more_options' => array(
+        'bef_select_all_none' => 1,
+        'bef_collapsible' => 0,
+        'autosubmit' => 0,
+        'is_secondary' => 0,
+        'any_label' => '全部',
+        'bef_filter_description' => '',
+        'tokens' => array(
+          'available' => array(
+            0 => 'global_types',
+          ),
+        ),
+        'rewrite' => array(
+          'filter_rewrite_values' => '',
+        ),
+      ),
+    ),
+    'field_issuing_loan_term' => array(
+      'bef_format' => 'bef_links',
+      'slider_options' => array(
+        'bef_slider_min' => '0',
+        'bef_slider_max' => '99999',
+        'bef_slider_step' => '1',
+        'bef_slider_animate' => '',
+        'bef_slider_orientation' => 'horizontal',
+      ),
+      'more_options' => array(
+        'bef_select_all_none' => FALSE,
+        'bef_collapsible' => 0,
+        'autosubmit' => 0,
+        'is_secondary' => 0,
+        'any_label' => '全部',
+        'bef_filter_description' => '',
+        'tokens' => array(
+          'available' => array(
+            0 => 'global_types',
+          ),
+        ),
+        'rewrite' => array(
+          'filter_rewrite_values' => '',
+        ),
+      ),
+    ),
+    'field_issuing_annual_rate' => array(
+      'bef_format' => 'bef_links',
+      'slider_options' => array(
+        'bef_slider_min' => '0',
+        'bef_slider_max' => '99999',
+        'bef_slider_step' => '1',
+        'bef_slider_animate' => '',
+        'bef_slider_orientation' => 'horizontal',
+      ),
+      'more_options' => array(
+        'bef_select_all_none' => FALSE,
+        'bef_collapsible' => 0,
+        'autosubmit' => 0,
+        'is_secondary' => 0,
+        'any_label' => '全部',
+        'bef_filter_description' => '',
+        'tokens' => array(
+          'available' => array(
+            0 => 'global_types',
+          ),
+        ),
+        'rewrite' => array(
+          'filter_rewrite_values' => '',
+        ),
+      ),
+    ),
+  );
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = '每页条目数';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- 全部 -';
+  $handler->display->display_options['pager']['options']['expose']['offset_label'] = '偏移量';
+  $handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+  $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+  $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'list';
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['exposed_block'] = TRUE;
+  $handler->display->display_options['defaults']['header'] = FALSE;
+  /* 页眉: 全局: 文本域 */
+  $handler->display->display_options['header']['area']['id'] = 'area';
+  $handler->display->display_options['header']['area']['table'] = 'views';
+  $handler->display->display_options['header']['area']['field'] = 'area';
+  $handler->display->display_options['header']['area']['empty'] = TRUE;
+  $handler->display->display_options['header']['area']['content'] = ' [block:views=-exp-all_issuing-issuing_list]';
+  $handler->display->display_options['header']['area']['format'] = 'full_html';
+  /* 页眉: 全局: 结果的摘要 */
+  $handler->display->display_options['header']['result']['id'] = 'result';
+  $handler->display->display_options['header']['result']['table'] = 'views';
+  $handler->display->display_options['header']['result']['field'] = 'result';
+  $handler->display->display_options['header']['result']['empty'] = TRUE;
+  $handler->display->display_options['header']['result']['content'] = '<p id="select_num">共为您找到<span id="total">@total</span>个标</p> ';
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: 内容: 标题 */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+  /* 字段: 内容: 申请人 */
+  $handler->display->display_options['fields']['field_applicant']['id'] = 'field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['table'] = 'field_data_field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['field'] = 'field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['label'] = '';
+  $handler->display->display_options['fields']['field_applicant']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_applicant']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_applicant']['settings'] = array(
+    'user_reference_view_mode' => 'full',
+  );
+  /* 字段: 内容: 贷款表 */
+  $handler->display->display_options['fields']['field_issuing']['id'] = 'field_issuing';
+  $handler->display->display_options['fields']['field_issuing']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['field_issuing']['field'] = 'field_issuing';
+  $handler->display->display_options['fields']['field_issuing']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_issuing']['click_sort_column'] = 'status';
+  /* 字段: Issuing: 操作 */
+  $handler->display->display_options['fields']['view_issuing']['id'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['view_issuing']['field'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['view_issuing']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['view_issuing']['add_destination'] = 1;
+  /* 字段: Issuing: progress */
+  $handler->display->display_options['fields']['progress']['id'] = 'progress';
+  $handler->display->display_options['fields']['progress']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['progress']['field'] = 'progress';
+  $handler->display->display_options['fields']['progress']['exclude'] = TRUE;
+  /* 字段: 全局: PHP */
+  $handler->display->display_options['fields']['php']['id'] = 'php';
+  $handler->display->display_options['fields']['php']['table'] = 'views';
+  $handler->display->display_options['fields']['php']['field'] = 'php';
+  $handler->display->display_options['fields']['php']['label'] = '';
+  $handler->display->display_options['fields']['php']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php']['php_output'] = '<?php
+$node_id = $data->nid;
+$node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
+?>
+
+
+<ul class="title1">
+ <li> <a id="loanname" title="<?php print $data->node_title; ?>" href="<?php print $node_url; ?>"> <?php print $data->node_title; ?> </a> </li>
+</ul>
+
+';
+  $handler->display->display_options['fields']['php']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php']['php_click_sortable'] = '';
+  /* 字段: 全局: PHP */
+  $handler->display->display_options['fields']['php_1']['id'] = 'php_1';
+  $handler->display->display_options['fields']['php_1']['table'] = 'views';
+  $handler->display->display_options['fields']['php_1']['field'] = 'php';
+  $handler->display->display_options['fields']['php_1']['label'] = '';
+  $handler->display->display_options['fields']['php_1']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php_1']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php_1']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_1']['php_output'] = ' <?php
+$uid = $data->_field_data[\'nid\'][\'entity\']->field_applicant[\'und\'][0][\'uid\'];
+$u=user_load($uid);
+$username=$u->name;
+global $user;
+if ($user->uid != $u->uid) {
+    if (mb_strlen($username) < 11) {
+               		$username = mb_substr($username, 0, 2) . \'***\';
+               	} else {
+               		$username = mb_substr($username, 0, 4) . \'****\' . mb_substr($username, -3, 3);
+               	}
+               }
+?>    
+
+ <div class="col-md-2 the-nianhua">
+      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'annual_rate\'] ; ?></span>
+      <p class="text-info">预期年化收益率(%)</p>
+      </div>
+      <div class="col-md-2 the-qixian">
+      <span class="num-info"><?php include_once drupal_get_path(\'module\', \'cowpro_issuing\') . \'/includes/cowpro_issuing.repayment_schedule.fun.inc\'; print _cowpro_issuing_get_readable_loan_term($data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'loan_term\']) ; ?> </span>
+      <p class="text-info">投资期限</p>
+      </div>
+      <div class="col-md-2 the-jine">
+      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'loan_amounts\'] ; ?></span>
+      <p class="text-info">融资金额(元)</p>
+      
+      </div>
+      <div class="col-md-2 the-huaik">  <span class="num-info"><?php /*print $username ; */?></span>
+      <p class="text-info"><!-- 第一还款源--></p></div>';
+  $handler->display->display_options['fields']['php_1']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_1']['php_click_sortable'] = '';
+  /* 字段: 全局: PHP */
+  $handler->display->display_options['fields']['php_2']['id'] = 'php_2';
+  $handler->display->display_options['fields']['php_2']['table'] = 'views';
+  $handler->display->display_options['fields']['php_2']['field'] = 'php';
+  $handler->display->display_options['fields']['php_2']['label'] = '';
+  $handler->display->display_options['fields']['php_2']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php_2']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php_2']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_2']['php_output'] = '<?php
+$node_id = $data->nid;
+$node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
+
+?>
+<a href="<?php print $node_url; ?>" target="_blank" title="立即投资" class="loan_bg_red">立即投资</a>';
+  $handler->display->display_options['fields']['php_2']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_2']['php_click_sortable'] = '';
+  /* 字段: 全局: 定制文本 */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = '';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<div class="content_foot foott"> [php]
+  <div class="clearfix content_all container-fluid">
+    <div class="row"> [php_1]
+      <div class="col-md-2 the-baifen">
+        <div class="jdt_ph">
+          <div class="jqm-round-wrap">
+            <div class="jqm-round-bg"></div>
+            <canvas  class="jqm-round-sector" height="200" width="200"></canvas>
+            <div class="jqm-round-circle">
+              <p>[progress]%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2 the-xiangx">[view_issuing] </div>
+    </div>
+  </div>
+</div>
+';
+  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+  $handler->display->display_options['defaults']['sorts'] = FALSE;
+  /* 排序标准: 内容: 发布日期 */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'node';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* 过滤规则: 内容: 类型 */
@@ -417,6 +731,132 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['filters']['field_issuing_status']['operator'] = 'not in';
   $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
     'UNAUDITED' => 'UNAUDITED',
+  );
+  /* 过滤规则: 内容: 贷款表 (field_issuing:status) */
+  $handler->display->display_options['filters']['field_issuing_status_1']['id'] = 'field_issuing_status_1';
+  $handler->display->display_options['filters']['field_issuing_status_1']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['filters']['field_issuing_status_1']['field'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status_1']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_issuing_status_1']['expose']['operator_id'] = 'field_issuing_status_1_op';
+  $handler->display->display_options['filters']['field_issuing_status_1']['expose']['label'] = '项目状态：';
+  $handler->display->display_options['filters']['field_issuing_status_1']['expose']['operator'] = 'field_issuing_status_1_op';
+  $handler->display->display_options['filters']['field_issuing_status_1']['expose']['identifier'] = 'field_issuing_status_1';
+  $handler->display->display_options['filters']['field_issuing_status_1']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+  );
+  /* 过滤规则: 内容: 贷款表 (field_issuing:loan_term) */
+  $handler->display->display_options['filters']['field_issuing_loan_term']['id'] = 'field_issuing_loan_term';
+  $handler->display->display_options['filters']['field_issuing_loan_term']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['filters']['field_issuing_loan_term']['field'] = 'field_issuing_loan_term';
+  $handler->display->display_options['filters']['field_issuing_loan_term']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_issuing_loan_term']['expose']['operator_id'] = 'field_issuing_loan_term_op';
+  $handler->display->display_options['filters']['field_issuing_loan_term']['expose']['label'] = '贷款表 (field_issuing:loan_term)';
+  $handler->display->display_options['filters']['field_issuing_loan_term']['expose']['operator'] = 'field_issuing_loan_term_op';
+  $handler->display->display_options['filters']['field_issuing_loan_term']['expose']['identifier'] = 'field_issuing_loan_term';
+  $handler->display->display_options['filters']['field_issuing_loan_term']['is_grouped'] = TRUE;
+  $handler->display->display_options['filters']['field_issuing_loan_term']['group_info']['label'] = '项目期限：';
+  $handler->display->display_options['filters']['field_issuing_loan_term']['group_info']['identifier'] = 'field_issuing_loan_term';
+  $handler->display->display_options['filters']['field_issuing_loan_term']['group_info']['group_items'] = array(
+    1 => array(
+      'title' => '30天以下',
+      'operator' => '<=',
+      'value' => array(
+        'value' => '30',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+    2 => array(
+      'title' => '31-60天',
+      'operator' => 'between',
+      'value' => array(
+        'value' => '',
+        'min' => '31',
+        'max' => '60',
+      ),
+    ),
+    3 => array(
+      'title' => '61-90天',
+      'operator' => 'between',
+      'value' => array(
+        'value' => '',
+        'min' => '61',
+        'max' => '90',
+      ),
+    ),
+    4 => array(
+      'title' => '91-180天',
+      'operator' => 'between',
+      'value' => array(
+        'value' => '',
+        'min' => '91',
+        'max' => '180',
+      ),
+    ),
+  );
+  /* 过滤规则: 内容: 贷款表 (field_issuing:annual_rate) */
+  $handler->display->display_options['filters']['field_issuing_annual_rate']['id'] = 'field_issuing_annual_rate';
+  $handler->display->display_options['filters']['field_issuing_annual_rate']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['filters']['field_issuing_annual_rate']['field'] = 'field_issuing_annual_rate';
+  $handler->display->display_options['filters']['field_issuing_annual_rate']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_issuing_annual_rate']['expose']['operator_id'] = 'field_issuing_annual_rate_op';
+  $handler->display->display_options['filters']['field_issuing_annual_rate']['expose']['label'] = '贷款表 (field_issuing:annual_rate)';
+  $handler->display->display_options['filters']['field_issuing_annual_rate']['expose']['operator'] = 'field_issuing_annual_rate_op';
+  $handler->display->display_options['filters']['field_issuing_annual_rate']['expose']['identifier'] = 'field_issuing_annual_rate';
+  $handler->display->display_options['filters']['field_issuing_annual_rate']['is_grouped'] = TRUE;
+  $handler->display->display_options['filters']['field_issuing_annual_rate']['group_info']['label'] = '年化收益：';
+  $handler->display->display_options['filters']['field_issuing_annual_rate']['group_info']['identifier'] = 'field_issuing_annual_rate';
+  $handler->display->display_options['filters']['field_issuing_annual_rate']['group_info']['group_items'] = array(
+    1 => array(
+      'title' => '8%以下',
+      'operator' => '<=',
+      'value' => array(
+        'value' => '8.00',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
+    2 => array(
+      'title' => '8%-10%',
+      'operator' => 'between',
+      'value' => array(
+        'value' => '',
+        'min' => '8.01',
+        'max' => '10.00',
+      ),
+    ),
+    3 => array(
+      'title' => '10%-12%',
+      'operator' => 'between',
+      'value' => array(
+        'value' => '',
+        'min' => '10.01',
+        'max' => '12.00',
+      ),
+    ),
+    4 => array(
+      'title' => '12-15%',
+      'operator' => 'between',
+      'value' => array(
+        'value' => '',
+        'min' => '12.01',
+        'max' => '15.00',
+      ),
+    ),
+    5 => array(
+      'title' => '15%以上',
+      'operator' => '>=',
+      'value' => array(
+        'value' => '15.01',
+        'min' => '',
+        'max' => '',
+      ),
+    ),
   );
   $handler->display->display_options['path'] = 'issuing-list';
   $handler->display->display_options['menu']['type'] = 'normal';
@@ -462,8 +902,163 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['defaults']['access'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    5 => '5',
+    1 => '1',
   );
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'some';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '5';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'list';
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['header'] = FALSE;
+  /* 页眉: 全局: 文本域 */
+  $handler->display->display_options['header']['area']['id'] = 'area';
+  $handler->display->display_options['header']['area']['table'] = 'views';
+  $handler->display->display_options['header']['area']['field'] = 'area';
+  $handler->display->display_options['header']['area']['content'] = '<div class="content_head container-fluid">
+  <ul class="row">
+    <li class="project col-md-8">投资项目<span class="inearnings">为投资者创造<i>34,844,127</i>元收益</span></li>
+    <li class="inmoney col-md-4 text-right"><a href="/issuing-list" style="color:#ec5245">更多项目</a></li>
+  </ul>
+</div>';
+  $handler->display->display_options['header']['area']['format'] = 'full_html';
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: 内容: 标题 */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+  /* 字段: 内容: 申请人 */
+  $handler->display->display_options['fields']['field_applicant']['id'] = 'field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['table'] = 'field_data_field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['field'] = 'field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_applicant']['settings'] = array(
+    'user_reference_view_mode' => 'full',
+  );
+  /* 字段: 内容: 贷款表 */
+  $handler->display->display_options['fields']['field_issuing']['id'] = 'field_issuing';
+  $handler->display->display_options['fields']['field_issuing']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['field_issuing']['field'] = 'field_issuing';
+  $handler->display->display_options['fields']['field_issuing']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_issuing']['click_sort_column'] = 'status';
+  /* 字段: Issuing: 操作 */
+  $handler->display->display_options['fields']['view_issuing']['id'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['view_issuing']['field'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['view_issuing']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['view_issuing']['add_destination'] = 1;
+  /* 字段: Issuing: progress */
+  $handler->display->display_options['fields']['progress']['id'] = 'progress';
+  $handler->display->display_options['fields']['progress']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['progress']['field'] = 'progress';
+  $handler->display->display_options['fields']['progress']['label'] = '';
+  $handler->display->display_options['fields']['progress']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['progress']['element_label_colon'] = FALSE;
+  /* 字段: 全局: PHP */
+  $handler->display->display_options['fields']['php']['id'] = 'php';
+  $handler->display->display_options['fields']['php']['table'] = 'views';
+  $handler->display->display_options['fields']['php']['field'] = 'php';
+  $handler->display->display_options['fields']['php']['label'] = '';
+  $handler->display->display_options['fields']['php']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php']['php_output'] = '<?php
+$node_id = $data->nid;
+$node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
+?>
+
+
+<ul class="title1">
+ <li> <a id="loanname" title="<?php print $data->node_title; ?>" href="<?php print $node_url; ?>"> <?php print $data->node_title; ?> </a> </li>
+</ul>
+
+';
+  $handler->display->display_options['fields']['php']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php']['php_click_sortable'] = '';
+  /* 字段: 全局: PHP */
+  $handler->display->display_options['fields']['php_1']['id'] = 'php_1';
+  $handler->display->display_options['fields']['php_1']['table'] = 'views';
+  $handler->display->display_options['fields']['php_1']['field'] = 'php';
+  $handler->display->display_options['fields']['php_1']['label'] = '';
+  $handler->display->display_options['fields']['php_1']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php_1']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php_1']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_1']['php_output'] = ' <?php
+$uid = $data->_field_data[\'nid\'][\'entity\']->field_applicant[\'und\'][0][\'uid\'];
+$user=user_load($uid);
+$username=$user->name;
+
+?>    
+
+ <div class="col-md-2 the-nianhua">
+      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'annual_rate\'] ; ?></span>
+      <p class="text-info">预期年化收益率(%)</p>
+      </div>
+      <div class="col-md-2 the-qixian">
+      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'loan_term\'] ; ?> </span>
+      <p class="text-info">投资期限(天)</p>
+      </div>
+      <div class="col-md-2 the-jine">
+      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'loan_amounts\'] ; ?></span>
+      <p class="text-info">融资金额(元)</p>
+      
+      </div>
+      <div class="col-md-2 the-huaik">  <span class="num-info"><?php print $username ; ?></span>
+      <p class="text-info">第一还款源</p></div>';
+  $handler->display->display_options['fields']['php_1']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_1']['php_click_sortable'] = '';
+  /* 字段: 全局: PHP */
+  $handler->display->display_options['fields']['php_2']['id'] = 'php_2';
+  $handler->display->display_options['fields']['php_2']['table'] = 'views';
+  $handler->display->display_options['fields']['php_2']['field'] = 'php';
+  $handler->display->display_options['fields']['php_2']['label'] = '';
+  $handler->display->display_options['fields']['php_2']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php_2']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php_2']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_2']['php_output'] = '<?php
+$node_id = $data->nid;
+$node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
+
+?>
+<a href="<?php print $node_url; ?>" target="_blank" title="立即投资" class="loan_bg_red">立即投资</a>';
+  $handler->display->display_options['fields']['php_2']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_2']['php_click_sortable'] = '';
+  /* 字段: 全局: 定制文本 */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = '';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<div class="content_foot foott"> [php]
+  <div class="clearfix content_all container-fluid">
+    <div class="row"> [php_1]
+      <div class="col-md-2 the-baifen">
+        <div class="jdt_ph">
+          <div class="jqm-round-wrap">
+            <div class="jqm-round-bg"></div>
+            <canvas  class="jqm-round-sector" height="200" width="200"></canvas>
+            <div class="jqm-round-circle">
+              <p>[progress]%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2 the-xiangx">[view_issuing] </div>
+    </div>
+  </div>
+</div>
+';
+  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
   $handler->display->display_options['defaults']['arguments'] = FALSE;
   /* 上下文过滤器: 内容: 申请人 (field_applicant)申请人 (field_applicant) */
   $handler->display->display_options['arguments']['field_applicant_uid']['id'] = 'field_applicant_uid';
@@ -519,6 +1114,188 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['menu']['weight'] = '0';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: 投资项目 */
+  $handler = $view->new_display('block', '投资项目', 'block_1');
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'some';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '5';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'list';
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: 内容: 标题 */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+  /* 字段: 内容: 申请人 */
+  $handler->display->display_options['fields']['field_applicant']['id'] = 'field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['table'] = 'field_data_field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['field'] = 'field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['label'] = '';
+  $handler->display->display_options['fields']['field_applicant']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_applicant']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_applicant']['settings'] = array(
+    'user_reference_view_mode' => 'full',
+  );
+  /* 字段: 内容: 贷款表 */
+  $handler->display->display_options['fields']['field_issuing']['id'] = 'field_issuing';
+  $handler->display->display_options['fields']['field_issuing']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['field_issuing']['field'] = 'field_issuing';
+  $handler->display->display_options['fields']['field_issuing']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_issuing']['click_sort_column'] = 'status';
+  /* 字段: Issuing: 操作 */
+  $handler->display->display_options['fields']['view_issuing']['id'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['view_issuing']['field'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['view_issuing']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['view_issuing']['add_destination'] = 1;
+  /* 字段: Issuing: progress */
+  $handler->display->display_options['fields']['progress']['id'] = 'progress';
+  $handler->display->display_options['fields']['progress']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['progress']['field'] = 'progress';
+  $handler->display->display_options['fields']['progress']['label'] = '';
+  $handler->display->display_options['fields']['progress']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['progress']['element_label_colon'] = FALSE;
+  /* 字段: 全局: PHP */
+  $handler->display->display_options['fields']['php']['id'] = 'php';
+  $handler->display->display_options['fields']['php']['table'] = 'views';
+  $handler->display->display_options['fields']['php']['field'] = 'php';
+  $handler->display->display_options['fields']['php']['label'] = '';
+  $handler->display->display_options['fields']['php']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php']['php_output'] = '<?php
+$node_id = $data->nid;
+$node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
+?>
+
+
+<ul class="title1">
+ <li> <a id="loanname" title="<?php print $data->node_title; ?>" href="<?php print $node_url; ?>"> <?php print $data->node_title; ?> </a> </li>
+</ul>
+
+';
+  $handler->display->display_options['fields']['php']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php']['php_click_sortable'] = '';
+  /* 字段: 全局: PHP */
+  $handler->display->display_options['fields']['php_1']['id'] = 'php_1';
+  $handler->display->display_options['fields']['php_1']['table'] = 'views';
+  $handler->display->display_options['fields']['php_1']['field'] = 'php';
+  $handler->display->display_options['fields']['php_1']['label'] = '';
+  $handler->display->display_options['fields']['php_1']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php_1']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php_1']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_1']['php_output'] = ' <?php
+	include_once drupal_get_path(\'module\', \'cowpro_issuing\') . \'/includes/cowpro_issuing.repayment_schedule.fun.inc\';
+	$method_repayment_readable = _cowpro_issuing_get_readable_repayment_method($data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'method_repayment\']);
+
+$uid = $data->_field_data[\'nid\'][\'entity\']->field_applicant[\'und\'][0][\'uid\'];
+$u=user_load($uid);
+$username=$u->name;
+global $user;
+if ($user->uid != $u->uid) {
+    if (mb_strlen($username) < 11) {
+               		$username = mb_substr($username, 0, 2) . \'***\';
+               	} else {
+               		$username = mb_substr($username, 0, 4) . \'****\' . mb_substr($username, -3, 3);
+               	}
+               }
+?>    
+
+ <div class="col-md-2 the-nianhua">
+      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'annual_rate\'] ; ?></span>
+      <p class="text-info">预期年化收益率(%)</p>
+      </div>
+      <div class="col-md-2 the-qixian">
+      <span class="num-info"><?php include_once drupal_get_path(\'module\', \'cowpro_issuing\') . \'/includes/cowpro_issuing.repayment_schedule.fun.inc\'; print _cowpro_issuing_get_readable_loan_term($data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'loan_term\']) ; ?> </span>
+      <p class="text-info">投资期限</p>
+      </div>
+      <div class="col-md-2 the-jine">
+      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'loan_amounts\'] ; ?></span>
+      <p class="text-info">融资金额(元)</p>
+      
+      </div>
+      <div class="col-md-2 the-huankuan">  <span class="num-info"><?php print $method_repayment_readable; ?></span>
+      <p class="text-info">还款方式</p></div>';
+  $handler->display->display_options['fields']['php_1']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_1']['php_click_sortable'] = '';
+  /* 字段: 全局: PHP */
+  $handler->display->display_options['fields']['php_2']['id'] = 'php_2';
+  $handler->display->display_options['fields']['php_2']['table'] = 'views';
+  $handler->display->display_options['fields']['php_2']['field'] = 'php';
+  $handler->display->display_options['fields']['php_2']['label'] = '';
+  $handler->display->display_options['fields']['php_2']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php_2']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php_2']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_2']['php_output'] = '<?php
+$node_id = $data->nid;
+$node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
+
+?>
+';
+  $handler->display->display_options['fields']['php_2']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_2']['php_click_sortable'] = '';
+  /* 字段: 全局: 查看结果计数器 */
+  $handler->display->display_options['fields']['counter']['id'] = 'counter';
+  $handler->display->display_options['fields']['counter']['table'] = 'views';
+  $handler->display->display_options['fields']['counter']['field'] = 'counter';
+  $handler->display->display_options['fields']['counter']['label'] = '';
+  $handler->display->display_options['fields']['counter']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['counter']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['counter']['counter_start'] = '1';
+  $handler->display->display_options['fields']['counter']['reverse'] = 0;
+  /* 字段: 全局: 定制文本 */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = '';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<div class="content_foot foott">
+[php]
+  <div class="clearfix content_all container-fluid">
+    <div class="row">
+[php_1] 
+      <div class="col-md-2 the-baifen"><div class="jdt_ph">
+  <div class="jqm-round-wrap">
+    <div class="jqm-round-bg"></div>
+    <canvas id="jqm-round-sector[counter]" class="jqm-round-sector" height="200" width="200"></canvas>
+    <div class="jqm-round-circle">
+      <p>[progress]%</p>
+    </div>
+  </div>
+</div></div>
+<div class="col-md-2 the-xiangx">[php_2] [view_issuing]  </div>      
+    </div>
+  </div>
+</div>
+';
+  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+  $handler->display->display_options['defaults']['sorts'] = FALSE;
+  /* 排序标准: 内容: 发布日期 */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'node';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* 过滤规则: 内容: 类型 */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'cowpro_issuing' => 'cowpro_issuing',
+  );
   $translatables['all_issuing'] = array(
     t('Master'),
     t('贷款管理，导出'),
@@ -528,17 +1305,19 @@ function cowpro_views_views_default_views() {
     t('排序依据'),
     t('升序'),
     t('降序'),
-    t('每页条目数'),
-    t('- 全部 -'),
-    t('偏移量'),
-    t('|< 第一页'),
-    t('< 前一页'),
-    t('下一页 >'),
-    t('末页 >|'),
+    t('Select any filter and click on Apply to see results'),
+    t('高级选项'),
+    t('<div class="content_head container-fluid">
+  <ul class="row">
+    <li class="project col-md-8">投资项目<span class="inearnings">为投资者创造<i>34,844,127</i>元收益</span></li>
+    <li class="inmoney col-md-4 text-right"><a href="/issuing-list" style="color:#ec5245">更多项目</a></li>
+  </ul>
+</div>'),
+    t('<h1>暂无内容，等待添加！</h1>'),
     t('申请人'),
     t('贷款表'),
     t('操作'),
-    t('progress'),
+    t('进度'),
     t('贷款管理'),
     t('正在投标的贷款(管理员)'),
     t('正在投标的贷款'),
@@ -551,10 +1330,64 @@ function cowpro_views_views_default_views() {
     t('已流标的贷款'),
     t('已流标'),
     t('全部贷款'),
+    t('全部'),
+    t('每页条目数'),
+    t('- 全部 -'),
+    t('偏移量'),
+    t('« 第一页'),
+    t('‹ 前一页'),
+    t('下一页 ›'),
+    t('末页 »'),
+    t(' [block:views=-exp-all_issuing-issuing_list]'),
+    t('<p id="select_num">共为您找到<span id="total">@total</span>个标</p> '),
+    t('progress'),
+    t('<div class="content_foot foott"> [php]
+  <div class="clearfix content_all container-fluid">
+    <div class="row"> [php_1]
+      <div class="col-md-2 the-baifen">
+        <div class="jdt_ph">
+          <div class="jqm-round-wrap">
+            <div class="jqm-round-bg"></div>
+            <canvas  class="jqm-round-sector" height="200" width="200"></canvas>
+            <div class="jqm-round-circle">
+              <p>[progress]%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2 the-xiangx">[view_issuing] </div>
+    </div>
+  </div>
+</div>
+'),
+    t('项目状态：'),
+    t('贷款表 (field_issuing:loan_term)'),
+    t('项目期限：'),
+    t('贷款表 (field_issuing:annual_rate)'),
+    t('年化收益：'),
     t('正在投标的贷款(用户)'),
     t('我的贷款'),
-    t('全部'),
     t('全部贷款(首页)'),
+    t('投资项目'),
+    t('<div class="content_foot foott">
+[php]
+  <div class="clearfix content_all container-fluid">
+    <div class="row">
+[php_1] 
+      <div class="col-md-2 the-baifen"><div class="jdt_ph">
+  <div class="jqm-round-wrap">
+    <div class="jqm-round-bg"></div>
+    <canvas id="jqm-round-sector[counter]" class="jqm-round-sector" height="200" width="200"></canvas>
+    <div class="jqm-round-circle">
+      <p>[progress]%</p>
+    </div>
+  </div>
+</div></div>
+<div class="col-md-2 the-xiangx">[php_2] [view_issuing]  </div>      
+    </div>
+  </div>
+</div>
+'),
   );
   $export['all_issuing'] = $view;
 
@@ -804,6 +1637,13 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'BID' => 'BID',
   );
+  /* 过滤规则: 资金明细: 结果 */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'cowpro_fund_journal';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = array(
+    1 => '1',
+  );
 
   /* Display: 我的投资 */
   $handler = $view->new_display('page', '我的投资', 'page');
@@ -970,7 +1810,11 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['access']['role'] = array(
     3 => '3',
   );
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
@@ -1028,6 +1872,7 @@ function cowpro_views_views_default_views() {
       'empty_column' => 0,
     ),
   );
+  $handler->display->display_options['style_options']['empty_table'] = TRUE;
   /* 字段: 还款详情: 贷款名称 */
   $handler->display->display_options['fields']['issuing_id']['id'] = 'issuing_id';
   $handler->display->display_options['fields']['issuing_id']['table'] = 'cowpro_repayment_schedule';
@@ -1536,7 +2381,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
   $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
   $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
-  $handler->display->display_options['style_plugin'] = 'table';
+  $handler->display->display_options['style_plugin'] = 'table_megarows';
   $handler->display->display_options['style_options']['columns'] = array(
     'period' => 'period',
     'name' => 'name',
@@ -1544,7 +2389,6 @@ function cowpro_views_views_default_views() {
     'paid_amount_1' => 'paid_amount_1',
     'deadline' => 'deadline',
     'status' => 'status',
-    'views_bulk_operations' => 'views_bulk_operations',
   );
   $handler->display->display_options['style_options']['default'] = '-1';
   $handler->display->display_options['style_options']['info'] = array(
@@ -1580,12 +2424,9 @@ function cowpro_views_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
-    'views_bulk_operations' => array(
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
   );
+  $handler->display->display_options['style_options']['scroll_padding'] = '120';
+  $handler->display->display_options['row_plugin'] = 'fields';
   /* 关联: 还款详情: 付款方用户ID */
   $handler->display->display_options['relationships']['payer_uid']['id'] = 'payer_uid';
   $handler->display->display_options['relationships']['payer_uid']['table'] = 'cowpro_repayment_schedule';
@@ -1626,19 +2467,18 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['fields']['status']['field'] = 'status';
   /* 字段: 批量操作: 还款详情 */
   $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
-  $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'views_entity_cowpro_repayment_schedule';
   $handler->display->display_options['fields']['views_bulk_operations']['field'] = 'views_bulk_operations';
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['display_type'] = '1';
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['enable_select_all_pages'] = 0;
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['enable_select_all_pages'] = 1;
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['row_clickable'] = 1;
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
-  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['skip_batching'] = 1;
   $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
     'action::cowpro_issuing_repayment_action' => array(
       'selected' => 1,
-      'postpone_processing' => 0,
       'skip_confirmation' => 0,
+      'skip_permission_check' => 1,
       'override_label' => 0,
       'label' => '',
     ),
@@ -1818,6 +2658,514 @@ function cowpro_views_views_default_views() {
     t('全部'),
   );
   $export['repayment_schedule_lender'] = $view;
+
+  $view = new view();
+  $view->name = 'slider';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'node';
+  $view->human_name = 'Slider';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['use_more_text'] = '更多';
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
+  $handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
+  $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = '排序依据';
+  $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
+  $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
+  $handler->display->display_options['pager']['type'] = 'some';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '3';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['style_plugin'] = 'flexslider';
+  $handler->display->display_options['style_options']['captionfield'] = 'nothing';
+  $handler->display->display_options['row_plugin'] = 'fields';
+  /* 字段: 内容: Slide image */
+  $handler->display->display_options['fields']['field_slide_image']['id'] = 'field_slide_image';
+  $handler->display->display_options['fields']['field_slide_image']['table'] = 'field_data_field_slide_image';
+  $handler->display->display_options['fields']['field_slide_image']['field'] = 'field_slide_image';
+  $handler->display->display_options['fields']['field_slide_image']['label'] = '';
+  $handler->display->display_options['fields']['field_slide_image']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_slide_image']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_slide_image']['settings'] = array(
+    'image_style' => 'flexslider_full',
+    'image_link' => '',
+  );
+  /* 字段: 内容: Body */
+  $handler->display->display_options['fields']['body']['id'] = 'body';
+  $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
+  $handler->display->display_options['fields']['body']['field'] = 'body';
+  $handler->display->display_options['fields']['body']['label'] = '';
+  $handler->display->display_options['fields']['body']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['body']['alter']['max_length'] = '325';
+  $handler->display->display_options['fields']['body']['alter']['ellipsis'] = FALSE;
+  $handler->display->display_options['fields']['body']['alter']['strip_tags'] = TRUE;
+  $handler->display->display_options['fields']['body']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['body']['type'] = 'text_summary_or_trimmed';
+  $handler->display->display_options['fields']['body']['settings'] = array(
+    'trim_length' => '325',
+  );
+  /* 字段: 内容: 链接 */
+  $handler->display->display_options['fields']['view_node']['id'] = 'view_node';
+  $handler->display->display_options['fields']['view_node']['table'] = 'views_entity_node';
+  $handler->display->display_options['fields']['view_node']['field'] = 'view_node';
+  $handler->display->display_options['fields']['view_node']['label'] = '';
+  $handler->display->display_options['fields']['view_node']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['view_node']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['view_node']['text'] = 'Read more';
+  /* 字段: 内容: 标题 */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+  /* 字段: 全局: 定制文本 */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = '';
+  $handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<div class="container-12">
+<div class="grid-5">
+<h2>[title]</h2>
+[body]
+<div class="link">[view_node]</div>
+</div>
+</div>';
+  $handler->display->display_options['fields']['nothing']['element_type'] = '0';
+  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+  /* 排序标准: 内容: 发布日期 */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'node';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+  /* 过滤规则: 内容: 已发表 */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = 1;
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* 过滤规则: 内容: 类型 */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'slide' => 'slide',
+  );
+
+  /* Display: Block */
+  $handler = $view->new_display('block', 'Block', 'block');
+
+  /* Display: Attachment */
+  $handler = $view->new_display('attachment', 'Attachment', 'attachment_1');
+  $handler->display->display_options['defaults']['css_class'] = FALSE;
+  $handler->display->display_options['css_class'] = 'flexslider-controls';
+  $handler->display->display_options['pager']['type'] = 'some';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '3';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'list';
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: 内容: Nid */
+  $handler->display->display_options['fields']['nid']['id'] = 'nid';
+  $handler->display->display_options['fields']['nid']['table'] = 'node';
+  $handler->display->display_options['fields']['nid']['field'] = 'nid';
+  $handler->display->display_options['fields']['nid']['label'] = '';
+  $handler->display->display_options['fields']['nid']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['nid']['element_label_colon'] = FALSE;
+  /* 字段: 内容: Slide icon */
+  $handler->display->display_options['fields']['field_slide_icon']['id'] = 'field_slide_icon';
+  $handler->display->display_options['fields']['field_slide_icon']['table'] = 'field_data_field_slide_icon';
+  $handler->display->display_options['fields']['field_slide_icon']['field'] = 'field_slide_icon';
+  $handler->display->display_options['fields']['field_slide_icon']['label'] = '';
+  $handler->display->display_options['fields']['field_slide_icon']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['field_slide_icon']['alter']['text'] = '<a href="?q=node/[nid]">[field_slide_icon]</a>';
+  $handler->display->display_options['fields']['field_slide_icon']['element_label_colon'] = FALSE;
+  $handler->display->display_options['displays'] = array(
+    'block' => 'block',
+    'default' => 0,
+  );
+  $handler->display->display_options['attachment_position'] = 'after';
+  $translatables['slider'] = array(
+    t('Master'),
+    t('更多'),
+    t('应用'),
+    t('重置'),
+    t('排序依据'),
+    t('升序'),
+    t('降序'),
+    t('Read more'),
+    t('<div class="container-12">
+<div class="grid-5">
+<h2>[title]</h2>
+[body]
+<div class="link">[view_node]</div>
+</div>
+</div>'),
+    t('Block'),
+    t('Attachment'),
+    t('<a href="?q=node/[nid]">[field_slide_icon]</a>'),
+  );
+  $export['slider'] = $view;
+
+  $view = new view();
+  $view->name = 'sopuo_solder';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'node';
+  $view->human_name = 'sopuo solder';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = 'sopuo solder';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['use_more_text'] = '更多';
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
+  $handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
+  $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = '排序依据';
+  $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
+  $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
+  $handler->display->display_options['pager']['type'] = 'some';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '5';
+  $handler->display->display_options['style_plugin'] = 'views_bootstrap_carousel_plugin_style';
+  $handler->display->display_options['style_options']['interval'] = '5000';
+  $handler->display->display_options['style_options']['navigation'] = 1;
+  $handler->display->display_options['style_options']['indicators'] = 1;
+  $handler->display->display_options['style_options']['pause'] = 1;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
+  /* 字段: 内容: Silder Links */
+  $handler->display->display_options['fields']['field_silder_links']['id'] = 'field_silder_links';
+  $handler->display->display_options['fields']['field_silder_links']['table'] = 'field_data_field_silder_links';
+  $handler->display->display_options['fields']['field_silder_links']['field'] = 'field_silder_links';
+  $handler->display->display_options['fields']['field_silder_links']['label'] = '';
+  $handler->display->display_options['fields']['field_silder_links']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_silder_links']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_silder_links']['type'] = 'text_plain';
+  /* 字段: 内容: Silder images */
+  $handler->display->display_options['fields']['field_silder_images']['id'] = 'field_silder_images';
+  $handler->display->display_options['fields']['field_silder_images']['table'] = 'field_data_field_silder_images';
+  $handler->display->display_options['fields']['field_silder_images']['field'] = 'field_silder_images';
+  $handler->display->display_options['fields']['field_silder_images']['label'] = '';
+  $handler->display->display_options['fields']['field_silder_images']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['field_silder_images']['alter']['text'] = '<a href="[field_silder_links]" target="_blank" >[field_silder_images] </a>';
+  $handler->display->display_options['fields']['field_silder_images']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_silder_images']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_silder_images']['settings'] = array(
+    'image_style' => '',
+    'image_link' => '',
+  );
+  /* 排序标准: 内容: 发布日期 */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'node';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  /* 过滤规则: 内容: 已发表 */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = 1;
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* 过滤规则: 内容: 类型 */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'sopuo_slider' => 'sopuo_slider',
+  );
+
+  /* Display: Block */
+  $handler = $view->new_display('block', 'Block', 'block');
+  $translatables['sopuo_solder'] = array(
+    t('Master'),
+    t('sopuo solder'),
+    t('更多'),
+    t('应用'),
+    t('重置'),
+    t('排序依据'),
+    t('升序'),
+    t('降序'),
+    t('<a href="[field_silder_links]" target="_blank" >[field_silder_images] </a>'),
+    t('Block'),
+  );
+  $export['sopuo_solder'] = $view;
+
+  $view = new view();
+  $view->name = 'touzi2017';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'node';
+  $view->human_name = ' 投资项目';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = ' 投资项目';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['use_more_text'] = '更多';
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
+  $handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
+  $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = '排序依据';
+  $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
+  $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
+  $handler->display->display_options['pager']['type'] = 'some';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+  $handler->display->display_options['style_plugin'] = 'default';
+  $handler->display->display_options['row_plugin'] = 'fields';
+  /* 字段: 内容: 标题 */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  /* 排序标准: 内容: 发布日期 */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'node';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+  /* 过滤规则: 内容: 已发表 */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = 1;
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* 过滤规则: 内容: 类型 */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'cowpro_issuing' => 'cowpro_issuing',
+  );
+
+  /* Display: Block */
+  $handler = $view->new_display('block', 'Block', 'block');
+  $translatables['touzi2017'] = array(
+    t('Master'),
+    t(' 投资项目'),
+    t('更多'),
+    t('应用'),
+    t('重置'),
+    t('排序依据'),
+    t('升序'),
+    t('降序'),
+    t('Block'),
+  );
+  $export['touzi2017'] = $view;
+
+  $view = new view();
+  $view->name = 'user_sopuo';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'users';
+  $view->human_name = '用户查询';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = '用户查询';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['use_more_text'] = '更多';
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['perm'] = 'access user profiles';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
+  $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
+  $handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
+  $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = '排序依据';
+  $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
+  $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
+  $handler->display->display_options['exposed_form']['options']['bef'] = array(
+    'general' => array(
+      'input_required' => 0,
+      'text_input_required' => array(
+        'text_input_required' => array(
+          'value' => 'Select any filter and click on Apply to see results',
+          'format' => 'full_html',
+        ),
+      ),
+      'allow_secondary' => 0,
+      'secondary_label' => '高级选项',
+      'secondary_collapse_override' => '0',
+    ),
+  );
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = '每页条目数';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- 全部 -';
+  $handler->display->display_options['pager']['options']['expose']['offset_label'] = '偏移量';
+  $handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+  $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+  $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
+  $handler->display->display_options['style_plugin'] = 'table_megarows';
+  $handler->display->display_options['style_options']['columns'] = array(
+    'name' => 'name',
+    'mmm' => 'mmm',
+    'created' => 'created',
+    'real_name' => 'real_name',
+  );
+  $handler->display->display_options['style_options']['default'] = '-1';
+  $handler->display->display_options['style_options']['info'] = array(
+    'name' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'mmm' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'created' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'real_name' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+  );
+  $handler->display->display_options['style_options']['scroll_padding'] = '120';
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
+  /* 字段: 用户: 名称 */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'users';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['label'] = '';
+  $handler->display->display_options['fields']['name']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['name']['alter']['ellipsis'] = FALSE;
+  /* 字段: 用户: 创建日期 */
+  $handler->display->display_options['fields']['created']['id'] = 'created';
+  $handler->display->display_options['fields']['created']['table'] = 'users';
+  $handler->display->display_options['fields']['created']['field'] = 'created';
+  $handler->display->display_options['fields']['created']['date_format'] = 'short';
+  $handler->display->display_options['fields']['created']['second_date_format'] = 'long';
+  /* 字段: 用户: 乾多多注册 */
+  $handler->display->display_options['fields']['mmm']['id'] = 'mmm';
+  $handler->display->display_options['fields']['mmm']['table'] = 'users';
+  $handler->display->display_options['fields']['mmm']['field'] = 'mmm';
+  /* 字段: 用户: 实名认证 */
+  $handler->display->display_options['fields']['real_name']['id'] = 'real_name';
+  $handler->display->display_options['fields']['real_name']['table'] = 'users';
+  $handler->display->display_options['fields']['real_name']['field'] = 'real_name';
+  /* 字段: 用户: 手机验证 */
+  $handler->display->display_options['fields']['mobile_certification']['id'] = 'mobile_certification';
+  $handler->display->display_options['fields']['mobile_certification']['table'] = 'users';
+  $handler->display->display_options['fields']['mobile_certification']['field'] = 'mobile_certification';
+  /* 字段: 用户: 投标密码 */
+  $handler->display->display_options['fields']['payment_password']['id'] = 'payment_password';
+  $handler->display->display_options['fields']['payment_password']['table'] = 'users';
+  $handler->display->display_options['fields']['payment_password']['field'] = 'payment_password';
+  /* 字段: 用户: 推荐人 */
+  $handler->display->display_options['fields']['referee']['id'] = 'referee';
+  $handler->display->display_options['fields']['referee']['table'] = 'users';
+  $handler->display->display_options['fields']['referee']['field'] = 'referee';
+  /* 排序标准: 用户: 创建日期 */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'users';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+  /* 过滤规则: 用户: 有效 */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'users';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = '1';
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* 过滤规则: 用户: 名称 */
+  $handler->display->display_options['filters']['uid']['id'] = 'uid';
+  $handler->display->display_options['filters']['uid']['table'] = 'users';
+  $handler->display->display_options['filters']['uid']['field'] = 'uid';
+  $handler->display->display_options['filters']['uid']['value'] = '';
+  $handler->display->display_options['filters']['uid']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['uid']['expose']['operator_id'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['label'] = '名称';
+  $handler->display->display_options['filters']['uid']['expose']['operator'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['identifier'] = 'uid';
+  $handler->display->display_options['filters']['uid']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+  );
+
+  /* Display: Page */
+  $handler = $view->new_display('page', 'Page', 'page');
+  $handler->display->display_options['exposed_block'] = TRUE;
+  $handler->display->display_options['path'] = 'user-search';
+  $translatables['user_sopuo'] = array(
+    t('Master'),
+    t('用户查询'),
+    t('更多'),
+    t('应用'),
+    t('重置'),
+    t('排序依据'),
+    t('升序'),
+    t('降序'),
+    t('Select any filter and click on Apply to see results'),
+    t('高级选项'),
+    t('每页条目数'),
+    t('- 全部 -'),
+    t('偏移量'),
+    t('« 第一页'),
+    t('‹ 前一页'),
+    t('下一页 ›'),
+    t('末页 »'),
+    t('创建日期'),
+    t('乾多多注册'),
+    t('实名认证'),
+    t('手机验证'),
+    t('投标密码'),
+    t('推荐人'),
+    t('名称'),
+    t('Page'),
+  );
+  $export['user_sopuo'] = $view;
 
   return $export;
 }
