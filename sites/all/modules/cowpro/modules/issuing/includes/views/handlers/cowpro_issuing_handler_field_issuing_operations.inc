@@ -85,7 +85,7 @@ class cowpro_issuing_handler_field_issuing_operations extends views_handler_fiel
 			$status_class = 'default';
 			break;
 		case COWPRO_ISSUING_STATUS_INVITE_BIDS_START :
-			$status_class = 'green';
+			$status_class = 'default';
 			break;
 		case COWPRO_ISSUING_STATUS_INVITE_BIDS_FAILED :
 			$status_class = 'default';
@@ -94,7 +94,7 @@ class cowpro_issuing_handler_field_issuing_operations extends views_handler_fiel
 			$status_class = 'yellow';
 			break;
 		case COWPRO_ISSUING_STATUS_REPAYMENT :
-			$status_class = 'default';
+			$status_class = 'green';
 			break;
 		case COWPRO_ISSUING_STATUS_FINISHED :
 			$status_class = 'default';
