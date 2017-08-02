@@ -1,0 +1,61 @@
+<?php
+
+
+/**
+ * @file
+ * Implements tests for the theme switching rules.
+ */
+
+class ThemekeyModulePluginsTestCase extends ThemekeyWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'ThemeKey Module Plugins',
+      'description' => 'Test the module plugins functionality.',
+      'group' => 'ThemeKey',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array('themekey_redirect'));
+  }
+
+  public function testHookThemekeyGlobal() {
+    $this->simplePropertyTest('themekey_simpletest:global_property_test', '=', '1');
+  }
+
+  public function testHookThemekeyCustomThemeAlter() {
+    $url = array(
+      'path' => '<front>',
+      'options' => array(),
+    );
+
+    // load page
+    $this->drupalGet($url['path'], $url['options']);
+    // theme is bartik
+    $this->assertTheme('bartik');
+    // create ThemeKey Rule
+    $this->addThemeKeyRule('themekey_simpletest:custom_theme_alter_test', '=', '1', 'garland');
+    // load page
+    $this->drupalGet($url['path'], $url['options']);
+    // theme was garland but is altered to seven by themekey_simpletest_themekey_custom_theme_alter()
+    $this->assertTheme('seven');
+  }
+
+  public function testActivePaths() {
+    // Always use garland when ThemeKey is active.
+    $this->addThemeKeyRule('system:dummy', '=', 'dummy', 'garland');
+
+    $this->drupalGet('<front>');
+    $this->assertTheme('garland');
+
+    // See themekey_is_active().
+    $this->drupalGet('admin/structure/block/demo/bartik');
+    // ThemeKey should not be active.
+    $this->assertTheme('bartik');
+
+    // See themekey_redirect_themekey_disabled_paths().
+    $_GET['q'] = 'themekey/redirect_callback';
+    $this->assertFalse(themekey_is_active());
+  }
+
+}

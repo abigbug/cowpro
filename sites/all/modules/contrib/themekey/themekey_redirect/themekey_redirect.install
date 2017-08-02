@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * @file
+ * Database schema of
+ * @see themekey_redirect.module
+ *
+ * @author Markus Kalkbrenner | bio.logis GmbH
+ *   @see http://drupal.org/user/124705
+ */
+
+
+/**
+ * Implements hook_schema().
+ */
+function themekey_redirect_schema() {
+  module_load_include('install', 'themekey');
+  $themekey_schema = themekey_schema();
+
+  $schema = array();
+  $schema['themekey_redirect_rules'] = $themekey_schema['themekey_properties'];
+  $schema['themekey_redirect_rules']['fields']['append_path'] = array(
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 1,
+  );
+
+  return $schema;
+}
+
+/**
+ * Introduce "append path" option.
+ */
+function themekey_redirect_update_7300() {
+  // Because of an erroneous update hook implementation of in alpha-2 we have
+  // to check if the field already exists.
+  if (!db_field_exists('themekey_redirect_rules', 'append_path')) {
+    $field = array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => '1',
+      'initial' => '1',
+    );
+    db_add_field('themekey_redirect_rules', 'append_path', $field);
+  }
+}
+
