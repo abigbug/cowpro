@@ -143,7 +143,7 @@ class lessc {
 			if ( isset( $parentBlock->children[ $childName ] ) ) {
 				$parentBlock->children[ $childName ] = array_merge(
 					$parentBlock->children[ $childName ],
-					$child 
+					$child
 				);
 			} else {
 				$parentBlock->children[ $childName ] = $child;
@@ -213,7 +213,7 @@ class lessc {
 				if ( !empty( $block->value ) ) {
 					$name .= " " . $this->compileValue( $this->reduce( $block->value ) );
 				}
-	
+
 				$this->compileNestedBlock( $block, array( $name ) );
 				break;
 			default:
@@ -674,7 +674,7 @@ class lessc {
 				break;
 			case 'mixin':
 				list( , $path, $args, $suffix ) = $prop;
-	
+
 				$orderedArgs = array();
 				$keywordArgs = array();
 				foreach ( (array )$args as $arg ) {
@@ -687,7 +687,7 @@ class lessc {
 								$keywordArgs[ $arg[1] ] = $this->reduce( $arg[2] );
 							}
 							break;
-		
+
 						case "lit":
 							$orderedArgs[] = $this->reduce( $arg[1] );
 							break;
@@ -695,38 +695,38 @@ class lessc {
 							$this->throwError( "Unknown arg type: " . $arg[0] );
 					}
 				}
-	
+
 				$mixins = $this->findBlocks( $block, $path, $orderedArgs, $keywordArgs );
-	
+
 				if ( $mixins === null ) {
 					// fwrite( STDERR, "failed to find block: " . implode( " > ", $path ) . "\n" );
 					break; // throw error here??
 				}
-	
+
 				foreach ( $mixins as $mixin ) {
 					if ( $mixin === $block && !$orderedArgs ) {
 						continue;
 					}
-	
+
 					$haveScope = false;
 					if ( isset( $mixin->parent->scope ) ) {
 						$haveScope = true;
 						$mixinParentEnv = $this->pushEnv();
 						$mixinParentEnv->storeParent = $mixin->parent->scope;
 					}
-	
+
 					$haveArgs = false;
 					if ( isset( $mixin->args ) ) {
 						$haveArgs = true;
 						$this->pushEnv();
 						$this->zipSetArgs( $mixin->args, $orderedArgs, $keywordArgs );
 					}
-	
+
 					$oldParent = $mixin->parent;
 					if ( $mixin != $block ) {
 						$mixin->parent = $block;
 					}
-	
+
 					foreach ( $this->sortProps( $mixin->props ) as $subProp ) {
 						if ( $suffix !== null &&
 							$subProp[0] == "assign" &&
@@ -740,7 +740,7 @@ class lessc {
 
 						$this->compileProp( $subProp, $mixin, $out );
 					}
-	
+
 					$mixin->parent = $oldParent;
 
 					if ( $haveArgs ) {
@@ -764,13 +764,13 @@ class lessc {
 			case "import";
 				list( , $importPath, $importId ) = $prop;
 				$importPath = $this->reduce( $importPath );
-	
+
 				if ( !isset( $this->env->imports ) ) {
 					$this->env->imports = array();
 				}
-	
+
 				$result = $this->tryImport( $importPath, $block, $out );
-	
+
 				$this->env->imports[ $importId ] = $result === false ?
 					array( false, "@import " . $this->compileValue( $importPath ) . ";" ) :
 					$result;
@@ -791,8 +791,8 @@ class lessc {
 				$this->throwError( "unknown op: {$prop[0]}\n" );
 		}
 	}
-	
-	
+
+
 	/**
 	 * Compiles a primitive value into a CSS property value.
 	 *
@@ -844,22 +844,22 @@ class lessc {
 				$r = round( $r );
 				$g = round( $g );
 				$b = round( $b );
-	
+
 				if ( count( $value ) == 5 && $value[4] != 1 ) { // rgba
 					return 'rgba(' . $r . ',' . $g . ',' . $b . ',' . $value[4] . ')';
 				}
-	
+
 				$h = sprintf( "#%02x%02x%02x", $r, $g, $b );
-	
+
 				if ( !empty( $this->formatter->compressColors ) ) {
 					// Converting hex color to short notation (e.g. #003399 to #039)
 					if ( $h[1] === $h[2] && $h[3] === $h[4] && $h[5] === $h[6] ) {
 						$h = '#' . $h[1] . $h[3] . $h[5];
 					}
 				}
-	
+
 				return $h;
-	
+
 			case 'function':
 				list( , $name, $args ) = $value;
 				return $name . '(' . $this->compileValue( $args ) . ')';
@@ -1421,15 +1421,15 @@ class lessc {
 				$reduced = $this->reduce( $value[1] );
 				$var = $this->compileValue( $reduced );
 				$res = $this->reduce( array( "variable", $this->vPrefix . $var ) );
-	
+
 				if ( $res[0] == "raw_color" ) {
 					$res = $this->coerceColor( $res );
 				}
-	
+
 				if ( empty( $value[2] ) ) {
 					$res = $this->lib_e( $res );
 				}
-	
+
 				return $res;
 			case "variable":
 				$key = $value[1];
@@ -1437,13 +1437,13 @@ class lessc {
 					$key = $this->reduce( $key );
 					$key = $this->vPrefix . $this->compileValue( $this->lib_e( $key ) );
 				}
-	
+
 				$seen =& $this->env->seenNames;
-	
+
 				if ( !empty( $seen[ $key ] ) ) {
 					$this->throwError( "infinite loop detected: $key" );
 				}
-	
+
 				$seen[ $key ] = true;
 				$out = $this->reduce( $this->get( $key, self::$defaultValue ) );
 				$seen[ $key ] = false;
@@ -1474,7 +1474,7 @@ class lessc {
 				if ( $color ) {
 					return $color;
 				}
-	
+
 				list( , $name, $args ) = $value;
 				if ( $name == "%" ) {
 					$name = "_sprintf";
@@ -1482,37 +1482,37 @@ class lessc {
 
 				$f = isset( $this->libFunctions[ $name ] ) ?
 					$this->libFunctions[ $name ] : array( $this, 'lib_' . $name );
-	
+
 				if ( is_callable( $f ) ) {
 					if ( $args[0] == 'list' ) {
 						$args = self::compressList( $args[2], $args[1] );
 					}
-	
+
 					$ret = call_user_func( $f, $this->reduce( $args, true ), $this );
-	
+
 					if ( is_null( $ret ) ) {
 						return array( "string", "", array(
 							$name, "(", $args, ")"
 						) );
 					}
-	
+
 					// convert to a typed value if the result is a php primitive
 					if ( is_numeric( $ret ) ) {
 						$ret = array( 'number', $ret, "" );
 					} elseif ( !is_array( $ret ) ) {
 						$ret = array( 'keyword', $ret );
 					}
-	
+
 					return $ret;
 				}
-	
+
 				// plain function, reduce args
 				$value[2] = $this->reduce( $value[2] );
 				return $value;
 			case "unary":
 				list( , $op, $exp ) = $value;
 				$exp = $this->reduce( $exp );
-	
+
 				if ( $exp[0] == "number" ) {
 					switch ( $op ) {
 						case "+":

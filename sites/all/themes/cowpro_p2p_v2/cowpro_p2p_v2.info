@@ -18,6 +18,7 @@ engine = phptemplate
 
 stylesheets[screen][]	= css/boilerplate.css
 stylesheets[screen][]	= css/style.css
+stylesheets[screen][] = css/style-sopuopc.css
 stylesheets[screen][]	= css/maintenance-page.css
 stylesheets[screen][]	= css/skeleton.css
 stylesheets[screen][]	= css/custom.css
