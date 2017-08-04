@@ -327,13 +327,11 @@ function cowpro_fund_block_view($delta = '') {
 	      $block['subject'] = '可用资金';
 	      $block['content'] = _cowpro_fund_balance_contents();
     	}
-      break;
+		break;
     case 'cowpro_fund_user':
-      	if (user_is_logged_in()) {
-      		require_once 'includes/cowpro_fund_user.inc';
-      		$block['subject'] = '';
-      		$block['content'] = _cowpro_fund_user_contents();
-      	}
+   		require_once 'includes/cowpro_fund_user.inc';
+   		$block['subject'] = '';
+   		$block['content'] = _cowpro_fund_user_contents();
     	break;
    	default:
    		break;
