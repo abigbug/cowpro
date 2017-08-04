@@ -184,10 +184,11 @@ responsiveClass:true,
               });
 
 
-
-
+$("#header_left #edit-name").attr("placeholder","用户名");
+$("#header_left #edit-pass").attr("placeholder","口令");
 
 });
+
  // JavaScript Document
 
 
