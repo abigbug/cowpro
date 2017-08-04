@@ -2,9 +2,10 @@
 
 /**
  * A module-defined block content function.
- */
+*/
 function _cowpro_fund_user_contents() {
-	$html = <<<html
+	if( user_is_logged_in() ) {
+		$html = <<<html
 <div class="login_block">
 	<div class="login_background" style="opacity: 0.5;"></div>
 	<div class="after_login">
@@ -29,24 +30,45 @@ function _cowpro_fund_user_contents() {
 	</div>
 html;
 
-	global $base_url;
-	$user_center = "$base_url/user";
-	$registration_wizard = "$base_url/registration_wizard";
-	$fund = "$base_url/cowpro/fund";
-	$topup = "$base_url/cowpro/fund/topup";
-	$withdraw = "$base_url/cowpro/fund/withdraw";
-	$logout = "$base_url/user/logout";
-	$uid = $GLOBALS ['user']->uid;
-	$html = str_replace('#user_name#', $GLOBALS ['user']->name, $html);
-	$html = str_replace('#user_center#', $user_center, $html);
-	$html = str_replace('#registration_wizard#', $registration_wizard, $html);
-	$html = str_replace('#fund#', $fund, $html);
-	$html = str_replace('#topup#', $topup, $html);
-	$html = str_replace('#withdraw#', $withdraw, $html);
-	$html = str_replace('#logout#', $logout, $html);
-	$html = str_replace('#user_name#', $GLOBALS ['user']->name, $html);
-	$result = array(
-			'#markup' => $html,
-	);
-	return $result;
+		global $base_url;
+		$user_center = "$base_url/user";
+		$registration_wizard = "$base_url/registration_wizard";
+		$fund = "$base_url/cowpro/fund";
+		$topup = "$base_url/cowpro/fund/topup";
+		$withdraw = "$base_url/cowpro/fund/withdraw";
+		$logout = "$base_url/user/logout";
+		$uid = $GLOBALS ['user']->uid;
+		$html = str_replace('#user_name#', $GLOBALS ['user']->name, $html);
+		$html = str_replace('#user_center#', $user_center, $html);
+		$html = str_replace('#registration_wizard#', $registration_wizard, $html);
+		$html = str_replace('#fund#', $fund, $html);
+		$html = str_replace('#topup#', $topup, $html);
+		$html = str_replace('#withdraw#', $withdraw, $html);
+		$html = str_replace('#logout#', $logout, $html);
+		$html = str_replace('#user_name#', $GLOBALS ['user']->name, $html);
+		$result = array(
+				'#markup' => $html,
+		);
+		return $result;
+	}else{
+		$html = <<<html
+<div class="login_block">
+      <div class="login_background" style="opacity: 0.5;"></div>
+           <div class="after_login">
+                <div class="fast_login">快速登陆</div>
+                #form#
+           </div>
+     </div>
+</div>
+html;
+
+		$form = drupal_get_form("user_login_block");
+		$html = str_replace('#form#', render($form), $html);
+		$result = array(
+				'#markup' => $html,
+		);
+		return $result;
+	}
+
+
 }
