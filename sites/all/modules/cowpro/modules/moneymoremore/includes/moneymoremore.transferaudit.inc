@@ -76,6 +76,8 @@ function moneymoremore_transfer_audit($nid, $auditType, $notifyURL, &$resultCode
 	if (property_exists($result, 'ResultCode')) {
 		$resultCode = $result->ResultCode;
 	} else {
+		watchdog('moneymoremore_watchdog_error', 'moneymoremore_transfer_audit: ' . $h, NULL, WATCHDOG_DEBUG);
+		watchdog('moneymoremore_watchdog_error', 'moneymoremore_transfer_audit_response: ' . $response, NULL, WATCHDOG_DEBUG);
 		$resultCode = '';
 	}
 	if (property_exists($result, 'Message')) {
