@@ -278,8 +278,10 @@ function cowpro_message_cowpro_fund_make_loans_to_finished($success, $nid, $fund
  *
  */
 function cowpro_message_cowpro_fund_repayment_finished($success, $nid, $repayment_schedules) {
-	$node = node_load($nid);
-	rules_invoke_event('cowpro_fund_repayment_finished', $success, $node, $repayment_schedules);
+	if ($success) {
+		$node = node_load($nid);
+		rules_invoke_event('cowpro_fund_repayment_finished', $success, $node, $repayment_schedules);
+	}
 }
 
 /*
