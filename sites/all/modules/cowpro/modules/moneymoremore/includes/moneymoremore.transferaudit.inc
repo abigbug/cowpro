@@ -61,11 +61,21 @@ function moneymoremore_transfer_audit($nid, $auditType, $notifyURL, &$resultCode
 			'http' => array (
 					'header' => "Content-type: application/x-www-form-urlencoded\r\n",
 					'method' => 'POST',
-					'content' => http_build_query ( $param )
+					'content' => http_build_query ( $param ),
+					'timeout' => 180,//将超时时间设置为三分钟，乾多多服务器（这个问题可能只限于乾多多测试服务器）有时候响应延时可能会比较长，把以要多等一段时间
 			)
 	);
 	$context = stream_context_create ( $options );
-	$response = file_get_contents ( $url, false, $context );
+	try{
+		$response = file_get_contents ( $url, false, $context );
+	}catch(Exception $ex){
+		$message = $ex->getMessage();
+		$resultCode = $ex->getCode();
+		$result->Message = $message;
+		$result->ResultCode = $resultCode;
+		return $result;
+	}
+
 	$h = var_export($param, true);
 	$h = "nid=$nid;$h";
 	//watchdog('moneymoremore_watchdog', 'moneymoremore_transfer_audit: ' . $h, NULL, WATCHDOG_DEBUG);
@@ -79,12 +89,18 @@ function moneymoremore_transfer_audit($nid, $auditType, $notifyURL, &$resultCode
 		watchdog('moneymoremore_watchdog_error', 'moneymoremore_transfer_audit: ' . $h, NULL, WATCHDOG_DEBUG);
 		watchdog('moneymoremore_watchdog_error', 'moneymoremore_transfer_audit_response: ' . $response, NULL, WATCHDOG_DEBUG);
 		$resultCode = '';
+		$result->ResultCode = $resultCode;
 	}
 	if (property_exists($result, 'Message')) {
 		$message = $result->Message;
 	} else {
 		$message = '';
+		$result->Message = $message;
 	}
+	if ($message == '') {
+		$message = "请确认是否开通了乾多多无密审核";
+	}
+
 	return $result;
 }
 function _moneymoremore_transfer_audit_verify_signature() {

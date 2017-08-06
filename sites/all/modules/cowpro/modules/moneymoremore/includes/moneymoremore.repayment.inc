@@ -145,12 +145,23 @@ function moneymoremore_repayment($repayment_schedules) {
 			'http' => array (
 					'header' => "Content-type: application/x-www-form-urlencoded\r\n",
 					'method' => 'POST',
-					'content' => http_build_query ( $param )
+					'content' => http_build_query ( $param ),
+					'timeout' => 180,//将超时时间设置为三分钟，乾多多服务器（这个问题可能只限于乾多多测试服务器）有时候响应延时可能会比较长，把以要多等一段时间
 			)
 	);
 	$context = stream_context_create ( $options );
-	$response = file_get_contents ( $url, false, $context );
-	//watchdog('moneymoremore_watchdog', 'moneymoremore_repayment: ' . $response, NULL, WATCHDOG_DEBUG);
+	$response = @file_get_contents ( $url, false, $context );
+	if ( $response === FALSE ) {
+		watchdog('moneymoremore_watchdog', 'moneymoremore_repayment: ' . $response, NULL, WATCHDOG_DEBUG);
+		$opt = print_r ($options, TRUE);
+		watchdog('moneymoremore_watchdog', 'moneymoremore_repayment options: ' . $opt, NULL, WATCHDOG_DEBUG);
+		//$error = error_get_last();
+		$result_mmm = array();
+		$result_mmm['success'] = FALSE;
+		$result_mmm['message'] = $http_response_header[0];
+		$result_mmm['result_code'] = 999;//$error['type'];
+		return $result_mmm;
+	}
 
 	// 双乾接口文档：
 	// 自动转账除了会通知NotifyURL外，还会将参数以JSON字符串的形式直接输出在页面上，
@@ -159,6 +170,7 @@ function moneymoremore_repayment($repayment_schedules) {
 
 	$result_mmm = array();
 	if (! is_array ( $result )) {
+		watchdog('moneymoremore_watchdog', 'moneymoremore_repayment: ' . $response, NULL, WATCHDOG_DEBUG);
 		// 如果双乾在处理的时候，有交易没有成功，那么$response只有一个JSON对象
 		// 重复转账侦测功能。
 		// 还款类转账执行时乾多多会检测1小时内，付款人、收款人、金额、标号四个要素。
