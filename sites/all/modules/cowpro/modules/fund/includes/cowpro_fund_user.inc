@@ -62,7 +62,7 @@ html;
 </div>
 html;
 
-		$form = drupal_get_form("user_login_block");
+		$form = drupal_get_form("user_login");
 		$html = str_replace('#form#', render($form), $html);
 		$result = array(
 				'#markup' => $html,
