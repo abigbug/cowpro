@@ -604,16 +604,12 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 		return;
 	}
 
-	/*
-	 * 没有找到有效的方法来导入经过md5操作的密码到drupal7系统
-	 * 所以这些新导入的用户只能在登录drupal7的时候使用“重置密码”操作
 	//user_save在操作过程中，会对pass进行md5操作，但实际上从fanwe导入的pass就已经做了md5，所以这里需要对pass进行一次覆盖
 	Database::getConnection ( 'default', 'default' )->update('users')
 	->fields(array(
-			'pass' => '$P$' . $fanwe_user->user_pwd,
+			'pass' => 'FANWE$' . $fanwe_user->user_pwd,
 	))->condition ( 'uid', $user->uid )
 	->execute();
-	*/
 
 	$profile = cowpro_customer_profile_new('real_name', $user->uid);
 	$profile->name = $fanwe_user->real_name;
@@ -719,6 +715,7 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 		$card->uid = $user->uid;
 		$card->type = 0;//借记卡
 		$card->card_no = str_replace(' ', '', $fanwe_bank_card->bankcard);//去除卡号间的空格
+		$card->card_no = substr($card->card_no, 0, 19); //长度为19位
 		$card->cardholder = $fanwe_bank_card->real_name;
 		$card->bank_name = $bank_name;
 		$card->bank_branch = $fanwe_bank_card->bankzone;
