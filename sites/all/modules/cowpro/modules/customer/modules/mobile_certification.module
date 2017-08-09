@@ -529,3 +529,13 @@ function _fanwe_user_check_password($password, $account) {
 		return FALSE;
 	}
 }
+
+function mobile_certification_user_relationships_ui_table_row_alter(&$rows, $relationship){
+	$mobile = db_query("SELECT search_field FROM {cowpro_customer_profile} WHERE type='mobile' AND uid=".$relationship->requestee->uid)->fetchField();
+	$mobile = $mobile ? $mobile : "无";
+	$rows[2] = $mobile;
+}
+
+function mobile_certification_user_relationships_ui_table_header_alter(&$header){
+	$header =  array(t('User'), t('Relationship'), t('Mobile'));
+}
