@@ -64,6 +64,7 @@ function _cowpro_issuing_get_loan_term_options() {
 			30 => '一个月',
 			90 => '三个月',
 			180 => '六个月',
+			300 => '十个月',
 			360 => '一年',
 	);
 	return $terms;
@@ -75,6 +76,7 @@ function _cowpro_issuing_get_loan_term_options_2() {
 			30 => '+1 month',
 			90 => '+3 month',
 			180 => '+6 month',
+			300 => '+10 month',
 			360 => '+1 year',
 	);
 	return $terms;
