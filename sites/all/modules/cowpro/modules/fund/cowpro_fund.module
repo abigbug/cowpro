@@ -1,5 +1,10 @@
 <?php
+/*
+ 内部转账功能参考
+ 		require_once(APP_ROOT_PATH.'system/collocation/moneymoremore/DoInternalTrans.php');
 
+		$pErrMsg = DoInternalTrans($userFrom,$userTo,$amt);
+ */
 /**
  * Implements hook_menu().
  */
