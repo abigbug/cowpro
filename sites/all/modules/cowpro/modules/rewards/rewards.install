@@ -1,0 +1,29 @@
+<?php
+function rewards_schema() {
+	$schema['cowpro_rewards_checkin'] = array(
+			'fields' => array(
+					'checkin_id' => array (
+							'description' => '签到序号.',
+							'type' => 'serial',
+							'unsigned' => TRUE,
+							'not null' => TRUE
+					),
+					'uid' => array (
+							'description' => '签到人的uid.',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0
+					),
+					'last_checkin' => array (
+							'description' => 'The Unix timestamp, 记录用户最近一次签到的时间.',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0
+					),
+			),
+			'unique keys' => array(
+					'checkin_id'  => array('checkin_id'),
+			),
+	);
+	return $schema;
+}
