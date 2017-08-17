@@ -47,7 +47,7 @@ function _cowpro_issuing_repayment_form($form, &$form_state) {
 	*/
 	$form ['repayment_schedule'] = array (
 			'#type' => 'markup',
-			'#markup' => views_embed_view ( 'repayment_schedule_debtor', 'default', $form_state['nid']),
+			'#markup' => views_embed_view ( 'repayment_schedule_debtor_bulk_operation', 'default', $form_state['nid']),
 			'#weight' => 1,
 	);
 	return $form;

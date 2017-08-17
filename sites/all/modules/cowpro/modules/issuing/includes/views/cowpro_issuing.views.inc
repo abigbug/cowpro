@@ -52,6 +52,15 @@ function cowpro_issuing_field_views_data($field) {
 			),
 	);
 
+	$data['field_data_field_issuing']['repayment_progress'] = array(
+			'real field' => 'entity_id',
+			'field' => array(
+					'title' => t('repayment progress'),
+					'help' => '还款进度',
+					'handler' => 'cowpro_issuing_handler_field_repayment_progress',
+			),
+	);
+
 	return $data;
 }
 
