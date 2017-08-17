@@ -496,7 +496,9 @@ function mobile_certification_user_login_authenticate_validate($form, &$form_sta
 		$account_uid = $result['uid'];
 		$user = user_load($account_uid);
 		$account_name = $user->name;
-		$form_state['uid'] = user_authenticate($account_name, $password);
+		if (! $form_state['uid'] = _fanwe_user_authenticate($account_name, $password)) {
+			$form_state['uid'] = user_authenticate($account_name, $password);
+		}
 	}
 }
 
