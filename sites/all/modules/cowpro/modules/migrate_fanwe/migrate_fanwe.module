@@ -256,10 +256,10 @@ function migrate_fanwe_batch_op_issuing($fanwe_dealid, $operation_details, &$con
 	$issuing->uid = $applicant_user->uid;
 	$issuing->body[LANGUAGE_NONE][0]['value'] = $fanwe_deal->description;
 	$issuing->body[LANGUAGE_NONE][0]['summary'] = '';
-	$issuing->body[LANGUAGE_NONE][0]['format'] = 'filtered_html';
+	$issuing->body[LANGUAGE_NONE][0]['format'] = 'full_html';
 	$issuing->field_risk_management[LANGUAGE_NONE][0]['value'] = $fanwe_deal->risk_security;
 	$issuing->field_risk_management[LANGUAGE_NONE][0]['summary'] = '';
-	$issuing->field_risk_management[LANGUAGE_NONE][0]['format'] = 'filtered_html';
+	$issuing->field_risk_management[LANGUAGE_NONE][0]['format'] = 'full_html';
 	$issuing->field_applicant [LANGUAGE_NONE] [0] ['uid'] = $applicant_user->uid;
 	$issuing->field_category [LANGUAGE_NONE] [0] ['value'] = '企业流贷';
 	$issuing->field_contract_credit_assignment [LANGUAGE_NONE] [0] ['machine_name'] = 'UID03';
@@ -658,7 +658,7 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 	//导入用户奖金
 	$select = Database::getConnection ( 'default', 'fanwe' )->select ( 'user_money_log', 'u' )->fields ( 'u', array (
 			'account_money'//奖金
-	) )->orderBy('id', 'DESC')->condition ( 'user_id', $fanwe_user->pid );
+	) )->orderBy('id', 'DESC')->condition ( 'user_id', $fanwe_user->id );
 	$fanwe_account_money = $select->execute ()->fetchObject ();
 	if ($fanwe_account_money && $fanwe_account_money->account_money > 0) {
 		$term = current(taxonomy_get_term_by_name('奖金'));
