@@ -34,6 +34,18 @@ function cowpro_message_menu() {
 			),
 			'type' => MENU_NORMAL_ITEM,
 	);
+	$items ['admin/cowpro/config_sms_log'] = array (
+			'title' => '登记短信发送日志',
+			'description' => '发送短信的同时，还要在系统日志中做记录',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'cowpro_message_log_settings_form',
+			),
+			'access arguments' => array (
+					'configure p2p',
+			),
+			'type' => MENU_NORMAL_ITEM,
+	);
 
 	return $items;
 }
@@ -41,6 +53,14 @@ function cowpro_message_menu() {
 function cowpro_message_send($number, $message, $options = array()) {
 	$result = sms_send($number, $message, $options);
 	return $result;
+}
+
+function cowpro_message_sms_send_process($process, $number, $message, $options, $gateway, $result) {
+	$log_enable = variable_get('cowpro_sms_log_enable', FALSE);
+	if (! $log_enable) {
+		return;
+	}
+	watchdog('短信  ' . $process, $number . ' ' . $message, NULL, WATCHDOG_DEBUG);
 }
 
 function cowpro_message_settings_form($form, &$form_state) {
@@ -223,6 +243,16 @@ function cowpro_message_settings_form($form, &$form_state) {
 	$form['tokens'] = array(
 			'#theme' => 'token_tree_link',
 			'#token_types' => array('user', 'cowpro_issuing', 'cowpro_repayment_schedule', 'cowpro_fund_journal'),
+	);
+	return system_settings_form ( $form );
+}
+
+function cowpro_message_log_settings_form($form, &$form_state) {
+	$form = array ();
+	$form['cowpro_sms_log_enable'] = array(
+			'#type' => 'checkbox',
+			'#title' => '发送短信的同时，还要在系统日志中做记录.',
+			'#default_value' => variable_get('cowpro_sms_log_enable', FALSE),
 	);
 	return system_settings_form ( $form );
 }
