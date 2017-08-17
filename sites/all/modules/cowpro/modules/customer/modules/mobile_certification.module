@@ -415,7 +415,8 @@ function mobile_certification_form_user_register_form_alter(&$form, &$form_state
 			'#weight' => 5,
 	);
 
-	$form['account']['name']['#title'] = '昵称(不能全部是数字)';
+	$form['account']['name']['#title'] = '昵称';
+	$form['account']['name']['#description'] = '昵称(不能全部是数字)';
 	//$form['account']['name']['#description'] = '手机号码，11位数字';
 	$form['#validate'][] = 'mobile_certification_cowpro_customer_profile_mobile_form_validate';
 	$form['#submit'][] = 'mobile_certification_register_form_submit';
