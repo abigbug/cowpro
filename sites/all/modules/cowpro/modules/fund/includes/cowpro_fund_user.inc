@@ -19,6 +19,7 @@ function _cowpro_fund_user_contents() {
 	<a href="#user_center#">账户中心</a>
 	<a href="#registration_wizard#">个人资料</a>
 	<a href="#fund#">资金记录</a>
+	<a href="#checkin#">签到</a>
 	</div>
 	</div>
 	<div class="user_money">
@@ -37,6 +38,7 @@ html;
 		$topup = "$base_url/cowpro/fund/topup";
 		$withdraw = "$base_url/cowpro/fund/withdraw";
 		$logout = "$base_url/user/logout";
+		$checkin = "$base_url/cowpro/rewards/check_in";
 		$uid = $GLOBALS ['user']->uid;
 		$html = str_replace('#user_name#', $GLOBALS ['user']->name, $html);
 		$html = str_replace('#user_center#', $user_center, $html);
@@ -44,6 +46,7 @@ html;
 		$html = str_replace('#fund#', $fund, $html);
 		$html = str_replace('#topup#', $topup, $html);
 		$html = str_replace('#withdraw#', $withdraw, $html);
+		$html = str_replace('#checkin#', $checkin, $html);
 		$html = str_replace('#logout#', $logout, $html);
 		$html = str_replace('#user_name#', $GLOBALS ['user']->name, $html);
 		$result = array(
