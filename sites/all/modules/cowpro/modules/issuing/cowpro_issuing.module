@@ -718,7 +718,7 @@ function cowpro_issuing_node_view($node, $view_mode) {
 						'journal_list' => cowpro_issuing_bid_list ( $node->nid ),
 				) ),
 		);
-		$view = views_get_view('repayment_schedule_lender');
+		$view = views_get_view('repayment_schedule_debtor');
 		$view->set_display('default');
 		$view->set_arguments(array($node->nid));
 		$view->pre_execute();
@@ -766,7 +766,7 @@ function cowpro_issuing_node_view_alter(&$build) {
  * @param unknown $vbo
  */
 function cowpro_issuing_views_bulk_operations_form_alter(&$form, &$form_state, $vbo) {
-	if ($vbo->view->name == 'repayment_schedule_debtor') {
+	if ($vbo->view->name == 'repayment_schedule_debtor_bulk_operation') {
 		if ($form_state ['step'] == 'views_form_views_form') {
 			foreach ( $vbo->view->result as $key => $value ) {
 				$nid = $form ['views_bulk_operations'] [$key] ['#return_value'];
