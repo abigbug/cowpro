@@ -114,7 +114,7 @@ function cowpro_fund_bankcard_list($reset = FALSE) {
 			$default_value = $bankcard_id;
 		}
 		$options [$bankcard_id] = array (
-				'card_no' => $card->card_no,
+				'card_no' => _cowpro_fund_withdraw_mask($card->card_no, 4, strlen($card->card_no)-8),
 				'bank_name' => $card->bank_name,
 				'cardholder' => $card->cardholder,
 				'operation' => ctools_ajax_text_button ( '删除', "cowpro/fund/bankcard/$bankcard_id/delete", '删除该银行卡信息' ),
@@ -344,4 +344,15 @@ function _cowpro_fund_withdraw_callback($success, $journal_id, $external_referen
 			call_user_func_array($function, $args);
 		}
 	}
+}
+function _cowpro_fund_withdraw_mask ( $str, $start = 0, $length = null ) {
+	$mask = preg_replace ( "/\S/", "*", $str );
+	if( is_null ( $length )) {
+		$mask = substr ( $mask, $start );
+		$str = substr_replace ( $str, $mask, $start );
+	}else{
+		$mask = substr ( $mask, $start, $length );
+		$str = substr_replace ( $str, $mask, $start, $length );
+	}
+	return $str;
 }
