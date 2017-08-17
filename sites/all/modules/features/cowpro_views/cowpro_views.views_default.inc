@@ -108,7 +108,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['header']['area']['field'] = 'area';
   $handler->display->display_options['header']['area']['content'] = '<div class="content_head container-fluid">
   <ul class="row">
-    <li class="project col-md-8">投资项目<span class="inearnings">为投资者创造<i>34,844,127</i>元收益</span></li>
+    <li class="project col-md-8">投资项目<span class="inearnings">-</span></li>
     <li class="inmoney col-md-4 text-right"><a href="/issuing-list" style="color:#ec5245">更多项目</a></li>
   </ul>
 </div>';
@@ -1309,7 +1309,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     t('高级选项'),
     t('<div class="content_head container-fluid">
   <ul class="row">
-    <li class="project col-md-8">投资项目<span class="inearnings">为投资者创造<i>34,844,127</i>元收益</span></li>
+    <li class="project col-md-8">投资项目<span class="inearnings">-</span></li>
     <li class="inmoney col-md-4 text-right"><a href="/issuing-list" style="color:#ec5245">更多项目</a></li>
   </ul>
 </div>'),
@@ -1367,6 +1367,12 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     t('年化收益：'),
     t('正在投标的贷款(用户)'),
     t('我的贷款'),
+    t('<div class="content_head container-fluid">
+  <ul class="row">
+    <li class="project col-md-8">投资项目<span class="inearnings">为投资者创造<i>34,844,127</i>元收益</span></li>
+    <li class="inmoney col-md-4 text-right"><a href="/issuing-list" style="color:#ec5245">更多项目</a></li>
+  </ul>
+</div>'),
     t('全部贷款(首页)'),
     t('投资项目'),
     t('<div class="content_foot foott">
@@ -1897,11 +1903,10 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['status']['id'] = 'status';
   $handler->display->display_options['fields']['status']['table'] = 'cowpro_repayment_schedule';
   $handler->display->display_options['fields']['status']['field'] = 'status';
-  /* 排序标准: 还款详情: 贷款名称 */
-  $handler->display->display_options['sorts']['issuing_id']['id'] = 'issuing_id';
-  $handler->display->display_options['sorts']['issuing_id']['table'] = 'cowpro_repayment_schedule';
-  $handler->display->display_options['sorts']['issuing_id']['field'] = 'issuing_id';
-  $handler->display->display_options['sorts']['issuing_id']['order'] = 'DESC';
+  /* 排序标准: 还款详情: 最后还款日 */
+  $handler->display->display_options['sorts']['deadline']['id'] = 'deadline';
+  $handler->display->display_options['sorts']['deadline']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['sorts']['deadline']['field'] = 'deadline';
   /* 上下文过滤器: 还款详情: 收款方 */
   $handler->display->display_options['arguments']['receiver_uid']['id'] = 'receiver_uid';
   $handler->display->display_options['arguments']['receiver_uid']['table'] = 'cowpro_repayment_schedule';
@@ -2077,10 +2082,10 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['defaults']['arguments'] = FALSE;
   $handler->display->display_options['path'] = 'issuing-manage/due-in.xls';
   $handler->display->display_options['displays'] = array(
-    'page' => 'page',
+    'due_in_list_manager' => 'due_in_list_manager',
     'default' => 0,
-    'page_1' => 0,
-    'page_2' => 0,
+    'due_in_list_debtor' => 0,
+    'due_in_list_lender' => 0,
   );
   $translatables['due_in_list'] = array(
     t('Master'),
@@ -2381,6 +2386,157 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
   $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
   $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
+  $handler->display->display_options['style_plugin'] = 'table';
+  $handler->display->display_options['style_options']['columns'] = array(
+    'period' => 'period',
+    'name' => 'name',
+    'payable_amount' => 'payable_amount',
+    'paid_amount_1' => 'paid_amount_1',
+    'deadline' => 'deadline',
+    'status' => 'status',
+  );
+  $handler->display->display_options['style_options']['default'] = '-1';
+  $handler->display->display_options['style_options']['info'] = array(
+    'period' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'name' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'payable_amount' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'paid_amount_1' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'deadline' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'status' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+  );
+  /* 关联: 还款详情: 付款方用户ID */
+  $handler->display->display_options['relationships']['payer_uid']['id'] = 'payer_uid';
+  $handler->display->display_options['relationships']['payer_uid']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['relationships']['payer_uid']['field'] = 'payer_uid';
+  $handler->display->display_options['relationships']['payer_uid']['label'] = '付款用户';
+  $handler->display->display_options['relationships']['payer_uid']['required'] = TRUE;
+  /* 字段: 还款详情: period */
+  $handler->display->display_options['fields']['period']['id'] = 'period';
+  $handler->display->display_options['fields']['period']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['period']['field'] = 'period';
+  $handler->display->display_options['fields']['period']['label'] = '期次';
+  $handler->display->display_options['fields']['period']['separator'] = '';
+  /* 字段: 还款详情: payable_amount */
+  $handler->display->display_options['fields']['payable_amount']['id'] = 'payable_amount';
+  $handler->display->display_options['fields']['payable_amount']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['payable_amount']['field'] = 'payable_amount';
+  $handler->display->display_options['fields']['payable_amount']['label'] = '应付款';
+  /* 字段: 还款详情: paid_amount */
+  $handler->display->display_options['fields']['paid_amount_1']['id'] = 'paid_amount_1';
+  $handler->display->display_options['fields']['paid_amount_1']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['paid_amount_1']['field'] = 'paid_amount';
+  $handler->display->display_options['fields']['paid_amount_1']['label'] = '已付款';
+  /* 字段: 还款详情: 最后还款日 */
+  $handler->display->display_options['fields']['deadline']['id'] = 'deadline';
+  $handler->display->display_options['fields']['deadline']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['deadline']['field'] = 'deadline';
+  $handler->display->display_options['fields']['deadline']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['deadline']['custom_date_format'] = 'Y/m/d';
+  $handler->display->display_options['fields']['deadline']['second_date_format'] = 'short';
+  /* 字段: 还款详情: 状态 */
+  $handler->display->display_options['fields']['status']['id'] = 'status';
+  $handler->display->display_options['fields']['status']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['status']['field'] = 'status';
+  /* 上下文过滤器: 还款详情: 贷款名称 */
+  $handler->display->display_options['arguments']['issuing_id']['id'] = 'issuing_id';
+  $handler->display->display_options['arguments']['issuing_id']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['arguments']['issuing_id']['field'] = 'issuing_id';
+  $handler->display->display_options['arguments']['issuing_id']['exception']['title'] = '全部';
+  $handler->display->display_options['arguments']['issuing_id']['default_argument_type'] = 'fixed';
+  $handler->display->display_options['arguments']['issuing_id']['summary']['format'] = 'default_summary';
+  /* 过滤规则: 还款详情: 收款方用户ID */
+  $handler->display->display_options['filters']['receiver_uid']['id'] = 'receiver_uid';
+  $handler->display->display_options['filters']['receiver_uid']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['receiver_uid']['field'] = 'receiver_uid';
+  $handler->display->display_options['filters']['receiver_uid']['value']['value'] = '-1';
+  $translatables['repayment_schedule_debtor'] = array(
+    t('Master'),
+    t('更多'),
+    t('应用'),
+    t('重置'),
+    t('排序依据'),
+    t('升序'),
+    t('降序'),
+    t('每页条目数'),
+    t('- 全部 -'),
+    t('偏移量'),
+    t('« 第一页'),
+    t('‹ 前一页'),
+    t('下一页 ›'),
+    t('末页 »'),
+    t('付款用户'),
+    t('期次'),
+    t('.'),
+    t('应付款'),
+    t('已付款'),
+    t('最后还款日'),
+    t('状态'),
+    t('全部'),
+  );
+  $export['repayment_schedule_debtor'] = $view;
+
+  $view = new view();
+  $view->name = 'repayment_schedule_debtor_bulk_operation';
+  $view->description = '';
+  $view->tag = 'cowpro';
+  $view->base_table = 'cowpro_repayment_schedule';
+  $view->human_name = '还款详情(借款人还款操作)';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['use_ajax'] = TRUE;
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['use_more_text'] = '更多';
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
+  $handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
+  $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = '排序依据';
+  $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
+  $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '0';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = '每页条目数';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- 全部 -';
+  $handler->display->display_options['pager']['options']['expose']['offset_label'] = '偏移量';
+  $handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+  $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+  $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
   $handler->display->display_options['style_plugin'] = 'table_megarows';
   $handler->display->display_options['style_options']['columns'] = array(
     'period' => 'period',
@@ -2459,7 +2615,8 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['deadline']['id'] = 'deadline';
   $handler->display->display_options['fields']['deadline']['table'] = 'cowpro_repayment_schedule';
   $handler->display->display_options['fields']['deadline']['field'] = 'deadline';
-  $handler->display->display_options['fields']['deadline']['date_format'] = 'short';
+  $handler->display->display_options['fields']['deadline']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['deadline']['custom_date_format'] = 'Y/m/d';
   $handler->display->display_options['fields']['deadline']['second_date_format'] = 'short';
   /* 字段: 还款详情: 状态 */
   $handler->display->display_options['fields']['status']['id'] = 'status';
@@ -2495,7 +2652,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['filters']['receiver_uid']['table'] = 'cowpro_repayment_schedule';
   $handler->display->display_options['filters']['receiver_uid']['field'] = 'receiver_uid';
   $handler->display->display_options['filters']['receiver_uid']['value']['value'] = '-1';
-  $translatables['repayment_schedule_debtor'] = array(
+  $translatables['repayment_schedule_debtor_bulk_operation'] = array(
     t('Master'),
     t('更多'),
     t('应用'),
@@ -2521,7 +2678,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     t('- 选择一个操作 -'),
     t('全部'),
   );
-  $export['repayment_schedule_debtor'] = $view;
+  $export['repayment_schedule_debtor_bulk_operation'] = $view;
 
   $view = new view();
   $view->name = 'repayment_schedule_lender';
@@ -2617,7 +2774,8 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['deadline']['id'] = 'deadline';
   $handler->display->display_options['fields']['deadline']['table'] = 'cowpro_repayment_schedule';
   $handler->display->display_options['fields']['deadline']['field'] = 'deadline';
-  $handler->display->display_options['fields']['deadline']['date_format'] = 'short';
+  $handler->display->display_options['fields']['deadline']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['deadline']['custom_date_format'] = 'Y/m/d';
   $handler->display->display_options['fields']['deadline']['second_date_format'] = 'short';
   /* 字段: 还款详情: 状态 */
   $handler->display->display_options['fields']['status']['id'] = 'status';
