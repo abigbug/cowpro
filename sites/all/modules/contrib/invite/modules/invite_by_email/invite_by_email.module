@@ -1,9 +1,12 @@
 <?php
 
 /**
+ * @file
+ * Main file for Invite by e-mail.
+ */
+
+/**
  * Implements hook_menu().
- *
- * @return array
  */
 function invite_by_email_menu() {
   $items['admin/config/people/invite/by_mail'] = array(
@@ -21,9 +24,10 @@ function invite_by_email_menu() {
 }
 
 /**
- *
+ * Invite Sending Controller.
  *
  * @return array
+ *   Return array with label.
  */
 function invite_by_email_invite_sending_controller() {
   return array(
@@ -31,6 +35,9 @@ function invite_by_email_invite_sending_controller() {
   );
 }
 
+/**
+ * Form alter.
+ */
 function invite_by_email_form_invite_type_form_alter(&$form, &$form_state, $invite_type, $op = 'edit') {
   $invite_type = $form['#invite_type'];
   $invite_by_email_settings = !empty($invite_type->data['invite_by_email']) ? $invite_type->data['invite_by_email'] : array(
@@ -104,25 +111,29 @@ function invite_by_email_form_invite_type_form_alter(&$form, &$form_state, $invi
     ),
   );
 
-  // Put our submit in top of list to ensure, that values will be added to 'data'.
+  // Put our submit in top of list to ensure, that values will be added to
+  // 'data'.
   array_unshift($form['#submit'], 'invite_by_email_form_invite_type_form_submit');
 }
 
 /**
  * Submit handler for invite types form.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   Array with form.
+ * @param array $form_state
+ *   Array with form state.
+ *
+ * @codingStandardsIgnoreStart
  */
 function invite_by_email_form_invite_type_form_submit(&$form, &$form_state) {
+  //@codingStandardsIgnoreEnd
   $invite_type = &$form_state['invite_type'];
   $invite_type->data['invite_by_email'] = $form_state['values']['invite_by_email'];
 }
 
 /**
  * Implements hook_TYPE_presave().
- *
- * @param InviteType $invite_type
  */
 function invite_by_email_invite_type_presave($invite_type) {
   // Adding default settings to invite type if it wasn't created via entity
@@ -164,13 +175,9 @@ function invite_by_email_invite_presave($invite) {
  * Implements hook_form_alter().
  *
  * @todo: refactor. There should be better way to alter default settings.
- *
- * @param $form
- * @param $form_state
- *
- * @return bool
  */
 function invite_by_email_form_alter(&$form, &$form_state) {
+
   if ($form['#form_id'] != 'field_ui_field_edit_form') {
     return TRUE;
   }
@@ -193,14 +200,26 @@ function invite_by_email_form_alter(&$form, &$form_state) {
   );
 
   $form['instance']['default_value_widget']['token_help']['help'] = array(
-    '#markup' => theme('token_tree', array('token_types' => array('user', 'profile', 'invite'))),
+    '#markup' => theme('token_tree', array(
+      'token_types' => array(
+        'user',
+        'profile',
+        'invite',
+      ),
+    )),
   );
 }
 
 /**
+ * Invite Send.
+ *
  * @param Invite $invite
+ *   Invite.
+ *
+ * @codingStandardsIgnoreStart
  */
 function invite_by_email_invite_send($invite) {
+  //@codingStandardsIgnoreEnd
   if (!empty($invite->type_details()->invite_sending_controller['invite_by_email'])) {
     invite_by_email_send_invitation($invite);
   }
@@ -211,11 +230,11 @@ function invite_by_email_invite_send($invite) {
  *
  * The invitation email is sent to the invitee.
  *
- * @param $invite
+ * @param object $invite
  *   Invite object.
  *
- * @return
- *   TRUE, if sending was successful; FALSE otherwise..
+ * @return bool
+ *   TRUE, if sending was successful; FALSE otherwise.
  */
 function invite_by_email_send_invitation($invite) {
   global $language;
@@ -270,15 +289,15 @@ function invite_by_email_mail($key, &$message, $params) {
     $message['headers']['Reply-To'] = $params['reply-to'];
   }
 
-  $subject = $invite->field_invitation_email_subject['und'][0]['safe_value'];
+  $subject = $invite->field_invitation_email_subject[LANGUAGE_NONE][0]['safe_value'];
   $message['subject'] = str_replace(array("\r", "\n"), '', trim($subject));
 
-  $email_body = $invite->field_invitation_email_body['und'][0]['safe_value'];
+  $email_body = $invite->field_invitation_email_body[LANGUAGE_NONE][0]['safe_value'];
   $message['body'][] = $email_body;
 }
 
 /**
- * Implements hook_FORM_ID_alter.
+ * Implements hook_FORM_ID_alter().
  */
 function invite_by_email_form_invite_form_alter(&$form, &$form_state, $form_id) {
   $invite = $form['#entity'];
@@ -318,7 +337,13 @@ function invite_by_email_form_invite_form_alter(&$form, &$form_state, $form_id) 
         );
 
         $form['token_help']['help'] = array(
-          '#markup' => theme('token_tree', array('token_types' => array('user', 'profile', 'invite'))),
+          '#markup' => theme('token_tree', array(
+            'token_types' => array(
+              'user',
+              'profile',
+              'invite',
+            ),
+          )),
         );
       }
     }
@@ -328,7 +353,15 @@ function invite_by_email_form_invite_form_alter(&$form, &$form_state, $form_id) 
   }
 }
 
+/**
+ * Form validate.
+ */
 function invite_by_email_form_invite_form_validate($form, &$form_state) {
+
+  if ($form_state['triggering_element']['#value'] == 'Delete') {
+    return FALSE;
+  }
+
   $invite = $form_state['invite'];
   $entity = entity_metadata_wrapper('invite', $invite);
   $mail_address = $form_state['values']['field_invitation_email_address'][LANGUAGE_NONE][0]['value'];
@@ -340,7 +373,13 @@ function invite_by_email_form_invite_form_validate($form, &$form_state) {
 
   // Check that we are not inviting invite's author.
   if ($entity->inviter->mail->value() == $mail_address) {
-    form_set_error('field_invitation_email_address', t('You couldn\'t invite yourself.'));
+    form_set_error('field_invitation_email_address', t("You couldn't invite yourself."));
+  }
+
+  $user = user_load_by_mail($mail_address);
+
+  if (!empty($user)) {
+    form_set_error('field_invitation_email_address', t('User already exists.'));
   }
 
   // Check that this email address wasn't used by user before.
@@ -363,7 +402,6 @@ function invite_by_email_form_invite_form_validate($form, &$form_state) {
  * Implements hook_form_FORMID_alter().
  */
 function invite_by_email_form_user_register_form_alter(&$form, &$form_state, $form_id) {
-  global $user;
 
   if (($invite = invite_load_from_session()) && !empty($invite->type_details()->invite_sending_controller['invite_by_email'])) {
     $invite_wrapper = entity_metadata_wrapper('invite', $invite);

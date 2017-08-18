@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Generates the invite type editing form.
  *
  * @param $form
@@ -320,7 +324,7 @@ function invite_settings_form() {
     '#type' => 'textfield',
     '#title' => t('Path to registration page'),
     '#default_value' => variable_get('invite_registration_path', 'user/register'),
-    '#description' => t('Path to the registration page for invited users. Useful when using the <em>Assign from Path</em> option of <a href="@url">Auto Assign Roles</a> module.', array('@url' => 'http://drupal.org/project/autoassignrole')),
+    '#description' => t('Path to the registration page for invited users. Useful when using the <em>Assign from Path</em> option of <a href="@url" target="blank">Auto Assign Roles</a> module.', array('@url' => 'http://drupal.org/project/autoassignrole')),
   );
 
   $form['invite_require_approval'] = array(
@@ -351,6 +355,20 @@ function invite_settings_form() {
   }
 
   return system_settings_form($form);
+}
+
+/**
+ * Implements hook_validate().
+ */
+function invite_settings_form_validate($form, &$form_state) {
+
+  $invite_registration_path = $form_state['values']['invite_registration_path'];
+
+  $is_valid_path = drupal_valid_path($invite_registration_path);
+
+  if (!$is_valid_path) {
+    form_set_error('invite_registration_path', t('This path is invalid.'));
+  }
 }
 
 /**
@@ -466,6 +484,9 @@ function invite_migrate_form_submit($form, &$form_state) {
   }
 }
 
+/**
+ *
+ */
 function invite_migrate_process($values, &$context) {
   $query = db_select('invite_2x', 'i2x')
     ->fields('i2x');

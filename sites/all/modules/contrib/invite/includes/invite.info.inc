@@ -4,6 +4,10 @@
  * Extend the defaults for Invite content type.
  */
 class InviteMetadataController extends EntityDefaultMetadataController {
+
+  /**
+   *
+   */
   public function entityPropertyInfo() {
     $info = parent::entityPropertyInfo();
     $properties = &$info[$this->type]['properties'];
@@ -103,8 +107,7 @@ class InviteMetadataController extends EntityDefaultMetadataController {
     //   'schema field' => 'status',
     //   // 'computed' => TRUE,
     //   // 'entity views field' => TRUE,
-    // );
-
+    // );.
     // $properties['status_text'] = array(
     //   'label' => t('Status text'),
     //   'description' => t('Display human-readable status.'),
@@ -113,8 +116,7 @@ class InviteMetadataController extends EntityDefaultMetadataController {
     //   // 'schema field' => 'status',
     //   'computed' => TRUE,
     //   'entity views field' => TRUE,
-    // );
-
+    // );.
     return $info;
   }
 

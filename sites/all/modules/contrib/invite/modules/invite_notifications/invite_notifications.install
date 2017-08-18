@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @file
+ * Install, update and uninstall functions for the Invite Notifications.
+ */
+
+/**
+ * Implements hook_schema().
+ */
 function invite_notifications_schema() {
   $schema['invite_notifications'] = array(
     'description' => 'Stores notifications for invite module.',

@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * File for views default.
+ */
+
+/**
  * Implements hook_views_default_views().
  */
 function invite_views_default_views() {

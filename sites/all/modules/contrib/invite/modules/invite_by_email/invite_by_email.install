@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Install, update and uninstall functions for the Invite by e-mail.
+ */
+
+/**
  * Implements hook_install().
  */
 function invite_by_email_install() {
@@ -11,6 +16,7 @@ function invite_by_email_install() {
  * Implements hook_enable().
  */
 function invite_by_email_enable() {
+  //@codingStandardsIgnoreLine.
   variable_set('invite_default_mail_body', t(<<<TEMPLATE
 [invite:inviter:name] has invited you to join [site:name] at [site:url].
 
@@ -35,8 +41,8 @@ TEMPLATE
   );
 
   foreach ($types as $type) {
-    $invite_type = entity_get_info($type['type']);
-    if (empty($invite_type)) {
+    $invite_by_email = entity_load('invite_type', FALSE, array('type' => 'invite_by_email'));
+    if (empty($invite_by_email)) {
       $invite_type = entity_create('invite_type', $type);
       if ($invite_type) {
         $invite_type->invite_sending_controller = $type['invite_sending_controller'];
@@ -50,13 +56,6 @@ TEMPLATE
  * Implements hook_disable().
  */
 function invite_by_email_disable() {
-  $invite_type = invite_type_load('invite_by_email');
-  invite_type_delete($invite_type);
-
-  db_delete('invite_sending_controller')
-    ->condition('name', 'invite_by_email')
-    ->execute();
-
   variable_del('invite_default_mail_body');
   variable_del('invite_default_mail_subject');
 }
@@ -65,6 +64,15 @@ function invite_by_email_disable() {
  * Implements hook_uninstall().
  */
 function invite_by_email_uninstall() {
+
+  if (function_exists('invite_type_load')) {
+    $invite_type = invite_type_load('invite_by_email');
+    invite_type_delete($invite_type);
+  }
+
+  db_delete('invite_sending_controller')
+    ->condition('name', 'invite_by_email')
+    ->execute();
 
   $fields = array(
     'field_invitation_email_address',
@@ -76,13 +84,16 @@ function invite_by_email_uninstall() {
     field_delete_field($field);
   }
 
-  $num_deleted = db_delete('field_config_instance')
+  db_delete('field_config_instance')
     ->condition('bundle', 'invite_by_email')
     ->execute();
 
   drupal_cron_run();
 }
 
+/**
+ * Add fields.
+ */
 function invite_by_email_add_fields() {
   $fields = array(
     'field_invitation_email_address' => array(
@@ -192,6 +203,8 @@ function invite_by_email_add_fields() {
 }
 
 /**
+ * Implements hook_update_N().
+ *
  * Create field_invitation_email_address, field_invitation_email_subject,
  * and field_invitation_email_body exist if they don't already exist.
  */
@@ -200,7 +213,10 @@ function invite_by_email_update_7001(&$sandbox) {
 }
 
 /**
- * Update field instance info for email subject and body if empty set default value.
+ * Implements hook_update_N().
+ *
+ * Update field instance info for email subject and body if empty set default
+ * value.
  */
 function invite_by_email_update_7002(&$sandbox) {
   $instance_info = field_info_instance('invite', 'field_invitation_email_subject', 'invite_by_email');

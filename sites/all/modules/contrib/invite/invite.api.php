@@ -2,13 +2,14 @@
 
 /**
  * @file
- * Hooks provided by the Invite module.
+ * Hooks provided by the Invite.
  */
 
 /**
  * Allow other modules to act on invite's withdrawn.
  *
  * @param Invite $invite
+ *   Invite object.
  */
 function hook_invite_withdraw($invite) {
   // Delete notifications when user withdrawn invitation.

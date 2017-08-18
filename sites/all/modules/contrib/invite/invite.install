@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Contains install and update functions for Invite.
+ */
+
+/**
  * Implements hook_schema().
  */
 function invite_schema() {
@@ -171,14 +176,38 @@ function invite_schema() {
 function invite_install() {
   // Set default expiry time 30 days.
   variable_set('invite_default_expiry_time', 30);
+
+  drupal_set_message(t('Thank you for installing the <a href="@url_invite" target="blank">Invite</a>.', array(
+    '@url_invite' => 'https://www.drupal.org/project/invite',
+  )));
+
+  // Notify the user they may want to install token.
+  if (!module_exists('token')) {
+    $t = get_t();
+    drupal_set_message($t('If you install the <a href="!url" target="blank">Token</a>, Invite will be able to use token patterns.', array('!url' => 'http://drupal.org/project/token')));
+  }
 }
 
 /**
  * Implements hook_install().
  */
 function invite_uninstall() {
-  // Set default expiry time 30 days.
-  variable_del('invite_default_expiry_time');
+
+  $invite_vars = array(
+    'invite_message_editable',
+    'invite_default_mail_subject',
+    'invite_default_mail_body',
+    'invite_default_replace_tokens',
+    'invite_message_editable',
+    'invite_use_users_email_replyto',
+    'invite_manual_from',
+    'invite_use_users_email',
+  );
+
+  foreach ($invite_vars as $invite_var) {
+    variable_del($invite_var);
+  }
+
   $variables = db_select('variable', 'v')
     ->fields('v')
     ->condition('name', 'invite_type_%', 'LIKE')
@@ -206,7 +235,7 @@ function invite_update_7400() {
   variable_set('invite_version_updated', TRUE);
   variable_set('invite_default_expiry_time', 30);
 
-  drupal_set_message(t('Invite was successfully installed. You could migrate !link.', array('!link' => l('old invites', 'admin/config/people/invite/migrate'))));
+  drupal_set_message(t('Invite was successfully installed. You could migrate !link.', array('!link' => l(t('old invites'), 'admin/config/people/invite/migrate'))));
 }
 
 /**
@@ -214,8 +243,10 @@ function invite_update_7400() {
  */
 function invite_update_7401() {
 
-  // The status field might already exist on the invite table with incorrect settings.
-  // We need to check if the status field exists in the invite table if it does drop it.
+  // The status field might already exist on the invite table with incorrect
+  // settings.
+  // We need to check if the status field exists in the invite table if it does
+  // drop it.
   // We are going to overwrite all values in the status field later in this
   // update hook so dropping this field won't have any negative consequences.
   if (db_field_exists('invite', 'status')) {

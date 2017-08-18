@@ -1,9 +1,14 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Invte view callback.
  *
  * @param Invite $invite
+ *
  * @return bool
  */
 function invite_view($invite) {

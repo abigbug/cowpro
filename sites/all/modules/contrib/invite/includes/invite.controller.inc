@@ -1,8 +1,17 @@
 <?php
 
+/**
+ * @file
+ */
 
-
+/**
+ *
+ */
 class InviteController extends EntityAPIController {
+
+  /**
+   *
+   */
   public function create(array $values = array()) {
     global $user;
     $values += array(
@@ -41,8 +50,14 @@ class InviteController extends EntityAPIController {
   }
 
 }
-
+/**
+ *
+ */
 class InviteTypeController extends EntityAPIControllerExportable {
+
+  /**
+   *
+   */
   public function create(array $values = array()) {
     $values += array(
       'label' => '',
@@ -92,6 +107,9 @@ class Invite extends Entity {
    */
   public $uid;
 
+  /**
+   *
+   */
   public function type_details() {
     return invite_get_types($this->type);
   }
@@ -115,10 +133,16 @@ class Invite extends Entity {
     }
   }
 
+  /**
+   *
+   */
   public function joinLink() {
     return url('invite/accept/' . $this->reg_code, array('absolute' => TRUE));
   }
 
+  /**
+   *
+   */
   public function sendInvite() {
     $result = FALSE;
     if (!empty($this->sendNotification)) {
@@ -143,6 +167,9 @@ class Invite extends Entity {
     $this->uid = is_object($account) ? $account->uid : $account;
   }
 
+  /**
+   *
+   */
   public function __construct($values = array()) {
     if (isset($values['inviter'])) {
       $this->setUser($values['inviter']);
@@ -158,21 +185,33 @@ class Invite extends Entity {
     parent::__construct($values, 'invite');
   }
 
+  /**
+   *
+   */
   public function status($readable = FALSE) {
     $options = invite_get_status_options();
 
     return $readable ? $options[$this->status] : $this->status;
   }
 
+  /**
+   *
+   */
   protected function defaultLabel() {
     $entity = entity_metadata_wrapper('invite', $this);
     return t('Invitation #@number', array('@number' => $this->identifier()));
   }
 
+  /**
+   *
+   */
   protected function defaultUri() {
     return array('path' => 'invite/' . $this->identifier());
   }
 
+  /**
+   *
+   */
   public function save() {
     return parent::save();
   }
@@ -203,6 +242,9 @@ class InviteType extends Entity {
 
   public $invite_sending_controller = array();
 
+  /**
+   *
+   */
   public function __construct($values = array()) {
     parent::__construct($values, 'invite_type');
     if (empty($this->invite_sending_controller)) {
@@ -217,6 +259,9 @@ class InviteType extends Entity {
     }
   }
 
+  /**
+   *
+   */
   public function hasSendingController($controller_name) {
     $result = FALSE;
     if (!empty($this->invite_sending_controller[$controller_name])) {
@@ -225,10 +270,16 @@ class InviteType extends Entity {
     return $result;
   }
 
+  /**
+   *
+   */
   public function isLocked() {
     return isset($this->status) && empty($this->is_new) && (($this->status & ENTITY_IN_CODE) || ($this->status & ENTITY_FIXED));
   }
 
+  /**
+   *
+   */
   public function save() {
     parent::save();
     $controllers = array();
@@ -252,6 +303,9 @@ class InviteType extends Entity {
     }
   }
 
+  /**
+   *
+   */
   public function delete() {
     parent::delete();
     db_delete('invite_sending_controller')

@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * @file
+ * Main file for the Invite Notifications.
+ */
+
+/**
+ * Implements hook_init().
+ */
 function invite_notifications_init() {
   global $user;
 
@@ -31,9 +39,10 @@ function invite_notifications_init() {
 }
 
 /**
- *
+ * Invite Sending Controller.
  *
  * @return array
+ *   Return a array with label.
  */
 function invite_notifications_invite_sending_controller() {
   return array(
@@ -41,6 +50,9 @@ function invite_notifications_invite_sending_controller() {
   );
 }
 
+/**
+ * Get Messages.
+ */
 function invite_notifications_get_message($message_type, $params) {
   $message = $params;
   $invitee = user_load($message->invitee);
@@ -66,8 +78,8 @@ function invite_notifications_get_message($message_type, $params) {
       $result = t('!user has sent you invitation. You could !accept or !withdrawn it.', array(
         '!user' => theme('username', array('account' => $inviter)),
         '@email' => $invitee->mail,
-        '!accept' => l('accept', 'invite/accept/' . $invitation->reg_code),
-        '!withdrawn' => l('withdraw', 'invite/withdraw/' . $invitation->reg_code),
+        '!accept' => l(t('accept'), 'invite/accept/' . $invitation->reg_code),
+        '!withdrawn' => l(t('withdraw'), 'invite/withdraw/' . $invitation->reg_code),
       ));
       break;
   }
@@ -75,6 +87,9 @@ function invite_notifications_get_message($message_type, $params) {
   return $result;
 }
 
+/**
+ * Invite Notifications Theme.
+ */
 function invite_notifications_theme() {
   return array(
     'invite_inviter_notification' => array(
@@ -86,9 +101,15 @@ function invite_notifications_theme() {
   );
 }
 
+/**
+ * Inviter Notification.
+ */
 function theme_invite_inviter_notification($variables) {
 }
 
+/**
+ * Registered User Notification.
+ */
 function theme_invite_registered_user_notification($variables) {
   $message = $variables['message'];
   $invitee = user_load($message->inviter);
@@ -99,8 +120,8 @@ function theme_invite_registered_user_notification($variables) {
       '#markup' => t('!user has sent you invitation. You could !accept or !withdrawn it.', array(
         '!user' => theme('username', array('account' => $invitee)),
         '@email' => $invitee->mail,
-        '!accept' => l('accept', 'invite/accept/' . $invitation->reg_code),
-        '!withdrawn' => l('accept', 'invite/withdraw/' . $invitation->reg_code),
+        '!accept' => l(t('accept'), 'invite/accept/' . $invitation->reg_code),
+        '!withdrawn' => l(t('accept'), 'invite/withdraw/' . $invitation->reg_code),
       )),
     ),
   );
@@ -108,11 +129,8 @@ function theme_invite_registered_user_notification($variables) {
 
 /**
  * Implements hook_invite_accept().
- *
- * @param Invite $invite
  */
 function invite_notifications_invite_accept($invite) {
-  global $user;
   $message = array(
     'iid' => $invite->iid,
     'uid' => $invite->uid,
@@ -141,12 +159,8 @@ function invite_notifications_invite_accept($invite) {
 
 /**
  * Implements hook_entity_insert().
- *
- * @param Invite $invite
- * @param $type
  */
 function invite_notifications_entity_insert($invite, $type) {
-  global $user;
   if (!empty($invite->invitee) && ($invite->status() == INVITE_VALID)) {
     $message = array(
       'iid' => $invite->iid,
@@ -165,9 +179,15 @@ function invite_notifications_entity_insert($invite, $type) {
 }
 
 /**
+ * Invite Notifications.
+ *
  * @param Invite $invite
+ *   The Invite.
+ *
+ * @codingStandardsIgnoreStart
  */
 function invite_notifications_invite_withdraw($invite) {
+  //@codingStandardsIgnoreEnd
   if ($invite->invitee != 0) {
     $uid = db_select('invite_notifications')
       ->fields('invite_notifications', array('uid'))
@@ -190,9 +210,11 @@ function invite_notifications_invite_withdraw($invite) {
 /**
  * Helper function to retrieve notifications for user.
  *
- * @param $user
+ * @param object $user
+ *   User.
  *
  * @return bool
+ *   Return bool with result.
  */
 function _invite_notifications_user_messages($user) {
   $result = db_query('SELECT * FROM {invite_notifications} WHERE uid = :uid and status = :status', array(
