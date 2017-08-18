@@ -82,7 +82,11 @@ function _moneymoremore_goto_response_page($op) {
 		//请求开启的授权已开启
 		$message_type = 'status';
 	}
-	drupal_set_message(sprintf('%s(乾多多代码：%s)', $message, $result_code), $message_type);
+	if ($message_type != 'error') {
+		drupal_set_message(sprintf('%s', $message), $message_type);
+	} else {
+		drupal_set_message(sprintf('%s(乾多多代码：%s)', $message, $result_code), $message_type);
+	}
 	drupal_goto($_GET['destination']);
 }
 
