@@ -95,7 +95,9 @@ jQuery(document).ready(function($) {
 	/*将drupal_message 信息以弹出框的形式显示*/
 	var msg = $("div.messages");
 	if (msg.size() > 0) {
-		alert(msg.text());
+		var txt = msg[0].childNodes[4].textContent;
+		//txt = txt.replace(/^x/g,'');
+		alert(txt);
 	}
 /*Bootstrap DropDown Effects with Animate.css*/
 var dropdownSelectors=$(".dropdown, .dropup");
