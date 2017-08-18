@@ -18,13 +18,7 @@ function rewards_menu() {
 
 function cowpro_rewards_check_in() {
 	$uid = $GLOBALS ['user']->uid;
-	$start_time = mktime(0,0,0,date("n"),date("j"),date("Y"));//今天零时
-	$query = db_select('cowpro_rewards_checkin', 'checkin')
-	->fields('checkin', array('uid', 'last_checkin'))
-	->condition('uid', $uid)
-	->condition('last_checkin', $start_time, '>');
-
-	if ($query->execute()->fetchObject()) {
+	if (cowpro_rewards_have_checked_in()) {
 		drupal_set_message('您已经签过到了！', 'warning');
 		drupal_goto();
 		return;
@@ -43,12 +37,28 @@ function cowpro_rewards_check_in() {
 			'uid' => $uid,
 			'points' => $points,
 			'description' => '签到奖励',
-			'display' => TRUE,
+			'display' => FALSE,
 			'tid' => 0,//积分
 	);
 	userpoints_userpointsapi($params);
 
-	//drupal_set_message('签到奖励积分1');
+	drupal_set_message('签到奖励积分1个！');
 	drupal_goto();
 	//return '欢迎签到';
+}
+
+function cowpro_rewards_have_checked_in() {
+	$uid = $GLOBALS ['user']->uid;
+	$start_time = mktime(0,0,0,date("n"),date("j"),date("Y"));//今天零时
+	$query = db_select('cowpro_rewards_checkin', 'checkin')
+	->fields('checkin', array('uid', 'last_checkin'))
+	->condition('uid', $uid)
+	->condition('last_checkin', $start_time, '>');
+
+	if ($query->execute()->fetchObject()) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+
 }
