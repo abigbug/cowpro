@@ -21,6 +21,10 @@ function cowpro_issuing_token_info() {
 			'name' => '借款人',
 			'description' => '借款人'
 	);
+	$issuing ['applicant_realname'] = array (
+			'name' => '借款人姓名',
+			'description' => '借款人真实姓名'
+	);
 	$issuing ['applicant_idno'] = array (
 			'name' => '借款人',
 			'description' => '借款人证件号码'
@@ -263,10 +267,15 @@ function _cowpro_issuing_tokens_issuing($type, $tokens, array $data = array(), a
 					$u = user_load ( $applicant_uid );
 					$replacements [$original] = $u->name;
 					break;
+				case 'applicant_realname' :
+					$applicant_uid = $issuing->field_applicant [LANGUAGE_NONE] [0] ['uid'];
+					$profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ( $applicant_uid, 'real_name' );
+					$replacements [$original] = $profile_real_name->name;
+					break;
 				case 'applicant_idno' :
 					$applicant_uid = $issuing->field_applicant [LANGUAGE_NONE] [0] ['uid'];
-					$profile = cowpro_customer_profile_new('real_name', $applicant_uid);
-					$replacements [$original] = $profile->idno;
+					$profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ( $applicant_uid, 'real_name' );
+					$replacements [$original] = $profile_real_name->id_no;
 					break;
 				case 'applicant_seal' :
 					$applicant_uid = $issuing->field_applicant [LANGUAGE_NONE] [0] ['uid'];
@@ -289,9 +298,15 @@ function _cowpro_issuing_tokens_issuing($type, $tokens, array $data = array(), a
 						$u = user_load ( $journal->uid );
 						$profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ( $journal->uid, 'real_name' );
 						$l = array ();
-						$l ['name'] = $u->name;
-						$l ['real_name'] = $profile_real_name->name;
-						$l ['id_no'] = $profile_real_name->id_no;
+						if ($GLOBALS['user']->uid == $journal->uid) {
+							$l ['name'] = $u->name;
+							$l ['real_name'] = $profile_real_name->name;
+							$l ['id_no'] = $profile_real_name->id_no;
+						} else {
+							$l ['name'] = _cowpro_issuing_tokens_utf_substr2($u->name);
+							$l ['real_name'] = _cowpro_issuing_tokens_utf_substr2($profile_real_name->name);
+							$l ['id_no'] = _cowpro_issuing_tokens_mask($profile_real_name->id_no, 4, strlen($profile_real_name->id_no)-8);
+						}
 						$l ['amount'] = $journal->amount;
 						$l ['term'] = $field_issuing ['loan_term'];
 						$l ['total'] = $amount;
@@ -308,70 +323,107 @@ function _cowpro_issuing_tokens_issuing($type, $tokens, array $data = array(), a
 						<td>全部应收（元）</td>
 						</tr>
 EOF;
+					include_once 'includes/cowpro_issuing.repayment_schedule.fun.inc';
+					$sum1 = 0;
+					$sum2 = 0;
 					foreach ( $lender_detail as $l ) {
 						$content .= '<tr>';
 						$content .= '<td>' . $l ['name'] . '</td>';
 						$content .= '<td>' . $l ['real_name'] . '</td>';
 						$content .= '<td>' . $l ['id_no'] . '</td>';
 						$content .= '<td>' . $l ['amount'] . '</td>';
-						$content .= '<td>' . $l ['term'] . '</td>';
+						$content .= '<td>' . _cowpro_issuing_get_readable_loan_term($l ['term']) . '</td>';
 						$content .= '<td>' . $l ['total'] . '</td>';
 						$content .= '</tr>';
+						$sum1 = $sum1 + $l ['amount'];
+						$sum2 = $sum2 + $l ['total'];
 					}
-					$content = "<table>$content</table>";
+					$content .= '<tr>';
+					$content .= '<td>总计</td>';
+					$content .= '<td></td>';
+					$content .= '<td></td>';
+					$content .= '<td>' . $sum1 . '</td>';
+					$content .= '<td></td>';
+					$content .= '<td>' . $sum2 . '</td>';
+					$content .= '</tr>';
+					$content = '<table border="1" style="margin: 0px auto; border-collapse: collapse; border: 1px solid rgb(0, 0, 0); width: 90%; ">' . $content . '</table>';
 					$replacements [$original] = $content;
 					break;
 				case 'lender_list' :
 					$journal_list = cowpro_issuing_bid_list ( $issuing->nid );
 					$lender_list = array ();
 					foreach ( $journal_list as $journal ) {
-						$u = user_load ( $journal->uid );
-						$lender_list [] = $u->name;
+						//$u = user_load ( $journal->uid );
+						$profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ( $journal->uid, 'real_name' );
+						if ($GLOBALS['user']->uid == $journal->uid) {
+							$lender_list [] = $profile_real_name->name;
+						} else {
+							$lender_list [] = _cowpro_issuing_tokens_utf_substr2($profile_real_name->name);
+						}
 					}
-					$content = '';
+					$content = '<table border="0" style="margin: 0px auto; border-collapse: collapse; border: 0px solid rgb(0, 0, 0); width: 90%; ">';
+					$i = 0;
 					foreach ( $lender_list as $l ) {
-						$content .= "<li>$l</li>";
+						if ($i == 0) {
+							$content .= '<tr>';
+
+						}
+						$content .= '<td>' . $l . '</td>';
+						$i++;
+						if ( $i == 5) {
+							$i = 0;
+							$content .= '<tr/>';
+						}
 					}
-					$content = "<ul>$content</ul>";
+					if ($i != 0) {
+						$content .= '<tr/>';
+					}
+					$content .= '</table>';
 					$replacements [$original] = $content;
 					break;
 				case 'loan_detail':
 					include_once 'includes/cowpro_issuing.repayment_schedule.fun.inc';
 					$field_issuing = $issuing->field_issuing [LANGUAGE_NONE] [0];
-					$content = '';
-					$content .= '<li>借款详细用途</li>';
-					$content .= $issuing->title;
-					$content .= '<li>借款年化利率</li>';
-					$content .= $field_issuing ['annual_rate'];
-					$content .= '<li>借款本金数额</li>';
-					$content .= '人民币' . $field_issuing ['loan_amounts'] . '元';
-					$content .= '<li>还款分期月数</li>';
-					$content .= _cowpro_issuing_get_readable_repayment_method ( $field_issuing ['method_repayment'] );
-					$content .= '<li>月还本息数额</li>';
-					$content .= '详情见还款计划';
-					$content .= '<li>还款起止日期</li>';
-					$content .= '详情见还款计划';
-					$content = "<ul>$content</ul>";
+					$content = '<table border="1" style="margin: 0px auto; border-collapse: collapse; border: 1px solid rgb(0, 0, 0); width: 90%; ">';
+					$content .= '<tr>';
+					$content .= '<td style="text-align:center;">借款详细用途</td>';
+					$content .= '<td style="text-align:center;">' . $issuing->title . '</td>';
+					$content .= '<td style="text-align:center;">借款年化利率</td>';
+					$content .= '<td style="text-align:center;">' . $field_issuing ['annual_rate'] . '</td>';
+					$content .= '</tr>';
+					$content .= '<tr>';
+					$content .= '<td style="text-align:center;">借款本金数额</td>';
+					$content .= '<td style="text-align:center;">' . '人民币' . $field_issuing ['loan_amounts'] . '元' . '</td>';
+					$content .= '<td style="text-align:center;">还款方式</td>';
+					$content .= '<td style="text-align:center;">' . _cowpro_issuing_get_readable_repayment_method ( $field_issuing ['method_repayment'] ) . '</td>';
+					$content .= '</tr>';
+					$content .= '<tr>';
+					$content .= '<td style="text-align:center;">月还本息数额</td>';
+					$content .= '<td style="text-align:center;">详情见还款计划</td>';
+					$content .= '<td style="text-align:center;">还款起止日期</td>';
+					$content .= '<td style="text-align:center;">详情见还款计划</td>';
+					$content .= '</tr>';
+					$content .= '</table>';
 					$replacements [$original] = $content;
 					break;
 				case 'repayment_schedule':
 					include_once 'includes/cowpro_issuing.repayment_schedule.fun.inc';
-					$content = '';
+					$content = '<table border="1" style="margin: 0px auto; border-collapse: collapse; border: 1px solid rgb(0, 0, 0); width: 90%; ">';
 					$content .= '<tr>';
-					$content .= '<td>还款日</td>';
-					$content .= '<td>应还利息</td>';
-					$content .= '<td>应还本金</td>';
-					$content .= '<tr>';
+					$content .= '<td style="text-align:center;">还款日</td>';
+					$content .= '<td style="text-align:center;">应还利息</td>';
+					$content .= '<td style="text-align:center;">应还本金</td>';
+					$content .= '</tr>';
 					$field_issuing = $issuing->field_issuing [LANGUAGE_NONE] [0];
-					$schedule_list = _cowpro_issuing_build_repayment_schedule ( $field_issuing ['method_repayment'], $field_issuing ['annual_rate'], $field_issuing ['loan_term'], $field_issuing ['method_repayment'], $field_issuing['make_loans_time'] );
+					$schedule_list = _cowpro_issuing_build_repayment_schedule ( $field_issuing ['loan_amounts'], $field_issuing ['annual_rate'], $field_issuing ['loan_term'], $field_issuing ['method_repayment'], $field_issuing['make_loans_time'] );
 					foreach ( $schedule_list as $schedule ) {
 						$content .= '<tr>';
-						$content .= '<td>' . gmdate ( "Y年m月d日", $schedule ['deadline'] ) . '</td>';
-						$content .= '<td>' . $schedule ['interest'] . '</td>';
-						$content .= '<td>' . $schedule ['capital'] . '</td>';
-						$content .= '<tr>';
+						$content .= '<td style="text-align:center;">' . gmdate ( "Y年m月d日", $schedule ['deadline'] ) . '</td>';
+						$content .= '<td style="text-align:center;">' . $schedule ['interest'] . '</td>';
+						$content .= '<td style="text-align:center;">' . $schedule ['capital'] . '</td>';
+						$content .= '</tr>';
 					}
-					$content = "<table>$content</table>";
+					$content .= '</table>';
 					$replacements [$original] = $content;
 					break;
 				case 'sign_date' :
@@ -383,4 +435,64 @@ EOF;
 	}
 
 	return $replacements;
+}
+
+function _cowpro_issuing_tokens_mask ( $str, $start = 0, $length = null ) {
+	$mask = preg_replace ( "/\S/", "*", $str );
+	if( is_null ( $length )) {
+		$mask = substr ( $mask, $start );
+		$str = substr_replace ( $str, $mask, $start );
+	}else{
+		$mask = substr ( $mask, $start, $length );
+		$str = substr_replace ( $str, $mask, $start, $length );
+	}
+	return $str;
+}
+
+function _cowpro_issuing_tokens_utf_substr2($str){
+	$pa = "/[\x01-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\xbf][\x80-\xbf]|[\xe1-\xef][\x80-\xbf][\x80-\xbf]|\xf0[\x90-\xbf][\x80-\xbf][\x80-\xbf]|[\xf1-\xf7][\x80-\xbf][\x80-\xbf][\x80-\xbf]/";
+	preg_match_all($pa, $str, $t_string);
+	if (count($t_string[0])==1) {
+		return $str;
+	} else if(count($t_string[0])==2) {
+		return _cowpro_issuing_tokens_cut_str($str, 1, 0).'****';
+	} else {
+		return _cowpro_issuing_tokens_cut_str($str, 1, 0).'****';//.cut_str($str, 1, -1);
+	}
+}
+
+function _cowpro_issuing_tokens_cut_str($string, $sublen, $start = 0, $code = 'UTF-8')
+{
+	if($code == 'UTF-8')
+	{
+		$pa = "/[\x01-\x7f]|[\xc2-\xdf][\x80-\xbf]|\xe0[\xa0-\xbf][\x80-\xbf]|[\xe1-\xef][\x80-\xbf][\x80-\xbf]|\xf0[\x90-\xbf][\x80-\xbf][\x80-\xbf]|[\xf1-\xf7][\x80-\xbf][\x80-\xbf][\x80-\xbf]/";
+		preg_match_all($pa, $string, $t_string);
+
+		if(count($t_string[0]) - $start > $sublen) return join('', array_slice($t_string[0], $start, $sublen));
+		return join('', array_slice($t_string[0], $start, $sublen));
+	}
+	else
+	{
+		$start = $start*2;
+		$sublen = $sublen*2;
+		$strlen = strlen($string);
+		$tmpstr = '';
+
+		for($i=0; $i< $strlen; $i++)
+		{
+			if($i>=$start && $i< ($start+$sublen))
+			{
+				if(ord(substr($string, $i, 1))>129)
+				{
+					$tmpstr.= substr($string, $i, 2);
+				}
+				else
+				{
+					$tmpstr.= substr($string, $i, 1);
+				}
+			}
+			if(ord(substr($string, $i, 1))>129) $i++;
+		}
+		return $tmpstr;
+	}
 }
