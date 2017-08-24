@@ -67,7 +67,11 @@ function moneymoremore_response($action) {
 }
 
 function _moneymoremore_goto_response_page($op) {
-	$result_code = $_POST ["ResultCode"];
+	if (isset($_POST ["ResultCode"])) {
+		$result_code = $_POST ["ResultCode"];
+	} else {
+		$result_code = '-1';
+	}
 	if (isset($_POST ["Message"])) {
 		$message = $_POST ["Message"];
 	} else {
