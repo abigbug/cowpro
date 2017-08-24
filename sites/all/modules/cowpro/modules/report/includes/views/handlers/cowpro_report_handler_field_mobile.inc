@@ -6,6 +6,11 @@ class cowpro_report_handler_field_mobile extends views_handler_field {
     $uid = $this->get_value($values);
 
     $profile = cowpro_customer_profile_load_one_row_with_conditions($uid, 'mobile');
-    return $profile->mobile_number;
+    if ($profile) {
+    	$result = $profile->mobile_number;
+    } else {
+    	$result = '';
+    }
+    return $result;
   }
 }
