@@ -298,7 +298,7 @@ function _cowpro_issuing_tokens_issuing($type, $tokens, array $data = array(), a
 						$u = user_load ( $journal->uid );
 						$profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ( $journal->uid, 'real_name' );
 						$l = array ();
-						if ($GLOBALS['user']->uid == $journal->uid) {
+						if (($GLOBALS['user']->uid == $journal->uid) || (in_array('administrator', $GLOBALS['user']->roles))) {
 							$l ['name'] = $u->name;
 							$l ['real_name'] = $profile_real_name->name;
 							$l ['id_no'] = $profile_real_name->id_no;
@@ -355,7 +355,7 @@ EOF;
 					foreach ( $journal_list as $journal ) {
 						//$u = user_load ( $journal->uid );
 						$profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ( $journal->uid, 'real_name' );
-						if ($GLOBALS['user']->uid == $journal->uid) {
+						if (($GLOBALS['user']->uid == $journal->uid) || (in_array('administrator', $GLOBALS['user']->roles))) {
 							$lender_list [] = $profile_real_name->name;
 						} else {
 							$lender_list [] = _cowpro_issuing_tokens_utf_substr2($profile_real_name->name);
