@@ -181,6 +181,21 @@ function cowpro_issuing_views_data() {
 			),
 	);
 
+	// The period_total field
+	$data['cowpro_repayment_schedule']['period_total'] = array(
+			'title' => 'period_total',
+			'help' => '总期次',
+			'field' => array(
+					'handler' => 'views_handler_field_numeric',
+			),
+			'sort' => array(
+					'handler' => 'views_handler_sort',
+			),
+			'filter' => array(
+					'handler' => 'views_handler_filter_numeric',
+			),
+	);
+
 	// The payer_uid field
 	$data['cowpro_repayment_schedule']['payer_uid'] = array(
 			'title' => '付款方',
