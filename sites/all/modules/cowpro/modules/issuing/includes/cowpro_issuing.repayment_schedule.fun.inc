@@ -318,11 +318,11 @@ function _cowpro_issuing_save_repayment_schedule($nid, $applicant, $issuing) {
 	foreach ($journal_list as $journal) {
 		$amount = $amount + $journal->amount;
 	}
-	$payer_total = new stdClass();
-	$payer_total->amount = $amount;
-	$payer_total->created = REQUEST_TIME;
-	$payer_total->uid = -1;
-	$journal_list[] = $payer_total;
+	$receiver_total = new stdClass();
+	$receiver_total->amount = $amount;
+	$receiver_total->created = REQUEST_TIME;
+	$receiver_total->uid = -1;
+	$journal_list[] = $receiver_total;
 
 	$repayment_schedule = array();
 	foreach ($journal_list as $journal) {
@@ -338,6 +338,26 @@ function _cowpro_issuing_save_repayment_schedule($nid, $applicant, $issuing) {
 
 	//将“还款计划表”保存到数据库中
 	$period_total = count($repayment_schedule) / count($journal_list);
+
+	//每一个还款期，针对各个出借人计算的还款情况的合计与按贷款人计算的还款情况相比，可能会因为四舍五入而产生差异
+	//这里，将按各个出借人计算的还款情况相加，做为贷款人的应还款情况
+	for ($i=1; $i<=$period_total; $i++) {
+		$capital = 0;
+		$interest = 0;
+		foreach($repayment_schedule as $schedule) {
+			if (($schedule['receiver_uid'] != -1) && ($schedule['term_no'] == $i)) {
+				$capital = $capital + $schedule['capital'];
+				$interest = $interest + $schedule['interest'];
+			}
+		}
+		foreach($repayment_schedule as $schedule) {
+			if (($schedule['receiver_uid'] == -1) && ($schedule['term_no'] == $i)) {
+				$schedule['capital'] = $capital;
+				$schedule['interest'] = $interest;
+			}
+		}
+	}
+
 	foreach($repayment_schedule as $schedule) {
 		$entity_value = array(
 				'issuing_id' => $nid,//对应的原始贷款申请表编号(nid)
