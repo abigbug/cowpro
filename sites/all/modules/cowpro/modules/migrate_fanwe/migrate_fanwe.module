@@ -665,7 +665,7 @@ function migrate_fanwe_batch_op_user($fanwe_uid, $operation_details, &$context) 
 		$params = array (
 				'uid' => $user->uid,
 				'tid' => $term->tid,
-				'points' => $fanwe_account_money->account_money,
+				'points' => round($fanwe_account_money->account_money),
 				'description' => '数据迁移',
 				'display' => FALSE,
 		);
