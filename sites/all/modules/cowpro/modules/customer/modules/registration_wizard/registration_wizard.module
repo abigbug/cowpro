@@ -338,6 +338,9 @@ function registration_wizard_get_result($object) {
 function registration_wizard_user_login(&$edit, $account) {
 	$profile_types = registration_wizard_get_available_profile_types();
 	foreach ($profile_types as $value) {
+		if ($value['type'] == 'credentials') {
+			continue;//不对“证明文件”做检查
+		}
 		if ($value['included']) {
 			global $user;
 			$conditions = array(
