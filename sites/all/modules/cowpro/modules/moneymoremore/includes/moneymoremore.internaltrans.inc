@@ -3,6 +3,8 @@ include_once 'moneymoremore.const.inc';
 include_once 'moneymoremore.fun.inc';
 include_once ("libs/RSA.php");
 include_once ("libs/Common.php");
+include_once ("libs/LoanInfoBean.php");
+include_once ("libs/LoanInfoSecondaryBean.php");
 
 /**
  * 提现
@@ -21,7 +23,9 @@ function moneymoremore_internal_trans($uid_from, $uid_to, $amt) {
 	$returnURL = url($base_url . MMM_URL_RESPONSE . 'moneymoremore_internal_trans', array('query' => $destination));
 	$notifyURL = $base_url . MMM_URL_NOTIRY . 'moneymoremore_internal_trans';
 
-	$batchno = microtime_float();//	请求时间	是	例如 1405668253874
+	$platformMoneymoremore = variable_get ( PLATFORM_ACCOUNT_ON_MONEYMOREMORE );
+
+	$batchno = _moneymoremore_get_microtime();//	请求时间	是	例如 1405668253874
 	$orderNo = sprintf("%'.06d", $uid_from)."IT".sprintf("%'.06d", $uid_to).'#'.$batchno;
 	$arrloaninfo = array ();
 	$amount = round($amt,2);//	转账金额
@@ -48,7 +52,6 @@ function moneymoremore_internal_trans($uid_from, $uid_to, $amt) {
 	$arrloaninfo ["0"] = $repay;
 
 	$loanJsonList = json_encode ( $arrloaninfo );
-	$platformMoneymoremore = PLATFORM_ACCOUNT_ON_MONEYMOREMORE;
 	$transferAction = "2"; // 1.投标;2.还款;3.其他.因为如果选“其他”，那么只能平台账户间可以自动转帐， 别的账户不能自动转账，所以这里只好选“还款”
 	$loanAction = "2"; // 1.手动转账; 2.自动转账; 手动弹出密码验证页面 自动不弹
 	$transferType = "2"; // 1.桥连; 2.直连
@@ -67,7 +70,9 @@ function moneymoremore_internal_trans($uid_from, $uid_to, $amt) {
 	if ($common->getAntiState () == 1) {
 		$dataStr = strtoupper ( md5 ( $dataStr ) );
 	}
-	$rsa = new RSA ();
+	$private_key = variable_get(PRIVATE_KEY_ON_MONEYMOREMORE);
+	$public_key = variable_get(PUBLIC_KEY_ON_MONEYMOREMORE);
+	$rsa = new RSA ($private_key, $public_key);
 	$signInfo = $rsa->sign ( $dataStr );
 	$loanJsonList = urlencode ( $loanJsonList );
 
@@ -121,5 +126,6 @@ function moneymoremore_internal_trans($uid_from, $uid_to, $amt) {
 		$result_mmm['message'] = $result[0]->Message;
 		$result_mmm['result_code'] = $result[0]->ResultCode;
 	}
+	watchdog('moneymoremore_internal_trans', 'success:' . $result_mmm['success'] . ';message:' . $result_mmm['message'] . ';result_code:' . $result_mmm['result_code']);
 	return $result_mmm;
 }
