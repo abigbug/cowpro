@@ -161,6 +161,24 @@ function custodian_cowpro_fund_withdraw_callback($success, $journal_id, $externa
 	cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, $interface_module, $result);
 }
 
+function custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_cowpro_fund_internal_trans';
+	if (function_exists($function)) {
+		$result = $function($uid_from, $uid_to, $amount);
+		return $result;
+	} else {
+		$msg = array(
+				'%function' => $function,
+		);
+		watchdog('custodian', '方法"%function"未定义', $msg, WATCHDOG_ERROR);
+	}
+}
+
+function custodian_cowpro_internal_trans_callback($success, $uid_from, $uid_to, $amount, $interface_module, $result) {
+	cowpro_fund_internal_trans_callback($success, $uid_from, $uid_to, $amount, $interface_module, $result);
+}
+
 function custodian_cowpro_fund_bid($uid, $amount, $nid, $journal_id) {
 	$module = custodian_default_provider_key();
 	$function = $module . '_cowpro_fund_bid';
