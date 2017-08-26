@@ -41,6 +41,17 @@ function cowpro_fund_menu() {
 			'file' => 'includes/cowpro_fund_withdraw.inc',
 			'weight' => 30
 	);
+	$items ['cowpro/fund/internal_trans'] = array (
+			'title' => '站内转账',
+			'description' => '站内转账',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('cowpro_fund_internal_trans'),
+			'access callback' => 'cowpro_fund_real_name_verified',
+			'menu_name' => 'navigation',
+			'type' => MENU_NORMAL_ITEM,
+			'file' => 'includes/cowpro_fund_internal_trans.inc',
+			'weight' => 30
+	);
 	$items ['cowpro/fund/bankcard'] = array (
 			'title' => '银行卡',
 			'description' => '银行卡',

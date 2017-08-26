@@ -1318,6 +1318,36 @@ function cowpro_issuing_form_alter(&$form, &$form_state) {
 		hide ( $form ['author'] );
 		hide ( $form ['comment_settings'] );
 		// hide($form['additional_settings']);
+		$form['title']['#default_value'] = _cowpro_issuing_get_next_issuing_title();
+		$form['field_contract_loan']['und']['#default_value'] = 5;
+		$form['field_contract_credit_assignment']['und']['#default_value'] = 4;
+	}
+}
+
+function _cowpro_issuing_get_next_issuing_title() {
+	$nid = db_query_range("SELECT nid FROM {node} WHERE type = 'cowpro_issuing' ORDER BY nid DESC", 0, 1)->fetchField();
+	$title = node_load($nid)->title;
+	$title = _cowpro_issuing_next_one($title, 1);
+	return $title;
+}
+
+function _cowpro_issuing_next_one($text,$addend) {
+	preg_match('/^(?<a>.+?)(?<d>\d*)$/',$text,$m);
+	if(($len_d=strlen($m['d']))>0){
+		$num=intval($m['d'])+$addend;
+		return $m['a'].sprintf('%0'.$len_d.'d',$num);
+	}else{
+		$num='';
+		for($i=strlen($m['a'])-1; $addend>0; $i--){
+			$d=$i<0? 0: ord( strtolower($m['a'][$i]) )-ord('a');
+			//              ^---这个值改成 -1 即变成z+1=aa畸形进位
+			$a=$addend%26;
+			$d=$d+$a;
+			$addend=intval($addend/26+$d/26);
+			$num=chr($d%26+ord('a')).$num;
+		}
+		if($i>=0)	$num=substr($m['a'],0,$i+1).$num;
+		return $num;
 	}
 }
 

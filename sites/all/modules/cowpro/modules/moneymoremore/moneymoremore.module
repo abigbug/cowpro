@@ -310,6 +310,11 @@ function moneymoremore_cowpro_fund_withdraw($uid, $amount, $bankcard, $journal_i
 	return moneymoremore_withdraw($uid, $amount, $bankcard, $journal_id);
 }
 
+function moneymoremore_cowpro_fund_internal_trans($uid_from, $uid_to, $amount) {
+	include_once 'includes/moneymoremore.internaltrans.inc';
+	return moneymoremore_internal_trans($uid_from, $uid_to, $amount);
+}
+
 function moneymoremore_cowpro_fund_bid($uid, $amount, $nid, $journal_id) {
 	include_once 'includes/moneymoremore.bid.inc';
 	return moneymoremore_bid($uid, $amount, $nid, $journal_id);
