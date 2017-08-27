@@ -1318,9 +1318,11 @@ function cowpro_issuing_form_alter(&$form, &$form_state) {
 		hide ( $form ['author'] );
 		hide ( $form ['comment_settings'] );
 		// hide($form['additional_settings']);
-		$form['title']['#default_value'] = _cowpro_issuing_get_next_issuing_title();
-		$form['field_contract_loan']['und']['#default_value'] = 5;
-		$form['field_contract_credit_assignment']['und']['#default_value'] = 4;
+		if ($form['title']['#default_value'] == null) {
+			$form['title']['#default_value'] = _cowpro_issuing_get_next_issuing_title();
+			$form['field_contract_loan']['und']['#default_value'] = 5;
+			$form['field_contract_credit_assignment']['und']['#default_value'] = 4;
+		}
 	}
 }
 
