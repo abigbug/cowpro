@@ -32,7 +32,7 @@ function cowpro_fund_internal_trans($form, &$form_state) {
 			'#input' => TRUE
 	);
 
-	$form['submit'] = array(
+	$form['command_btn']['submit'] = array(
 			'#type' => 'submit',
 			'#value' => t('Submit'),
 			'#id' => 'submit',
@@ -43,6 +43,7 @@ function cowpro_fund_internal_trans($form, &$form_state) {
 			),
 			//'#submit' => array('cowpro_fund_internal_trans_submit'),
 	);
+
 	return $form;
 }
 
@@ -126,16 +127,18 @@ function cowpro_fund_internal_trans_do($form, &$form_state) {
 	$uid_from = $form_state['uid_from'];
 	$uid_to = $form_state['uid_to'];
 	$amount = $form_state['amount'];
-	watchdog('trans', "$uid_from;$uid_to;$amount");
+	watchdog('internal_trans', "$uid_from;$uid_to;$amount");
 
 	$result = custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount);
 
 
-	$form = array();
-	$form['information'] = array(
-			'#markup' => "<p>helloooo</p>",
-	);
-	return $form;
+	if ($result['success']) {
+		drupal_set_message('转账成功');
+	} else {
+		drupal_set_message('转账失败，' . $result['message'], 'warning');
+		watchdog('internal_trans', $result['message']. '; code:' . $result['result_code']);
+	}
+	return;
 }
 
 function __cowpro_fund_internal_trans_confirm_form_submit(&$form, &$form_state) {
