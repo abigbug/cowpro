@@ -27,6 +27,9 @@ function cowpro_report_views_data() {
 			'field' => array(
 					'handler' => 'cowpro_report_handler_field_mobile',
 			),
+			'filter' => array(
+					'handler' => 'cowpro_report_handler_filter_mobile',
+			),
 	);
 	$data['users']['payment_password'] = array(
 			'title' => '投标密码',
@@ -42,6 +45,9 @@ function cowpro_report_views_data() {
 			'real field' => 'uid',
 			'field' => array(
 					'handler' => 'cowpro_report_handler_field_referee',
+			),
+			'filter' => array(
+					'handler' => 'cowpro_report_handler_filter_referee',
 			),
 	);
 

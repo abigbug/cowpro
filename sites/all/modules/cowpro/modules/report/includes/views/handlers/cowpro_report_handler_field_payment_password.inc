@@ -7,7 +7,7 @@ class cowpro_report_handler_field_payment_password extends views_handler_field {
 
     $profile = cowpro_customer_profile_load_one_row_with_conditions($uid, 'payment_password');
     if ($profile) {
-    	$password = preg_replace('/(.)/', '*', $profile->password);
+    	$password = '***';//preg_replace('/(.)/', '*', $profile->password);
     } else {
     	$password = '';
     }
