@@ -412,6 +412,7 @@ function _cowpro_message_cowpro_fund_bid_finished($success, $node, $journal) {
 		$content = token_replace(variable_get ( 'cowpro_sms_bid_lender_message', COWPRO_SMS_BID_LENDER_MESSAGE ), $data);
 		cowpro_message_send($phone_number, $content);
 
+		/*
 		$applicant_user = user_load($node->field_applicant [LANGUAGE_NONE] [0]['uid']);
 		$uid = $applicant_user->uid;
 		$profile_mobile = cowpro_customer_profile_load_one_row_with_conditions($uid, 'mobile');
@@ -424,6 +425,7 @@ function _cowpro_message_cowpro_fund_bid_finished($success, $node, $journal) {
 		$data['user'] = $user;
 		$content = token_replace(variable_get ( 'cowpro_sms_bid_borrower_message', COWPRO_SMS_BID_BORROWER_MESSAGE ), $data);
 		cowpro_message_send($phone_number, $content);
+		*/
 	}
 }
 
@@ -488,6 +490,7 @@ function _cowpro_message_cowpro_fund_make_loans_to_finished_message_send($succes
 			cowpro_message_send($phone_number, $content);
 		}
 
+		/*
 		$user = user_load($node->field_applicant [LANGUAGE_NONE] [0]['uid']);
 		$uid = $user->uid;
 		$profile_mobile = cowpro_customer_profile_load_one_row_with_conditions($uid, 'mobile');
@@ -499,6 +502,7 @@ function _cowpro_message_cowpro_fund_make_loans_to_finished_message_send($succes
 		$data['user'] = $user;
 		$content = token_replace(variable_get ( 'cowpro_sms_make_loans_to_borrower_message', COWPRO_SMS_MAKE_LOANS_TO_BORROWER_MESSAGE ), $data);
 		cowpro_message_send($phone_number, $content);
+		*/
 	}
 }
 
@@ -525,6 +529,7 @@ function _cowpro_message_cowpro_fund_repayment_finished($success, $node, $repaym
 			cowpro_message_send($phone_number, $content);
 		}
 
+		/*
 		$values = array_values ( $repayment_schedules );
 		$repayment = array_shift($values);
 		$user = user_load($node->field_applicant [LANGUAGE_NONE] [0]['uid']);
@@ -539,5 +544,6 @@ function _cowpro_message_cowpro_fund_repayment_finished($success, $node, $repaym
 		$data['cowpro_repayment_schedule'] = $repayment;
 		$content = token_replace(variable_get ( 'cowpro_sms_repayment_payer_message', COWPRO_SMS_REPAYMENT_PAYER_MESSAGE ), $data);
 		cowpro_message_send($phone_number, $content);
+		*/
 	}
 }
