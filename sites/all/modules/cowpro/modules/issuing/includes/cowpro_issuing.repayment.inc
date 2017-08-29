@@ -215,10 +215,15 @@ function _cowpro_issuing_repayment_update($repayment_schedules) {
 	$schedules = entity_load ( 'cowpro_repayment_schedule', FALSE, $conditions, $reset );
 	$schedule = array_shift($schedules);
 	if ($schedule) {
-		$schedule->paid_amount = $schedule->paid_amount + $paid_amount;
-		if ($schedule->payable_amount == $schedule->paid_amount) {
+		/*
+		 * 在实际运行中，$schedule->payable_amount == $schedule->paid_amount 这个判断，有时候是正确的，但有时候应该相等而结果却是不等
+		 * 推测有可能是数据库与PHP当中，实数有小尾巴的原因
+		 * 所以现在暂时不做判断，直接将 status 登录为 COMPLETED
+		 */
+		//$schedule->paid_amount = $schedule->paid_amount + $paid_amount;
+		//if ($schedule->payable_amount == $schedule->paid_amount) {
 			$schedule->status = 'COMPLETED';
-		}
+		//}
 		entity_save ( 'cowpro_repayment_schedule', $schedule );
 	}
 
