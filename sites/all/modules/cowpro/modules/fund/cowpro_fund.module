@@ -46,7 +46,7 @@ function cowpro_fund_menu() {
 			'description' => '站内转账',
 			'page callback' => 'drupal_get_form',
 			'page arguments' => array('cowpro_fund_internal_trans'),
-			'access callback' => 'cowpro_fund_real_name_verified',
+			'access arguments' => array('cowpro fund internal trans'),
 			'menu_name' => 'navigation',
 			'type' => MENU_NORMAL_ITEM,
 			'file' => 'includes/cowpro_fund_internal_trans.inc',
@@ -101,6 +101,18 @@ function cowpro_fund_menu() {
 	);
 	*/
 	return $items;
+}
+
+function cowpro_fund_permission() {
+	$permissions = array (
+			'cowpro fund internal trans' => array (
+					'title' => '内部转账',
+					'description' => '内部转账.',
+					'restrict access' => TRUE,
+			),
+	);
+
+	return $permissions;
 }
 
 function cowpro_fund_journal() {
