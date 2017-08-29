@@ -256,7 +256,13 @@ function _cowpro_issuing_tokens_issuing($type, $tokens, array $data = array(), a
 					$replacements [$original] = $sanitize ? check_plain ( $issuing->title ) : $issuing->title;
 					break;
 				case 'number' :
-					$replacements [$original] = sprintf ( "%'.06d", $issuing->nid );
+					$findme   = 'MER';
+					$pos = strpos($issuing->title, $findme);
+					if ($pos === false) {
+						$replacements [$original] = sprintf ( "%'.06d", $issuing->nid );
+					} else {
+						$replacements [$original] = substr($issuing->title, $pos);
+					}
 					break;
 				case 'amount' :
 					$amount = $issuing->field_issuing[LANGUAGE_NONE][0]['loan_amounts'];
