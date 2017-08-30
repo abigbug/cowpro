@@ -14,10 +14,10 @@
       <table class="views-table cols-3">
          <thead>
       <tr>
-                  <th class="views-field views-field-lender" scope="col">
-            投资人          </th>
                   <th class="views-field views-field-lender-time" scope="col">
             投资时间          </th>
+                  <th class="views-field views-field-lender" scope="col">
+            投资人          </th>
                   <th class="views-field views-field-lender-amount" scope="col">
             投资金额（元）          </th>
               </tr>
@@ -37,6 +37,8 @@
     ?>
 
           <tr class="<?php if ($count%2) {echo 'odd';} else {echo 'even';}?>">
+                  <td class="views-field views-field-lender-time">
+            <?php print date('Y/m/d H:i', $journal->created); ?>          </td>
                   <td class="views-field views-field-lender">
             <?php
             if ($maskit && $user->uid != $journal_user->uid) {
@@ -49,8 +51,6 @@
 				print $journal_user->name;
 			}
 			?>          </td>
-                  <td class="views-field views-field-lender-time">
-            <?php print date('Y/m/d H:i', $journal->created); ?>          </td>
                   <td class="views-field views-field-lender-amount">
             <?php print $journal->amount; ?>          </td>
               </tr>
