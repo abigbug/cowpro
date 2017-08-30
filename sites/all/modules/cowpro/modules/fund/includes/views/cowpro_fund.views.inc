@@ -10,15 +10,22 @@ function cowpro_fund_views_data()
     $data['cowpro_fund_journal']['table']['group'] = '资金明细';
 
     $data['cowpro_fund_journal']['table']['base'] = array(
+    	'field' => 'uid',
         'title' => '资金明细',
         'help' => '包括充值、提现、投标…… 等等各种资金明细',
     );
 
     $data['cowpro_fund_journal']['table']['join'] = array(
     		'node' => array(
-    				'left_field' => 'issuing_id',
-    				'field' => 'nid',
+    				'left_field' => 'nid',
+    				'field' => 'issuing_id',
     		),
+    		/*
+		    'users' => array(
+		    		'left_field' => 'uid',
+		    		'field' => 'uid',
+		    ),
+		    */
     );
 
     // The journal_id field
@@ -66,7 +73,7 @@ function cowpro_fund_views_data()
     				'handler' => 'cowpro_fund_journal_handler_field_issuing_title',
     		),
     		'filter' => array(
-    				'handler' => 'views_handler_filter_string',
+    				'handler' => 'cowpro_fund_journal_handler_filter_issuing_title',
     		),
     		'sort' => array(
     				'handler' => 'views_handler_sort',
@@ -108,6 +115,18 @@ function cowpro_fund_views_data()
     				'base field' => 'uid',
     				'field' => 'uid',
     				'label' => '用户',
+    		),
+    );
+
+    $data['cowpro_fund_journal']['real_name'] = array(
+    		'title' => '用户实名',
+    		'help' => '用户昵称与真实姓名',
+    		'real field' => 'uid',
+    		'field' => array(
+    				'handler' => 'cowpro_fund_journal_handler_field_real_name',
+    		),
+    		'filter' => array(
+    				'handler' => 'cowpro_fund_journal_handler_filter_user',
     		),
     );
 

@@ -88,13 +88,9 @@ function cowpro_issuing_views_data() {
 					'field' => 'issuing_id',
 			),
 			/*
-			'user' => array(
+			'users' => array(
 					'left_field' => 'uid',
-					'field' => 'payer_uid',
-			),
-			'user' => array(
-					'left_field' => 'uid',
-					'field' => 'receiver_uid',
+					'field' => 'uid',
 			),
 			*/
 	);

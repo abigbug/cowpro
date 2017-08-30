@@ -21,8 +21,11 @@ files[] = includes/views/handlers/cowpro_fund_journal_handler_field_amount.inc
 files[] = includes/views/handlers/cowpro_fund_journal_handler_field_issuing_title.inc
 files[] = includes/views/handlers/cowpro_fund_journal_handler_field_status.inc
 files[] = includes/views/handlers/cowpro_fund_journal_handler_field_type.inc
+files[] = includes/views/handlers/cowpro_fund_journal_handler_field_real_name.inc
+files[] = includes/views/handlers/cowpro_fund_journal_handler_filter_issuing_title.inc
 files[] = includes/views/handlers/cowpro_fund_journal_handler_filter_status.inc
 files[] = includes/views/handlers/cowpro_fund_journal_handler_filter_type.inc
+files[] = includes/views/handlers/cowpro_fund_journal_handler_filter_user.inc
 
 ; Information added by Drupal.org packaging script on 2015-01-16
 version = "7.x-0.01"

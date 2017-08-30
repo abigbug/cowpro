@@ -65,16 +65,11 @@ class cowpro_issuing_handler_field_issuing_operations extends views_handler_fiel
 		}
 		*/
 
-		$quick_link1['quick-view'] = menu_get_item("issuing/$issuing_id");
-		if ($quick_link1['quick-view']['access']) {
-			$quick_link1['quick-view']['title'] = '贷款详情';
-			$links = array_merge($quick_link1, $links);
-		}
-
 		ctools_include('modal');
 		ctools_include('ajax');
 		ctools_modal_add_js();
 
+		$title = '贷款详情';
 		$node = node_load($issuing_id);
 		include_once drupal_get_path('module', 'cowpro_issuing') . '/includes/cowpro_issuing_status.inc';
 		switch ($node->field_issuing[LANGUAGE_NONE][0]['status']) {
@@ -86,20 +81,29 @@ class cowpro_issuing_handler_field_issuing_operations extends views_handler_fiel
 			break;
 		case COWPRO_ISSUING_STATUS_INVITE_BIDS_START :
 			$status_class = 'default';
+			$title = '可投标';
 			break;
 		case COWPRO_ISSUING_STATUS_INVITE_BIDS_FAILED :
 			$status_class = 'default';
 			break;
 		case COWPRO_ISSUING_STATUS_INVITE_BIDS_SUCCEED :
 			$status_class = 'yellow';
+			$title = '已满标';
 			break;
 		case COWPRO_ISSUING_STATUS_REPAYMENT :
 			$status_class = 'green';
+			$title = '还款中';
 			break;
 		case COWPRO_ISSUING_STATUS_FINISHED :
 			$status_class = 'default';
+			$title = '还款完毕';
 		}
 
+		$quick_link1['quick-view'] = menu_get_item("issuing/$issuing_id");
+		if ($quick_link1['quick-view']['access']) {
+			$quick_link1['quick-view']['title'] = $title;
+			$links = array_merge($quick_link1, $links);
+		}
 
 		$element = array(
 				'#markup' => theme('links__ctools_dropbutton', array('links' => $links, 'attributes' => array('class' => array('links', 'inline', $status_class)))),
