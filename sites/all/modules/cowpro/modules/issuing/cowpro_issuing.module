@@ -333,6 +333,13 @@ function cowpro_issuing_menu() {
 			'context' => MENU_CONTEXT_INLINE,
 	);
 
+	$items['issuing/autocomplete'] = array(
+			'title' => 'Issuing Title autocomplete',
+			'page callback' => 'cowpro_issuing_title_autocomplete',
+			'access callback' => TRUE,
+			'type' => MENU_CALLBACK,
+	);
+
 	return $items;
 }
 
@@ -1560,4 +1567,16 @@ function _cowpro_issuing_mask_user_name($name) {
 		$result = mb_substr($name, 0, 4) . '****' . mb_substr($name, -3, 3);
 	}
 	return $result;
+}
+
+function cowpro_issuing_title_autocomplete($string = '') {
+	$matches = array();
+	if ($string) {
+		$result = db_select('node')->fields('node', array('nid', 'title'))->condition('type', 'cowpro_issuing', '=')->condition('title', '%' . db_like($string) . '%', 'LIKE')->orderBy('nid', 'DESC')->range(0, 10)->execute();
+		foreach ($result as $issuing) {
+			$matches[$issuing->title] = check_plain($issuing->title);
+		}
+	}
+
+	drupal_json_output($matches);
 }
