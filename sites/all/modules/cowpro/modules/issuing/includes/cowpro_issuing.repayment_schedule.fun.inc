@@ -102,9 +102,9 @@ function _cowpro_issuing_get_readable_loan_term($loan_term) {
 function _cowpro_issuing_get_interest_period($start_time, $loan_term) {
 	$terms = _cowpro_issuing_get_loan_term_options_2();
 	if (array_key_exists($loan_term, $terms)) {
-		return date("Y-m-d", strtotime($terms[$loan_term], $start_time));
+		return gmdate("Y-m-d", strtotime($terms[$loan_term], $start_time));
 	} else {
-		return date("Y-m-d", $start_time + strtotime("+$loan_term days"));
+		return gmdate("Y-m-d", $start_time + strtotime("+$loan_term days"));
 	}
 }
 
@@ -121,9 +121,9 @@ function _cowpro_issuing_periods($term, $make_loans_time = null) {
 	if ($make_loans_time) {
 		$start_time = $make_loans_time;
 	} else {
-		$start_time = strtotime(date('Y-m-d 23:59:59'));
+		$start_time = strtotime(gmdate('Y-m-d 23:59:59'));
 	}
-	//$date = date('Y-m-d H:i:s', $time);
+	//$date = gmdate('Y-m-d H:i:s', $time);
 	//echo $date;
 
 	$periods = array();
@@ -154,18 +154,23 @@ function _cowpro_issuing_periods($term, $make_loans_time = null) {
 
 function _cowpro_issuing_next_period($start_time, $month_span = 1) {
 	$period = strtotime("+$month_span month", $start_time);
-	$month_start = (int)date('n', $start_time);
-	$month_period = (int)date('n', $period);
-	if ($month_period > $month_start + $month_span) {
+	$month_start = (int)gmdate('n', $start_time);
+	$month_period = (int)gmdate('n', $period);
+	$year_start = (int)gmdate('Y', $start_time);
+	$year_period = (int)gmdate('Y', $period);
+	$base = $year_period - $year_start;
+	if ($month_period > ($month_start + $month_span) - ($base *12) ) {
 		//假设$start_time为2016年1月31日，
 		//这时候通过strtotime("+1 month", $start_time)操作的结果将是2016年3月2日
 		//我们要对这种情况进行处理，将结果置为前一个月（2月）的最后一天
 		//echo $last_day_of_month.'ccc';
 		//$period = strtotime('-1 month', strtotime($last_day_of_month));
 		$period = strtotime('-1 month', $period);
-		$last_day_of_month = date("Y-m-t H:i:s", $period);
+		$last_day_of_month = gmdate("Y-m-t H:i:s", $period);
+		//watchdog('_cowpro_issuing_next_period', $last_day_of_month);
 		$period = strtotime($last_day_of_month);
 	}
+	//watchdog('_cowpro_issuing_next_period', "$month_start;$month_period;$month_span;" . gmdate("Y-m-d H:i:s", $period) . ';' . $period);
 	return $period;
 }
 
