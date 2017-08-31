@@ -20,7 +20,7 @@ function cowpro_issuing_menu() {
 			'type' => MENU_NORMAL_ITEM,
 			'file' => 'includes/cowpro_issuing.settings.inc'
 	);
-/*
+
 	$items ['admin/cowpro/config_issuing_test'] = array (
 			'title' => '贷款申请表测试',
 			'description' => '测试“生成还款计划表”',
@@ -33,7 +33,7 @@ function cowpro_issuing_menu() {
 			),
 			'type' => MENU_NORMAL_ITEM
 	);
-*/
+
 	$items ['node/add/cowpro-issuing'] = array (
 			'title' => '我要贷款',
 			'description' => '填写贷款申请表',
@@ -1498,10 +1498,10 @@ function cowpro_issuing_bid_list($nid) {
 	require_once 'includes/cowpro_issuing.bid.inc';
 	return _cowpro_issuing_bid_list ( $nid );
 }
-/*
+
 function cowpro_issuing_test_form($form, &$form_state) {
 	// 生成还款计划表
-	$nid = 12;
+	$nid = 2048;
 	$node = node_load ( $nid );
 	$issuing = $node->field_issuing [LANGUAGE_NONE] [0];
 
@@ -1512,7 +1512,12 @@ function cowpro_issuing_test_form($form, &$form_state) {
 		$total += $value ['capital'] + $value ['interest'];
 		$content = '<ul>';
 		foreach ( $value as $k => $v ) {
-			$content .= "<li>$k => $v</li>";
+			if ($k=='deadline') {
+				$deadline = gmdate ( "Y年m月d日 H:i:s", $v) . '===' . gmdate ( "Y-m-d H:i:s", $v);
+				$content .= "<li>$k => $deadline;$v</li>";
+			} else {
+				$content .= "<li>$k => $v</li>";
+			}
 		}
 		$content .= '</ul>';
 		echo "$key => $content<br/>";
@@ -1524,9 +1529,10 @@ function cowpro_issuing_test_form($form, &$form_state) {
 	echo 'annual_rate:' . $issuing ['annual_rate'] . '<br/>';
 	echo 'loan_term:' . $issuing ['loan_term'] . '<br/>';
 	echo 'method_repayment:' . $issuing ['method_repayment'] . '<br/>';
+	echo '放款时间：' . gmdate("Y年m月d日", $issuing['make_loans_time']) . '<br/>';
 	die ( '还款计划表' );
 }
-*/
+
 
 /**
  * Implements hook_views_pre_render()
