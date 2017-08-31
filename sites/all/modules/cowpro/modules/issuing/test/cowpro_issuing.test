@@ -28,14 +28,34 @@ class CowproIssuingTestCase extends DrupalWebTestCase {
     //$this->debtor_user = $this->drupalCreateUser(array('apply issuing'));
     //$this->admin_user = $this->drupalCreateUser(array('administer nodes', 'apply issuing', 'review issuing', 'make loans to', 'admin repayment', 'temporary advance', 'failing issuing', 'bid issuing'));
 
+    /*
     $perms = user_role_permissions(array(array_search('adminstrator', user_roles()) => 'adminstrator'));
     $perms = array_keys($perms[array_search('adminstrator', user_roles())]);
     $this->admin_user = $this->drupalCreateUser($perms);
+    */
+  }
+
+  /**
+   * 测试
+   */
+  function testMakeLoansTo() {
+  	watchdog('testMakeLoansTo', 'hello');
+  	require_once drupal_get_path('module', 'cowpro_issuing') . '/includes/cowpro_issuing.repayment_schedule.fun.inc';
+  	$loan_term = 300;
+  	$make_loans_time = 1475192064;//2016-09-30 07:34:24
+  	$periods = _cowpro_issuing_periods($loan_term, $make_loans_time);
+  	$msg = '';
+  	foreach ($periods as $period) {
+  		$msg .= $period['interval_days'] . '|' . $period['deadline'] . '|' . $period['term_no'] . '===';
+  	}
+  	drupal_set_message($msg);
+  	watchdog('testMakeLoansTo', $msg);
   }
 
   /**
    * 测试满标放款
    */
+  /*
   function testMakeLoansTo() {
     $this->drupalLogin($this->admin_user);
   	$langcode = LANGUAGE_NONE;
@@ -86,5 +106,5 @@ class CowproIssuingTestCase extends DrupalWebTestCase {
     $node = $this->drupalGetNodeByTitle($edit[$title_key]);
     $this->assertTrue($node, 'Node found in database.');
   }
-
+*/
 }
