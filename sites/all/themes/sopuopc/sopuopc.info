@@ -36,3 +36,4 @@ stylesheets[all][] = assets/jasny/css/jasny-bootstrap.min.css
 stylesheets[all][] = assets/animate/animate.min.css
 stylesheets[all][] = css/sopuo-color-ui.css
 stylesheets[all][] = css/style.css
+stylesheets[all][] = css/sopuo-shop.css
