@@ -11,6 +11,256 @@ function cowpro_views_views_default_views() {
   $export = array();
 
   $view = new view();
+  $view->name = '_wyth';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'node';
+  $view->human_name = '贷款信息';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = '贷款信息';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['use_more_text'] = '更多';
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
+  $handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
+  $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = '排序依据';
+  $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
+  $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '30';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = '每页条目数';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- 全部 -';
+  $handler->display->display_options['pager']['options']['expose']['offset_label'] = '偏移量';
+  $handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+  $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+  $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
+  $handler->display->display_options['style_plugin'] = 'table';
+  /* 字段: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = '标题';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  /* 排序标准: Content: Post date */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'node';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+  /* 过滤规则: Content: Published */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = 1;
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* 过滤规则: Content: Type */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'cowpro_issuing' => 'cowpro_issuing',
+  );
+
+  /* Display: Page */
+  $handler = $view->new_display('page', 'Page', 'page');
+  $handler->display->display_options['path'] = 'issuing-search';
+  $translatables['_wyth'] = array(
+    t('Master'),
+    t('贷款信息'),
+    t('更多'),
+    t('应用'),
+    t('重置'),
+    t('排序依据'),
+    t('升序'),
+    t('降序'),
+    t('每页条目数'),
+    t('- 全部 -'),
+    t('偏移量'),
+    t('« 第一页'),
+    t('‹ 前一页'),
+    t('下一页 ›'),
+    t('末页 »'),
+    t('标题'),
+    t('Page'),
+  );
+  $export['_wyth'] = $view;
+
+  $view = new view();
+  $view->name = '_ynvi';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'node';
+  $view->human_name = '投标记录';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = '投标记录';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['use_more_text'] = '更多';
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['perm'] = 'access user profiles';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
+  $handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
+  $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = '排序依据';
+  $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
+  $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '30';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = '每页条目数';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- 全部 -';
+  $handler->display->display_options['pager']['options']['expose']['offset_label'] = '偏移量';
+  $handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+  $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+  $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
+  $handler->display->display_options['style_plugin'] = 'table';
+  /* 字段: 资金明细: 用户实名 */
+  $handler->display->display_options['fields']['real_name_1']['id'] = 'real_name_1';
+  $handler->display->display_options['fields']['real_name_1']['table'] = 'cowpro_fund_journal';
+  $handler->display->display_options['fields']['real_name_1']['field'] = 'real_name';
+  $handler->display->display_options['fields']['real_name_1']['label'] = '';
+  $handler->display->display_options['fields']['real_name_1']['element_label_colon'] = FALSE;
+  /* 字段: 资金明细: amount */
+  $handler->display->display_options['fields']['amount']['id'] = 'amount';
+  $handler->display->display_options['fields']['amount']['table'] = 'cowpro_fund_journal';
+  $handler->display->display_options['fields']['amount']['field'] = 'amount';
+  $handler->display->display_options['fields']['amount']['label'] = '金额';
+  /* 字段: 资金明细: 内部参考凭证 */
+  $handler->display->display_options['fields']['internal_reference_id']['id'] = 'internal_reference_id';
+  $handler->display->display_options['fields']['internal_reference_id']['table'] = 'cowpro_fund_journal';
+  $handler->display->display_options['fields']['internal_reference_id']['field'] = 'internal_reference_id';
+  $handler->display->display_options['fields']['internal_reference_id']['label'] = '贷款标题';
+  /* 字段: 资金明细: 时间 */
+  $handler->display->display_options['fields']['created']['id'] = 'created';
+  $handler->display->display_options['fields']['created']['table'] = 'cowpro_fund_journal';
+  $handler->display->display_options['fields']['created']['field'] = 'created';
+  $handler->display->display_options['fields']['created']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['created']['custom_date_format'] = 'Y/m/d';
+  $handler->display->display_options['fields']['created']['second_date_format'] = 'long';
+  /* 排序标准: Content: Post date */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'node';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+  /* 过滤规则: Content: Type */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'cowpro_issuing' => 'cowpro_issuing',
+  );
+  /* 过滤规则: 资金明细: 业务类型 */
+  $handler->display->display_options['filters']['type_1']['id'] = 'type_1';
+  $handler->display->display_options['filters']['type_1']['table'] = 'cowpro_fund_journal';
+  $handler->display->display_options['filters']['type_1']['field'] = 'type';
+  $handler->display->display_options['filters']['type_1']['value'] = array(
+    'BID' => 'BID',
+  );
+  /* 过滤规则: 资金明细: 结果 */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'cowpro_fund_journal';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = array(
+    1 => '1',
+  );
+  /* 过滤规则: 贷款名称 */
+  $handler->display->display_options['filters']['internal_reference_id']['id'] = 'internal_reference_id';
+  $handler->display->display_options['filters']['internal_reference_id']['table'] = 'cowpro_fund_journal';
+  $handler->display->display_options['filters']['internal_reference_id']['field'] = 'internal_reference_id';
+  $handler->display->display_options['filters']['internal_reference_id']['ui_name'] = '贷款名称';
+  $handler->display->display_options['filters']['internal_reference_id']['operator'] = 'contains';
+  $handler->display->display_options['filters']['internal_reference_id']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['internal_reference_id']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['internal_reference_id']['expose']['label'] = '贷款标题';
+  $handler->display->display_options['filters']['internal_reference_id']['expose']['operator'] = 'internal_reference_id_op';
+  $handler->display->display_options['filters']['internal_reference_id']['expose']['identifier'] = 'internal_reference_id';
+  $handler->display->display_options['filters']['internal_reference_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+  );
+  /* 过滤规则: 资金明细: 用户实名 */
+  $handler->display->display_options['filters']['real_name']['id'] = 'real_name';
+  $handler->display->display_options['filters']['real_name']['table'] = 'cowpro_fund_journal';
+  $handler->display->display_options['filters']['real_name']['field'] = 'real_name';
+  $handler->display->display_options['filters']['real_name']['value'] = -1;
+  $handler->display->display_options['filters']['real_name']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['real_name']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['real_name']['expose']['label'] = '用户实名';
+  $handler->display->display_options['filters']['real_name']['expose']['operator'] = 'real_name_op';
+  $handler->display->display_options['filters']['real_name']['expose']['identifier'] = 'real_name';
+  $handler->display->display_options['filters']['real_name']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+  );
+
+  /* Display: 投标记录 */
+  $handler = $view->new_display('page', '投标记录', 'page');
+  $handler->display->display_options['path'] = 'bid-search';
+  $handler->display->display_options['menu']['title'] = '投标记录';
+  $handler->display->display_options['menu']['weight'] = '0';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: 投标记录，导出 */
+  $handler = $view->new_display('views_data_export', '投标记录，导出', 'views_data_export_1');
+  $handler->display->display_options['pager']['type'] = 'none';
+  $handler->display->display_options['style_plugin'] = 'views_data_export_xls';
+  $handler->display->display_options['style_options']['provide_file'] = 0;
+  $handler->display->display_options['style_options']['parent_sort'] = 0;
+  $handler->display->display_options['path'] = 'bid-search.xls';
+  $handler->display->display_options['displays'] = array(
+    'page' => 'page',
+    'default' => 0,
+  );
+  $translatables['_ynvi'] = array(
+    t('Master'),
+    t('投标记录'),
+    t('更多'),
+    t('应用'),
+    t('重置'),
+    t('排序依据'),
+    t('升序'),
+    t('降序'),
+    t('每页条目数'),
+    t('- 全部 -'),
+    t('偏移量'),
+    t('« 第一页'),
+    t('‹ 前一页'),
+    t('下一页 ›'),
+    t('末页 »'),
+    t('金额'),
+    t('贷款标题'),
+    t('时间'),
+    t('用户实名'),
+    t('投标记录，导出'),
+  );
+  $export['_ynvi'] = $view;
+
+  $view = new view();
   $view->name = 'all_issuing';
   $view->description = '';
   $view->tag = 'cowpro-issuing-list';
@@ -26,8 +276,15 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['use_more_text'] = '更多';
-  $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['access']['type'] = 'role';
+  $handler->display->display_options['access']['role'] = array(
+    3 => '3',
+  );
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
   $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
@@ -68,9 +325,16 @@ function cowpro_views_views_default_views() {
       ),
     ),
   );
-  $handler->display->display_options['pager']['type'] = 'some';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '5';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '10';
   $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = '每页条目数';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- 全部 -';
+  $handler->display->display_options['pager']['options']['expose']['offset_label'] = '偏移量';
+  $handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+  $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+  $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
   $handler->display->display_options['style_plugin'] = 'table_megarows';
   $handler->display->display_options['style_options']['columns'] = array(
     'title' => 'title',
@@ -102,7 +366,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['style_options']['scroll_padding'] = '120';
   $handler->display->display_options['style_options']['loading_text'] = '正在加载...';
   $handler->display->display_options['row_plugin'] = 'fields';
-  /* 页眉: 全局: 文本域 */
+  /* 页眉: Global: Text area */
   $handler->display->display_options['header']['area']['id'] = 'area';
   $handler->display->display_options['header']['area']['table'] = 'views';
   $handler->display->display_options['header']['area']['field'] = 'area';
@@ -113,36 +377,37 @@ function cowpro_views_views_default_views() {
   </ul>
 </div>';
   $handler->display->display_options['header']['area']['format'] = 'full_html';
-  /* 无任何结果时的行为: 全局: 文本域 */
+  /* 无任何结果时的行为: Global: Text area */
   $handler->display->display_options['empty']['area']['id'] = 'area';
   $handler->display->display_options['empty']['area']['table'] = 'views';
   $handler->display->display_options['empty']['area']['field'] = 'area';
   $handler->display->display_options['empty']['area']['empty'] = TRUE;
   $handler->display->display_options['empty']['area']['content'] = '<h1>暂无内容，等待添加！</h1>';
   $handler->display->display_options['empty']['area']['format'] = 'full_html';
-  /* 字段: 内容: 标题 */
+  /* 字段: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['label'] = '';
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* 字段: 内容: 申请人 */
+  /* 字段: 节点: 申请人 */
   $handler->display->display_options['fields']['field_applicant']['id'] = 'field_applicant';
   $handler->display->display_options['fields']['field_applicant']['table'] = 'field_data_field_applicant';
   $handler->display->display_options['fields']['field_applicant']['field'] = 'field_applicant';
   $handler->display->display_options['fields']['field_applicant']['settings'] = array(
     'user_reference_view_mode' => 'full',
   );
-  /* 字段: 内容: 贷款表 */
+  /* 字段: 节点: 贷款表 */
   $handler->display->display_options['fields']['field_issuing']['id'] = 'field_issuing';
   $handler->display->display_options['fields']['field_issuing']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['field_issuing']['field'] = 'field_issuing';
   $handler->display->display_options['fields']['field_issuing']['click_sort_column'] = 'status';
-  /* 字段: Issuing: 操作 */
+  /* 字段: Issuing: Operations */
   $handler->display->display_options['fields']['view_issuing']['id'] = 'view_issuing';
   $handler->display->display_options['fields']['view_issuing']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['view_issuing']['field'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['label'] = '操作';
   $handler->display->display_options['fields']['view_issuing']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['view_issuing']['add_destination'] = 1;
   /* 字段: Issuing: progress */
@@ -150,18 +415,31 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['fields']['progress']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['progress']['field'] = 'progress';
   $handler->display->display_options['fields']['progress']['label'] = '进度';
-  /* 排序标准: 内容: 发布日期 */
+  /* 排序标准: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* 过滤规则: 内容: 类型 */
+  /* 过滤规则: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
     'cowpro_issuing' => 'cowpro_issuing',
   );
+  /* 过滤规则: 节点: 贷款表 (field_issuing:status) */
+  $handler->display->display_options['filters']['field_issuing_status']['id'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['filters']['field_issuing_status']['field'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status']['operator'] = 'not in';
+  $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
+    'INVITE_BIDS_FAILED' => 'INVITE_BIDS_FAILED',
+  );
+  $handler->display->display_options['filters']['field_issuing_status']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_issuing_status']['expose']['operator_id'] = 'field_issuing_status_op';
+  $handler->display->display_options['filters']['field_issuing_status']['expose']['label'] = '贷款表 (field_issuing:status)';
+  $handler->display->display_options['filters']['field_issuing_status']['expose']['operator'] = 'field_issuing_status_op';
+  $handler->display->display_options['filters']['field_issuing_status']['expose']['identifier'] = 'field_issuing_status';
 
   /* Display: 贷款管理 */
   $handler = $view->new_display('page', '贷款管理', 'issuing_manage');
@@ -172,15 +450,210 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['access']['role'] = array(
     3 => '3',
   );
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = '每页条目数';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- 全部 -';
+  $handler->display->display_options['pager']['options']['expose']['offset_label'] = '偏移量';
+  $handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+  $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+  $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+  /* 字段: Issuing: 申请人 */
+  $handler->display->display_options['fields']['applicant_uid']['id'] = 'applicant_uid';
+  $handler->display->display_options['fields']['applicant_uid']['table'] = 'field_data_field_applicant';
+  $handler->display->display_options['fields']['applicant_uid']['field'] = 'applicant_uid';
+  /* 字段: Issuing: progress */
+  $handler->display->display_options['fields']['progress']['id'] = 'progress';
+  $handler->display->display_options['fields']['progress']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['progress']['field'] = 'progress';
+  $handler->display->display_options['fields']['progress']['label'] = '进度';
+  /* 字段: Issuing: 贷款期限 */
+  $handler->display->display_options['fields']['term']['id'] = 'term';
+  $handler->display->display_options['fields']['term']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['term']['field'] = 'term';
+  /* 字段: Issuing: 年利率 */
+  $handler->display->display_options['fields']['annual_rate']['id'] = 'annual_rate';
+  $handler->display->display_options['fields']['annual_rate']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['annual_rate']['field'] = 'annual_rate';
+  /* 字段: Issuing: 还款方式 */
+  $handler->display->display_options['fields']['method_repayment']['id'] = 'method_repayment';
+  $handler->display->display_options['fields']['method_repayment']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['method_repayment']['field'] = 'method_repayment';
+  $handler->display->display_options['fields']['method_repayment']['element_label_colon'] = FALSE;
+  /* 字段: Issuing: 贷款金额 */
+  $handler->display->display_options['fields']['loan_amounts']['id'] = 'loan_amounts';
+  $handler->display->display_options['fields']['loan_amounts']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['loan_amounts']['field'] = 'loan_amounts';
+  /* 字段: Issuing: 贷款状态 */
+  $handler->display->display_options['fields']['status']['id'] = 'status';
+  $handler->display->display_options['fields']['status']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['status']['field'] = 'status';
+  $handler->display->display_options['fields']['status']['label'] = '状态';
+  /* 字段: Issuing: Operations */
+  $handler->display->display_options['fields']['view_issuing']['id'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['view_issuing']['field'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['label'] = '操作';
+  $handler->display->display_options['fields']['view_issuing']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['view_issuing']['add_destination'] = 1;
   $handler->display->display_options['defaults']['arguments'] = FALSE;
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
+  /* 过滤规则: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
     'cowpro_issuing' => 'cowpro_issuing',
+  );
+  /* 过滤规则: 节点: 贷款表 (field_issuing:status) */
+  $handler->display->display_options['filters']['field_issuing_status']['id'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['filters']['field_issuing_status']['field'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
+    'UNAUDITED' => 'UNAUDITED',
+    'AUDITED' => 'AUDITED',
+    'INVITE_BIDS_START' => 'INVITE_BIDS_START',
+    'INVITE_BIDS_FAILED' => 'INVITE_BIDS_FAILED',
+    'INVITE_BIDS_SUCCEED' => 'INVITE_BIDS_SUCCEED',
+    'REPAYMENT' => 'REPAYMENT',
+    'FINISHED' => 'FINISHED',
+  );
+  $handler->display->display_options['filters']['field_issuing_status']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_issuing_status']['expose']['operator_id'] = 'field_issuing_status_op';
+  $handler->display->display_options['filters']['field_issuing_status']['expose']['label'] = '贷款表状态';
+  $handler->display->display_options['filters']['field_issuing_status']['expose']['operator'] = 'field_issuing_status_op';
+  $handler->display->display_options['filters']['field_issuing_status']['expose']['identifier'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+  );
+  $handler->display->display_options['filters']['field_issuing_status']['expose']['reduce'] = TRUE;
+  $handler->display->display_options['filters']['field_issuing_status']['group_info']['label'] = '贷款表 (field_issuing:status)';
+  $handler->display->display_options['filters']['field_issuing_status']['group_info']['identifier'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status']['group_info']['widget'] = 'radios';
+  $handler->display->display_options['filters']['field_issuing_status']['group_info']['group_items'] = array(
+    1 => array(
+      'title' => '末审核',
+      'operator' => 'in',
+      'value' => array(
+        'UNAUDITED' => 'UNAUDITED',
+        'all' => 0,
+        'AUDITED' => 0,
+        'INVITE_BIDS_START' => 0,
+        'INVITE_BIDS_FAILED' => 0,
+        'INVITE_BIDS_SUCCEED' => 0,
+        'REPAYMENT' => 0,
+        'FINISHED' => 0,
+      ),
+    ),
+    2 => array(
+      'title' => '正在投标',
+      'operator' => 'in',
+      'value' => array(
+        'INVITE_BIDS_START' => 'INVITE_BIDS_START',
+        'all' => 0,
+        'UNAUDITED' => 0,
+        'AUDITED' => 0,
+        'INVITE_BIDS_FAILED' => 0,
+        'INVITE_BIDS_SUCCEED' => 0,
+        'REPAYMENT' => 0,
+        'FINISHED' => 0,
+      ),
+    ),
+    3 => array(
+      'title' => '流标',
+      'operator' => 'in',
+      'value' => array(
+        'INVITE_BIDS_FAILED' => 'INVITE_BIDS_FAILED',
+        'all' => 0,
+        'UNAUDITED' => 0,
+        'AUDITED' => 0,
+        'INVITE_BIDS_START' => 0,
+        'INVITE_BIDS_SUCCEED' => 0,
+        'REPAYMENT' => 0,
+        'FINISHED' => 0,
+      ),
+    ),
+    4 => array(
+      'title' => '满标，等待放款',
+      'operator' => 'in',
+      'value' => array(
+        'INVITE_BIDS_SUCCEED' => 'INVITE_BIDS_SUCCEED',
+        'all' => 0,
+        'UNAUDITED' => 0,
+        'AUDITED' => 0,
+        'INVITE_BIDS_START' => 0,
+        'INVITE_BIDS_FAILED' => 0,
+        'REPAYMENT' => 0,
+        'FINISHED' => 0,
+      ),
+    ),
+    5 => array(
+      'title' => '等待还款',
+      'operator' => 'in',
+      'value' => array(
+        'REPAYMENT' => 'REPAYMENT',
+        'all' => 0,
+        'UNAUDITED' => 0,
+        'AUDITED' => 0,
+        'INVITE_BIDS_START' => 0,
+        'INVITE_BIDS_FAILED' => 0,
+        'INVITE_BIDS_SUCCEED' => 0,
+        'FINISHED' => 0,
+      ),
+    ),
+    6 => array(
+      'title' => '还款完毕',
+      'operator' => 'in',
+      'value' => array(
+        'FINISHED' => 'FINISHED',
+        'all' => 0,
+        'UNAUDITED' => 0,
+        'AUDITED' => 0,
+        'INVITE_BIDS_START' => 0,
+        'INVITE_BIDS_FAILED' => 0,
+        'INVITE_BIDS_SUCCEED' => 0,
+        'REPAYMENT' => 0,
+      ),
+    ),
+  );
+  /* 过滤规则: Content: Title */
+  $handler->display->display_options['filters']['title']['id'] = 'title';
+  $handler->display->display_options['filters']['title']['table'] = 'node';
+  $handler->display->display_options['filters']['title']['field'] = 'title';
+  $handler->display->display_options['filters']['title']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['title']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['title']['expose']['label'] = '贷款标题';
+  $handler->display->display_options['filters']['title']['expose']['operator'] = 'title_op';
+  $handler->display->display_options['filters']['title']['expose']['identifier'] = 'title';
+  $handler->display->display_options['filters']['title']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
   );
   $handler->display->display_options['path'] = 'issuing-manage';
   $handler->display->display_options['menu']['type'] = 'normal';
@@ -192,249 +665,475 @@ function cowpro_views_views_default_views() {
   /* Display: 贷款管理，导出 */
   $handler = $view->new_display('views_data_export', '贷款管理，导出', 'views_data_export_1');
   $handler->display->display_options['pager']['type'] = 'some';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '0';
-  $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['style_plugin'] = 'views_data_export_xls';
   $handler->display->display_options['style_options']['provide_file'] = 0;
   $handler->display->display_options['style_options']['parent_sort'] = 0;
-  $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* 字段: 内容: 标题 */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['label'] = '';
-  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
-  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* 字段: 内容: 申请人 */
-  $handler->display->display_options['fields']['field_applicant']['id'] = 'field_applicant';
-  $handler->display->display_options['fields']['field_applicant']['table'] = 'field_data_field_applicant';
-  $handler->display->display_options['fields']['field_applicant']['field'] = 'field_applicant';
-  $handler->display->display_options['fields']['field_applicant']['settings'] = array(
-    'user_reference_view_mode' => 'full',
-  );
-  /* 字段: 内容: 贷款表 */
-  $handler->display->display_options['fields']['field_issuing']['id'] = 'field_issuing';
-  $handler->display->display_options['fields']['field_issuing']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['fields']['field_issuing']['field'] = 'field_issuing';
-  $handler->display->display_options['fields']['field_issuing']['click_sort_column'] = 'status';
   $handler->display->display_options['path'] = 'issuing-manage.xls';
   $handler->display->display_options['displays'] = array(
-    'page' => 'page',
-    'page_9' => 'page_9',
-    'page_1' => 'page_1',
-    'page_7' => 'page_7',
-    'page_6' => 'page_6',
+    'issuing_manage' => 'issuing_manage',
     'default' => 0,
-    'page_8' => 0,
-    'page_2' => 0,
-    'page_5' => 0,
-    'page_3' => 0,
-    'page_4' => 0,
+    'issuing_list_bidding' => 0,
+    'issuing_list_debtor' => 0,
+    'issuing_list_front' => 0,
+    'block_1' => 0,
+    'issuing_list' => 0,
   );
-  $handler->display->display_options['sitename_title'] = 0;
 
-  /* Display: 正在投标的贷款(管理员) */
-  $handler = $view->new_display('page', '正在投标的贷款(管理员)', 'issuing_manage_bidding');
+  /* Display: 正在投标的贷款(用户) */
+  $handler = $view->new_display('page', '正在投标的贷款(用户)', 'issuing_list_bidding');
   $handler->display->display_options['defaults']['title'] = FALSE;
   $handler->display->display_options['title'] = '正在投标的贷款';
+  $handler->display->display_options['defaults']['access'] = FALSE;
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['defaults']['arguments'] = FALSE;
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
+  /* 过滤规则: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
     'cowpro_issuing' => 'cowpro_issuing',
   );
-  /* 过滤规则: 内容: 贷款表 (field_issuing:status) */
+  /* 过滤规则: 节点: 贷款表 (field_issuing:status) */
   $handler->display->display_options['filters']['field_issuing_status']['id'] = 'field_issuing_status';
   $handler->display->display_options['filters']['field_issuing_status']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['filters']['field_issuing_status']['field'] = 'field_issuing_status';
   $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
     'INVITE_BIDS_START' => 'INVITE_BIDS_START',
   );
-  $handler->display->display_options['path'] = 'issuing-manage/bidding';
+  $handler->display->display_options['path'] = 'issuing-list/bidding';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = '投标中';
   $handler->display->display_options['menu']['weight'] = '0';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
 
-  /* Display: 待审核的贷款 */
-  $handler = $view->new_display('page', '待审核的贷款', 'issuing_manage_unaudited');
+  /* Display: 我的贷款 */
+  $handler = $view->new_display('page', '我的贷款', 'issuing_list_debtor');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = '待审核';
-  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
-  $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
-  $handler->display->display_options['filters']['type']['id'] = 'type';
-  $handler->display->display_options['filters']['type']['table'] = 'node';
-  $handler->display->display_options['filters']['type']['field'] = 'type';
-  $handler->display->display_options['filters']['type']['value'] = array(
-    'cowpro_issuing' => 'cowpro_issuing',
-  );
-  /* 过滤规则: 内容: 贷款表 (field_issuing:status) */
-  $handler->display->display_options['filters']['field_issuing_status']['id'] = 'field_issuing_status';
-  $handler->display->display_options['filters']['field_issuing_status']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['filters']['field_issuing_status']['field'] = 'field_issuing_status';
-  $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
-    'UNAUDITED' => 'UNAUDITED',
-  );
-  $handler->display->display_options['path'] = 'issuing-manage/unaudited';
-  $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = '待审核';
-  $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-
-  /* Display: 已满标等待放款的贷款 */
-  $handler = $view->new_display('page', '已满标等待放款的贷款', 'issuing_manage_succeed');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = '已满标等待放款的贷款';
-  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
-  $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
-  $handler->display->display_options['filters']['type']['id'] = 'type';
-  $handler->display->display_options['filters']['type']['table'] = 'node';
-  $handler->display->display_options['filters']['type']['field'] = 'type';
-  $handler->display->display_options['filters']['type']['value'] = array(
-    'cowpro_issuing' => 'cowpro_issuing',
-  );
-  /* 过滤规则: 内容: 贷款表 (field_issuing:status) */
-  $handler->display->display_options['filters']['field_issuing_status']['id'] = 'field_issuing_status';
-  $handler->display->display_options['filters']['field_issuing_status']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['filters']['field_issuing_status']['field'] = 'field_issuing_status';
-  $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
-    'INVITE_BIDS_SUCCEED' => 'INVITE_BIDS_SUCCEED',
-  );
-  $handler->display->display_options['path'] = 'issuing-manage/succeed';
-  $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = '待放款';
-  $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-
-  /* Display: 正在还款的贷款 */
-  $handler = $view->new_display('page', '正在还款的贷款', 'issuing_manage_repayment');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = '还款中';
+  $handler->display->display_options['title'] = '我的贷款';
   $handler->display->display_options['defaults']['access'] = FALSE;
   $handler->display->display_options['access']['type'] = 'role';
   $handler->display->display_options['access']['role'] = array(
-    3 => '3',
+    1 => '1',
   );
-  $handler->display->display_options['defaults']['arguments'] = FALSE;
-  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
-  $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
-  $handler->display->display_options['filters']['type']['id'] = 'type';
-  $handler->display->display_options['filters']['type']['table'] = 'node';
-  $handler->display->display_options['filters']['type']['field'] = 'type';
-  $handler->display->display_options['filters']['type']['value'] = array(
-    'cowpro_issuing' => 'cowpro_issuing',
-  );
-  /* 过滤规则: 内容: 贷款表 (field_issuing:status) */
-  $handler->display->display_options['filters']['field_issuing_status']['id'] = 'field_issuing_status';
-  $handler->display->display_options['filters']['field_issuing_status']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['filters']['field_issuing_status']['field'] = 'field_issuing_status';
-  $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
-    'REPAYMENT' => 'REPAYMENT',
-  );
-  $handler->display->display_options['path'] = 'issuing-manage/repayment';
-  $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = '还款中';
-  $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-
-  /* Display: 正在还款的贷款，导出 */
-  $handler = $view->new_display('views_data_export', '正在还款的贷款，导出', 'views_data_export_2');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = '正在还款的贷款，导出';
+  $handler->display->display_options['defaults']['pager'] = FALSE;
   $handler->display->display_options['pager']['type'] = 'some';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '0';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '5';
   $handler->display->display_options['pager']['options']['offset'] = '0';
-  $handler->display->display_options['style_plugin'] = 'views_data_export_xls';
-  $handler->display->display_options['style_options']['provide_file'] = 0;
-  $handler->display->display_options['style_options']['parent_sort'] = 0;
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'list';
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['header'] = FALSE;
+  /* 页眉: Global: Text area */
+  $handler->display->display_options['header']['area']['id'] = 'area';
+  $handler->display->display_options['header']['area']['table'] = 'views';
+  $handler->display->display_options['header']['area']['field'] = 'area';
+  $handler->display->display_options['header']['area']['content'] = '<div class="content_head container-fluid">
+  <ul class="row">
+    <li class="project col-md-8">投资项目<span class="inearnings">为投资者创造<i>34,844,127</i>元收益</span></li>
+    <li class="inmoney col-md-4 text-right"><a href="/issuing-list" style="color:#ec5245">更多项目</a></li>
+  </ul>
+</div>';
+  $handler->display->display_options['header']['area']['format'] = 'full_html';
   $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* 字段: 内容: 标题 */
+  /* 字段: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['exclude'] = TRUE;
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* 字段: 内容: 申请人 */
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+  /* 字段: 节点: 申请人 */
   $handler->display->display_options['fields']['field_applicant']['id'] = 'field_applicant';
   $handler->display->display_options['fields']['field_applicant']['table'] = 'field_data_field_applicant';
   $handler->display->display_options['fields']['field_applicant']['field'] = 'field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_applicant']['settings'] = array(
     'user_reference_view_mode' => 'full',
   );
-  /* 字段: 内容: 贷款表 */
+  /* 字段: 节点: 贷款表 */
   $handler->display->display_options['fields']['field_issuing']['id'] = 'field_issuing';
   $handler->display->display_options['fields']['field_issuing']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['field_issuing']['field'] = 'field_issuing';
+  $handler->display->display_options['fields']['field_issuing']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_issuing']['click_sort_column'] = 'status';
-  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
-  $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
-  $handler->display->display_options['filters']['type']['id'] = 'type';
-  $handler->display->display_options['filters']['type']['table'] = 'node';
-  $handler->display->display_options['filters']['type']['field'] = 'type';
-  $handler->display->display_options['filters']['type']['value'] = array(
-    'cowpro_issuing' => 'cowpro_issuing',
-  );
-  /* 过滤规则: 内容: 贷款表 (field_issuing:status) */
-  $handler->display->display_options['filters']['field_issuing_status']['id'] = 'field_issuing_status';
-  $handler->display->display_options['filters']['field_issuing_status']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['filters']['field_issuing_status']['field'] = 'field_issuing_status';
-  $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
-    'REPAYMENT' => 'REPAYMENT',
-  );
-  $handler->display->display_options['path'] = 'issuing-manage/repayment.xls';
-  $handler->display->display_options['displays'] = array(
-    'page_8' => 'page_8',
-    'default' => 0,
-    'page' => 0,
-    'page_9' => 0,
-    'page_1' => 0,
-    'page_7' => 0,
-    'page_6' => 0,
-    'page_2' => 0,
-    'page_5' => 0,
-    'page_3' => 0,
-    'page_4' => 0,
-  );
-  $handler->display->display_options['sitename_title'] = 0;
+  /* 字段: Issuing: Operations */
+  $handler->display->display_options['fields']['view_issuing']['id'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['view_issuing']['field'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['label'] = '操作';
+  $handler->display->display_options['fields']['view_issuing']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['view_issuing']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['view_issuing']['add_destination'] = 1;
+  /* 字段: Issuing: progress */
+  $handler->display->display_options['fields']['progress']['id'] = 'progress';
+  $handler->display->display_options['fields']['progress']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['progress']['field'] = 'progress';
+  $handler->display->display_options['fields']['progress']['label'] = '';
+  $handler->display->display_options['fields']['progress']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['progress']['element_label_colon'] = FALSE;
+  /* 字段: Global: PHP */
+  $handler->display->display_options['fields']['php']['id'] = 'php';
+  $handler->display->display_options['fields']['php']['table'] = 'views';
+  $handler->display->display_options['fields']['php']['field'] = 'php';
+  $handler->display->display_options['fields']['php']['label'] = '';
+  $handler->display->display_options['fields']['php']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php']['php_output'] = '<?php
+$node_id = $data->nid;
+$node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
+?>
 
-  /* Display: 已流标的贷款 */
-  $handler = $view->new_display('page', '已流标的贷款', 'issuing_manage_failed');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = '已流标';
+
+<ul class="title1">
+ <li> <a id="loanname" title="<?php print $data->node_title; ?>" href="<?php print $node_url; ?>"> <?php print $data->node_title; ?> </a> </li>
+</ul>
+
+';
+  $handler->display->display_options['fields']['php']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php']['php_click_sortable'] = '';
+  /* 字段: Global: PHP */
+  $handler->display->display_options['fields']['php_1']['id'] = 'php_1';
+  $handler->display->display_options['fields']['php_1']['table'] = 'views';
+  $handler->display->display_options['fields']['php_1']['field'] = 'php';
+  $handler->display->display_options['fields']['php_1']['label'] = '';
+  $handler->display->display_options['fields']['php_1']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php_1']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php_1']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_1']['php_output'] = ' <?php
+$uid = $data->_field_data[\'nid\'][\'entity\']->field_applicant[\'und\'][0][\'uid\'];
+$user=user_load($uid);
+$username=$user->name;
+
+?>    
+
+ <div class="col-md-2 the-nianhua">
+      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'annual_rate\'] ; ?></span>
+      <p class="text-info">预期年化收益率(%)</p>
+      </div>
+      <div class="col-md-2 the-qixian">
+      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'loan_term\'] ; ?> </span>
+      <p class="text-info">投资期限(天)</p>
+      </div>
+      <div class="col-md-2 the-jine">
+      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'loan_amounts\'] ; ?></span>
+      <p class="text-info">融资金额(元)</p>
+      
+      </div>
+      <div class="col-md-2 the-huaik">  <span class="num-info"><?php print $username ; ?></span>
+      <p class="text-info">第一还款源</p></div>';
+  $handler->display->display_options['fields']['php_1']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_1']['php_click_sortable'] = '';
+  /* 字段: Global: PHP */
+  $handler->display->display_options['fields']['php_2']['id'] = 'php_2';
+  $handler->display->display_options['fields']['php_2']['table'] = 'views';
+  $handler->display->display_options['fields']['php_2']['field'] = 'php';
+  $handler->display->display_options['fields']['php_2']['label'] = '';
+  $handler->display->display_options['fields']['php_2']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php_2']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php_2']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_2']['php_output'] = '<?php
+$node_id = $data->nid;
+$node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
+
+?>
+<a href="<?php print $node_url; ?>" target="_blank" title="立即投资" class="loan_bg_red">立即投资</a>';
+  $handler->display->display_options['fields']['php_2']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_2']['php_click_sortable'] = '';
+  /* 字段: Global: Custom text */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = '';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<div class="content_foot foott"> [php]
+  <div class="clearfix content_all container-fluid">
+    <div class="row"> [php_1]
+      <div class="col-md-2 the-baifen">
+        <div class="jdt_ph">
+          <div class="jqm-round-wrap">
+            <div class="jqm-round-bg"></div>
+            <canvas  class="jqm-round-sector" height="200" width="200"></canvas>
+            <div class="jqm-round-circle">
+              <p>[progress]%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2 the-xiangx">[view_issuing] </div>
+    </div>
+  </div>
+</div>
+';
+  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+  $handler->display->display_options['defaults']['arguments'] = FALSE;
+  /* 上下文过滤器: 节点: 申请人 (field_applicant) */
+  $handler->display->display_options['arguments']['field_applicant_uid']['id'] = 'field_applicant_uid';
+  $handler->display->display_options['arguments']['field_applicant_uid']['table'] = 'field_data_field_applicant';
+  $handler->display->display_options['arguments']['field_applicant_uid']['field'] = 'field_applicant_uid';
+  $handler->display->display_options['arguments']['field_applicant_uid']['default_action'] = 'default';
+  $handler->display->display_options['arguments']['field_applicant_uid']['exception']['title'] = '全部';
+  $handler->display->display_options['arguments']['field_applicant_uid']['default_argument_type'] = 'current_user';
+  $handler->display->display_options['arguments']['field_applicant_uid']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['field_applicant_uid']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['field_applicant_uid']['summary_options']['items_per_page'] = '25';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
+  /* 过滤规则: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
     'cowpro_issuing' => 'cowpro_issuing',
   );
-  /* 过滤规则: 内容: 贷款表 (field_issuing:status) */
-  $handler->display->display_options['filters']['field_issuing_status']['id'] = 'field_issuing_status';
-  $handler->display->display_options['filters']['field_issuing_status']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['filters']['field_issuing_status']['field'] = 'field_issuing_status';
-  $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
-    'INVITE_BIDS_FAILED' => 'INVITE_BIDS_FAILED',
-  );
-  $handler->display->display_options['path'] = 'issuing-manage/failed';
+  $handler->display->display_options['path'] = 'issuing-list/debtor';
   $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = '已流标';
+  $handler->display->display_options['menu']['title'] = '我的贷款';
   $handler->display->display_options['menu']['weight'] = '0';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: 全部贷款(首页) */
+  $handler = $view->new_display('page', '全部贷款(首页)', 'issuing_list_front');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = '全部贷款';
+  $handler->display->display_options['defaults']['access'] = FALSE;
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['defaults']['cache'] = FALSE;
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '300';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '300';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* 过滤规则: Content: Type */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'cowpro_issuing' => 'cowpro_issuing',
+  );
+  /* 过滤规则: 节点: 贷款表 (field_issuing:status) */
+  $handler->display->display_options['filters']['field_issuing_status']['id'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['filters']['field_issuing_status']['field'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status']['operator'] = 'not in';
+  $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
+    'UNAUDITED' => 'UNAUDITED',
+  );
+  $handler->display->display_options['path'] = 'issuing-list-front';
+  $handler->display->display_options['menu']['title'] = '全部贷款';
+  $handler->display->display_options['menu']['weight'] = '0';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: 投资项目 */
+  $handler = $view->new_display('block', '投资项目', 'block_1');
+  $handler->display->display_options['defaults']['access'] = FALSE;
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['defaults']['cache'] = FALSE;
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '300';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '300';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'some';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '5';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'list';
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'fields';
+  $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+  /* 字段: 节点: 申请人 */
+  $handler->display->display_options['fields']['field_applicant']['id'] = 'field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['table'] = 'field_data_field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['field'] = 'field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['label'] = '';
+  $handler->display->display_options['fields']['field_applicant']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_applicant']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_applicant']['settings'] = array(
+    'user_reference_view_mode' => 'full',
+  );
+  /* 字段: 节点: 贷款表 */
+  $handler->display->display_options['fields']['field_issuing']['id'] = 'field_issuing';
+  $handler->display->display_options['fields']['field_issuing']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['field_issuing']['field'] = 'field_issuing';
+  $handler->display->display_options['fields']['field_issuing']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_issuing']['click_sort_column'] = 'status';
+  /* 字段: Issuing: Operations */
+  $handler->display->display_options['fields']['view_issuing']['id'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['view_issuing']['field'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['label'] = '操作';
+  $handler->display->display_options['fields']['view_issuing']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['view_issuing']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['view_issuing']['add_destination'] = 1;
+  /* 字段: Issuing: progress */
+  $handler->display->display_options['fields']['progress']['id'] = 'progress';
+  $handler->display->display_options['fields']['progress']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['progress']['field'] = 'progress';
+  $handler->display->display_options['fields']['progress']['label'] = '';
+  $handler->display->display_options['fields']['progress']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['progress']['element_label_colon'] = FALSE;
+  /* 字段: Global: PHP */
+  $handler->display->display_options['fields']['php']['id'] = 'php';
+  $handler->display->display_options['fields']['php']['table'] = 'views';
+  $handler->display->display_options['fields']['php']['field'] = 'php';
+  $handler->display->display_options['fields']['php']['label'] = '';
+  $handler->display->display_options['fields']['php']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php']['php_output'] = '<?php
+$node_id = $data->nid;
+$node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
+?>
+
+
+<ul class="title1">
+ <li> <a id="loanname" title="<?php print $data->node_title; ?>" href="<?php print $node_url; ?>"> <?php print $data->node_title; ?> </a> </li>
+</ul>
+
+';
+  $handler->display->display_options['fields']['php']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php']['php_click_sortable'] = '';
+  /* 字段: Global: PHP */
+  $handler->display->display_options['fields']['php_1']['id'] = 'php_1';
+  $handler->display->display_options['fields']['php_1']['table'] = 'views';
+  $handler->display->display_options['fields']['php_1']['field'] = 'php';
+  $handler->display->display_options['fields']['php_1']['label'] = '';
+  $handler->display->display_options['fields']['php_1']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php_1']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php_1']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_1']['php_output'] = ' <?php
+	include_once drupal_get_path(\'module\', \'cowpro_issuing\') . \'/includes/cowpro_issuing.repayment_schedule.fun.inc\';
+	$method_repayment_readable = _cowpro_issuing_get_readable_repayment_method($data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'method_repayment\']);
+
+$uid = $data->_field_data[\'nid\'][\'entity\']->field_applicant[\'und\'][0][\'uid\'];
+$u=user_load($uid);
+$username=$u->name;
+global $user;
+if ($user->uid != $u->uid) {
+    if (mb_strlen($username) < 11) {
+               		$username = mb_substr($username, 0, 2) . \'***\';
+               	} else {
+               		$username = mb_substr($username, 0, 4) . \'****\' . mb_substr($username, -3, 3);
+               	}
+               }
+?>    
+
+ <div class="col-md-2 the-nianhua">
+      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'annual_rate\'] ; ?></span>
+      <p class="text-info">预期年化收益率(%)</p>
+      </div>
+      <div class="col-md-2 the-qixian">
+      <span class="num-info"><?php include_once drupal_get_path(\'module\', \'cowpro_issuing\') . \'/includes/cowpro_issuing.repayment_schedule.fun.inc\'; print _cowpro_issuing_get_readable_loan_term($data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'loan_term\']) ; ?> </span>
+      <p class="text-info">投资期限</p>
+      </div>
+      <div class="col-md-2 the-jine">
+      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'loan_amounts\'] ; ?></span>
+      <p class="text-info">融资金额(元)</p>
+      
+      </div>
+      <div class="col-md-2 the-huankuan">  <span class="num-info"><?php print $method_repayment_readable; ?></span>
+      <p class="text-info">还款方式</p></div>';
+  $handler->display->display_options['fields']['php_1']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_1']['php_click_sortable'] = '';
+  /* 字段: Global: PHP */
+  $handler->display->display_options['fields']['php_2']['id'] = 'php_2';
+  $handler->display->display_options['fields']['php_2']['table'] = 'views';
+  $handler->display->display_options['fields']['php_2']['field'] = 'php';
+  $handler->display->display_options['fields']['php_2']['label'] = '';
+  $handler->display->display_options['fields']['php_2']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['php_2']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['php_2']['use_php_setup'] = 0;
+  $handler->display->display_options['fields']['php_2']['php_output'] = '<?php
+$node_id = $data->nid;
+$node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
+
+?>
+';
+  $handler->display->display_options['fields']['php_2']['use_php_click_sortable'] = '0';
+  $handler->display->display_options['fields']['php_2']['php_click_sortable'] = '';
+  /* 字段: Global: View result counter */
+  $handler->display->display_options['fields']['counter']['id'] = 'counter';
+  $handler->display->display_options['fields']['counter']['table'] = 'views';
+  $handler->display->display_options['fields']['counter']['field'] = 'counter';
+  $handler->display->display_options['fields']['counter']['label'] = '';
+  $handler->display->display_options['fields']['counter']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['counter']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['counter']['counter_start'] = '1';
+  $handler->display->display_options['fields']['counter']['reverse'] = 0;
+  /* 字段: Global: Custom text */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = '';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<div class="content_foot foott">
+[php]
+  <div class="clearfix content_all container-fluid">
+    <div class="row">
+[php_1] 
+      <div class="col-md-2 the-baifen"><div class="jdt_ph">
+  <div class="jqm-round-wrap">
+    <div class="jqm-round-bg"></div>
+    <canvas id="jqm-round-sector[counter]" class="jqm-round-sector" height="200" width="200"></canvas>
+    <div class="jqm-round-circle">
+      <p>[progress]%</p>
+    </div>
+  </div>
+</div></div>
+<div class="col-md-2 the-xiangx">[php_2] [view_issuing]  </div>      
+    </div>
+  </div>
+</div>
+';
+  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+  $handler->display->display_options['defaults']['sorts'] = FALSE;
+  /* 排序标准: Content: Post date */
+  $handler->display->display_options['sorts']['created']['id'] = 'created';
+  $handler->display->display_options['sorts']['created']['table'] = 'node';
+  $handler->display->display_options['sorts']['created']['field'] = 'created';
+  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* 过滤规则: Content: Type */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'cowpro_issuing' => 'cowpro_issuing',
+  );
+  /* 过滤规则: 节点: 贷款表 (field_issuing:status) */
+  $handler->display->display_options['filters']['field_issuing_status']['id'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['filters']['field_issuing_status']['field'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status']['operator'] = 'not in';
+  $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
+    'INVITE_BIDS_FAILED' => 'INVITE_BIDS_FAILED',
+  );
 
   /* Display: 全部贷款 */
   $handler = $view->new_display('page', '全部贷款', 'issuing_list');
@@ -557,21 +1256,21 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['defaults']['row_options'] = FALSE;
   $handler->display->display_options['exposed_block'] = TRUE;
   $handler->display->display_options['defaults']['header'] = FALSE;
-  /* 页眉: 全局: 文本域 */
+  /* 页眉: Global: Text area */
   $handler->display->display_options['header']['area']['id'] = 'area';
   $handler->display->display_options['header']['area']['table'] = 'views';
   $handler->display->display_options['header']['area']['field'] = 'area';
   $handler->display->display_options['header']['area']['empty'] = TRUE;
   $handler->display->display_options['header']['area']['content'] = ' [block:views=-exp-all_issuing-issuing_list]';
   $handler->display->display_options['header']['area']['format'] = 'full_html';
-  /* 页眉: 全局: 结果的摘要 */
+  /* 页眉: Global: Result summary */
   $handler->display->display_options['header']['result']['id'] = 'result';
   $handler->display->display_options['header']['result']['table'] = 'views';
   $handler->display->display_options['header']['result']['field'] = 'result';
   $handler->display->display_options['header']['result']['empty'] = TRUE;
   $handler->display->display_options['header']['result']['content'] = '<p id="select_num">共为您找到<span id="total">@total</span>个标</p> ';
   $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* 字段: 内容: 标题 */
+  /* 字段: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
@@ -580,7 +1279,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-  /* 字段: 内容: 申请人 */
+  /* 字段: 节点: 申请人 */
   $handler->display->display_options['fields']['field_applicant']['id'] = 'field_applicant';
   $handler->display->display_options['fields']['field_applicant']['table'] = 'field_data_field_applicant';
   $handler->display->display_options['fields']['field_applicant']['field'] = 'field_applicant';
@@ -590,16 +1289,17 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['fields']['field_applicant']['settings'] = array(
     'user_reference_view_mode' => 'full',
   );
-  /* 字段: 内容: 贷款表 */
+  /* 字段: 节点: 贷款表 */
   $handler->display->display_options['fields']['field_issuing']['id'] = 'field_issuing';
   $handler->display->display_options['fields']['field_issuing']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['field_issuing']['field'] = 'field_issuing';
   $handler->display->display_options['fields']['field_issuing']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_issuing']['click_sort_column'] = 'status';
-  /* 字段: Issuing: 操作 */
+  /* 字段: Issuing: Operations */
   $handler->display->display_options['fields']['view_issuing']['id'] = 'view_issuing';
   $handler->display->display_options['fields']['view_issuing']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['view_issuing']['field'] = 'view_issuing';
+  $handler->display->display_options['fields']['view_issuing']['label'] = '操作';
   $handler->display->display_options['fields']['view_issuing']['exclude'] = TRUE;
   $handler->display->display_options['fields']['view_issuing']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['view_issuing']['add_destination'] = 1;
@@ -608,7 +1308,7 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['fields']['progress']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['progress']['field'] = 'progress';
   $handler->display->display_options['fields']['progress']['exclude'] = TRUE;
-  /* 字段: 全局: PHP */
+  /* 字段: Global: PHP */
   $handler->display->display_options['fields']['php']['id'] = 'php';
   $handler->display->display_options['fields']['php']['table'] = 'views';
   $handler->display->display_options['fields']['php']['field'] = 'php';
@@ -629,7 +1329,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
 ';
   $handler->display->display_options['fields']['php']['use_php_click_sortable'] = '0';
   $handler->display->display_options['fields']['php']['php_click_sortable'] = '';
-  /* 字段: 全局: PHP */
+  /* 字段: Global: PHP */
   $handler->display->display_options['fields']['php_1']['id'] = 'php_1';
   $handler->display->display_options['fields']['php_1']['table'] = 'views';
   $handler->display->display_options['fields']['php_1']['field'] = 'php';
@@ -668,7 +1368,7 @@ if ($user->uid != $u->uid) {
       <p class="text-info"><!-- 第一还款源--></p></div>';
   $handler->display->display_options['fields']['php_1']['use_php_click_sortable'] = '0';
   $handler->display->display_options['fields']['php_1']['php_click_sortable'] = '';
-  /* 字段: 全局: PHP */
+  /* 字段: Global: PHP */
   $handler->display->display_options['fields']['php_2']['id'] = 'php_2';
   $handler->display->display_options['fields']['php_2']['table'] = 'views';
   $handler->display->display_options['fields']['php_2']['field'] = 'php';
@@ -684,7 +1384,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
 <a href="<?php print $node_url; ?>" target="_blank" title="立即投资" class="loan_bg_red">立即投资</a>';
   $handler->display->display_options['fields']['php_2']['use_php_click_sortable'] = '0';
   $handler->display->display_options['fields']['php_2']['php_click_sortable'] = '';
-  /* 字段: 全局: 定制文本 */
+  /* 字段: Global: Custom text */
   $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
@@ -710,21 +1410,21 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
 ';
   $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
   $handler->display->display_options['defaults']['sorts'] = FALSE;
-  /* 排序标准: 内容: 发布日期 */
+  /* 排序标准: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
+  /* 过滤规则: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
     'cowpro_issuing' => 'cowpro_issuing',
   );
-  /* 过滤规则: 内容: 贷款表 (field_issuing:status) */
+  /* 过滤规则: 节点: 贷款表 (field_issuing:status) */
   $handler->display->display_options['filters']['field_issuing_status']['id'] = 'field_issuing_status';
   $handler->display->display_options['filters']['field_issuing_status']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['filters']['field_issuing_status']['field'] = 'field_issuing_status';
@@ -732,10 +1432,16 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
     'UNAUDITED' => 'UNAUDITED',
   );
-  /* 过滤规则: 内容: 贷款表 (field_issuing:status) */
+  /* 过滤规则: 节点: 贷款表 (field_issuing:status) */
   $handler->display->display_options['filters']['field_issuing_status_1']['id'] = 'field_issuing_status_1';
   $handler->display->display_options['filters']['field_issuing_status_1']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['filters']['field_issuing_status_1']['field'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status_1']['value'] = array(
+    'INVITE_BIDS_START' => 'INVITE_BIDS_START',
+    'INVITE_BIDS_SUCCEED' => 'INVITE_BIDS_SUCCEED',
+    'REPAYMENT' => 'REPAYMENT',
+    'FINISHED' => 'FINISHED',
+  );
   $handler->display->display_options['filters']['field_issuing_status_1']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_issuing_status_1']['expose']['operator_id'] = 'field_issuing_status_1_op';
   $handler->display->display_options['filters']['field_issuing_status_1']['expose']['label'] = '项目状态：';
@@ -749,7 +1455,8 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     4 => 0,
     5 => 0,
   );
-  /* 过滤规则: 内容: 贷款表 (field_issuing:loan_term) */
+  $handler->display->display_options['filters']['field_issuing_status_1']['expose']['reduce'] = TRUE;
+  /* 过滤规则: 节点: 贷款表 (field_issuing:loan_term) */
   $handler->display->display_options['filters']['field_issuing_loan_term']['id'] = 'field_issuing_loan_term';
   $handler->display->display_options['filters']['field_issuing_loan_term']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['filters']['field_issuing_loan_term']['field'] = 'field_issuing_loan_term';
@@ -799,7 +1506,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
       ),
     ),
   );
-  /* 过滤规则: 内容: 贷款表 (field_issuing:annual_rate) */
+  /* 过滤规则: 节点: 贷款表 (field_issuing:annual_rate) */
   $handler->display->display_options['filters']['field_issuing_annual_rate']['id'] = 'field_issuing_annual_rate';
   $handler->display->display_options['filters']['field_issuing_annual_rate']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['filters']['field_issuing_annual_rate']['field'] = 'field_issuing_annual_rate';
@@ -831,32 +1538,22 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
       ),
     ),
     3 => array(
-      'title' => '10%-12%',
-      'operator' => 'between',
+      'title' => '10%以上',
+      'operator' => '>',
       'value' => array(
-        'value' => '',
+        'value' => '10',
         'min' => '10.01',
         'max' => '12.00',
       ),
     ),
-    4 => array(
-      'title' => '12-15%',
-      'operator' => 'between',
-      'value' => array(
-        'value' => '',
-        'min' => '12.01',
-        'max' => '15.00',
-      ),
-    ),
-    5 => array(
-      'title' => '15%以上',
-      'operator' => '>=',
-      'value' => array(
-        'value' => '15.01',
-        'min' => '',
-        'max' => '',
-      ),
-    ),
+  );
+  /* 过滤规则: 节点: 贷款表 (field_issuing:status) */
+  $handler->display->display_options['filters']['field_issuing_status_2']['id'] = 'field_issuing_status_2';
+  $handler->display->display_options['filters']['field_issuing_status_2']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['filters']['field_issuing_status_2']['field'] = 'field_issuing_status';
+  $handler->display->display_options['filters']['field_issuing_status_2']['operator'] = 'not in';
+  $handler->display->display_options['filters']['field_issuing_status_2']['value'] = array(
+    'INVITE_BIDS_FAILED' => 'INVITE_BIDS_FAILED',
   );
   $handler->display->display_options['path'] = 'issuing-list';
   $handler->display->display_options['menu']['type'] = 'normal';
@@ -864,438 +1561,6 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['menu']['weight'] = '0';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
-
-  /* Display: 正在投标的贷款(用户) */
-  $handler = $view->new_display('page', '正在投标的贷款(用户)', 'issuing_list_bidding');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = '正在投标的贷款';
-  $handler->display->display_options['defaults']['access'] = FALSE;
-  $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['defaults']['arguments'] = FALSE;
-  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
-  $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
-  $handler->display->display_options['filters']['type']['id'] = 'type';
-  $handler->display->display_options['filters']['type']['table'] = 'node';
-  $handler->display->display_options['filters']['type']['field'] = 'type';
-  $handler->display->display_options['filters']['type']['value'] = array(
-    'cowpro_issuing' => 'cowpro_issuing',
-  );
-  /* 过滤规则: 内容: 贷款表 (field_issuing:status) */
-  $handler->display->display_options['filters']['field_issuing_status']['id'] = 'field_issuing_status';
-  $handler->display->display_options['filters']['field_issuing_status']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['filters']['field_issuing_status']['field'] = 'field_issuing_status';
-  $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
-    'INVITE_BIDS_START' => 'INVITE_BIDS_START',
-  );
-  $handler->display->display_options['path'] = 'issuing-list/bidding';
-  $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = '投标中';
-  $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-
-  /* Display: 我的贷款 */
-  $handler = $view->new_display('page', '我的贷款', 'issuing_list_debtor');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = '我的贷款';
-  $handler->display->display_options['defaults']['access'] = FALSE;
-  $handler->display->display_options['access']['type'] = 'role';
-  $handler->display->display_options['access']['role'] = array(
-    1 => '1',
-  );
-  $handler->display->display_options['defaults']['pager'] = FALSE;
-  $handler->display->display_options['pager']['type'] = 'some';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '5';
-  $handler->display->display_options['pager']['options']['offset'] = '0';
-  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
-  $handler->display->display_options['style_plugin'] = 'list';
-  $handler->display->display_options['defaults']['style_options'] = FALSE;
-  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
-  $handler->display->display_options['row_plugin'] = 'fields';
-  $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
-  $handler->display->display_options['defaults']['row_options'] = FALSE;
-  $handler->display->display_options['defaults']['header'] = FALSE;
-  /* 页眉: 全局: 文本域 */
-  $handler->display->display_options['header']['area']['id'] = 'area';
-  $handler->display->display_options['header']['area']['table'] = 'views';
-  $handler->display->display_options['header']['area']['field'] = 'area';
-  $handler->display->display_options['header']['area']['content'] = '<div class="content_head container-fluid">
-  <ul class="row">
-    <li class="project col-md-8">投资项目<span class="inearnings">为投资者创造<i>34,844,127</i>元收益</span></li>
-    <li class="inmoney col-md-4 text-right"><a href="/issuing-list" style="color:#ec5245">更多项目</a></li>
-  </ul>
-</div>';
-  $handler->display->display_options['header']['area']['format'] = 'full_html';
-  $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* 字段: 内容: 标题 */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['label'] = '';
-  $handler->display->display_options['fields']['title']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
-  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-  /* 字段: 内容: 申请人 */
-  $handler->display->display_options['fields']['field_applicant']['id'] = 'field_applicant';
-  $handler->display->display_options['fields']['field_applicant']['table'] = 'field_data_field_applicant';
-  $handler->display->display_options['fields']['field_applicant']['field'] = 'field_applicant';
-  $handler->display->display_options['fields']['field_applicant']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['field_applicant']['settings'] = array(
-    'user_reference_view_mode' => 'full',
-  );
-  /* 字段: 内容: 贷款表 */
-  $handler->display->display_options['fields']['field_issuing']['id'] = 'field_issuing';
-  $handler->display->display_options['fields']['field_issuing']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['fields']['field_issuing']['field'] = 'field_issuing';
-  $handler->display->display_options['fields']['field_issuing']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['field_issuing']['click_sort_column'] = 'status';
-  /* 字段: Issuing: 操作 */
-  $handler->display->display_options['fields']['view_issuing']['id'] = 'view_issuing';
-  $handler->display->display_options['fields']['view_issuing']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['fields']['view_issuing']['field'] = 'view_issuing';
-  $handler->display->display_options['fields']['view_issuing']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['view_issuing']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['view_issuing']['add_destination'] = 1;
-  /* 字段: Issuing: progress */
-  $handler->display->display_options['fields']['progress']['id'] = 'progress';
-  $handler->display->display_options['fields']['progress']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['fields']['progress']['field'] = 'progress';
-  $handler->display->display_options['fields']['progress']['label'] = '';
-  $handler->display->display_options['fields']['progress']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['progress']['element_label_colon'] = FALSE;
-  /* 字段: 全局: PHP */
-  $handler->display->display_options['fields']['php']['id'] = 'php';
-  $handler->display->display_options['fields']['php']['table'] = 'views';
-  $handler->display->display_options['fields']['php']['field'] = 'php';
-  $handler->display->display_options['fields']['php']['label'] = '';
-  $handler->display->display_options['fields']['php']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['php']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['php']['use_php_setup'] = 0;
-  $handler->display->display_options['fields']['php']['php_output'] = '<?php
-$node_id = $data->nid;
-$node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
-?>
-
-
-<ul class="title1">
- <li> <a id="loanname" title="<?php print $data->node_title; ?>" href="<?php print $node_url; ?>"> <?php print $data->node_title; ?> </a> </li>
-</ul>
-
-';
-  $handler->display->display_options['fields']['php']['use_php_click_sortable'] = '0';
-  $handler->display->display_options['fields']['php']['php_click_sortable'] = '';
-  /* 字段: 全局: PHP */
-  $handler->display->display_options['fields']['php_1']['id'] = 'php_1';
-  $handler->display->display_options['fields']['php_1']['table'] = 'views';
-  $handler->display->display_options['fields']['php_1']['field'] = 'php';
-  $handler->display->display_options['fields']['php_1']['label'] = '';
-  $handler->display->display_options['fields']['php_1']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['php_1']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['php_1']['use_php_setup'] = 0;
-  $handler->display->display_options['fields']['php_1']['php_output'] = ' <?php
-$uid = $data->_field_data[\'nid\'][\'entity\']->field_applicant[\'und\'][0][\'uid\'];
-$user=user_load($uid);
-$username=$user->name;
-
-?>    
-
- <div class="col-md-2 the-nianhua">
-      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'annual_rate\'] ; ?></span>
-      <p class="text-info">预期年化收益率(%)</p>
-      </div>
-      <div class="col-md-2 the-qixian">
-      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'loan_term\'] ; ?> </span>
-      <p class="text-info">投资期限(天)</p>
-      </div>
-      <div class="col-md-2 the-jine">
-      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'loan_amounts\'] ; ?></span>
-      <p class="text-info">融资金额(元)</p>
-      
-      </div>
-      <div class="col-md-2 the-huaik">  <span class="num-info"><?php print $username ; ?></span>
-      <p class="text-info">第一还款源</p></div>';
-  $handler->display->display_options['fields']['php_1']['use_php_click_sortable'] = '0';
-  $handler->display->display_options['fields']['php_1']['php_click_sortable'] = '';
-  /* 字段: 全局: PHP */
-  $handler->display->display_options['fields']['php_2']['id'] = 'php_2';
-  $handler->display->display_options['fields']['php_2']['table'] = 'views';
-  $handler->display->display_options['fields']['php_2']['field'] = 'php';
-  $handler->display->display_options['fields']['php_2']['label'] = '';
-  $handler->display->display_options['fields']['php_2']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['php_2']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['php_2']['use_php_setup'] = 0;
-  $handler->display->display_options['fields']['php_2']['php_output'] = '<?php
-$node_id = $data->nid;
-$node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
-
-?>
-<a href="<?php print $node_url; ?>" target="_blank" title="立即投资" class="loan_bg_red">立即投资</a>';
-  $handler->display->display_options['fields']['php_2']['use_php_click_sortable'] = '0';
-  $handler->display->display_options['fields']['php_2']['php_click_sortable'] = '';
-  /* 字段: 全局: 定制文本 */
-  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
-  $handler->display->display_options['fields']['nothing']['table'] = 'views';
-  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
-  $handler->display->display_options['fields']['nothing']['label'] = '';
-  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<div class="content_foot foott"> [php]
-  <div class="clearfix content_all container-fluid">
-    <div class="row"> [php_1]
-      <div class="col-md-2 the-baifen">
-        <div class="jdt_ph">
-          <div class="jqm-round-wrap">
-            <div class="jqm-round-bg"></div>
-            <canvas  class="jqm-round-sector" height="200" width="200"></canvas>
-            <div class="jqm-round-circle">
-              <p>[progress]%</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-2 the-xiangx">[view_issuing] </div>
-    </div>
-  </div>
-</div>
-';
-  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
-  $handler->display->display_options['defaults']['arguments'] = FALSE;
-  /* 上下文过滤器: 内容: 申请人 (field_applicant)申请人 (field_applicant) */
-  $handler->display->display_options['arguments']['field_applicant_uid']['id'] = 'field_applicant_uid';
-  $handler->display->display_options['arguments']['field_applicant_uid']['table'] = 'field_data_field_applicant';
-  $handler->display->display_options['arguments']['field_applicant_uid']['field'] = 'field_applicant_uid';
-  $handler->display->display_options['arguments']['field_applicant_uid']['default_action'] = 'default';
-  $handler->display->display_options['arguments']['field_applicant_uid']['exception']['title'] = '全部';
-  $handler->display->display_options['arguments']['field_applicant_uid']['default_argument_type'] = 'current_user';
-  $handler->display->display_options['arguments']['field_applicant_uid']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['field_applicant_uid']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['field_applicant_uid']['summary_options']['items_per_page'] = '25';
-  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
-  $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
-  $handler->display->display_options['filters']['type']['id'] = 'type';
-  $handler->display->display_options['filters']['type']['table'] = 'node';
-  $handler->display->display_options['filters']['type']['field'] = 'type';
-  $handler->display->display_options['filters']['type']['value'] = array(
-    'cowpro_issuing' => 'cowpro_issuing',
-  );
-  $handler->display->display_options['path'] = 'issuing-list/debtor';
-  $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = '我的贷款';
-  $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-
-  /* Display: 全部贷款(首页) */
-  $handler = $view->new_display('page', '全部贷款(首页)', 'issuing_list_front');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = '全部贷款';
-  $handler->display->display_options['defaults']['access'] = FALSE;
-  $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
-  $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
-  $handler->display->display_options['filters']['type']['id'] = 'type';
-  $handler->display->display_options['filters']['type']['table'] = 'node';
-  $handler->display->display_options['filters']['type']['field'] = 'type';
-  $handler->display->display_options['filters']['type']['value'] = array(
-    'cowpro_issuing' => 'cowpro_issuing',
-  );
-  /* 过滤规则: 内容: 贷款表 (field_issuing:status) */
-  $handler->display->display_options['filters']['field_issuing_status']['id'] = 'field_issuing_status';
-  $handler->display->display_options['filters']['field_issuing_status']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['filters']['field_issuing_status']['field'] = 'field_issuing_status';
-  $handler->display->display_options['filters']['field_issuing_status']['operator'] = 'not in';
-  $handler->display->display_options['filters']['field_issuing_status']['value'] = array(
-    'UNAUDITED' => 'UNAUDITED',
-  );
-  $handler->display->display_options['path'] = 'issuing-list-front';
-  $handler->display->display_options['menu']['title'] = '全部贷款';
-  $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-
-  /* Display: 投资项目 */
-  $handler = $view->new_display('block', '投资项目', 'block_1');
-  $handler->display->display_options['defaults']['pager'] = FALSE;
-  $handler->display->display_options['pager']['type'] = 'some';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '5';
-  $handler->display->display_options['pager']['options']['offset'] = '0';
-  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
-  $handler->display->display_options['style_plugin'] = 'list';
-  $handler->display->display_options['defaults']['style_options'] = FALSE;
-  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
-  $handler->display->display_options['row_plugin'] = 'fields';
-  $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
-  $handler->display->display_options['defaults']['row_options'] = FALSE;
-  $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* 字段: 内容: 标题 */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['label'] = '';
-  $handler->display->display_options['fields']['title']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
-  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-  /* 字段: 内容: 申请人 */
-  $handler->display->display_options['fields']['field_applicant']['id'] = 'field_applicant';
-  $handler->display->display_options['fields']['field_applicant']['table'] = 'field_data_field_applicant';
-  $handler->display->display_options['fields']['field_applicant']['field'] = 'field_applicant';
-  $handler->display->display_options['fields']['field_applicant']['label'] = '';
-  $handler->display->display_options['fields']['field_applicant']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['field_applicant']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_applicant']['settings'] = array(
-    'user_reference_view_mode' => 'full',
-  );
-  /* 字段: 内容: 贷款表 */
-  $handler->display->display_options['fields']['field_issuing']['id'] = 'field_issuing';
-  $handler->display->display_options['fields']['field_issuing']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['fields']['field_issuing']['field'] = 'field_issuing';
-  $handler->display->display_options['fields']['field_issuing']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['field_issuing']['click_sort_column'] = 'status';
-  /* 字段: Issuing: 操作 */
-  $handler->display->display_options['fields']['view_issuing']['id'] = 'view_issuing';
-  $handler->display->display_options['fields']['view_issuing']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['fields']['view_issuing']['field'] = 'view_issuing';
-  $handler->display->display_options['fields']['view_issuing']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['view_issuing']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['view_issuing']['add_destination'] = 1;
-  /* 字段: Issuing: progress */
-  $handler->display->display_options['fields']['progress']['id'] = 'progress';
-  $handler->display->display_options['fields']['progress']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['fields']['progress']['field'] = 'progress';
-  $handler->display->display_options['fields']['progress']['label'] = '';
-  $handler->display->display_options['fields']['progress']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['progress']['element_label_colon'] = FALSE;
-  /* 字段: 全局: PHP */
-  $handler->display->display_options['fields']['php']['id'] = 'php';
-  $handler->display->display_options['fields']['php']['table'] = 'views';
-  $handler->display->display_options['fields']['php']['field'] = 'php';
-  $handler->display->display_options['fields']['php']['label'] = '';
-  $handler->display->display_options['fields']['php']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['php']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['php']['use_php_setup'] = 0;
-  $handler->display->display_options['fields']['php']['php_output'] = '<?php
-$node_id = $data->nid;
-$node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
-?>
-
-
-<ul class="title1">
- <li> <a id="loanname" title="<?php print $data->node_title; ?>" href="<?php print $node_url; ?>"> <?php print $data->node_title; ?> </a> </li>
-</ul>
-
-';
-  $handler->display->display_options['fields']['php']['use_php_click_sortable'] = '0';
-  $handler->display->display_options['fields']['php']['php_click_sortable'] = '';
-  /* 字段: 全局: PHP */
-  $handler->display->display_options['fields']['php_1']['id'] = 'php_1';
-  $handler->display->display_options['fields']['php_1']['table'] = 'views';
-  $handler->display->display_options['fields']['php_1']['field'] = 'php';
-  $handler->display->display_options['fields']['php_1']['label'] = '';
-  $handler->display->display_options['fields']['php_1']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['php_1']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['php_1']['use_php_setup'] = 0;
-  $handler->display->display_options['fields']['php_1']['php_output'] = ' <?php
-	include_once drupal_get_path(\'module\', \'cowpro_issuing\') . \'/includes/cowpro_issuing.repayment_schedule.fun.inc\';
-	$method_repayment_readable = _cowpro_issuing_get_readable_repayment_method($data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'method_repayment\']);
-
-$uid = $data->_field_data[\'nid\'][\'entity\']->field_applicant[\'und\'][0][\'uid\'];
-$u=user_load($uid);
-$username=$u->name;
-global $user;
-if ($user->uid != $u->uid) {
-    if (mb_strlen($username) < 11) {
-               		$username = mb_substr($username, 0, 2) . \'***\';
-               	} else {
-               		$username = mb_substr($username, 0, 4) . \'****\' . mb_substr($username, -3, 3);
-               	}
-               }
-?>    
-
- <div class="col-md-2 the-nianhua">
-      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'annual_rate\'] ; ?></span>
-      <p class="text-info">预期年化收益率(%)</p>
-      </div>
-      <div class="col-md-2 the-qixian">
-      <span class="num-info"><?php include_once drupal_get_path(\'module\', \'cowpro_issuing\') . \'/includes/cowpro_issuing.repayment_schedule.fun.inc\'; print _cowpro_issuing_get_readable_loan_term($data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'loan_term\']) ; ?> </span>
-      <p class="text-info">投资期限</p>
-      </div>
-      <div class="col-md-2 the-jine">
-      <span class="num-info"><?php print $data->_field_data[\'nid\'][\'entity\']->field_issuing[\'und\'][0][\'loan_amounts\'] ; ?></span>
-      <p class="text-info">融资金额(元)</p>
-      
-      </div>
-      <div class="col-md-2 the-huankuan">  <span class="num-info"><?php print $method_repayment_readable; ?></span>
-      <p class="text-info">还款方式</p></div>';
-  $handler->display->display_options['fields']['php_1']['use_php_click_sortable'] = '0';
-  $handler->display->display_options['fields']['php_1']['php_click_sortable'] = '';
-  /* 字段: 全局: PHP */
-  $handler->display->display_options['fields']['php_2']['id'] = 'php_2';
-  $handler->display->display_options['fields']['php_2']['table'] = 'views';
-  $handler->display->display_options['fields']['php_2']['field'] = 'php';
-  $handler->display->display_options['fields']['php_2']['label'] = '';
-  $handler->display->display_options['fields']['php_2']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['php_2']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['php_2']['use_php_setup'] = 0;
-  $handler->display->display_options['fields']['php_2']['php_output'] = '<?php
-$node_id = $data->nid;
-$node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
-
-?>
-';
-  $handler->display->display_options['fields']['php_2']['use_php_click_sortable'] = '0';
-  $handler->display->display_options['fields']['php_2']['php_click_sortable'] = '';
-  /* 字段: 全局: 查看结果计数器 */
-  $handler->display->display_options['fields']['counter']['id'] = 'counter';
-  $handler->display->display_options['fields']['counter']['table'] = 'views';
-  $handler->display->display_options['fields']['counter']['field'] = 'counter';
-  $handler->display->display_options['fields']['counter']['label'] = '';
-  $handler->display->display_options['fields']['counter']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['counter']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['counter']['counter_start'] = '1';
-  $handler->display->display_options['fields']['counter']['reverse'] = 0;
-  /* 字段: 全局: 定制文本 */
-  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
-  $handler->display->display_options['fields']['nothing']['table'] = 'views';
-  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
-  $handler->display->display_options['fields']['nothing']['label'] = '';
-  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<div class="content_foot foott">
-[php]
-  <div class="clearfix content_all container-fluid">
-    <div class="row">
-[php_1] 
-      <div class="col-md-2 the-baifen"><div class="jdt_ph">
-  <div class="jqm-round-wrap">
-    <div class="jqm-round-bg"></div>
-    <canvas id="jqm-round-sector[counter]" class="jqm-round-sector" height="200" width="200"></canvas>
-    <div class="jqm-round-circle">
-      <p>[progress]%</p>
-    </div>
-  </div>
-</div></div>
-<div class="col-md-2 the-xiangx">[php_2] [view_issuing]  </div>      
-    </div>
-  </div>
-</div>
-';
-  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
-  $handler->display->display_options['defaults']['sorts'] = FALSE;
-  /* 排序标准: 内容: 发布日期 */
-  $handler->display->display_options['sorts']['created']['id'] = 'created';
-  $handler->display->display_options['sorts']['created']['table'] = 'node';
-  $handler->display->display_options['sorts']['created']['field'] = 'created';
-  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
-  $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
-  $handler->display->display_options['filters']['type']['id'] = 'type';
-  $handler->display->display_options['filters']['type']['table'] = 'node';
-  $handler->display->display_options['filters']['type']['field'] = 'type';
-  $handler->display->display_options['filters']['type']['value'] = array(
-    'cowpro_issuing' => 'cowpro_issuing',
-  );
   $translatables['all_issuing'] = array(
     t('Master'),
     t('贷款管理，导出'),
@@ -1307,6 +1572,13 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     t('降序'),
     t('Select any filter and click on Apply to see results'),
     t('高级选项'),
+    t('每页条目数'),
+    t('- 全部 -'),
+    t('偏移量'),
+    t('« 第一页'),
+    t('‹ 前一页'),
+    t('下一页 ›'),
+    t('末页 »'),
     t('<div class="content_head container-fluid">
   <ul class="row">
     <li class="project col-md-8">投资项目<span class="inearnings">-</span></li>
@@ -1318,29 +1590,24 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     t('贷款表'),
     t('操作'),
     t('进度'),
+    t('贷款表 (field_issuing:status)'),
     t('贷款管理'),
-    t('正在投标的贷款(管理员)'),
+    t('贷款期限'),
+    t('年利率'),
+    t('还款方式'),
+    t('贷款金额'),
+    t('状态'),
+    t('贷款表状态'),
+    t('贷款标题'),
+    t('正在投标的贷款(用户)'),
     t('正在投标的贷款'),
-    t('待审核的贷款'),
-    t('待审核'),
-    t('已满标等待放款的贷款'),
-    t('正在还款的贷款'),
-    t('还款中'),
-    t('正在还款的贷款，导出'),
-    t('已流标的贷款'),
-    t('已流标'),
-    t('全部贷款'),
-    t('全部'),
-    t('每页条目数'),
-    t('- 全部 -'),
-    t('偏移量'),
-    t('« 第一页'),
-    t('‹ 前一页'),
-    t('下一页 ›'),
-    t('末页 »'),
-    t(' [block:views=-exp-all_issuing-issuing_list]'),
-    t('<p id="select_num">共为您找到<span id="total">@total</span>个标</p> '),
-    t('progress'),
+    t('我的贷款'),
+    t('<div class="content_head container-fluid">
+  <ul class="row">
+    <li class="project col-md-8">投资项目<span class="inearnings">为投资者创造<i>34,844,127</i>元收益</span></li>
+    <li class="inmoney col-md-4 text-right"><a href="/issuing-list" style="color:#ec5245">更多项目</a></li>
+  </ul>
+</div>'),
     t('<div class="content_foot foott"> [php]
   <div class="clearfix content_all container-fluid">
     <div class="row"> [php_1]
@@ -1360,20 +1627,9 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   </div>
 </div>
 '),
-    t('项目状态：'),
-    t('贷款表 (field_issuing:loan_term)'),
-    t('项目期限：'),
-    t('贷款表 (field_issuing:annual_rate)'),
-    t('年化收益：'),
-    t('正在投标的贷款(用户)'),
-    t('我的贷款'),
-    t('<div class="content_head container-fluid">
-  <ul class="row">
-    <li class="project col-md-8">投资项目<span class="inearnings">为投资者创造<i>34,844,127</i>元收益</span></li>
-    <li class="inmoney col-md-4 text-right"><a href="/issuing-list" style="color:#ec5245">更多项目</a></li>
-  </ul>
-</div>'),
+    t('全部'),
     t('全部贷款(首页)'),
+    t('全部贷款'),
     t('投资项目'),
     t('<div class="content_foot foott">
 [php]
@@ -1394,6 +1650,14 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   </div>
 </div>
 '),
+    t(' [block:views=-exp-all_issuing-issuing_list]'),
+    t('<p id="select_num">共为您找到<span id="total">@total</span>个标</p> '),
+    t('progress'),
+    t('项目状态：'),
+    t('贷款表 (field_issuing:loan_term)'),
+    t('项目期限：'),
+    t('贷款表 (field_issuing:annual_rate)'),
+    t('年化收益：'),
   );
   $export['all_issuing'] = $view;
 
@@ -1416,7 +1680,11 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['access']['role'] = array(
     3 => '3',
   );
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
@@ -1453,24 +1721,25 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['style_options']['scroll_padding'] = '120';
   $handler->display->display_options['style_options']['loading_text'] = '正在加载...';
   $handler->display->display_options['row_plugin'] = 'node';
-  /* 字段: 内容: 标题 */
+  /* 字段: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['label'] = '';
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* 字段: Issuing: 操作 */
+  /* 字段: Issuing: Operations */
   $handler->display->display_options['fields']['view_node']['id'] = 'view_node';
   $handler->display->display_options['fields']['view_node']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['view_node']['field'] = 'view_node';
+  $handler->display->display_options['fields']['view_node']['label'] = '操作';
   $handler->display->display_options['fields']['view_node']['add_destination'] = 0;
-  /* 排序标准: 内容: 发布日期 */
+  /* 排序标准: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* 过滤规则: 内容: 类型 */
+  /* 过滤规则: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -1523,7 +1792,11 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['access']['role'] = array(
     4 => '4',
   );
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
@@ -1598,12 +1871,13 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['journal_id']['table'] = 'cowpro_fund_journal';
   $handler->display->display_options['fields']['journal_id']['field'] = 'journal_id';
   $handler->display->display_options['fields']['journal_id']['exclude'] = TRUE;
-  /* 字段: 内容: 标题 */
+  /* 字段: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['relationship'] = 'issuing_id';
-  /* 字段: 内容: 贷款表 */
+  $handler->display->display_options['fields']['title']['label'] = '标题';
+  /* 字段: 节点: 贷款表 */
   $handler->display->display_options['fields']['field_issuing']['id'] = 'field_issuing';
   $handler->display->display_options['fields']['field_issuing']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['field_issuing']['field'] = 'field_issuing';
@@ -1619,8 +1893,15 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['created']['table'] = 'cowpro_fund_journal';
   $handler->display->display_options['fields']['created']['field'] = 'created';
   $handler->display->display_options['fields']['created']['label'] = '投资时间';
-  $handler->display->display_options['fields']['created']['date_format'] = 'short';
+  $handler->display->display_options['fields']['created']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['created']['custom_date_format'] = 'Y/m/d';
   $handler->display->display_options['fields']['created']['second_date_format'] = 'long';
+  /* 字段: Issuing: repayment progress */
+  $handler->display->display_options['fields']['repayment_progress']['id'] = 'repayment_progress';
+  $handler->display->display_options['fields']['repayment_progress']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['repayment_progress']['field'] = 'repayment_progress';
+  $handler->display->display_options['fields']['repayment_progress']['relationship'] = 'issuing_id';
+  $handler->display->display_options['fields']['repayment_progress']['label'] = '还款进度%';
   /* 排序标准: 资金明细: 时间 */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'cowpro_fund_journal';
@@ -1683,6 +1964,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     t('贷款表'),
     t('投资金额'),
     t('投资时间'),
+    t('还款进度%'),
     t('全部'),
   );
   $export['bid_list'] = $view;
@@ -1706,7 +1988,11 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['access']['role'] = array(
     3 => '3',
   );
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
@@ -1743,24 +2029,25 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['style_options']['scroll_padding'] = '120';
   $handler->display->display_options['style_options']['loading_text'] = '正在加载...';
   $handler->display->display_options['row_plugin'] = 'node';
-  /* 字段: 内容: 标题 */
+  /* 字段: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['label'] = '';
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* 字段: Issuing: 操作 */
+  /* 字段: Issuing: Operations */
   $handler->display->display_options['fields']['view_node']['id'] = 'view_node';
   $handler->display->display_options['fields']['view_node']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['view_node']['field'] = 'view_node';
+  $handler->display->display_options['fields']['view_node']['label'] = '操作';
   $handler->display->display_options['fields']['view_node']['add_destination'] = 0;
-  /* 排序标准: 内容: 发布日期 */
+  /* 排序标准: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* 过滤规则: 内容: 类型 */
+  /* 过滤规则: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -1883,10 +2170,18 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['issuing_id']['id'] = 'issuing_id';
   $handler->display->display_options['fields']['issuing_id']['table'] = 'cowpro_repayment_schedule';
   $handler->display->display_options['fields']['issuing_id']['field'] = 'issuing_id';
-  /* 字段: 还款详情: 付款方 */
-  $handler->display->display_options['fields']['payer_uid']['id'] = 'payer_uid';
-  $handler->display->display_options['fields']['payer_uid']['table'] = 'cowpro_repayment_schedule';
-  $handler->display->display_options['fields']['payer_uid']['field'] = 'payer_uid';
+  /* 字段: 还款详情: period */
+  $handler->display->display_options['fields']['period']['id'] = 'period';
+  $handler->display->display_options['fields']['period']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['period']['field'] = 'period';
+  $handler->display->display_options['fields']['period']['label'] = '期次';
+  $handler->display->display_options['fields']['period']['separator'] = '';
+  /* 字段: 还款详情: period_total */
+  $handler->display->display_options['fields']['period_total']['id'] = 'period_total';
+  $handler->display->display_options['fields']['period_total']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['period_total']['field'] = 'period_total';
+  $handler->display->display_options['fields']['period_total']['label'] = '总期次';
+  $handler->display->display_options['fields']['period_total']['separator'] = '';
   /* 字段: 还款详情: 最后还款日 */
   $handler->display->display_options['fields']['deadline']['id'] = 'deadline';
   $handler->display->display_options['fields']['deadline']['table'] = 'cowpro_repayment_schedule';
@@ -1924,6 +2219,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['filters']['deadline']['operator'] = '<=';
   $handler->display->display_options['filters']['deadline']['value']['value'] = '+31 day';
   $handler->display->display_options['filters']['deadline']['value']['type'] = 'offset';
+  $handler->display->display_options['filters']['deadline']['exposed'] = TRUE;
   $handler->display->display_options['filters']['deadline']['expose']['operator_id'] = 'deadline_op';
   $handler->display->display_options['filters']['deadline']['expose']['label'] = '最后还款日';
   $handler->display->display_options['filters']['deadline']['expose']['operator'] = 'deadline_op';
@@ -1935,6 +2231,11 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['filters']['status']['value'] = array(
     'WAITING_FOR' => 'WAITING_FOR',
   );
+  $handler->display->display_options['filters']['status']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['status']['expose']['operator_id'] = 'status_op';
+  $handler->display->display_options['filters']['status']['expose']['label'] = '状态';
+  $handler->display->display_options['filters']['status']['expose']['operator'] = 'status_op';
+  $handler->display->display_options['filters']['status']['expose']['identifier'] = 'status';
   /* 过滤规则: 还款详情: 收款方用户ID */
   $handler->display->display_options['filters']['receiver_uid']['id'] = 'receiver_uid';
   $handler->display->display_options['filters']['receiver_uid']['table'] = 'cowpro_repayment_schedule';
@@ -1948,7 +2249,132 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['access']['role'] = array(
     3 => '3',
   );
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: 还款详情: 贷款名称 */
+  $handler->display->display_options['fields']['issuing_id']['id'] = 'issuing_id';
+  $handler->display->display_options['fields']['issuing_id']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['issuing_id']['field'] = 'issuing_id';
+  /* 字段: 还款详情: 付款方 */
+  $handler->display->display_options['fields']['payer_uid']['id'] = 'payer_uid';
+  $handler->display->display_options['fields']['payer_uid']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['payer_uid']['field'] = 'payer_uid';
+  $handler->display->display_options['fields']['payer_uid']['element_label_colon'] = FALSE;
+  /* 字段: 还款详情: period */
+  $handler->display->display_options['fields']['period']['id'] = 'period';
+  $handler->display->display_options['fields']['period']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['period']['field'] = 'period';
+  $handler->display->display_options['fields']['period']['label'] = '期次';
+  $handler->display->display_options['fields']['period']['separator'] = '';
+  /* 字段: 还款详情: period_total */
+  $handler->display->display_options['fields']['period_total']['id'] = 'period_total';
+  $handler->display->display_options['fields']['period_total']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['period_total']['field'] = 'period_total';
+  $handler->display->display_options['fields']['period_total']['label'] = '总期次';
+  $handler->display->display_options['fields']['period_total']['separator'] = '';
+  /* 字段: 还款详情: 最后还款日 */
+  $handler->display->display_options['fields']['deadline']['id'] = 'deadline';
+  $handler->display->display_options['fields']['deadline']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['deadline']['field'] = 'deadline';
+  $handler->display->display_options['fields']['deadline']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['deadline']['custom_date_format'] = 'Y/m/d';
+  $handler->display->display_options['fields']['deadline']['second_date_format'] = 'long';
+  /* 字段: 还款详情: payable_amount */
+  $handler->display->display_options['fields']['payable_amount']['id'] = 'payable_amount';
+  $handler->display->display_options['fields']['payable_amount']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['payable_amount']['field'] = 'payable_amount';
+  $handler->display->display_options['fields']['payable_amount']['label'] = '应还款金额';
+  /* 字段: 还款详情: 状态 */
+  $handler->display->display_options['fields']['status']['id'] = 'status';
+  $handler->display->display_options['fields']['status']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['status']['field'] = 'status';
   $handler->display->display_options['defaults']['arguments'] = FALSE;
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* 过滤规则: 还款详情: 最后还款日 */
+  $handler->display->display_options['filters']['deadline']['id'] = 'deadline';
+  $handler->display->display_options['filters']['deadline']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['deadline']['field'] = 'deadline';
+  $handler->display->display_options['filters']['deadline']['operator'] = 'between';
+  $handler->display->display_options['filters']['deadline']['value']['value'] = '+31 day';
+  $handler->display->display_options['filters']['deadline']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['deadline']['expose']['operator_id'] = 'deadline_op';
+  $handler->display->display_options['filters']['deadline']['expose']['label'] = '最后还款日(格式：YYYY/MM/DD)';
+  $handler->display->display_options['filters']['deadline']['expose']['operator'] = 'deadline_op';
+  $handler->display->display_options['filters']['deadline']['expose']['identifier'] = 'deadline';
+  $handler->display->display_options['filters']['deadline']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+  );
+  /* 过滤规则: 还款详情: 状态 */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = array(
+    'WAITING_FOR' => 'WAITING_FOR',
+    'COMPLETED' => 'COMPLETED',
+  );
+  $handler->display->display_options['filters']['status']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['status']['expose']['operator_id'] = 'status_op';
+  $handler->display->display_options['filters']['status']['expose']['label'] = '状态';
+  $handler->display->display_options['filters']['status']['expose']['operator'] = 'status_op';
+  $handler->display->display_options['filters']['status']['expose']['identifier'] = 'status';
+  $handler->display->display_options['filters']['status']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+  );
+  $handler->display->display_options['filters']['status']['expose']['reduce'] = TRUE;
+  /* 过滤规则: 还款详情: 收款方用户ID */
+  $handler->display->display_options['filters']['receiver_uid']['id'] = 'receiver_uid';
+  $handler->display->display_options['filters']['receiver_uid']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['receiver_uid']['field'] = 'receiver_uid';
+  $handler->display->display_options['filters']['receiver_uid']['value']['value'] = '-1';
+  /* 过滤规则: 还款详情: 付款方用户ID */
+  $handler->display->display_options['filters']['payer_uid']['id'] = 'payer_uid';
+  $handler->display->display_options['filters']['payer_uid']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['payer_uid']['field'] = 'payer_uid';
+  $handler->display->display_options['filters']['payer_uid']['value'] = -1;
+  $handler->display->display_options['filters']['payer_uid']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['payer_uid']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['payer_uid']['expose']['label'] = '付款方用户手机号码或者昵称 ';
+  $handler->display->display_options['filters']['payer_uid']['expose']['operator'] = 'payer_uid_op';
+  $handler->display->display_options['filters']['payer_uid']['expose']['identifier'] = 'payer_uid';
+  $handler->display->display_options['filters']['payer_uid']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+  );
+  /* 过滤规则: 还款详情: 贷款名称 */
+  $handler->display->display_options['filters']['issuing_id']['id'] = 'issuing_id';
+  $handler->display->display_options['filters']['issuing_id']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['issuing_id']['field'] = 'issuing_id';
+  $handler->display->display_options['filters']['issuing_id']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['issuing_id']['expose']['operator_id'] = 'issuing_id_op';
+  $handler->display->display_options['filters']['issuing_id']['expose']['label'] = '贷款名称';
+  $handler->display->display_options['filters']['issuing_id']['expose']['operator'] = 'issuing_id_op';
+  $handler->display->display_options['filters']['issuing_id']['expose']['identifier'] = 'issuing_id';
+  $handler->display->display_options['filters']['issuing_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+  );
   $handler->display->display_options['path'] = 'issuing-manage/due-in';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = '待还款清单';
@@ -2029,6 +2455,18 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['issuing_id']['id'] = 'issuing_id';
   $handler->display->display_options['fields']['issuing_id']['table'] = 'cowpro_repayment_schedule';
   $handler->display->display_options['fields']['issuing_id']['field'] = 'issuing_id';
+  /* 字段: 还款详情: period */
+  $handler->display->display_options['fields']['period']['id'] = 'period';
+  $handler->display->display_options['fields']['period']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['period']['field'] = 'period';
+  $handler->display->display_options['fields']['period']['label'] = '期次';
+  $handler->display->display_options['fields']['period']['separator'] = '';
+  /* 字段: 还款详情: period_total */
+  $handler->display->display_options['fields']['period_total']['id'] = 'period_total';
+  $handler->display->display_options['fields']['period_total']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['period_total']['field'] = 'period_total';
+  $handler->display->display_options['fields']['period_total']['label'] = '总期次';
+  $handler->display->display_options['fields']['period_total']['separator'] = '';
   /* 字段: 还款详情: 最后还款日 */
   $handler->display->display_options['fields']['deadline']['id'] = 'deadline';
   $handler->display->display_options['fields']['deadline']['table'] = 'cowpro_repayment_schedule';
@@ -2079,7 +2517,120 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['style_plugin'] = 'views_data_export_xls';
   $handler->display->display_options['style_options']['provide_file'] = 1;
   $handler->display->display_options['style_options']['parent_sort'] = 0;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: 还款详情: 贷款名称 */
+  $handler->display->display_options['fields']['issuing_id']['id'] = 'issuing_id';
+  $handler->display->display_options['fields']['issuing_id']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['issuing_id']['field'] = 'issuing_id';
+  /* 字段: 还款详情: 付款方 */
+  $handler->display->display_options['fields']['payer_uid']['id'] = 'payer_uid';
+  $handler->display->display_options['fields']['payer_uid']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['payer_uid']['field'] = 'payer_uid';
+  /* 字段: 还款详情: period */
+  $handler->display->display_options['fields']['period']['id'] = 'period';
+  $handler->display->display_options['fields']['period']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['period']['field'] = 'period';
+  $handler->display->display_options['fields']['period']['label'] = '期次';
+  $handler->display->display_options['fields']['period']['separator'] = '';
+  /* 字段: 还款详情: period_total */
+  $handler->display->display_options['fields']['period_total']['id'] = 'period_total';
+  $handler->display->display_options['fields']['period_total']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['period_total']['field'] = 'period_total';
+  $handler->display->display_options['fields']['period_total']['label'] = '总期次';
+  $handler->display->display_options['fields']['period_total']['separator'] = '';
+  /* 字段: 还款详情: 最后还款日 */
+  $handler->display->display_options['fields']['deadline']['id'] = 'deadline';
+  $handler->display->display_options['fields']['deadline']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['deadline']['field'] = 'deadline';
+  $handler->display->display_options['fields']['deadline']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['deadline']['custom_date_format'] = 'Y/m/d';
+  $handler->display->display_options['fields']['deadline']['second_date_format'] = 'long';
+  /* 字段: 还款详情: payable_amount */
+  $handler->display->display_options['fields']['payable_amount']['id'] = 'payable_amount';
+  $handler->display->display_options['fields']['payable_amount']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['payable_amount']['field'] = 'payable_amount';
+  $handler->display->display_options['fields']['payable_amount']['label'] = '应还款金额';
+  /* 字段: 还款详情: 状态 */
+  $handler->display->display_options['fields']['status']['id'] = 'status';
+  $handler->display->display_options['fields']['status']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['status']['field'] = 'status';
   $handler->display->display_options['defaults']['arguments'] = FALSE;
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* 过滤规则: 还款详情: 最后还款日 */
+  $handler->display->display_options['filters']['deadline']['id'] = 'deadline';
+  $handler->display->display_options['filters']['deadline']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['deadline']['field'] = 'deadline';
+  $handler->display->display_options['filters']['deadline']['operator'] = 'between';
+  $handler->display->display_options['filters']['deadline']['value']['value'] = '+31 day';
+  $handler->display->display_options['filters']['deadline']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['deadline']['expose']['operator_id'] = 'deadline_op';
+  $handler->display->display_options['filters']['deadline']['expose']['label'] = '最后还款日';
+  $handler->display->display_options['filters']['deadline']['expose']['operator'] = 'deadline_op';
+  $handler->display->display_options['filters']['deadline']['expose']['identifier'] = 'deadline';
+  $handler->display->display_options['filters']['deadline']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+  );
+  /* 过滤规则: 还款详情: 状态 */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = array(
+    'WAITING_FOR' => 'WAITING_FOR',
+  );
+  $handler->display->display_options['filters']['status']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['status']['expose']['operator_id'] = 'status_op';
+  $handler->display->display_options['filters']['status']['expose']['label'] = '状态';
+  $handler->display->display_options['filters']['status']['expose']['operator'] = 'status_op';
+  $handler->display->display_options['filters']['status']['expose']['identifier'] = 'status';
+  /* 过滤规则: 还款详情: 收款方用户ID */
+  $handler->display->display_options['filters']['receiver_uid']['id'] = 'receiver_uid';
+  $handler->display->display_options['filters']['receiver_uid']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['receiver_uid']['field'] = 'receiver_uid';
+  $handler->display->display_options['filters']['receiver_uid']['value']['value'] = '-1';
+  /* 过滤规则: 还款详情: 付款方用户ID */
+  $handler->display->display_options['filters']['payer_uid']['id'] = 'payer_uid';
+  $handler->display->display_options['filters']['payer_uid']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['payer_uid']['field'] = 'payer_uid';
+  $handler->display->display_options['filters']['payer_uid']['value'] = -1;
+  $handler->display->display_options['filters']['payer_uid']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['payer_uid']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['payer_uid']['expose']['label'] = '付款方用户ID';
+  $handler->display->display_options['filters']['payer_uid']['expose']['operator'] = 'payer_uid_op';
+  $handler->display->display_options['filters']['payer_uid']['expose']['identifier'] = 'payer_uid';
+  $handler->display->display_options['filters']['payer_uid']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+  );
+  /* 过滤规则: 还款详情: 贷款名称 */
+  $handler->display->display_options['filters']['issuing_id']['id'] = 'issuing_id';
+  $handler->display->display_options['filters']['issuing_id']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['issuing_id']['field'] = 'issuing_id';
+  $handler->display->display_options['filters']['issuing_id']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['issuing_id']['expose']['operator_id'] = 'issuing_id_op';
+  $handler->display->display_options['filters']['issuing_id']['expose']['label'] = '贷款名称';
+  $handler->display->display_options['filters']['issuing_id']['expose']['operator'] = 'issuing_id_op';
+  $handler->display->display_options['filters']['issuing_id']['expose']['identifier'] = 'issuing_id';
+  $handler->display->display_options['filters']['issuing_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+  );
   $handler->display->display_options['path'] = 'issuing-manage/due-in.xls';
   $handler->display->display_options['displays'] = array(
     'due_in_list_manager' => 'due_in_list_manager',
@@ -2104,16 +2655,22 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     t('下一页 ›'),
     t('末页 »'),
     t('贷款名称'),
-    t('付款方'),
+    t('期次'),
+    t('.'),
+    t('总期次'),
     t('最后还款日'),
     t('应还款金额'),
     t('状态'),
     t('全部'),
     t('待还款清单（管理员）'),
+    t('付款方'),
+    t('最后还款日(格式：YYYY/MM/DD)'),
+    t('付款方用户手机号码或者昵称 '),
     t('待还款清单（借款人）'),
     t('待收款清单（出借人）'),
     t('待收款清单'),
     t('Data export'),
+    t('付款方用户ID'),
   );
   $export['due_in_list'] = $view;
 
@@ -2133,7 +2690,11 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['use_more_text'] = '更多';
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
@@ -2167,14 +2728,14 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
       'empty_column' => 0,
     ),
   );
-  /* 字段: 内容: 贷款表 */
+  /* 字段: 节点: 贷款表 */
   $handler->display->display_options['fields']['field_issuing']['id'] = 'field_issuing';
   $handler->display->display_options['fields']['field_issuing']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['field_issuing']['field'] = 'field_issuing';
   $handler->display->display_options['fields']['field_issuing']['label'] = '';
   $handler->display->display_options['fields']['field_issuing']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_issuing']['click_sort_column'] = 'status';
-  /* 上下文过滤器: 内容: Nid */
+  /* 上下文过滤器: Content: Nid */
   $handler->display->display_options['arguments']['nid']['id'] = 'nid';
   $handler->display->display_options['arguments']['nid']['table'] = 'node';
   $handler->display->display_options['arguments']['nid']['field'] = 'nid';
@@ -2218,7 +2779,11 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['use_more_text'] = '更多';
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
@@ -2270,13 +2835,13 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['period']['field'] = 'period';
   $handler->display->display_options['fields']['period']['label'] = '期次';
   $handler->display->display_options['fields']['period']['separator'] = '';
-  /* 字段: 用户: 名称 */
+  /* 字段: User: Name */
   $handler->display->display_options['fields']['name']['id'] = 'name';
   $handler->display->display_options['fields']['name']['table'] = 'users';
   $handler->display->display_options['fields']['name']['field'] = 'name';
   $handler->display->display_options['fields']['name']['relationship'] = 'payer_uid';
   $handler->display->display_options['fields']['name']['label'] = '付款用户';
-  /* 字段: 用户: 名称 */
+  /* 字段: User: Name */
   $handler->display->display_options['fields']['name_1']['id'] = 'name_1';
   $handler->display->display_options['fields']['name_1']['table'] = 'users';
   $handler->display->display_options['fields']['name_1']['field'] = 'name';
@@ -2312,7 +2877,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['status']['id'] = 'status';
   $handler->display->display_options['fields']['status']['table'] = 'cowpro_repayment_schedule';
   $handler->display->display_options['fields']['status']['field'] = 'status';
-  /* 上下文过滤器: 内容: Nid */
+  /* 上下文过滤器: Content: Nid */
   $handler->display->display_options['arguments']['nid']['id'] = 'nid';
   $handler->display->display_options['arguments']['nid']['table'] = 'node';
   $handler->display->display_options['arguments']['nid']['field'] = 'nid';
@@ -2366,7 +2931,11 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['use_more_text'] = '更多';
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
@@ -2595,7 +3164,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['period']['field'] = 'period';
   $handler->display->display_options['fields']['period']['label'] = '期次';
   $handler->display->display_options['fields']['period']['separator'] = '';
-  /* 字段: 用户: 名称 */
+  /* 字段: User: Name */
   $handler->display->display_options['fields']['name']['id'] = 'name';
   $handler->display->display_options['fields']['name']['table'] = 'users';
   $handler->display->display_options['fields']['name']['field'] = 'name';
@@ -2622,7 +3191,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['status']['id'] = 'status';
   $handler->display->display_options['fields']['status']['table'] = 'cowpro_repayment_schedule';
   $handler->display->display_options['fields']['status']['field'] = 'status';
-  /* 字段: 批量操作: 还款详情 */
+  /* 字段: Bulk operations: 还款详情 */
   $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
   $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'views_entity_cowpro_repayment_schedule';
   $handler->display->display_options['fields']['views_bulk_operations']['field'] = 'views_bulk_operations';
@@ -2696,7 +3265,11 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['use_more_text'] = '更多';
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
@@ -2748,13 +3321,13 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['period']['field'] = 'period';
   $handler->display->display_options['fields']['period']['label'] = '期次';
   $handler->display->display_options['fields']['period']['separator'] = '';
-  /* 字段: 用户: 名称 */
+  /* 字段: User: Name */
   $handler->display->display_options['fields']['name']['id'] = 'name';
   $handler->display->display_options['fields']['name']['table'] = 'users';
   $handler->display->display_options['fields']['name']['field'] = 'name';
   $handler->display->display_options['fields']['name']['relationship'] = 'payer_uid';
   $handler->display->display_options['fields']['name']['label'] = '付款用户';
-  /* 字段: 用户: 名称 */
+  /* 字段: User: Name */
   $handler->display->display_options['fields']['name_1']['id'] = 'name_1';
   $handler->display->display_options['fields']['name_1']['table'] = 'users';
   $handler->display->display_options['fields']['name_1']['field'] = 'name';
@@ -2781,7 +3354,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['status']['id'] = 'status';
   $handler->display->display_options['fields']['status']['table'] = 'cowpro_repayment_schedule';
   $handler->display->display_options['fields']['status']['field'] = 'status';
-  /* 上下文过滤器: 内容: Nid */
+  /* 上下文过滤器: Content: Nid */
   $handler->display->display_options['arguments']['nid']['id'] = 'nid';
   $handler->display->display_options['arguments']['nid']['table'] = 'node';
   $handler->display->display_options['arguments']['nid']['field'] = 'nid';
@@ -2832,7 +3405,11 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['use_more_text'] = '更多';
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '21600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '21600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
@@ -2846,18 +3423,13 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['style_plugin'] = 'flexslider';
   $handler->display->display_options['style_options']['captionfield'] = 'nothing';
   $handler->display->display_options['row_plugin'] = 'fields';
-  /* 字段: 内容: Slide image */
+  /* 字段: 损坏/缺失的处理器 */
   $handler->display->display_options['fields']['field_slide_image']['id'] = 'field_slide_image';
   $handler->display->display_options['fields']['field_slide_image']['table'] = 'field_data_field_slide_image';
   $handler->display->display_options['fields']['field_slide_image']['field'] = 'field_slide_image';
   $handler->display->display_options['fields']['field_slide_image']['label'] = '';
   $handler->display->display_options['fields']['field_slide_image']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_slide_image']['click_sort_column'] = 'fid';
-  $handler->display->display_options['fields']['field_slide_image']['settings'] = array(
-    'image_style' => 'flexslider_full',
-    'image_link' => '',
-  );
-  /* 字段: 内容: Body */
+  /* 字段: 节点: Body */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -2871,7 +3443,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['body']['settings'] = array(
     'trim_length' => '325',
   );
-  /* 字段: 内容: 链接 */
+  /* 字段: Content: Link */
   $handler->display->display_options['fields']['view_node']['id'] = 'view_node';
   $handler->display->display_options['fields']['view_node']['table'] = 'views_entity_node';
   $handler->display->display_options['fields']['view_node']['field'] = 'view_node';
@@ -2879,14 +3451,14 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['view_node']['exclude'] = TRUE;
   $handler->display->display_options['fields']['view_node']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['view_node']['text'] = 'Read more';
-  /* 字段: 内容: 标题 */
+  /* 字段: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['label'] = '';
   $handler->display->display_options['fields']['title']['exclude'] = TRUE;
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-  /* 字段: 全局: 定制文本 */
+  /* 字段: Global: Custom text */
   $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
@@ -2901,19 +3473,19 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
 </div>';
   $handler->display->display_options['fields']['nothing']['element_type'] = '0';
   $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
-  /* 排序标准: 内容: 发布日期 */
+  /* 排序标准: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* 过滤规则: 内容: 已发表 */
+  /* 过滤规则: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
+  /* 过滤规则: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -2938,14 +3510,14 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['row_plugin'] = 'fields';
   $handler->display->display_options['defaults']['row_options'] = FALSE;
   $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* 字段: 内容: Nid */
+  /* 字段: Content: Nid */
   $handler->display->display_options['fields']['nid']['id'] = 'nid';
   $handler->display->display_options['fields']['nid']['table'] = 'node';
   $handler->display->display_options['fields']['nid']['field'] = 'nid';
   $handler->display->display_options['fields']['nid']['label'] = '';
   $handler->display->display_options['fields']['nid']['exclude'] = TRUE;
   $handler->display->display_options['fields']['nid']['element_label_colon'] = FALSE;
-  /* 字段: 内容: Slide icon */
+  /* 字段: 损坏/缺失的处理器 */
   $handler->display->display_options['fields']['field_slide_icon']['id'] = 'field_slide_icon';
   $handler->display->display_options['fields']['field_slide_icon']['table'] = 'field_data_field_slide_icon';
   $handler->display->display_options['fields']['field_slide_icon']['field'] = 'field_slide_icon';
@@ -2997,9 +3569,9 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['use_more_text'] = '更多';
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'time';
-  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan'] = '21600';
   $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
-  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan'] = '21600';
   $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
@@ -3017,7 +3589,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['style_options']['pause'] = 1;
   $handler->display->display_options['row_plugin'] = 'fields';
   $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
-  /* 字段: 内容: Silder Links */
+  /* 字段: 节点: Silder Links */
   $handler->display->display_options['fields']['field_silder_links']['id'] = 'field_silder_links';
   $handler->display->display_options['fields']['field_silder_links']['table'] = 'field_data_field_silder_links';
   $handler->display->display_options['fields']['field_silder_links']['field'] = 'field_silder_links';
@@ -3025,7 +3597,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['field_silder_links']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_silder_links']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_silder_links']['type'] = 'text_plain';
-  /* 字段: 内容: Silder images */
+  /* 字段: 节点: Silder images */
   $handler->display->display_options['fields']['field_silder_images']['id'] = 'field_silder_images';
   $handler->display->display_options['fields']['field_silder_images']['table'] = 'field_data_field_silder_images';
   $handler->display->display_options['fields']['field_silder_images']['field'] = 'field_silder_images';
@@ -3038,18 +3610,18 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     'image_style' => '',
     'image_link' => '',
   );
-  /* 排序标准: 内容: 发布日期 */
+  /* 排序标准: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
-  /* 过滤规则: 内容: 已发表 */
+  /* 过滤规则: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
+  /* 过滤规则: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -3089,7 +3661,11 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['use_more_text'] = '更多';
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
@@ -3101,26 +3677,26 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['pager']['options']['items_per_page'] = '10';
   $handler->display->display_options['style_plugin'] = 'default';
   $handler->display->display_options['row_plugin'] = 'fields';
-  /* 字段: 内容: 标题 */
+  /* 字段: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['label'] = '';
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* 排序标准: 内容: 发布日期 */
+  /* 排序标准: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* 过滤规则: 内容: 已发表 */
+  /* 过滤规则: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* 过滤规则: 内容: 类型 */
+  /* 过滤规则: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -3160,7 +3736,11 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['use_more_text'] = '更多';
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['access']['perm'] = 'access user profiles';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
   $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
@@ -3228,62 +3808,93 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['style_options']['scroll_padding'] = '120';
   $handler->display->display_options['row_plugin'] = 'fields';
   $handler->display->display_options['row_options']['default_field_elements'] = FALSE;
-  /* 字段: 用户: 名称 */
+  /* 字段: User: Name */
   $handler->display->display_options['fields']['name']['id'] = 'name';
   $handler->display->display_options['fields']['name']['table'] = 'users';
   $handler->display->display_options['fields']['name']['field'] = 'name';
   $handler->display->display_options['fields']['name']['label'] = '';
   $handler->display->display_options['fields']['name']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['name']['alter']['ellipsis'] = FALSE;
-  /* 字段: 用户: 创建日期 */
+  /* 字段: User: Created date */
   $handler->display->display_options['fields']['created']['id'] = 'created';
   $handler->display->display_options['fields']['created']['table'] = 'users';
   $handler->display->display_options['fields']['created']['field'] = 'created';
-  $handler->display->display_options['fields']['created']['date_format'] = 'short';
+  $handler->display->display_options['fields']['created']['label'] = '创建日期';
+  $handler->display->display_options['fields']['created']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['created']['custom_date_format'] = 'Y/m/d';
   $handler->display->display_options['fields']['created']['second_date_format'] = 'long';
-  /* 字段: 用户: 乾多多注册 */
+  /* 字段: User: 乾多多注册 */
   $handler->display->display_options['fields']['mmm']['id'] = 'mmm';
   $handler->display->display_options['fields']['mmm']['table'] = 'users';
   $handler->display->display_options['fields']['mmm']['field'] = 'mmm';
-  /* 字段: 用户: 实名认证 */
+  /* 字段: User: 实名认证 */
   $handler->display->display_options['fields']['real_name']['id'] = 'real_name';
   $handler->display->display_options['fields']['real_name']['table'] = 'users';
   $handler->display->display_options['fields']['real_name']['field'] = 'real_name';
-  /* 字段: 用户: 手机验证 */
+  /* 字段: User: 手机验证 */
   $handler->display->display_options['fields']['mobile_certification']['id'] = 'mobile_certification';
   $handler->display->display_options['fields']['mobile_certification']['table'] = 'users';
   $handler->display->display_options['fields']['mobile_certification']['field'] = 'mobile_certification';
-  /* 字段: 用户: 投标密码 */
+  /* 字段: User: 投标密码 */
   $handler->display->display_options['fields']['payment_password']['id'] = 'payment_password';
   $handler->display->display_options['fields']['payment_password']['table'] = 'users';
   $handler->display->display_options['fields']['payment_password']['field'] = 'payment_password';
-  /* 字段: 用户: 推荐人 */
+  /* 字段: User: 推荐人 */
   $handler->display->display_options['fields']['referee']['id'] = 'referee';
   $handler->display->display_options['fields']['referee']['table'] = 'users';
   $handler->display->display_options['fields']['referee']['field'] = 'referee';
-  /* 排序标准: 用户: 创建日期 */
+  /* 排序标准: User: Created date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'users';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* 过滤规则: 用户: 有效 */
-  $handler->display->display_options['filters']['status']['id'] = 'status';
-  $handler->display->display_options['filters']['status']['table'] = 'users';
-  $handler->display->display_options['filters']['status']['field'] = 'status';
-  $handler->display->display_options['filters']['status']['value'] = '1';
-  $handler->display->display_options['filters']['status']['group'] = 1;
-  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* 过滤规则: 用户: 名称 */
-  $handler->display->display_options['filters']['uid']['id'] = 'uid';
-  $handler->display->display_options['filters']['uid']['table'] = 'users';
-  $handler->display->display_options['filters']['uid']['field'] = 'uid';
-  $handler->display->display_options['filters']['uid']['value'] = '';
-  $handler->display->display_options['filters']['uid']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['uid']['expose']['operator_id'] = 'uid_op';
-  $handler->display->display_options['filters']['uid']['expose']['label'] = '名称';
-  $handler->display->display_options['filters']['uid']['expose']['operator'] = 'uid_op';
-  $handler->display->display_options['filters']['uid']['expose']['identifier'] = 'uid';
-  $handler->display->display_options['filters']['uid']['expose']['remember_roles'] = array(
+  /* 过滤规则: User: Created date */
+  $handler->display->display_options['filters']['created_2']['id'] = 'created_2';
+  $handler->display->display_options['filters']['created_2']['table'] = 'users';
+  $handler->display->display_options['filters']['created_2']['field'] = 'created';
+  $handler->display->display_options['filters']['created_2']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['created_2']['expose']['operator_id'] = 'created_2_op';
+  $handler->display->display_options['filters']['created_2']['expose']['label'] = '创建日期';
+  $handler->display->display_options['filters']['created_2']['expose']['use_operator'] = TRUE;
+  $handler->display->display_options['filters']['created_2']['expose']['operator'] = 'created_2_op';
+  $handler->display->display_options['filters']['created_2']['expose']['identifier'] = 'created_2';
+  $handler->display->display_options['filters']['created_2']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+  );
+  /* 过滤规则: User: 手机验证 */
+  $handler->display->display_options['filters']['mobile_certification_2']['id'] = 'mobile_certification_2';
+  $handler->display->display_options['filters']['mobile_certification_2']['table'] = 'users';
+  $handler->display->display_options['filters']['mobile_certification_2']['field'] = 'mobile_certification';
+  $handler->display->display_options['filters']['mobile_certification_2']['value'] = -1;
+  $handler->display->display_options['filters']['mobile_certification_2']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['mobile_certification_2']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['mobile_certification_2']['expose']['label'] = '用户的手机号码或者昵称';
+  $handler->display->display_options['filters']['mobile_certification_2']['expose']['operator'] = 'mobile_certification_2_op';
+  $handler->display->display_options['filters']['mobile_certification_2']['expose']['identifier'] = 'mobile_certification_2';
+  $handler->display->display_options['filters']['mobile_certification_2']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+  );
+  /* 过滤规则: User: 推荐人 */
+  $handler->display->display_options['filters']['referee_2']['id'] = 'referee_2';
+  $handler->display->display_options['filters']['referee_2']['table'] = 'users';
+  $handler->display->display_options['filters']['referee_2']['field'] = 'referee';
+  $handler->display->display_options['filters']['referee_2']['value'] = -1;
+  $handler->display->display_options['filters']['referee_2']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['referee_2']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['referee_2']['expose']['label'] = '推荐人的手机号码或者昵称 ';
+  $handler->display->display_options['filters']['referee_2']['expose']['operator'] = 'referee_2_op';
+  $handler->display->display_options['filters']['referee_2']['expose']['identifier'] = 'referee_2';
+  $handler->display->display_options['filters']['referee_2']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
     6 => 0,
@@ -3292,10 +3903,36 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     5 => 0,
   );
 
-  /* Display: Page */
-  $handler = $view->new_display('page', 'Page', 'page');
+  /* Display: 用户查询 */
+  $handler = $view->new_display('page', '用户查询', 'page');
+  $handler->display->display_options['defaults']['pager'] = FALSE;
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '30';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = '每页条目数';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- 全部 -';
+  $handler->display->display_options['pager']['options']['expose']['offset_label'] = '偏移量';
+  $handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+  $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+  $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
   $handler->display->display_options['exposed_block'] = TRUE;
   $handler->display->display_options['path'] = 'user-search';
+
+  /* Display: 用户查询，导出 */
+  $handler = $view->new_display('views_data_export', '用户查询，导出', 'views_data_export_1');
+  $handler->display->display_options['pager']['type'] = 'none';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['style_plugin'] = 'views_data_export_xls';
+  $handler->display->display_options['style_options']['provide_file'] = 0;
+  $handler->display->display_options['style_options']['parent_sort'] = 0;
+  $handler->display->display_options['path'] = 'user-search.xls';
+  $handler->display->display_options['displays'] = array(
+    'page' => 'page',
+    'default' => 0,
+  );
   $translatables['user_sopuo'] = array(
     t('Master'),
     t('用户查询'),
@@ -3320,8 +3957,9 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     t('手机验证'),
     t('投标密码'),
     t('推荐人'),
-    t('名称'),
-    t('Page'),
+    t('用户的手机号码或者昵称'),
+    t('推荐人的手机号码或者昵称 '),
+    t('用户查询，导出'),
   );
   $export['user_sopuo'] = $view;
 
