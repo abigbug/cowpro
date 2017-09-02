@@ -1,6 +1,17 @@
 <?php
 function cowpro_fund_internal_trans($form, &$form_state) {
 	$form = array ();
+	$form['user_from'] = array(
+			'#type' => 'textfield',
+			'#title' => '转出账户：',
+			'#description' => '付款人昵称(用户名)',
+			'#maxlength' => 60,
+			'#default_value' => '',
+			'#autocomplete_path' =>	'cowpro/referee/autocomplete',
+			'#weight' => -1,
+			'#reguired' => TRUE,
+	);
+
 	$form['user_to'] = array(
 			'#type' => 'textfield',
 			'#title' => '转账给：',
@@ -12,6 +23,7 @@ function cowpro_fund_internal_trans($form, &$form_state) {
 			'#reguired' => TRUE,
 	);
 
+	/*
 	GLOBAL $user;
 	$balance = custodian_get_balance($user);
 	$withdraw = 0;
@@ -22,6 +34,7 @@ function cowpro_fund_internal_trans($form, &$form_state) {
 	$form ['withdraw_balance'] = array (
 			'#markup' => "<p>可转账金额(元)：$withdraw</p>",
 	);
+	*/
 	$form ['amount'] = array (
 			'#type' => 'numberfield',
 			'#title' => '转账金额(元)',
@@ -58,8 +71,13 @@ function cowpro_fund_internal_trans_submit($form, &$form_state) {
 		return cowpro_fund_internal_trans_do($form, $form_state);
 	}
 	$amount = $form_state ['input'] ['amount'];
-	$uid_to = -1;
-	$user_to_string = $form_state ['input'] ['user_to'];
+	$uid_to = _cowpro_fund_internal_trans_get_uid($form_state ['input'] ['user_to']);
+	$uid_from = _cowpro_fund_internal_trans_get_uid($form_state ['input'] ['user_from']);
+	return cowpro_fund_internal_trans_confirm($uid_from, $uid_to, $amount, $form_state);
+}
+
+function _cowpro_fund_internal_trans_get_uid($user_to_string) {
+	$uid_to= -1;
 	$matches = array();
 	$regex = '/^\d+$/';
 	if(preg_match($regex, $user_to_string, $matches)){
@@ -75,15 +93,18 @@ function cowpro_fund_internal_trans_submit($form, &$form_state) {
 			$uid_to = $user->uid;
 		}
 	}
-	return cowpro_fund_internal_trans_confirm($uid_to, $amount, $form_state);
+	return $uid_to;
 }
 
 /**
  * 确认转账对像
  */
-function cowpro_fund_internal_trans_confirm($uid_to, $amount, &$form_state) {
+function cowpro_fund_internal_trans_confirm($uid_from, $uid_to, $amount, &$form_state) {
 	$form = array();
+	/*
 	$uid_from = $GLOBALS['user']->uid;
+	$form_state['uid_from'] = $uid_from;
+	*/
 	$form_state['uid_from'] = $uid_from;
 	$form_state['uid_to'] = $uid_to;
 	$form_state['amount'] = $amount;
