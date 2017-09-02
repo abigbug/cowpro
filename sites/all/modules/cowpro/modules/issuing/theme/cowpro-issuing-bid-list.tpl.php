@@ -38,7 +38,7 @@
 
           <tr class="<?php if ($count%2) {echo 'odd';} else {echo 'even';}?>">
                   <td class="views-field views-field-lender-time">
-            <?php print date('Y/m/d H:i', $journal->created); ?>          </td>
+            <?php print gmdate('Y/m/d', $journal->created); ?>          </td>
                   <td class="views-field views-field-lender">
             <?php
             if ($maskit && $user->uid != $journal_user->uid) {
