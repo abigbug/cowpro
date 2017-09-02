@@ -21,21 +21,29 @@ files[] = includes/cowpro_issuing_repayment_schedule.controller.inc
 files[] = test/cowpro_issuing.test
 
 ; Views handlers
-files[] = includes/views/handlers/cowpro_issuing_handler_field_issuing.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_field_applicant.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_field_issuing_title.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_issuing_operations.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_node_operations.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_progress.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_repayment_progress.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_filter_status_select.inc
-files[] = includes/views/handlers/cowpro_issuing_handler_field_title.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_field_term.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_field_annual_rate.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_field_loan_amounts.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_field_method_repayment.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_field_status.inc
 ;files[] = includes/views/handlers/cowpro_issuing_handler_field_receiver_name.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_payer_name.inc
+files[] = includes/views/handlers/cowpro_repayment_schedule_handler_field_real_name.inc
 files[] = includes/views/handlers/cowpro_repayment_schedule_handler_area_empty_text.inc
 files[] = includes/views/handlers/cowpro_repayment_schedule_handler_field_status.inc
 files[] = includes/views/handlers/cowpro_repayment_schedule_handler_filter_status.inc
 files[] = includes/views/handlers/cowpro_creditor_assignment_handler_field_amount.inc
 ; files[] = includes/views/handlers/cowpro_creditor_assignment_handler_filter_amount.inc
 files[] = includes/views/handlers/cowpro_creditor_assignment_handler_field_operations.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_filter_issuing_title.inc
+files[] = includes/views/handlers/cowpro_repayment_schedule_handler_filter_payer.inc
 
 ; Information added by Drupal.org packaging script on 2015-01-16
 version = "7.x-0.01"

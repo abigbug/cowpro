@@ -11,7 +11,7 @@
  *
  * @ingroup views_filter_handlers
  */
-class cowpro_fund_journal_handler_filter_issuing_title extends views_handler_filter {
+class cowpro_issuing_handler_filter_issuing_title extends views_handler_filter {
   // exposed filter options
   var $always_multiple = TRUE;
 
@@ -23,6 +23,7 @@ class cowpro_fund_journal_handler_filter_issuing_title extends views_handler_fil
   	return $options;
   }
 
+  /*
   function operators() {
   	$operators = array(
   			'=' => array(
@@ -35,10 +36,12 @@ class cowpro_fund_journal_handler_filter_issuing_title extends views_handler_fil
 
   	return $operators;
   }
+  */
 
   /**
    * Build strings from the operators() for 'select' options
    */
+  /*
   function operator_options($which = 'title') {
   	$options = array();
   	foreach ($this->operators() as $id => $info) {
@@ -47,6 +50,7 @@ class cowpro_fund_journal_handler_filter_issuing_title extends views_handler_fil
 
   	return $options;
   }
+  */
 
   function admin_summary() {
   }
@@ -77,6 +81,7 @@ class cowpro_fund_journal_handler_filter_issuing_title extends views_handler_fil
   }
   */
 
+  /*
   function accept_exposed_input($input) {
   	$rc = parent::accept_exposed_input($input);
 
@@ -89,6 +94,7 @@ class cowpro_fund_journal_handler_filter_issuing_title extends views_handler_fil
 
   	return $rc;
   }
+  */
 
   function value_form(&$form, &$form_state) {
   	$form['value'] = array(
@@ -103,6 +109,7 @@ class cowpro_fund_journal_handler_filter_issuing_title extends views_handler_fil
   	$title = trim($this->value);
   	$result = db_select('node')->fields('node', array('nid', 'title'))->condition('type', 'cowpro_issuing', '=')->condition('title', $title, '=')->execute()->fetchAssoc();
 	$nid = $result['nid'];
-  	$this->query->add_where($this->options['group'], "cowpro_fund_journal.issuing_id", $nid, "=");
+	$table = $this->ensure_my_table();
+  	$this->query->add_where($this->options['group'], "$table.nid", $nid, "=");
   }
 }

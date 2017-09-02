@@ -61,6 +61,65 @@ function cowpro_issuing_field_views_data($field) {
 			),
 	);
 
+	$data['field_data_field_issuing']['term'] = array(
+			'real field' => 'entity_id',
+			'field' => array(
+					'title' => '贷款期限',
+					'help' => '贷款期限',
+					'handler' => 'cowpro_issuing_handler_field_term',
+			),
+	);
+
+	$data['field_data_field_issuing']['annual_rate'] = array(
+			'real field' => 'entity_id',
+			'field' => array(
+					'title' => '年利率',
+					'help' => '年利率',
+					'handler' => 'cowpro_issuing_handler_field_annual_rate',
+			),
+	);
+
+	$data['field_data_field_issuing']['loan_amounts'] = array(
+			'real field' => 'entity_id',
+			'field' => array(
+					'title' => '贷款金额',
+					'help' => '贷款金额',
+					'handler' => 'cowpro_issuing_handler_field_loan_amounts',
+			),
+	);
+
+	$data['field_data_field_issuing']['method_repayment'] = array(
+			'real field' => 'entity_id',
+			'field' => array(
+					'title' => '还款方式',
+					'help' => '还款方式',
+					'handler' => 'cowpro_issuing_handler_field_method_repayment',
+			),
+	);
+
+	$data['field_data_field_issuing']['status'] = array(
+			'real field' => 'entity_id',
+			'field' => array(
+					'title' => '贷款状态',
+					'help' => '贷款状态',
+					'handler' => 'cowpro_issuing_handler_field_status',
+			),
+	);
+
+	$data['field_data_field_applicant']['table']['group']  = 'Issuing';
+	$data['field_data_field_applicant']['table']['entity type']  = 'node';
+	$data['field_data_field_applicant']['applicant_uid'] = array(
+			'real field' => 'entity_id',
+			'field' => array(
+					'title' => '申请人',
+					'help' => '申请人',
+					'handler' => 'cowpro_issuing_handler_field_applicant',
+			),
+			'filter' => array(
+					'handler' => 'cowpro_fund_journal_handler_filter_user',
+			),
+	);
+
 	return $data;
 }
 
@@ -143,7 +202,7 @@ function cowpro_issuing_views_data() {
 			'title' => '贷款名称',
 			'help' => '贷款名称.',
 			'field' => array(
-					'handler' => 'cowpro_issuing_handler_field_title',
+					'handler' => 'cowpro_issuing_handler_field_issuing_title',
 			),
 			'filter' => array(
 					'handler' => 'views_handler_filter_numeric',
@@ -196,9 +255,9 @@ function cowpro_issuing_views_data() {
 	$data['cowpro_repayment_schedule']['payer_uid'] = array(
 			'title' => '付款方',
 			'help' => '付款方用户',
+			'real field' => 'payer_uid',
 			'field' => array(
-					'handler' => 'cowpro_issuing_handler_field_payer_name',
-					'click sortable' => TRUE,
+					'handler' => 'cowpro_repayment_schedule_handler_field_real_name',
 			),
 			'argument' => array(
 					'handler' => 'views_handler_argument_user_uid',
@@ -206,7 +265,7 @@ function cowpro_issuing_views_data() {
 			),
 			'filter' => array(
 					'title' => '付款方用户ID',
-					'handler' => 'views_handler_filter_user_name',
+					'handler' => 'cowpro_repayment_schedule_handler_filter_payer',
 			),
 			'sort' => array(
 					'handler' => 'views_handler_sort',
@@ -380,15 +439,9 @@ function cowpro_issuing_views_data() {
  * @param $data
  *   Information about Views' tables and fields.
  */
-/*
 function cowpro_issuing_views_data_alter(&$data) {
 	// Add the Title form field to
-	$data['cowpro_repayment_schedule']['operation'] = array(
-			'field' => array(
-					'title' => '操作',
-					'help' => '操作',
-					'handler' => 'cowpro_repayment_schedule_handler_operation',
-			),
+	$data['node']['title']['filter'] = array(
+		'handler' => 'cowpro_issuing_handler_filter_issuing_title',
 	);
 }
-*/
