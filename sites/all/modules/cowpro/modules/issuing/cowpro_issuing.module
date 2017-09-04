@@ -376,7 +376,7 @@ function cowpro_issuing_block_view($delta = '') {
 			$revenus = db_query("SELECT SUM(interest) FROM {cowpro_repayment_schedule} WHERE receiver_uid = -1")->fetchField();
 			$capital = db_query("SELECT SUM(capital) FROM {cowpro_repayment_schedule} WHERE receiver_uid = -1")->fetchField();
 			$bids = db_query("SELECT COUNT(*) FROM {cowpro_fund_journal} WHERE type = 'BID'")->fetchField();
-			$msg = ' <div class="container"><div class="row"><div id="cowpro-statis"><ul class="clearfix"><li class="alpha col-md-4">收益总额<i>' . number_format($revenus) . '</i></li><li class="alpha col-md-4">投资总额<i>' . number_format($capital) . '</i></li><li class="col-md-4">总投资人次<i>' . number_format($bids) . '</i></li></ul></div></div></div>';
+			$msg = ' <div class="container"><div class="row"><div id="cowpro-statis"><ul class="clearfix"><li class="alpha col-md-4"><font>收益总额</font><i>' . number_format($revenus) . '</i></li><li class="alpha col-md-4"><font>投资总额</font><i>' . number_format($capital) . '</i></li><li class="col-md-4"><font>总投资人次</font><i>' . number_format($bids) . '</i></li></ul></div></div></div>';
 			$block['subject'] = '';
 			$block['content'] = array(
 					'#markup' => $msg,
