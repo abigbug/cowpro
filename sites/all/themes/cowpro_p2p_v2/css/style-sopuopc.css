@@ -1,4 +1,4 @@
-body{font-size:14px;font-family:Microsoft Yahei; margin:0 auto; padding:0; color:#333;background: #F9F9F9;}
+body{font-size:14px;font-family:Microsoft Yahei; margin:0 auto; padding:0; color:#333;background: #F9F9F9;overflow:hidden;overflow-y:auto;}
 a{color:#333; text-decoration:none;}
 a:hover{color: #1A8AD8; text-decoration:none;}
 
@@ -204,6 +204,9 @@ div #main-wrapper { background:#ffffff; }
 .the-xiangx .ctools-button .yellow{
     background:#FFB226;
 }
+.the-xiangx .ctools-button .default{
+    background:#1A8AD8;
+}
 .the-xiangx .ctools-button li.quick-view a,.the-xiangx .ctools-link a{ color:#fff; line-height:40px;}
 .ctools-twisty{width: 0;
 	height: 0;
@@ -214,7 +217,7 @@ div #main-wrapper { background:#ffffff; }
 .jqm-round-wrap{display:block;position:relative;width:60px;height:60px;overflow:hidden;border-radius:65px;-webkit-border-radius:65px}
 .jqm-round-sector{position:absolute;width:60px;height:60px}
 .jqm-round-bg{position:absolute;width:59px;height:60px;background-color:#e8e8e8;border-radius:65px;-webkit-border-radius:65px}
-.jqm-round-circle{position:absolute;background-color:#FFF;width:50px;height:50px;left:5px;top:5px;z-index:10;border-radius:60px;-webkit-border-radius:60px;background:}
+.jqm-round-circle{position:absolute;background-color:#FFF;width:50px;height:50px;left:5px;top:5px;z-index:10;border-radius:60px;-webkit-border-radius:60px;}
 .jqm-round-circle p{font-size:14px;line-height:50px;margin:0;text-align:center;width:100%}
 .the-baifen{ padding-top:10px;}
 .ctools-content li{ width:100%; background:#fff; border:1px solid #ccc; line-height:35px; border-top:0;}
@@ -284,7 +287,6 @@ div #main-wrapper { background:#ffffff; }
 .pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover{background-color: #39A1EA;
     border-color: #39A1EA;}
 .pagination>li>a, .pagination>li>span{ color:#666;}
-body.node-type-cowpro-issuing{ background:#f2f2f2;}
 .user-info-from-cookie #edit-actions{ margin-top:15px;}
 .page-user .tabs--primary,#reset-password-by-sms-form{ margin-bottom:20px;}
 #user-register-form .has-feedback label~.form-control-feedback{ top:35px; right:15px;}
@@ -420,14 +422,7 @@ ul.userpoints-points em{ font-style:normal;}
 #cowpro-fund-add-bankcard #bank_located  select.form-control{ width:auto; float:none;border-radius: 4px;}
 #cowpro-fund-add-bankcard .btn-primary{ margin-left:37%;background: #39A1EA;color: #fff; line-height:32px; padding:0 20px; display:inline-block; border:0;}
 #cowpro-fund-add-bankcard a.ctools-close-modal-processed{ background:#DEDEDD; line-height:32px; padding:0 20px; margin-left:15px; display:inline-block; border-radius:4px;}
-.page-cowpro-fund-withdraw .modal-dialog,.page-cowpro-fund-withdraw #modal-content{ width:785px!important;}
-#modalBackdrop{ background: rgb(0, 0, 0) !important;opacity: 0.65 !important; }
-.page-cowpro-fund-withdraw .modal-content,#modalContent .modal-content{ border:5px solid #585858;}
-.page-cowpro-fund-withdraw #modalContent{ left:50% !important; margin-left:-361px;}
-#modalContent{ top:300px !important;left:50% !important; margin-left:-500px;}
-#modalContent,#modalContent .modal-dialog{ width:1000px !important;}
-#modal-content{ width:970px !important; height:600px !important; overflow-y:scroll;}
-.page-issuing #modalContent{ top:100px !important;}
+
 .ctools-use-modal-processed{ line-height:28px;}
 body{ position:relative;}
 
@@ -882,4 +877,1051 @@ article, figure {
 .after_login .user_money a{ display:block; float:left; width:66px; height:21px; border-radius:3px; background:#bfebfa; text-align:center; line-height:21px; margin-right:13px; font-size:12px;}
 .after_login .user_money a:hover{ background:#39A1EA;color:#fff}
 .after_login .user_money{ overflow:hidden; width:120%; padding-top:20px;}
+
+#block-cowpro-issuing-cowpro-statis #cowpro-statis .col-md-4{font-size: 12px; float:left}
+#block-cowpro-issuing-cowpro-statis #cowpro-statis li{ width:33.333%; text-align: center;font-size: 14px;overflow: hidden}
+#block-cowpro-issuing-cowpro-statis .container{ width:100% !important}
+#block-cowpro-issuing-cowpro-statis #cowpro-statis li i{font-size: 18px}
+#block-cowpro-issuing-cowpro-statis #cowpro-statis li font{ height: 30px;display:block; }
+#page-wrapper .container-12{ width:100%;}
+#main-wrapper {  padding:0px 10px}
+.mobile-device-only{ margin-top:20px;}
+.mobile-device-only{ color: #ebebeb}
+.mobile-device-only.view-display-id-block_1 .view-header{ height: 60px !important; overflow: hidden;}
+.mobile-device-only.view-display-id-block_1 .view-header ul{ padding-left: 5px;overflow: hidden}
+.mobile-device-only.view-display-id-block_1 .view-header li { height: 30px; line-height: 30px;}
+.mobile-device-only.view-display-id-block_1 .view-header li{ font-size: 14px;width: 100%}
+.mobile-device-only .view-content .item-list .views-row{ margin:0px;padding-left:5px; font-size: 14px;height: auto !important}
+.mobile-device-only .view-content .item-list li{ margin: 0px}
+.mobile-device-only .view-content .item-list li .title1{ padding-top: 5px;}
+.mobile-device-only .view-content .item-list li .num-info{ font-size: 14px;line-height: 20px}
+.mobile-device-only .view-content .item-list li .text-info{ font-size: 12px;}
+.mobile-device-only .view-content .item-list li .content_foot{ margin-bottom: 10px;}
+.mobile-device-only .view-content .item-list li .content_foot .the-nianhua{ width: 42%}
+.mobile-device-only .view-content .item-list li .content_foot .the-qixian{ width:25%}
+.mobile-device-only .view-content .item-list li .content_foot .the-jine{ width:28%}
+.mobile-device-only .view-content .item-list li .content_foot .the-huankuan{ width:40%}
+.mobile-device-only .view-content .item-list li .content_foot .the-baifen{ width:20%;padding:0px; height: 60px}
+.mobile-device-only .view-content .item-list li .content_foot .the-baifen .jqm-round-wrap{ width:50px; height: 50px;border-radius: 45px;}
+.mobile-device-only .view-content .item-list li .content_foot .the-baifen .jqm-round-wrap .jqm-round-bg{  width:50px; height: 50px;border-radius: 45px;}
+.mobile-device-only .view-content .item-list li .content_foot .the-baifen .jqm-round-wrap .jqm-round-circle{ width:40px;height: 40px}
+.mobile-device-only .view-content .item-list li .content_foot .the-baifen .jqm-round-wrap .jqm-round-circle p{ line-height: 40px;font-size: 12px; color: #555555}
+.mobile-device-only .view-content .item-list li .content_foot .the-xiangx { width:30%; font-size: 12px; margin: 0px; float: left}
+.mobile-device-only .view-content .item-list li .content_foot .the-xiangx .ctools-button{ background: none ;border-bottom:none}
+.mobile-device-only .view-content .item-list li .content_foot .the-xiangx .ctools-content .green{ border-radius: 5px;}
+.mobile-device-only .view-content .item-list li .content_foot .the-xiangx .ctools-content .default{ border-radius: 5px;}
+.mobile-device-only .the-xiangx .ctools-button .ctools-link { display: none}
+
+.mobile-device-only .view-content .item-list li .content_foot .the-xiangx .ctools-button li a { padding-right: 10px}
+.mobile-device-only .view-content .item-list li .content_foot .ctools-content li{ width:auto}
+.mobile-device-only .view-content .item-list li .content_foot .ctools-link{ right:3px}
+#page .main-bar-wrapper .container-12 .grid-3 ,#page .main-bar-wrapper .container-12 .grid-9{ margin: 0px}
+#content-header{ display: none}
+#block-system-main .particular_center_l { width: 100%;margin-top: 0px;padding:0px 5px;}
+#block-system-main .particular_center_l .row div:nth-child(1){ width: 40%}
+#block-system-main .particular_center_l .row div:nth-child(2){ width: 30%;}
+#block-system-main .particular_center_l .row div:nth-child(3){ width: 30%}
+#block-system-main .particular_center_l .num-info{ font-size: 24px;}
+#block-system-main .particular_center_l .details-all{ padding-bottom: 0px;}
+#block-system-main .particular_center_l .details-all .the-nianhua, #block-system-main .particular_center_l .details-all .the-qixian{ border: 0px}
+#block-system-main .particular_center_l .details-all .text-info{ line-height: 20px; font-size: 12px;}
+#block-system-main .particular_center_l .details-list-all { height: auto}
+#block-system-main .particular_center_l .details-list-all .the-one div:nth-child(1){ width: 100%}
+#block-system-main .particular_center_l .details-list-all .the-one div:nth-child(2){ width: 100%}
+#block-system-main .particular_center_l .details-list-all .the-post2017{ margin-left: 10px;}
+#block-system-main .particular_center_l .details-list-all .the-two div:nth-child(1){ width: 50%}
+#block-system-main .particular_center_l .details-list-all .the-two div:nth-child(2){ width: 50%}
+#block-system-main .particular_center_l .details-list-all .the-two div:nth-child(3){ width: 100%}
+#block-system-main .particular_center_r{ width:100% !important; height: auto !important}
+#block-system-main .particular_center_r .ctools-use-modal{ width:42%; float: left; border-radius: 10px; height: 40px; line-height: 40px;background: #4CC3A5}
+#unique-wrapper .horizontal-tabs ul.horizontal-tabs-list li{ line-height: 30px; width: 22%;height: 30px}
+#unique-wrapper .horizontal-tabs ul{ margin-left: 10px;}
+#unique-wrapper .horizontal-tabs ul.horizontal-tabs-list li:nth-child(5){ clear: both}
+#unique-wrapper .horizontal-tabs ul li strong{ font-size: 14px}
+#unique-wrapper .horizontal-tabs ul.horizontal-tabs-list li.selected{ background: #dadada; line-height: 30px;height: 28px;}
+#unique-wrapper .view-content .views-table tbody .views-field{ font-size: 12px !important}
+#unique-wrapper .view-content .views-table tbody tr{ line-height: 24px;}
+#unique-wrapper .view-content .views-table tbody tr:nth-of-type(odd) {background-color: #f9f9f9;}
+#unique-wrapper .view-content .views-table tbody tr.even{ background: none}
+#unique-wrapper .view-content .views-table tbody tr td:nth-of-type(1),#unique-wrapper .view-content .views-table thead tr th:nth-of-type(1){ width: 15% !important}
+#unique-wrapper .view-content .views-table tbody tr td,#unique-wrapper .view-content .views-table thead tr th{ width: 20% !important}
+#unique-wrapper .view-content .views-table tbody td,#unique-wrapper .view-content .views-table thead th{ width:25%}
+#unique-wrapper .horizontal-tabs-list{ border-bottom: 2px solid #CCC}
+#block-system-main .profile .the-list-block{ width: 22%;float: left;text-align: center;}
+#block-system-main .profile dl{ overflow:scroll; margin-bottom: 0px; padding-top: 5px}
+#block-system-main .profile h3 { padding-bottom: 5px; font-size: 16px}
+#block-system-main .profile .the-list-block:nth-child(4){ width: 30%}
+#block-system-main .profile dl:nth-of-type(4) .the-list-block,#block-system-main .cowpro_issuing_views .the-list-block {width: 100%;}
+#block-system-main .profile .the-list-block .view-content .views-table thead { background: #EFEFEF; font-size: 13px;border: 1px solid #DDDDDD; height: 30px; line-height: 30px}
+#block-system-main .profile .the-list-block .view-content .views-table tbody { border: 1px solid #DDDDDD;font-size: 12px }
+#block-system-main .profile .the-list-block .view-content .views-table tbody tr{ height: 24px;line-height: 24px;font-size: 12px }
+#block-system-main .profile .the-list-block .views-table thead tr { font-size: 14px; font-weight:normal !important}
+#block-system-main .profile .the-list-block .views-table tbody tr td{ width: 23%}
+#block-system-main .profile .the-list-block .views-table tbody tr td:nth-child(1){ width:27%}
+#block-system-main .profile .the-list-block .view-content .views-table > tbody > tr:nth-of-type(odd){ background: #f9f9f9}
+#block-system-main .profile .userpoints-links { line-height: 24px; margin: 5px 0px;height: 60px}
+#block-system-main .profile dl:nth-of-type(4),#block-system-main .profile h3:nth-of-type(5) { display: none}
+#cowpro-customer-ui-customer-profile-edit-own-form .vertical-tabs-list li{width: 50%; float: left; border-left: 0px;border-right: 0px }
+#cowpro-customer-ui-customer-profile-edit-own-form .vertical-tabs{ margin: 0px;position: static;margin-top:10px;padding-bottom: 10px}
+#cowpro-customer-ui-customer-profile-edit-own-form .vertical-tabs ul.vertical-tabs-list{ position: static;margin: 0px; width: 100%; border: 0px}
+#edit-profile .form-text{height: 30px;line-height: 30px;width: 100%;outline: medium;color: #333333;border:none;z-index:9999;background-color:#e8e8e8; margin-top: 5px;}
+#edit-profile .captcha img{ width: 40%}
+.form-submit{ width: 98%; height: 35px; margin: 0px auto; color:#FFF;border-radius: 4px;background-color:#FFB226;
+    font-family: Microsoft Yahei;
+    font-size: 16px;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-weight: 400;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+#block-system-main .view-content .views-table{ margin-top: 15px}
+#block-system-main .view-content .views-table thead{background: #EFEFEF; font-size: 13px;border: 1px solid #DDDDDD; height: 30px; line-height: 30px}
+#block-system-main .view-content .views-table tbody tr td{ width: 23%}
+#block-system-main .view-content .views-table tbody tr td:nth-child(1){ width:27%}
+#block-system-main .view-content .views-table tbody { border: 1px solid #DDDDDD;font-size: 12px }
+#block-system-main .view-content .views-table tbody tr{ height: 24px;line-height: 24px;font-size: 12px ;background: none }
+#block-system-main #cowpro-fund-topup .form-item-topup-interface,#block-system-main #cowpro-fund-topup .form-item-amount{ float: left;width: 50%; height: 60px;}
+#block-system-main #cowpro-fund-topup #edit-amount{ margin-top: 5px;padding-left: 3px}
+#block-system-main #cowpro-fund-topup #edit-topup-method div{ float: left; width: 50%}
+#block-system-main #cowpro-fund-topup #edit-topup{ margin-top: 10px}
+
+#block-system-main .content .user-relationships-listing-table{ margin-top: 15px}
+#block-system-main .content .user-relationships-listing-table thead{background: #EFEFEF; font-size: 13px;border: 1px solid #DDDDDD; height: 30px; line-height: 30px}
+#block-system-main .content .user-relationships-listing-table tbody tr td{ width: 23%}
+#block-system-main .content .user-relationships-listing-table tbody tr td:nth-child(1){ width:27%}
+#block-system-main .content .user-relationships-listing-table tbody { border: 1px solid #DDDDDD;font-size: 12px }
+#block-system-main .content .user-relationships-listing-table tbody tr{ height: 24px;line-height: 24px;font-size: 12px ;background: none }
+#invite-form input:nth-of-type(1){height: 30px;line-height: 30px;width: 60%;outline: medium;color: #333333;border:none;z-index:9999;background-color:#e8e8e8; margin: 10px 0px}
+#edit-field-invite-user-relation-type-und-0-rtid.form-select{ margin: 10px 0p; height: 30px; padding-left: 5px; width: 100px}
+#edit-type-wrapper .views-widget .form-select{ margin: 10px 0px; height: 30px; padding-left: 5px}
+#cowpro-fund-withdraw #bankcard-list thead th,#cowpro-fund-withdraw #bankcard-list tbody td{ width:22%; word-break: break-all }
+#cowpro-fund-withdraw #bankcard-list thead th:nth-of-type(1),#cowpro-fund-withdraw #bankcard-list tbody td:nth-of-type(1){ width: 5%}
+#cowpro-fund-withdraw #bankcard-list thead{background: #EFEFEF; font-size: 13px;border: 1px solid #DDDDDD; height: 30px; line-height: 30px}
+#cowpro-fund-withdraw #bankcard-list thead th:nth-of-type(2),#cowpro-fund-withdraw #bankcard-list tbody td:nth-of-type(2){ width: 30%}
+#cowpro-fund-withdraw #bankcard-list thead th:nth-of-type(5),#cowpro-fund-withdraw #bankcard-list tbody td:nth-of-type(5){ width: 15%}
+#cowpro-fund-withdraw #bankcard-list tbody tr{ border: 1px solid #DDDDDD;font-size: 12px; line-height: 16px;background: #FFFFFF}
+
+.sep{ height: 40px}
+#footer {
+  width: 100%;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  border-top: 1px solid #ddd;
+  background-color: #f7f7f7;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  z-index: 999999;
+}
+  #footer ul li {
+    height: 40px;
+    text-align: center;
+    width:25%;
+    border-right: 1px solid #dcdcdc; }
+    #footer ul li i {
+      display: inline-block;
+      width: 20px;
+      height: 20px; }
+      #footer ul li i.home-icon {
+        background: url("../images/home-icon.png") center center no-repeat;
+        background-size: 20px 20px; }
+      #footer ul li i.invest-icon {
+        background: url("../images/invest-icon.png") center center no-repeat;
+        background-size: 20px 20px; }
+      #footer ul li i.regest-icon {
+        background: url("../images/regest-icon.png") center center no-repeat;
+        background-size: 20px 20px; }
+      #footer ul li i.account-icon {
+        background: url("../images/account-icon.png") center center no-repeat;
+        background-size: 20px 20px; }
+    #footer ul li p {
+      color: #787878;}
+    #footer ul li.on i.home-icon {
+      background: url("../images/homeOn-icon.png") center center no-repeat;
+      background-size: 20px 20px; }
+    #footer ul li.on i.invest-icon {
+      background: url("../images/investOn-icon.png") center center no-repeat;
+      background-size: 20px 20px; }
+    #footer ul li.on i.regest-icon {
+      background: url("../images/regestOn-icon.png") center center no-repeat;
+      background-size: 20px 20px; }
+    #footer ul li.on i.account-icon {
+      background: url("../images/accountOn-icon.png") center center no-repeat;
+      background-size: 20px 20px; }
+    #footer ul li.on p {
+      color: #0190f8; }
+  #footer ul li:last-child {
+    border-right: none; }
+  
+  .boxflex {
+    display: -moz-box;
+    display: -webkit-box;
+    display: box;
+}
+
+#block-views-exp-all-issuing-issuing-list{ display: none}
+#select_num{ display: none}
+#block-system-main .view-header{border:none}
+.mobile-device-only.view-display-id-issuing_list .the-huaik{ display: none}
+
+
+/* 微信端顶部 LOGO */
+#page .main-bar-wrapper .container-12 .grid-3 ,#page .main-bar-wrapper .container-12 .grid-9{width: 100%; text-align:center;}
+#page .main-bar-wrapper .container-12 .grid-3 img{ width: 70%; margin: 0px auto; }
+
+/* 微信端用户登录 */
+#user-login{ 
+    width: 100%; 
+    height: 200px;
+    padding-bottom: 10px;
+    border: #dfdfdf 1px solid;
+}
+/* 用户登录行 */
+#user-login .form-item-name{
+   width: 100%; 
+   margin: 0px auto;
+   background: #FFF;
+   height: 52px;
+   line-height: 26px;
+   min-height: 52px;
+   max-height: 60px;
+   border-bottom: 1px solid #dfdfdf;
+   padding-top: 10px;
+   padding-bottom:12px;
+   z-index:999;
+}
+#user-login .form-item-pass{
+   width: 100%; 
+   margin: 0px auto;
+   background: #FFF;
+   height: 52px;
+   line-height: 26px;
+   min-height: 52px;
+   max-height: 60px;
+   border-bottom: 1px solid #dfdfdf;
+   padding-top: 10px;
+   padding-bottom:12px;
+   z-index:999;
+}
+/* 用户登录行 标题 */
+#user-login label{
+    float:left;
+    height: 52px;
+    line-height: 52px;
+    width: 25%;
+    text-align:center;    
+    font-family: Microsoft Yahei;
+    font-size: 14px;    
+    border-right: 1px solid #e2e2e2;
+}
+/* 微信端登录文本框 */
+#user-login #edit-name,#edit-pass{
+    margin-left: 15px;
+    height: 30px;
+    line-height: 30px;
+    width: 60%;
+    outline: medium;
+    color: #333333;
+    border:none;
+    z-index:9999;
+    background-color:#e8e8e8;
+}
+/* 用户登录行 提示 */
+#user-login .description{
+    margin-left: 30%;
+}
+#edit-actions{
+    width: 100%;
+    text-align:center;
+    margin-bottom: 40px;
+    margin-top: 12px;
+}
+/* 用户登录 按钮 */
+#user-login .form-submit{ 
+    width: 90%; 
+    height: 35px;
+    margin: 0px auto;  
+    color:#FFF; 
+    border-radius: 4px;
+    background-color:#FFB226;
+    font-family: Microsoft Yahei;
+    font-size: 16px;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-weight: 400;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+}
+
+/* 微信端用户注册 */
+#user-register-form{ 
+    width: 100%; 
+    min-height: 500px;
+    max-height: 800px;
+    padding-bottom: 10px;
+    border: #dfdfdf 1px solid;
+    position:relative;
+}
+/* 用户登录行 提示 */
+#user-register-form .description{
+    margin-left: 28%;
+}
+/* 用户登录行 */
+#user-register-form .form-item-name{
+   width: 100%; 
+   margin: 0px auto;
+   background: #FFF;
+   height: 65px;
+   line-height: 26px;
+   min-height: 65px;
+   max-height: 75px;
+   border-bottom: 1px solid #dfdfdf;
+   padding-top: 10px;
+   padding-bottom:12px;
+   z-index:999;
+}
+#user-register-form  label{
+    float:left;
+    width: 25%;
+    height: 65px;
+    line-height: 32px;
+    overflow:hidden;
+    text-align:center;    
+    font-family: Microsoft Yahei;
+    font-size: 14px;    
+    border-right: 1px solid #e2e2e2;
+}
+/* 微信端注册文本框 */
+#user-register-form #edit-name{
+    margin-left: 15px;
+    height: 30px;
+    line-height: 30px;
+    width: 60%;
+    outline: medium;
+    color: #333333;
+    border:none;
+    z-index:9999;
+    background-color:#e8e8e8;
+}
+#user-register-form .password-parent{
+   position:relative; 
+   width: 100%; 
+   margin: 0px auto;
+   background: #FFF;
+   height: 65px;
+   line-height: 26px;
+   min-height: 65px;
+   max-height: 75px;
+   border-bottom: 1px solid #dfdfdf;
+   padding-bottom:12px;
+   z-index:999;
+}
+
+/* 微信端注册密码 */
+#user-register-form .password-parent label{
+    position:absolute;
+    width: 25%;
+    height: 65px;
+    line-height: 65px;
+    overflow:hidden;
+    text-align:center;    
+    font-family: Microsoft Yahei;
+    font-size: 14px;    
+    border-right: 1px solid #e2e2e2;
+}
+#user-register-form .password-parent #edit-pass-pass1{
+    position:absolute;
+    margin-left: 15px;
+    height: 30px;
+    line-height: 30px;
+    left:25%;
+    width: 60%;
+    outline: medium;
+    color: #333333;
+    border:none;
+    z-index:9999;
+    background-color:#e8e8e8;
+}
+#user-register-form .password-parent .password-strength{
+    position:absolute;
+    margin-left: 15px;
+    height: 30px;
+    line-height: 30px;
+    left:25%;
+    width: 60%;
+    top:10px;
+}
+
+/* 微信端注册确认密码 */
+#user-register-form .confirm-parent{
+   clear:both;
+   position:relative; 
+   width: 100%; 
+   margin: 0px auto;
+   background: #FFF;
+   height: 52px;
+   line-height: 26px;
+   min-height: 52px;
+   max-height: 62px;
+   border-bottom: 1px solid #dfdfdf;
+   padding-top: 10px;
+   padding-bottom:12px;
+   z-index:999;
+}
+#user-register-form .confirm-parent .password-confirm{
+    position:absolute;
+    margin-left: 15px;
+    height: 65px;
+    line-height: 65px;
+    left:25%;
+    width: 60%;
+    top:12px;
+}
+
+#user-register-form .confirm-parent label{
+    position:absolute;
+    width: 25%;
+    height: 52px;
+    line-height: 52px;
+    overflow:hidden;
+    text-align:center;    
+    font-family: Microsoft Yahei;
+    font-size: 14px;    
+    border-right: 1px solid #e2e2e2;
+}
+#user-register-form .confirm-parent #edit-pass-pass2{
+    position:absolute;
+    margin-left: 15px;
+    height: 30px;
+    line-height: 30px;
+    left:25%;
+    width: 60%;
+    outline: medium;
+    color: #333333;
+    border:none;
+    z-index:9999;
+    background-color:#e8e8e8;
+}
+/* 用户注册行 提示 */
+#user-register-form #edit-account .description{
+    line-height: 20px;
+}
+
+#user-register-form .form-item-pass .description{
+    display:none;
+}
+
+#user-register-form .password-suggestions{
+    clear:both;
+    width: 90%;
+    margin: 0px auto;
+    border: 0px;
+    display: block;
+}
+#user-register-form .password-suggestions li{
+    clear:both;
+    margin-right: 5px;
+    display:inline;
+}
+#user-register-form .form-item-mobile-number{
+   width: 100%; 
+   margin: 0px auto;
+   background: #FFF;
+   height: 52px;
+   line-height: 26px;
+   min-height: 52px;
+   max-height: 62px;
+   border-top: 1px solid #dfdfdf;
+   border-bottom: 1px solid #dfdfdf;
+   padding-top: 10px;
+   padding-bottom:12px;
+   z-index:999;
+}
+#user-register-form .form-item-mobile-number label{
+    width: 25%;
+    height: 52px;
+    line-height: 52px;
+    overflow:hidden;
+    text-align:center;    
+    font-family: Microsoft Yahei;
+    font-size: 14px;    
+    border-right: 1px solid #e2e2e2;
+}
+#user-register-form #edit-mobile-number,#edit-register-referee{
+    margin-left: 15px;
+    height: 30px;
+    line-height: 30px;
+    width: 60%;
+    outline: medium;
+    color: #333333;
+    border:none;
+    z-index:9999;
+    background-color:#e8e8e8;
+}
+#user-register-form .captcha{
+   width: 100%; 
+   margin: 0px auto;
+   background: #FFF;
+   height: 52px;
+   line-height: 26px;
+   min-height: 52px;
+   max-height: 62px;
+   border-bottom: 1px solid #dfdfdf;
+   padding-bottom:12px;
+   z-index:999;
+   position:relative;
+}
+#user-register-form .captcha img{
+    width: 90px;
+    right:7%;
+    position: absolute;
+}
+#user-register-form .captcha  label{
+    width: 25%;
+    height: 52px;
+    line-height: 26px;
+    overflow:hidden;
+    text-align:center;    
+    font-family: Microsoft Yahei;
+    font-size: 14px;    
+    border-right: 1px solid #e2e2e2;
+}
+#user-register-form .captcha  #edit-captcha-response{
+    margin-left: 15px;
+    height: 30px;
+    line-height: 30px;
+    width: 32%;
+    outline: medium;
+    color: #333333;
+    border:none;
+    z-index:9999;
+    background-color:#e8e8e8;
+}
+#user-register-form .reload-captcha-wrapper{
+    width: 35%;
+    left:68%;
+    position: absolute;
+    bottom: 273px;
+    z-index:99999;
+}
+#user-register-form .reload-captcha-wrapper .reload-captcha{
+    color: #1A8AD8;
+}
+#user-register-form .form-item-verify-code{
+   clear: both;
+   width: 100%; 
+   margin: 0px auto;
+   background: #FFF;
+   height: 32px;
+   line-height: 26px;
+   min-height: 32px;
+   max-height: 42px;
+   border-bottom: 1px solid #dfdfdf;
+   padding-top: 10px;
+   padding-bottom:12px;
+   z-index:999;
+   position: relative;
+}
+#user-register-form .form-item-verify-code label{
+    width: 25%;
+    height: 32px;
+    line-height:32px;
+    overflow:hidden;
+    text-align:center;    
+    font-family: Microsoft Yahei;
+    font-size: 14px;    
+    border-right: 1px solid #e2e2e2;
+}
+#user-register-form .form-item-verify-code  #edit-verify-code{
+    position: absolute;
+    margin-left: 15px;
+    height: 30px;
+    line-height: 30px;
+    width: 32%;
+    outline: medium;
+    color: #333333;
+    border:none;
+    z-index:9999;
+    background-color:#e8e8e8;
+}
+#user-register-form #send_verify{
+    width: 30%; 
+    right: 7%;
+    height: 32px;
+    bottom: 220px;
+    position: absolute;
+    z-index:9999;
+    margin: 0px auto;  
+    color:#FFF; 
+    border-radius: 4px;
+    background-color:#FFB226;
+    font-family: Microsoft Yahei;
+    font-size: 14px;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-weight: 400;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+}
+#user-register-form .form-item-register-referee{
+   clear: both;
+   width: 100%; 
+   margin: 0px auto;
+   background: #FFF;
+   height: 52px;
+   line-height: 26px;
+   min-height: 52px;
+   max-height: 62px;
+   border-bottom: 1px solid #dfdfdf;
+   padding-bottom:12px;
+   z-index:999;
+   position: relative;
+}
+#user-register-form .form-item-register-referee label{
+    width: 25%;
+    height: 52px;
+    line-height:52px;
+    overflow:hidden;
+    text-align:center;    
+    font-family: Microsoft Yahei;
+    font-size: 14px;    
+    border-right: 1px solid #e2e2e2;
+}
+#user-register-form #edit-actions{
+   clear: both;
+   width: 100%; 
+   margin: 0px auto;
+   background: #FFF;
+   height: 52px;
+   line-height: 26px;
+   min-height: 52px;
+   max-height: 62px;
+   border-bottom: 1px solid #dfdfdf;
+   padding-top:12px;
+   padding-bottom:50px;
+   z-index:999;
+}
+#user-register-form #mobile_verify_help{
+    left: 25%;
+    width: 60%;
+    margin-left: 15px;
+    position: absolute;
+    bottom: 350px;
+    z-index:99999;    
+    font-size: 0.85em;
+}
+
+/* 用户密码修改 */
+#user-profile-form{
+    width: 100%; 
+    min-height: 300px;
+    padding-bottom: 10px;
+    border: #dfdfdf 1px solid;
+}
+#user-profile-form #edit-account {
+    clear: both;
+    background: #fff;
+    padding: 0px;
+}
+
+#user-profile-form .form-item-current-pass{
+   clear: both;
+   width: 100%; 
+   margin: 0px auto;
+   background: #FFF;
+   height: 62px;
+   line-height: 31px;
+   min-height: 62px;
+   max-height: 72px;
+   border-bottom: 1px solid #dfdfdf;
+   padding-top: 10px;
+   padding-bottom:12px;
+   z-index:999;
+   position: relative;
+}
+#user-profile-form .form-item-current-pass label{
+    position: absolute;
+    width: 25%;
+    height: 62px;
+    line-height:62px;
+    overflow:hidden;
+    text-align:center;    
+    font-family: Microsoft Yahei;
+    font-size: 14px;    
+    border-right: 1px solid #e2e2e2;
+}
+#user-profile-form .form-item-current-pass .form-text{
+    position: absolute;
+    left:30%;
+    height: 30px;
+    line-height: 30px;
+    width: 60%;
+    outline: medium;
+    color: #333333;
+    border:none;
+    z-index:9999;
+    background-color:#e8e8e8;
+}
+#user-profile-form .form-item-current-pass .description{
+    position: absolute;
+    left:30%;
+    top:40px;
+    line-height: 20px;
+}
+#user-profile-form .password-parent{
+   clear: both;
+   width: 100%; 
+   margin: 0px auto;
+   background: #FFF;
+   height: 62px;
+   line-height: 31px;
+   min-height: 62px;
+   max-height: 72px;
+   border-bottom: 1px solid #dfdfdf;
+   padding-top: 10px;
+   padding-bottom:12px;
+   z-index:999;
+   position: relative;
+}
+#user-profile-form .password-parent label{
+    position: absolute;
+    width: 25%;
+    height: 62px;
+    line-height:62px;
+    overflow:hidden;
+    text-align:center;    
+    font-family: Microsoft Yahei;
+    font-size: 14px;    
+    border-right: 1px solid #e2e2e2;
+}
+#user-profile-form .password-parent #edit-pass-pass1{
+    position: absolute;
+    left:30%;
+    height: 30px;
+    line-height: 30px;
+    width: 60%;
+    outline: medium;
+    color: #333333;
+    border:none;
+    z-index:9999;
+    background-color:#e8e8e8;
+}
+#user-profile-form .form-item {
+    margin-top: 0px;
+}
+#user-profile-form .password-parent .password-strength{
+    width: 60%;
+    margin-top: 30px;
+    position: absolute;
+    left:30%;
+    font-size: 0.85em;
+}
+#user-profile-form  .confirm-parent{
+   clear: both;
+   width: 100%; 
+   margin: 0px auto;
+   background: #FFF;
+   height: 32px;
+   line-height: 32px;
+   min-height: 32px;
+   max-height: 42px;
+   border-bottom: 1px solid #dfdfdf;
+   padding-top: 10px;
+   padding-bottom:12px;
+   z-index:999;
+   position: relative;
+}
+#user-profile-form  .confirm-parent label{
+    position: absolute;
+    width: 25%;
+    height: 32px;
+    line-height:32px;
+    overflow:hidden;
+    text-align:center;    
+    font-family: Microsoft Yahei;
+    font-size: 14px;    
+    border-right: 1px solid #e2e2e2;
+}
+#user-profile-form .confirm-parent #edit-pass-pass2{
+    position: absolute;
+    left:30%;
+    height: 30px;
+    line-height: 30px;
+    width: 40%;
+    text-align: left;
+    outline: medium;
+    color: #333333;
+    border:none;
+    z-index:9999;
+    background-color:#e8e8e8;
+}
+#user-profile-form .password-confirm{
+    position: absolute;    
+    line-height: 15px;
+    width: 95%;
+    text-align: right;
+    font-size: 0.85em;
+}
+#user-profile-form .form-item-pass .description{
+    top:220px;
+    line-height: 20px;
+    z-index: 9999;
+    border: 0px;
+    width: 70%;
+    margin: 0px auto;
+}
+#user-profile-form .form-item-pass .description li{
+    clear:both;
+    display:inline;
+}
+
+#reset-password-by-sms-form{
+    width: 100%; 
+    min-height: 220px;
+    padding-bottom: 10px;
+    border: #dfdfdf 1px solid;
+    margin: 0px auto;
+    text-align: center;
+}
+#reset-password-by-sms-form  label{
+    text-align: left;
+}
+#reset-password-by-sms-form .form-item-user-name-or-mobile{
+   padding-left: 1em;
+   padding-right: 1em;
+}
+#reset-password-by-sms-form #edit-user-name-or-mobile{
+    height: 30px;
+    line-height: 30px;
+    width: 100%;
+    outline: medium;
+    color: #333333;
+    border: none;
+    z-index: 9999;
+    background-color: #e8e8e8;
+    margin-top: 5px;
+}
+#reset-password-by-sms-form .form-item-verify-code{
+   padding-left: 1em;
+   padding-right: 1em;
+}
+#reset-password-by-sms-form #edit-verify-code{
+    height: 30px;
+    line-height: 30px;
+    width: 100%;
+    outline: medium;
+    color: #333333;
+    border: none;
+    z-index: 9999;
+    background-color: #e8e8e8;
+    margin-top: 5px;
+}
+#reset-password-by-sms-form #send_verify{
+    margin: 0px auto;
+    width: 90%;
+}
+#reset-password-by-sms-form #edit-submit{
+    margin-top: 10px;
+    width: 90%;
+}
+
+#userpoints-list-transactions{
+    width: 100%; 
+    min-height: 220px;
+    padding-bottom: 10px;
+    border: #dfdfdf 1px solid;
+    margin: 0px auto;
+    text-align: center;
+}
+#userpoints-list-transactions .form-wrapper .sticky-table thead{
+    width: 100%;
+    height: 35px;
+    line-height: 35px;
+    background: #EFEFEF;
+}
+#userpoints-list-transactions .form-wrapper .sticky-table thead th:nth-child(1){ width: 13%;height: 35px;text-align: center;}
+#userpoints-list-transactions .form-wrapper .sticky-table thead th:nth-child(2){ width: 13%;text-align: center;}
+#userpoints-list-transactions .form-wrapper .sticky-table thead th:nth-child(3){ width: 20%;text-align: center;}
+#userpoints-list-transactions .form-wrapper .sticky-table thead th:nth-child(4){ width: 25%;text-align: center;}
+#userpoints-list-transactions .form-wrapper .sticky-table thead th:nth-child(5){ width: 13%;text-align: center;}
+#userpoints-list-transactions .form-wrapper .sticky-table thead th:nth-child(6){ width: 13%;text-align: center;}
+
+#userpoints-list-transactions .form-wrapper .sticky-table tbody td{ text-align: center;    background: #ffffff;}
+
+#userpoints-list-transactions .form-wrapper table:nth-child(4){
+    width: 100%;
+}
+#userpoints-list-transactions .form-wrapper table:nth-child(4) tr{
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+}
+.entity,.entity-invite,.invite-invite-by-sms{
+    line-height: 32px;
+    margin-bottom: 30px;
+}
+#field-invite-user-relation-type-add-more-wrapper label{ margin-bottom: 10px}
+#field-invite-user-relation-type-add-more-wrapper .description{ margin-top: 10px}
+
+#Layer1 {
+position:absolute;
+width: 100%;
+left:0px;
+bottom:50px;
+max-height: 700px;
+min-height: 535px;
+z-index:99999;
+display:none;
+background-color:#e4e4e4;
+color:#FFFFFF;
+-moz-opacity: 0.8;  
+opacity:.80;  
+filter: alpha(opacity=80);  
+}
+#Layer2 {
+position:absolute;
+width: 100%;
+left:0px;
+bottom:50px;
+max-height: 400px;
+min-height: 180px;
+z-index:9999999;
+display:none;
+background-color: #FFF;
+border-top: 1px solid #e0e0e0;
+font-family: Microsoft Yahei;
+}
+#col-center-close{
+    width:95%;
+    height: 40px;
+    line-height:40px;
+    text-align: right;
+    padding-right: 5%;
+    color:#FF0000;
+    font-size: 18px;
+    border-bottom: 1px solid #e0e0e0;
+}
+#col-center-list{
+    width:100%;
+    height: 70px;
+    line-height: 70px;
+    border-bottom: 1px solid #e0e0e0;
+    margin: 0px auto;
+}
+#col-center-td{
+    width:33%;
+    height: 70px;
+    line-height: 70px;
+    font-size: 14px;
+    color: #333333;
+    text-align: center;
+    border-right: 1px solid #e0e0e0;
+    float:left; 
+}
+#col-center-td2{
+    width:33%;
+    height: 70px;
+    line-height: 70px;
+    font-size: 14px;
+    color: #333333;
+    text-align: center;
+    float:left; 
+}
+
+#modalBackdrop{ background: rgb(0, 0, 0) !important;opacity: 0.65 !important; }
+
+#modalContent {
+    clear: both;
+    width: 100% !important;
+    top: 100px !important;
+    min-height: 650px!important;
+    height:auto;
+    overflow-y: scroll;
+    margin: 0px auto;
+}
+
+#modalContent .ctools-modal-content{
+    clear: both;
+    width: 98%!important; 
+    min-height: 650px!important;
+    height: auto;
+    background: #fff;
+    color: #000;
+    text-align: left;
+}
+
+.modal-default .ctools-modal-content .modal-content {
+    padding: 1em 1em 0 1em;
+    overflow: auto;
+    width: 93%!important;
+    position: relative;
+    font-family: Microsoft Yahei;
+    line-height: 28px;
+}
+
+.modal-default .ctools-modal-content .form-item label {
+    width: 30%;
+    float: left;
+}
+.modal-default .ctools-modal-content .form-text {
+    line-height: normal;
+    height: 30px;
+    line-height: 30px;
+    width: 60%;
+    outline: medium;
+    color: #333333;
+    border: none;
+    z-index: 9999;
+    background-color: #e8e8e8;
+}
+
+.modal-default .ctools-modal-content .form-submit {
+ margin-bottom: 10px;
+}
+
+
+
+
+
+
+
+
 

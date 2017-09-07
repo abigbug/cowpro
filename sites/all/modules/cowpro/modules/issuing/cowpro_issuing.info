@@ -39,6 +39,7 @@ files[] = includes/views/handlers/cowpro_repayment_schedule_handler_field_real_n
 files[] = includes/views/handlers/cowpro_repayment_schedule_handler_area_empty_text.inc
 files[] = includes/views/handlers/cowpro_repayment_schedule_handler_field_status.inc
 files[] = includes/views/handlers/cowpro_repayment_schedule_handler_filter_status.inc
+files[] = includes/views/handlers/cowpro_repayment_schedule_handler_field_operations.inc
 files[] = includes/views/handlers/cowpro_creditor_assignment_handler_field_amount.inc
 ; files[] = includes/views/handlers/cowpro_creditor_assignment_handler_filter_amount.inc
 files[] = includes/views/handlers/cowpro_creditor_assignment_handler_field_operations.inc

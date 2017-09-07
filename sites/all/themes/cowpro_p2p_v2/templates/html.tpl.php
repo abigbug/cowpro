@@ -75,8 +75,9 @@ $html_attributes = "lang=\"{$language->language}\" dir=\"{$language->dir}\" {$rd
 </head>
 <body id="body" class="<?php print $classes; ?>" <?php print $attributes;?>>
 	<?php print $page_top;
-	print $page;
-	print $page_bottom; ?>
+	print $page;?>
+    <div class="sep"></div>
+	
 
 </body>
 </html>

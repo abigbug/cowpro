@@ -253,7 +253,6 @@ endif; ?>
 					</div>
 				</div>
 			</div>
-
 			<!-- Region Footer bottom -->
 			<?php if ( $page['footer_bottom'] ) :
 				cowpro_p2p_v2_region_preffix ( 'footer_bottom' );

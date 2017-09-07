@@ -85,16 +85,18 @@ function cowpro_issuing_menu() {
 			'delivery callback' => 'ajax_deliver',
 	);
 
-	$items ['issuing/%node/repayment_schedule'] = array (
+	$items ['issuing/%node/%user/repayment_schedule'] = array (
 			'page callback' => 'cowpro_issuing_command',
 			'page arguments' => array (
 					'view repayment schedule',
 					1,
+					2,
 			),
 			'access callback' => 'cowopro_issuing_access',
 			'access arguments' => array (
 					'view repayment schedule',
 					1,
+					2,
 			),
 			//'delivery callback' => 'ajax_deliver',
 	);

@@ -182,7 +182,7 @@
 					print render( $page['content_bottom'] );
 				cowpro_p2p_v2_region_suffix ( 'content_bottom' );
 			endif; ?>
-
+                        <div class="sep"></div>
 			<!-- Region Prefooter -->
 			<?php if ( $page['prefooter'] ) :
 				cowpro_p2p_v2_region_preffix ( 'prefooter' );

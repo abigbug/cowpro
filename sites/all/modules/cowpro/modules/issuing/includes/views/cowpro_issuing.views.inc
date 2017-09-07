@@ -286,7 +286,7 @@ function cowpro_issuing_views_data() {
 			'title' => '收款方',
 			'help' => '收款方用户',
 			'field' => array(
-					'handler' => 'cowpro_issuing_handler_field_receiver_name',
+					'handler' => 'cowpro_repayment_schedule_handler_field_real_name',
 					'click sortable' => TRUE,
 			),
 			'argument' => array(
@@ -419,6 +419,15 @@ function cowpro_issuing_views_data() {
 			'filter' => array(
 					'handler' => 'views_handler_filter_numeric',
 					//'handler' => 'cowpro_creditor_assignment_handler_filter_amount',
+			),
+	);
+
+	$data['cowpro_repayment_schedule']['operations'] = array(
+			'real field' => 'issuing_id',
+			'field' => array(
+					'title' => t('Operations'),
+					'help' => '提供与"还款详情"相关的菜单',
+					'handler' => 'cowpro_repayment_schedule_handler_field_operations',
 			),
 	);
 

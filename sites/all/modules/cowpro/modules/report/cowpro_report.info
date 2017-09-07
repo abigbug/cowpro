@@ -16,6 +16,7 @@ files[] = includes/views/handlers/cowpro_report_handler_field_payment_password.i
 files[] = includes/views/handlers/cowpro_report_handler_field_referee.inc
 files[] = includes/views/handlers/cowpro_report_handler_filter_mobile.inc
 files[] = includes/views/handlers/cowpro_report_handler_filter_referee.inc
+files[] = includes/views/handlers/cowpro_report_handler_filter_user.inc
 
 ; Information added by Drupal.org packaging script on 2015-01-16
 version = "7.x-0.01"

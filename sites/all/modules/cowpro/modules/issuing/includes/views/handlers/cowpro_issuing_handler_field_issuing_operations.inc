@@ -49,7 +49,7 @@ class cowpro_issuing_handler_field_issuing_operations extends views_handler_fiel
 		}
 
 		// Add the quick-link link which opens the megarow.
-		$quick_link2['repayment-schedule'] = menu_get_item("issuing/$issuing_id/repayment_schedule");
+		$quick_link2['repayment-schedule'] = menu_get_item("issuing/$issuing_id/-1/repayment_schedule");
 		if ($quick_link2['repayment-schedule']['access']) {
 			$quick_link2['repayment-schedule']['title'] = '还款详情';
 			$quick_link2['repayment-schedule']['attributes']['class'] = array('ctools-use-modal');

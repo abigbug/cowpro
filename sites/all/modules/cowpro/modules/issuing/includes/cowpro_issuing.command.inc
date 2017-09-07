@@ -140,6 +140,7 @@ function _cowopro_issuing_access($op, $node, $account = NULL) {
  * 否则，就返回FALSE
  */
 function _cowpro_issuing_user_access_repayment_schedule($nid, $issuing, $applicant, $account) {
+	return TRUE;
 	$result = FALSE;
 	if (($issuing ['status'] === COWPRO_ISSUING_STATUS_REPAYMENT)
 			|| ($issuing ['status'] === COWPRO_ISSUING_STATUS_FINISHED)) {
@@ -278,7 +279,7 @@ function _cowpro_issuing_command($op, $node, $account = NULL) {
 			return _cowpro_issuing_brief_view($node);
 			break;
 		case 'view repayment schedule' : // 查看还款计划表(AJAX方式)
-			return _cowpro_issuing_repayment_schedule_view($node);
+			return _cowpro_issuing_repayment_schedule_view($node, $account);
 			break;
 		case 'view issuing' : // 查看贷款申请表
 			break;
@@ -347,7 +348,7 @@ function _cowpro_issuing_brief_view($node) {
 /**
  * Displays a view of repayment schedule referenced from the given node, in a megarow.
  */
-function _cowpro_issuing_repayment_schedule_view($node) {
+function _cowpro_issuing_repayment_schedule_view($node, $account) {
 	/*
 	$title = $node->title;
 	$output = views_embed_view ( 'repayment_schedule', 'default', $node->nid );
@@ -357,7 +358,12 @@ function _cowpro_issuing_repayment_schedule_view($node) {
 	ctools_include ( 'ajax' );
 
 	$title = $node->title;
-	$content = views_embed_view ( 'repayment_schedule', 'default', $node->nid );
+	if ($account) {
+		$uid = $account->uid;
+	} else {
+		$uid = -1;
+	}
+	$content = views_embed_view ( 'repayment_schedule', 'default', $node->nid, $uid );
 	$output = array ();
 	$output [] = ctools_modal_command_display ( $title, $content );
 	print ajax_render ( $output );
