@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Web service client UI - installation file.
+ */
+
+/**
+ * Clear caches to register the new WSClientUIController class.
+ */
+function wsclient_ui_update_7101() {
+  // Nothing to do, as update.php clears caches anyway.
+}

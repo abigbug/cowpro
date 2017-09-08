@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * Implements hook_entity_resource_info().
+ *
+ */
+function services_commerce_services_entity_resource_info() {
+  $result = array();
+
+  $result['commerce'] = array(
+    'title' => '处理 commerce 产品节点',
+    'description' => '处理 commerce 产品节点（node）。',
+    'class' => 'ServicesCommerceResourceController',
+  );
+
+  return $result;
+}

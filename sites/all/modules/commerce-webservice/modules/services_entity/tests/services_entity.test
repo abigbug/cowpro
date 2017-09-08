@@ -1,0 +1,1033 @@
+<?php
+/**
+ * @file Services Entity Tests
+ */
+
+/**
+ * Services Entity Test Helper class.
+ */
+class ServicesEntityTestHelper extends ServicesWebTestCase {
+  /**
+   * Need to override this :(
+   *
+   * @param array $resources
+   *   A list of the resources which should be added.
+   *
+   * @todo: Remove when https://drupal.org/node/2089445 is fixed.
+   */
+  public function saveNewEndpoint(array $resources) {
+    $edit = $this->populateEndpointFAPI() ;
+
+    $edit['path'] = 'endpoint';
+    $edit['title'] = 'WT??';
+
+    $endpoint = new stdClass;
+    $endpoint->disabled = FALSE; /* Edit this to true to make a default endpoint disabled initially */
+    $endpoint->api_version = 3;
+    $endpoint->name = $edit['name'];
+    $endpoint->title = $edit['title'];
+    $endpoint->server = $edit['server'];
+    $endpoint->path = $edit['path'];
+    $endpoint->authentication = array(
+      'services' => 'services',
+    );
+    $endpoint->server_settings = array(
+      'formatters' => array(
+        'json' => TRUE,
+        'bencode' => TRUE,
+        'rss' => TRUE,
+        'plist' => TRUE,
+        'xmlplist' => TRUE,
+        'php' => TRUE,
+        'yaml' => TRUE,
+        'jsonp' => FALSE,
+        'xml' => FALSE,
+      ),
+      'parsers' => array(
+        'application/x-yaml' => TRUE,
+        'application/json' => TRUE,
+        'application/vnd.php.serialized' => TRUE,
+        'application/plist' => TRUE,
+        'application/plist+xml' => TRUE,
+        'application/x-www-form-urlencoded' => TRUE,
+      ),
+    );
+    $endpoint->resources = array(
+      'system' => array(
+        'alias' => '',
+        'actions' => array(
+          'connect' => array(
+            'enabled' => 1,
+          ),
+          'get_variable' => array(
+            'enabled' => 1,
+          ),
+          'set_variable' => array(
+            'enabled' => 1,
+          ),
+        ),
+      ),
+      'user' => array(
+        'alias' => '',
+        'operations' => array(
+          'create' => array(
+            'enabled' => 1,
+          ),
+          'retrieve' => array(
+            'enabled' => 1,
+          ),
+          'update' => array(
+            'enabled' => 1,
+          ),
+          'delete' => array(
+            'enabled' => 1,
+          ),
+          'index' => array(
+            'enabled' => 1,
+          ),
+        ),
+        'actions' => array(
+          'login' => array(
+            'enabled' => 1,
+          ),
+          'logout' => array(
+            'enabled' => 1,
+          ),
+        ),
+      ),
+    );
+    foreach ($resources as $resource) {
+      // @todo Add other operations besides CRUD.
+      $endpoint->resources += array(
+        $resource => array(
+          'operations' => array(
+            'retrieve' => array(
+              'enabled' => 1,
+            ),
+            'create' => array(
+              'enabled' => 1,
+            ),
+            'update' => array(
+              'enabled' => 1,
+            ),
+            'delete' => array(
+              'enabled' => 1,
+            ),
+            'index' => array(
+              'enabled' => 1,
+            ),
+          ),
+        ),
+      );
+
+    }
+    $endpoint->debug = 1;
+    $endpoint->export_type = FALSE;
+    services_endpoint_save($endpoint);
+    $endpoint = services_endpoint_load($endpoint->name);
+
+    $this->assertTrue($endpoint->name == $edit['name'], 'Endpoint successfully created');
+    return $endpoint;
+  }
+
+  /**
+   * Log a user in via services.
+   *
+   * @param String $name
+   *   The name of the user to log in.
+   * @param String $pass
+   *   The password of the user to log in.
+   *
+   * @return Object
+   *   The newly logged in user object.
+   */
+  public function serviceLogin($name, $pass) {
+    $response = $this->servicesPost($this->endpoint->path . '/user/login', array('username' => $name, 'password' => $pass));
+    $response_data = $response['body'];
+    $proper_answer = isset($response_data->sessid)
+      && isset($response_data->user)
+      && $response_data->user->name == $name;
+    $this->assertTrue($proper_answer, 'User successfully logged in.');
+    // Save session details.
+    $this->session_id = $response_data->sessid;
+    $this->session_name = $response_data->session_name;
+    $this->loggedInUser = $response_data->user;
+    return $this->loggedInUser;
+  }
+
+  /**
+   * Log out via services.
+   */
+  public function serviceLogout() {
+    $response = $this->servicesPost($this->endpoint->path . '/user/logout');
+    $this->assertEqual($response['code'], 200, 'Received 200 response code from LOGOUT');
+  }
+
+  /**
+   * Utility function to recursively turn an object into an array.
+   *
+   * @param array/object $object
+   *   The object, array or element to process
+   *
+   * @return array
+   *   An array corresponding to $object, with any objects converted to arrays.
+   *
+   * @author ChrisO
+   */
+  protected function unObject($object) {
+    if (is_object($object)) {
+      $object = (array) $object;
+    }
+    if (is_array($object)) {
+      foreach ($object as $key => $element) {
+        $object[$key] = $this->unObject($element);
+      }
+    }
+    return $object;
+  }
+
+  /**
+   * Helper to perform a RESTful update of a resource.
+   *
+   * @param String $resource
+   *   The resource type to operate on.
+   * @param int $name
+   *   The name of the resource to update
+   * @param array $data
+   *   The update data to put.
+   * @param int $code
+   *   The expected response code (defaults to 200).
+   */
+  public function update($resource, $name, $data = array(), $code = 200) {
+    $r = $this->servicesPut($this->endpoint->path . '/' . $resource . '/' . $name, $data);
+    $this->assertEqual($r['code'], $code, "Received $code response code from UPDATE $resource/$name (actual response=" . $r['code'] . ")");
+    return $this->unObject($r['body']);
+  }
+
+  /**
+   * Helper to perform a RESTful action of a resource.
+   *
+   * @param String $resource
+   *   The resource type to operate on.
+   * @param int $name
+   *   The name of the resource to update
+   * @param array $data
+   *   The update data to put.
+   * @param int $code
+   *   The expected response code (defaults to 200).
+   */
+  public function action($resource, $name, $action, $data, $code) {
+    if (!is_array($data)) {
+      $data = (array) $data;
+    }
+
+    $destination = '';
+    if (isset($name) && strlen($name) > 0) {
+      $path = "$resource/$name/$action";
+    }
+    else {
+      $path = "$resource/$action";
+    }
+    $r = $this->servicesPost($this->endpoint_path . '/' . $path, $data);
+    $this->assertEqual($r['code'], $code, "Received $code response code from ACTION $path (actual response=" . $r['code'] . ")");
+    return $this->unObject($r['body']);
+  }
+
+  /**
+   * Helper to perform a RESTful create of a resource.
+   *
+   * @param String $resource
+   *   The resource type to operate on.
+   * @param array $data
+   *   The update data to post.
+   * @param int $code
+   *   The expected response code (defaults to 200).
+   */
+  public function create($resource, $data = array(), $code = 200) {
+    $r = $this->servicesPost($this->endpoint->path . '/' . $resource, $data);
+    $this->assertEqual($r['code'], $code, "Received $code response code from CREATE $resource (actual response=" . $r['code'] . ")");
+    return $this->unObject($r['body']);
+  }
+
+  /**
+   * Helper function to perform a RESTful delete of a resource.
+   *
+   * @param String $resource
+   *   The resource type to operate on.
+   * @param int $name
+   *   The name of the resource to update. (i.e. the ID).
+   * @param int $code
+   *   The expected response code (defaults to 200).
+   */
+  public function delete($resource, $name, $code = 200) {
+    // Call to parent::servicesDelete
+    $r = $this->servicesDelete($this->endpoint->path . '/' . $resource . '/' . $name, NULL);
+    $this->assertEqual($r['code'], $code, "Received $code response code from DELETE $resource/$name (actual response=" . $r['code'] . ")");
+    return $this->unObject($r['body']);
+  }
+
+  /**
+   * Helper to performa a RESTful retrieve of a resource.
+   *
+   * @param string $resource
+   *   The resource type to operate on.
+   * @param string $name
+   *   The name of the resource to update
+   * @param array $args
+   *   Any additional args for the querystring.
+   * @param integer $code
+   *   The expected response code (defaults to 200).
+   */
+  public function retrieve($resource, $name, $args = array(), $code = 200) {
+    $r = $this->servicesGet($this->endpoint->path . '/' . $resource . '/' . $name, $args);
+    $this->assertEqual($r['code'], $code, "Received $code response code from RETRIEVE $resource/$name (actual response=" . $r['code'] . ")");
+    return $this->unObject($r['body']);
+  }
+
+  /**
+   * Helper to performa a RESTful index of a resource.
+   *
+   * @param string $resource
+   *   The resource type to operate on.
+   * @param array $args
+   *   Any additional args for the querystring.
+   * @param integer $code
+   *   The expected response code (defaults to 200).
+   */
+  public function index($resource, $args = array(), $code = 200) {
+    $r = $this->servicesGet($this->endpoint->path . '/' . $resource, $args);
+    $this->assertEqual($r['code'], $code, "Received $code response code from INDEX $resource (actual response=" . $r['code'] . ")");
+    return $this->unObject($r['body']);
+  }
+}
+
+/**
+ * Test resources on the Generic controller, using a test entity type.
+ */
+class ServicesEntityGenericEntityResource extends ServicesEntityTestHelper {
+
+  /**
+   * The user for the test.
+   */
+  protected $privilegedUser;
+
+  /**
+   * The Services endpoint config object.
+   */
+  protected $endpoint = NULL;
+
+  /**
+   * The resource controller class to use.
+   *
+   * This is assigned to the system variable by setUp().
+   */
+  protected $services_entity_resource_class = 'ServicesEntityResourceController';
+
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Test Entity Generic Resource',
+      'description' => "Test resources using the generic resource controller, with a test entity type.",
+      'group' => 'Services Entity',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  public function setUp() {
+    parent::setUp(
+      'libraries',
+      'entity',
+      'services_entity',
+      // Our test module which provides our test entity type.
+      'services_entity_test'
+    );
+    // Set up endpoint.
+    $this->endpoint = $this->saveNewEndpoint(array('entity_services_entity_test'));
+
+    $this->resource_path = $this->endpoint->path . '/entity_services_entity_test';
+
+    // Create an unprivileged user.
+    $this->unPrivilegedUser = $this->drupalCreateUser();
+
+    // Set the resource class to use.
+    variable_set('services_entity_resource_class', $this->services_entity_resource_class);
+  }
+
+  /**
+   * Test 'Retrieve' service.
+   */
+  public function testEntityRetrieve() {
+    // Create our privileged user.
+    $this->privilegedUser = $this->drupalCreateUser(array(
+      'view services_entity_test entities',
+    ));
+
+    // Create an entity to retrieve.
+    $entity = entity_create('services_entity_test', array(
+      'type' => 'alpha',
+      'name' => $this->randomString(),
+      'uid' => $this->privilegedUser->uid,
+    ));
+    $wrapper = entity_metadata_wrapper('services_entity_test', $entity);
+
+    // Set a field value.
+    $test_text_value = $this->randomString();
+    $wrapper->field_test_text_alpha->set($test_text_value);
+
+    $entity->save();
+
+    $this->drupalGet($this->resource_path . '/' . $entity->eid);
+
+    // Log in as the unprivileged user.
+    $this->drupalLogin($this->unPrivilegedUser);
+
+    // Try getting an entity without access.
+    $response = $this->servicesGet($this->endpoint->path . '/entity_services_entity_test/' . $entity->eid);
+    $this->assertTrue($response['code'] == '401', 'Retrieval of an entity without view access returns a 401.');
+
+    // Log in as the privileged user.
+    $this->drupalLogin($this->privilegedUser);
+
+    $response = $this->servicesGet($this->endpoint->path . '/entity_services_entity_test/' . $entity->eid);
+    $retrieved_entity_data = $response['body'];
+
+    // Check values on the retrieved entity data.
+    $this->assertEqual($entity->name, $retrieved_entity_data->name, 'Retrieved entity has the name property correctly set.');
+    $this->assertEqual($test_text_value, $retrieved_entity_data->field_test_text_alpha['und'][0]['value'], 'Retrieved entity has the field value correctly set.');
+
+    // Try getting an entity that doesn't exist.
+    $responseArray = $this->servicesGet($this->resource_path . '/42');
+    $this->assertTrue($responseArray['code'] == '404', 'Retrieval of a non-existent entity returns a 404.');
+  }
+
+  /**
+   * Test 'Create' service.
+   */
+  public function testEntityCreate() {
+    // Create our privileged user.
+    $this->privilegedUser = $this->drupalCreateUser(array(
+      'create services_entity_test entities',
+    ));
+
+    // An array of entity data to pass to the service to create an entity.
+    $entity_data = array(
+      'type' => 'alpha',
+      'name' => $this->randomString(),
+      'uid' => $this->privilegedUser->uid,
+    );
+    $test_text_value = $this->randomString();
+    $entity_data['field_test_text_alpha']['und'][0]['value'] = $test_text_value;
+
+    // Log in as the unprivileged user.
+    $this->drupalLogin($this->unPrivilegedUser);
+
+    // Try to create the entity using the service, without access.
+    $response = $this->servicesPost($this->resource_path, $entity_data);
+    $this->assertTrue($response['code'] == '401', "Creation of an entity without 'create' access returns a 401.");
+
+    // Log in as the privileged user.
+    $this->drupalLogin($this->privilegedUser);
+
+    // Create the entity using the service.
+    $response = $this->servicesPost($this->resource_path, $entity_data);
+
+    // We get the new entity returned to us.
+    $returned_entity = $response['body'];
+    $new_entity_id = $returned_entity->eid;
+
+    // Load the entity from the DB, using the entity ID from the response we
+    // got back from the service.
+    $entity = entity_load_single('services_entity_test', $new_entity_id);
+    $wrapper = entity_metadata_wrapper('services_entity_test', $entity);
+
+    $this->assertEqual($entity->name, $entity_data['name'], 'Created entity has the name property correctly set.');
+    $this->assertEqual($wrapper->field_test_text_alpha->raw(), $test_text_value, 'Created entity has the text field value correctly set.');
+  }
+
+  /**
+   * Test 'Update' service.
+   */
+  public function testEntityUpdate() {
+    // Create our privileged user.
+    $this->privilegedUser = $this->drupalCreateUser(array(
+      'update services_entity_test entities',
+    ));
+
+    // Create an entity to update.
+    $original_entity_data = array(
+      'type' => 'alpha',
+      'name' => $this->randomString(),
+      'uid' => $this->privilegedUser->uid,
+    );
+    $original_entity = entity_create('services_entity_test', $original_entity_data);
+    $original_entity_wrapper = entity_metadata_wrapper('services_entity_test', $original_entity);
+
+    // Set a field value.
+    $original_entity_wrapper->field_test_text_alpha->set( $this->randomString());
+
+    $original_entity->save();
+
+    // Build an array of data to update to the entity.
+    $update_entity_data = $original_entity_data;
+    // We have to add the entity id.
+    $update_entity_data['eid'] = $original_entity->eid;
+    // Change the name.
+    $update_entity_data['name'] = $this->randomString();
+    // Change the field value.
+    $test_text_value = $this->randomString();
+    $update_entity_data['field_test_text_alpha']['und'][0]['value'] = $test_text_value;
+
+    // Log in as the unprivileged user.
+    $this->drupalLogin($this->unPrivilegedUser);
+
+    // Attempt to update the entity using the service, without access.
+    $response = $this->servicesPut($this->resource_path . '/' . $original_entity->eid, $update_entity_data);
+    $this->assertTrue($response['code'] == '401', "Update of an entity without 'update' access returns a 401.");
+
+    // Log in as the privileged user.
+    $this->drupalLogin($this->privilegedUser);
+
+    // Update the entity using the service.
+    $response = $this->servicesPut($this->resource_path . '/' . $original_entity->eid, $update_entity_data);
+
+    // We get the updated entity returned to us.
+    $returned_entity = $response['body'];
+
+    // Load the entity from the DB, using the entity ID from the response we
+    // got back from the service.
+    // Clear the cache first.
+    entity_get_controller('services_entity_test')->resetCache();
+    $updated_entity = entity_load_single('services_entity_test', $original_entity->eid);
+    $updated_entity_wrapper = entity_metadata_wrapper('services_entity_test', $updated_entity);
+
+    $this->assertEqual($update_entity_data['name'], $updated_entity->name, 'Name property was changed on the updated entity.');
+    $this->assertEqual($test_text_value, $updated_entity_wrapper->field_test_text_alpha->raw(), 'Field value was changed on the updated entity.');
+  }
+
+  /**
+   * Test 'Delete' service.
+   */
+  public function testEntityDelete() {
+    // Create our privileged user.
+    $this->privilegedUser = $this->drupalCreateUser(array(
+      'delete services_entity_test entities',
+    ));
+
+    // Create an entity to delete.
+    $entity_data = array(
+      'type' => 'alpha',
+      'name' => $this->randomString(),
+      'uid' => $this->privilegedUser->uid,
+      // TODO: FieldAPI field values.
+    );
+    $entity = entity_create('services_entity_test', $entity_data);
+    $entity->save();
+
+    // Log in as the unprivileged user.
+    $this->drupalLogin($this->unPrivilegedUser);
+
+    $response = $this->servicesDelete($this->resource_path . '/' . $entity->eid);
+    $this->assertTrue($response['code'] == '401', "Deletion of an entity without 'delete' access returns a 401.");
+
+    // Log in as the privileged user.
+    $this->drupalLogin($this->privilegedUser);
+
+    $response = $this->servicesDelete($this->resource_path . '/' . $entity->eid);
+
+    // Load the entity from the DB to check it's been deleted.
+    // Clear the cache first.
+    entity_get_controller('services_entity_test')->resetCache();
+    $deleted_entity = entity_load_single('services_entity_test', $entity->eid);
+
+    $this->assertFalse($deleted_entity, 'The entity has been deleted.');
+  }
+
+  /**
+   * Test 'Index' service.
+   */
+  public function testEntityIndex() {
+    // Create our privileged user.
+    $this->privilegedUser = $this->drupalCreateUser(array(
+      'view services_entity_test entities',
+    ));
+
+    // Create some entities to index.
+    $entity_data = array(
+      'type' => 'alpha',
+      'name' => 'one',
+      'uid' => $this->privilegedUser->uid,
+    );
+    $entity = entity_create('services_entity_test', $entity_data);
+    $wrapper = entity_metadata_wrapper('services_entity_test', $entity);
+    $wrapper->field_test_text_alpha->set('field-value-1');
+    $entity->save();
+
+    $entity_data = array(
+      'type' => 'alpha',
+      'name' => 'two',
+      'uid' => $this->privilegedUser->uid,
+    );
+    $entity = entity_create('services_entity_test', $entity_data);
+    $wrapper = entity_metadata_wrapper('services_entity_test', $entity);
+    $wrapper->field_test_text_alpha->set('field-value-1');
+    $entity->save();
+
+    $entity_data = array(
+      'type' => 'alpha',
+      'name' => 'three',
+      'uid' => 0,
+    );
+    $entity = entity_create('services_entity_test', $entity_data);
+    $wrapper = entity_metadata_wrapper('services_entity_test', $entity);
+    $wrapper->field_test_text_alpha->set('field-value-2');
+    $entity->save();
+
+    $entity_data = array(
+      'type' => 'beta',
+      'name' => 'one',
+      'uid' => 0,
+    );
+    $entity = entity_create('services_entity_test', $entity_data);
+    $entity->save();
+
+    // Log in as the unprivileged user.
+    $this->drupalLogin($this->unPrivilegedUser);
+
+    // Attempt to get the index of all entities without access.
+    $response = $this->servicesGet($this->resource_path);
+    $this->assertTrue($response['code'] == '404', "Retrieving an index of entities without 'view' access for any returns a 404.");
+
+    // Log in as the privileged user.
+    $this->drupalLogin($this->privilegedUser);
+
+    // Get the index of all entities.
+    $response = $this->servicesGet($this->resource_path);
+    $retrieved_data = $response['body'];
+
+    $this->assertEqual(count($retrieved_data), 4, 'All entities were listed by the index service.');
+
+    // Get the index of only the 'alpha' bundle entities.
+    $response = $this->servicesGet($this->resource_path, array('parameters[type]' => 'alpha'));
+    $retrieved_data = $response['body'];
+
+    $this->assertEqual(count($retrieved_data), 3, 'The correct number of entities was returned by the index when filtered by entity type.');
+    $all_correct = TRUE;
+    foreach ($retrieved_data as $retrieved_entity) {
+      $all_correct &= ($retrieved_entity->type == 'alpha');
+    }
+    $this->assertTrue($all_correct, 'All the retrieved entities were of the requested entity type.');
+
+    // Get the index of entities by name.
+    $response = $this->servicesGet($this->resource_path, array('parameters[name]' => 'one'));
+    $retrieved_data = $response['body'];
+
+    $this->assertEqual(count($retrieved_data), 2, "The correct number of entities was returned by the index when filtered by entity 'name' property.");
+    $all_correct = TRUE;
+    foreach ($retrieved_data as $retrieved_entity) {
+      $all_correct &= ($retrieved_entity->name == 'one');
+    }
+    $this->assertTrue($all_correct, 'All the retrieved entities had the requested entity property.');
+
+    // Get the index of entities by uid.
+    $response = $this->servicesGet($this->resource_path, array('parameters[uid]' => '0'));
+    $retrieved_data = $response['body'];
+    debug($retrieved_data);
+
+    $this->assertEqual(count($retrieved_data), 2, "The correct number of entities was returned by the index when filtered by entity 'uid' property.");
+    $all_correct = TRUE;
+    foreach ($retrieved_data as $retrieved_entity) {
+      $all_correct &= ($retrieved_entity->uid == 0);
+    }
+    $this->assertTrue($all_correct, 'All the retrieved entities had the requested entity property.');
+
+    // Get the index of entities by multiple properties.
+    $response = $this->servicesGet($this->resource_path, array('parameters[type]' => 'alpha', 'parameters[uid]' => '0'));
+    $retrieved_data = $response['body'];
+
+    $this->assertEqual(count($retrieved_data), 1, "The correct number of entities was returned by the index when filtered by entity type and 'uid' property.");
+
+    // Get the index of entities by a field value.
+    $response = $this->servicesGet($this->resource_path, array('parameters[field_test_text_alpha]' => 'field-value-1'));
+    $retrieved_data = $response['body'];
+
+    $this->assertEqual(count($retrieved_data), 2, "The correct number of entities was returned by the index when filtered by a field value.");
+
+    // todo: check that if a single entity denies access, it is excluded from
+    // the returned list of entities.
+  }
+}
+
+/**
+ * Tests entity_node services for both the generic and clean controller.
+ */
+class ServicesEntityNodeResourceTest extends ServicesEntityTestHelper {
+  /**
+   * Returns information about this test case.
+   *
+   * @return
+   *   An array of information about this test case
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Entity Node Resource',
+      'description' => 'Ensure that the entity_node resource functions correctly.',
+      'group' => 'Services Entity',
+    );
+  }
+
+  /**
+   * @see ServicesWebTestCase::setUp()
+   */
+  ///* Restore this commenting-out to test using local db (a bit faster that way).
+  public function setUp() {
+    parent::setUp('libraries', 'entity', 'services_entity');
+    $this->endpoint = $this->saveNewEndpoint(array('entity_node'));
+  }
+  // */ public function setUp() { $this->setup = TRUE; $this->endpoint = services_endpoint_load('services'); $this->cookieFile = drupal_tempnam(variable_get('file_temporary_path'), 'services_cookiejar'); $this->additionalCurlOptions[CURLOPT_COOKIEFILE] = $this->cookieFile;} public function tearDown()  {}
+
+  /**
+   * Test index functionality with the clean controller.
+   */
+  public function testIndexClean() {
+    $this->testIndex(TRUE);
+  }
+
+  /**
+   * Test index functionality.
+   *
+   * @param boolean $clean
+   *   TRUE to use the clean controller, FALSE to use the generic.
+   */
+  public function testIndex($clean = FALSE) {
+    // Choose the controller.
+    if ($clean) {
+      variable_set('services_entity_resource_class', 'ServicesEntityResourceControllerClean');
+    }
+    else {
+      variable_set('services_entity_resource_class', 'ServicesEntityResourceController');
+    }
+
+    // Create some users so we can have multiple authors.
+    $account1 = $this->drupalCreateUser(array('bypass node access'));
+    $account2 = $this->drupalCreateUser(array('bypass node access'));
+
+    // Create some nodes
+    for ($i = 0; $i < 6; $i++) {
+      $values = array(
+        'type' => $i < 4 ? 'page' : 'article',
+        'uid' => $i % 2 == 0 ? $account1->uid : $account2->uid,
+        'title' => $this->randomName(8),
+        'body' => array(
+          LANGUAGE_NONE => array(
+            '0' => array(
+              'value' => $this->randomName(30),
+              'format' => filter_default_format(),
+              'summary' => '',
+            ),
+          ),
+        ),
+      );
+      $nodes[] = $this->drupalCreateNode($values);
+    }
+
+    // Fetch the index and verify that it returns the correct number of nodes.
+    $resource = 'entity_node';
+    $r = $this->index($resource);
+    $this->assertEqual(count($r), count($nodes), 'Index returned the correct number of nodes.');
+
+    // Try the same for each type.
+    $r = $this->index($resource, array('parameters[type]' => 'page'));
+    $this->assertEqual(count($r), 4, 'Index returned the correct number of pages.');
+    $r = $this->index($resource, array('parameters[type]' => 'article'));
+    $this->assertEqual(count($r), 2, 'Index returned the correct number of articles.');
+
+    // Try filtering by uid/author
+    // We need a user with view profiles permission to see the author property.
+    $admin_user = $this->drupalCreateUser(array('access user profiles'));
+    $this->serviceLogin($admin_user->name, $admin_user->pass_raw);
+    foreach (array($account1, $account2) as $account) {
+      $author_field = $clean ? 'author' : 'uid';
+      //$this->use_xdebug = 1;
+      $r = $this->index($resource, array("parameters[$author_field]" => $account->uid));
+      $this->assertEqual(count($r), 3, 'Index returned the correct number of nodes by author ' . $account->uid);
+      foreach ($r as $node) {
+        if ($clean) {
+          $this->assertEqual($node['author']['id'], $account->uid, 'All returned nodes have the correct author ' . $account->uid);
+        }
+        else {
+          $this->assertEqual($node['uid'], $account->uid, 'All returned nodes have the correct author ' . $account->uid);
+        }
+      }
+    }
+
+    // Try filtering by an invalid property and verify that we get an error.
+    $result = $this->index($resource, array("parameters[foo]" => 3), 406);
+  }
+
+  /**
+   * Tests node services using the 'clean' resource controller.
+   */
+  public function testCRUDClean() {
+    $this->testCRUD(TRUE);
+  }
+
+  /**
+   * Tests basic CRUD and index actions of a node via the entity_node service.
+   */
+  public function testCRUD($clean = FALSE) {
+    $resource = 'entity_node';
+    // Certain things are different depending on whether or not we are using
+    // the 'clean' resource controller.
+    if ($clean) {
+      variable_set('services_entity_resource_class', 'ServicesEntityResourceControllerClean');
+      $node = array(
+        'type' => 'page',
+        'title' => $this->randomName(10),
+        'body' => array(
+          'value' => $this->randomName(50),
+          'format' => 'full_html',
+          'summary' => '',
+        ),
+      );
+    }
+    else {
+      variable_set('services_entity_resource_class', 'ServicesEntityResourceController');
+      $node = array(
+        'type' => 'page',
+        'title' => $this->randomName(10),
+        'body' => array(
+          'und' => array(
+            '0' => array(
+              'value' => $this->randomName(50),
+              'format' => 'full_html',
+              'summary' => '',
+            ),
+          )
+        ),
+      );
+    }
+
+    // Test retrieving a specific revision.
+    $revisions = $this->createNodeRevisions();
+    foreach ($revisions as $revision) {
+      $retrieved = $this->retrieve($resource, $revision->nid,
+        array(
+          'revision' => $revision->vid,
+          // 'XDEBUG_SESSION_START' => 'ECLIPSE_DBGP'
+        ), 200);
+      $this->assertEqual($retrieved['title'], $revision->title, 'Revision ' . $revision->vid . ' has the correct title.');
+    }
+
+    // Ensure that retrieving the node without specifying a revision gets the
+    // most recent revision.
+    $retrieved = $this->retrieve($resource, $revision->nid);
+    $this->assertEqual($retrieved['title'], $revision->title, 'Plain retrieve gets the lastest revision.');
+
+    // We are only going to test properties that we set explicitly.
+    $test_properties = array_keys($node);
+
+    // Test node access
+    $account = $this->drupalCreateUser(array());
+    $this->serviceLogin($account->name, $account->pass_raw);
+    $this->create($resource, $node, 401);
+    $this->serviceLogout();
+
+    // Test format access.
+    $unpriv_account = $this->drupalCreateUser(array('create page content', 'edit any page content', 'delete any page content'));
+    $this->serviceLogin($unpriv_account->name, $unpriv_account->pass_raw);
+    $this->create($resource, $node, 403);
+    $this->serviceLogout();
+
+    // User with format access should be able to create the node.
+    $account = $this->drupalCreateUser(array('bypass node access', 'use text format full_html'));
+    $this->serviceLogin($account->name, $account->pass_raw);
+
+    // Set the 'author' or 'uid' property, depending on which controller we're using.
+    if ($clean) {
+      $node['author'] = $account->uid;
+    }
+    else {
+      $node['uid'] = $account->uid;
+    }
+
+    // We cannot create a node with the clean controller because of [issue link]
+    // @todo remove this conditional once that lands.
+    $created_node = $this->create($resource, $node);
+    $this->assertTrue($created_node['nid'], t('node create response has a node id'));
+    $nid = $created_node['nid'];
+
+    // Verify that the actual node was created.
+    $drupal_node = $this->nodeLoad($nid, $clean);
+    $this->assertNodeProperties($created_node, $drupal_node, $test_properties, 'Node CREATE response');
+    $this->assertNodeProperties($node, $drupal_node, $test_properties, 'Created node');
+
+    // Test an update of the created node.
+    // Change our title and body.
+    $created_node['title'] = $this->randomName(10);
+    if ($clean) {
+      $created_node['body']['value'] = $this->randomname(50);
+    }
+    else {
+      $created_node['body']['und'][0]['value'] = $this->randomname(50);
+    }
+    $update_result = $this->update($resource, $nid, $created_node, 200);
+    $drupal_node = $this->nodeLoad($nid, $clean);
+    // @todo restore this once [insert issue -- generic-update-entity] lands
+    if (!$clean) {
+      $this->assertNodeProperties($update_result, $drupal_node, $test_properties, 'Created node UPDATE response');
+    }
+    $this->assertNodeProperties($created_node, $drupal_node, $test_properties, 'Updated created node');
+
+    // Test retrieving the new node via services.
+    $fetched_node = $this->retrieve($resource, $nid);
+    $this->assertNodeProperties($fetched_node, $drupal_node, $test_properties, 'Node RETRIEVE response');
+
+    // Test an update of the fetched node.
+    // Change our title and body.
+    $fetched_node['title'] = $this->randomName(10);
+    if ($clean) {
+      $fetched_node['body']['value'] = $this->randomname(50);
+    }
+    else {
+      $fetched_node['body']['und'][0]['value'] = $this->randomname(50);
+    }
+    $update_result = $this->update($resource, $nid, $fetched_node, 200);
+    $drupal_node = $this->nodeLoad($nid, $clean);
+    $this->assertNodeProperties($update_result, $drupal_node, $test_properties, 'Fetched node UPDATE response');
+    $this->assertNodeProperties($fetched_node, $drupal_node, $test_properties, 'Updated fetched node');
+
+    // Test updating with a disallowed text format in the body.
+    $drupal_node = node_load($nid, NULL, TRUE);
+    $drupal_node->body['und'][0]['format'] = filter_default_format();
+    node_save($drupal_node);
+    $this->serviceLogout();
+    $this->serviceLogin($unpriv_account->name, $unpriv_account->pass_raw);
+    $fetched_node['body']['format'] = 'full_html';
+    $this->update($resource, $nid, $fetched_node, 403);
+    $drupal_node = node_load($nid, NULL, TRUE);
+    $this->assertEqual($drupal_node->body['und'][0]['format'], filter_default_format(), 'Unprivileged user was unable to update with disallowed text format.');
+
+    // Test a delete of a node.
+    $delete_result = $this->delete($resource, $nid);
+
+    // Confirm the node was deleted.
+    $deleted_node = $this->retrieve($resource, $nid, array(), 404);
+    $drupal_node = node_load($nid, NULL, TRUE);
+    $this->assertFalse($drupal_node, 'The deleted node was removed from the db.');
+
+    // Test creating a node without a body field.
+    $node_sans_body = array(
+      'type' => 'page',
+      'title' => $this->randomName(10),
+    );
+    // We need an author to create a node via clean controller
+    // See https://drupal.org/node/1237014
+    if ($clean) {
+      $node_sans_body['author'] = $account->uid;
+    }
+    $created_node_sans_body = $this->create($resource, $node_sans_body);
+    $this->assertTrue($created_node_sans_body['nid'], 'Created Node without body has a response with a node id');
+
+    $drupal_node = $this->nodeLoad($created_node_sans_body['nid'], $clean);
+    $this->assertNodeProperties($node_sans_body, $drupal_node, array_keys($node_sans_body), 'Created node without body');
+  }
+
+  /**
+   * Create several revisions of a node.
+   *
+   * @param int $number
+   *   The number of revisions to create.
+   *
+   * @return
+   *   An array containing the original node and revisions.
+   */
+  protected function createNodeRevisions($number = 3) {
+    $nodes = array();
+    for ($i = 0; $i < $number; $i++) {
+      if (empty($nodes)) {
+        $nodes[] = $this->drupalCreateNode(array('title' => $this->randomName()));
+      }
+      else {
+        $node = end($nodes);
+        $new_node = (object) array(
+          'nid' => $node->nid,
+          'vid' => $node->vid,
+          'uid' => $node->uid,
+          'type' => $node->type,
+          'title' => $this->randomName(),
+          'revision' => 1,
+        );
+        node_save($new_node);
+        $nodes[] = $new_node;
+      }
+    }
+    return $nodes;
+  }
+
+  /**
+   * Asserts that all properties in the list are the same in both versions
+   * of the node.
+   *
+   * @param array $a
+   *   One version of the node, converted to an array of values.
+   * @param array $b
+   *   The other version of the node, similarly converted.
+   * @param $keys
+   *   The list of properties to compare.
+   * @param $msg
+   *   An assertion message prefix.
+   */
+  protected function assertNodeProperties($a, $b, $keys, $msg) {
+    // List of drupal fields which require text_format processing.
+    $special_fields = array('body');
+
+    foreach ($keys as $name) {
+      if (in_array($name, $special_fields)) {
+        // Clean controller.
+        if (isset($aprop['format']) && isset($bprop['format'])) {
+          // Compare the formatted values.
+          $aprop = check_markup($aprop['value'], $aprop['format']);
+          $bprop = check_markup($bprop['value'], $bprop['format']);
+        }
+        // Generic controller.
+        elseif (isset($aprop['und'][0]['format']) && isset($bprop['und'][0]['format'])) {
+          // Compare the formatted values.
+          $aprop = check_markup($aprop['und'][0]['value'], $aprop['und'][0]['format']);
+          $bprop = check_markup($bprop['und'][0]['value'], $bprop['und'][0]['format']);
+        }
+      }
+      else {
+        $aprop = $a[$name];
+        $bprop = $b[$name];
+      }
+      $this->assertEqual($aprop, $bprop, "$msg: Property $name matches");
+    }
+  }
+
+  /**
+   * Helper function to load a node and process it so it matches the format
+   * used by the service controller.
+   *
+   * @param $nid
+   *   The node to load.
+   * @param $clean
+   *   If TRUE, use the ServicesResourceControllerClean class.
+   * @return
+   *   The loaded, processed node.
+   */
+  public function nodeLoad($nid, $clean = FALSE) {
+    $node = $this->unObject(node_load($nid, NULL, TRUE));
+
+    if ($clean) {
+      $node['author'] = $node['uid'];
+      if (!empty($node['body'])) {
+        $node['body'] = reset($node['body'][$node['language']]);
+      }
+    }
+    return $node;
+  }
+}

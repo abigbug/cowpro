@@ -1,0 +1,15 @@
+name = Services Entity Commerce
+description = 将 commerce 的产品节点提供给 Service API.
+package = Services
+core = 7.x
+dependencies[] = services
+dependencies[] = entity
+
+files[] = services_commerce_resource.inc
+
+; Information added by Drupal.org packaging script on 2014-08-11
+version = "7.x"
+core = "7.x"
+project = "services_commerce"
+datestamp = "1407747229"
+

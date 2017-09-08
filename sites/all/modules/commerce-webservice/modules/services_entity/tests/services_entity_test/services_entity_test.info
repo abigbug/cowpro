@@ -1,0 +1,16 @@
+name = Services Entity Test
+description = Provides a test entity for Services Entity tests.
+core = 7.x
+files[] = services_entity_test.module
+files[] = services_entity_test.install
+dependencies[] = services_entity
+dependencies[] = rest_server
+dependencies[] = libraries (>=2.x)
+hidden = TRUE
+
+; Information added by Drupal.org packaging script on 2014-08-11
+version = "7.x-2.0-alpha8"
+core = "7.x"
+project = "services_entity"
+datestamp = "1407747229"
+

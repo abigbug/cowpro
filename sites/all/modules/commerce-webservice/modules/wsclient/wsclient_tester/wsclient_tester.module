@@ -1,0 +1,63 @@
+<?php
+/**
+ * @file
+ * Provides a UI for testing known services.
+ *
+ * Use this to see what is happening under the hood when you use wsclient to
+ * talk to a remote service.
+ *
+ * Visiting the web service client management page
+ * (/admin/config/services/wsclient/{service})
+ * you will find a 'Test' button added to the available 'Operations'.
+ * Using that will present a webform exposing fields derived from the WSDL
+ * and somewhat emulating the data structure that is expected to make up a
+ * service request.
+ * Validation is not done at that stage, so it's up to you to enter the correct
+ * basic data types (e.g., date in a date field, int in an integer field)
+ *
+ * Executing that request will then display the request that is being made
+ * (in raw form with headers and payload) and the response that came back,
+ * also displaying the response headers and response data or message if any.
+ *
+ * If you have devel.module enabled, a rendered dump of the data structure
+ * (PHP objects constructed by the wsclient) will also be displayed.
+ */
+
+
+/**
+ * Add our 'test' operation to the services overview form.
+ * @see wsclient_service_form()
+ *
+ * Implements hook_form_FORM_ID_alter().
+ */
+function wsclient_tester_form_wsclient_service_form_alter(&$form, &$form_state) {
+  $service = $form_state['build_info']['args'][0];
+  foreach ($form['operations']['#rows'] as $operation => $row) {
+    $name = $row[0]['data']['#name'];
+    $form['operations']['#rows'][$operation][] = l(t('Test'), WSCLIENT_UI_PATH . '/manage/' . $service->name . '/operation/' . $name . '/test');
+  }
+  $form['operations']['#header'][1]['colspan'] += 1;
+}
+
+
+/**
+ * Publish our testing UI and ajax callbacks.
+ *
+ * hook_menu()
+ */
+function wsclient_tester_menu() {
+  // wsclient ui is a little clever with its paths ... Copy it in case it changes.
+  $id_count = count(explode('/', WSCLIENT_UI_PATH)) + 1;
+  $op_count = $id_count + 2;
+
+  $items[WSCLIENT_UI_PATH . '/manage/%wsclient_service/operation/%wsclient_ui_operation/test'] = array(
+    'title' => 'test operation',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wsclient_tester_operation_test', $id_count, $op_count),
+    'load arguments' => array($id_count),
+    'access arguments' => array('administer web services'),
+    'file' => 'wsclient_tester.inc',
+    'file path' => drupal_get_path('module', 'wsclient_tester'),
+  );
+  return $items;
+}

@@ -1,0 +1,115 @@
+<?php
+
+/**
+ * @file
+ * Web service client endpoint for invoking a RESTful service.
+ */
+
+/**
+ * Implements hook_wsclient_endpoint_types().
+ */
+function wsclient_rest_wsclient_endpoint_types() {
+  return array(
+    'rest' => array(
+      'label' => t('REST'),
+      'class' => 'WSClientRESTEndpoint',
+    ),
+  );
+}
+
+/**
+ * A remote endpoint type for invoking REST services.
+ */
+class WSClientRESTEndpoint extends WSClientEndpoint {
+
+  /**
+   * @var HttpClient
+   */
+  protected $client;
+
+  public function __construct(WSClientServiceDescription $service) {
+    $this->service = $service;
+    $this->url = $service->url;
+  }
+
+  /**
+   * @return HttpClient
+   */
+  public function client() {
+    if (!isset($this->client)) {
+      if (isset($this->service->settings['formatter'])) {
+        $formatter = new $this->service->settings['formatter']();
+        $this->client = new HttpClient(NULL, $formatter);
+      }
+      else {
+        $this->client = new HttpClient(NULL, new HttpClientBaseFormatter(HttpClientBaseFormatter::FORMAT_JSON));
+      }
+      // Pass through additional curl options.
+      if (!empty($this->service->settings['curl options'])) {
+        $this->client->options['curlopts'] = $this->service->settings['curl options'];
+      }
+    }
+    return $this->client;
+  }
+
+  /**
+   * Calls the REST service.
+   *
+   * @param string $operation_name
+   *   The name of the operation to execute.
+   * @param array $arguments
+   *   Arguments to pass to the service with this operation.
+   */
+  public function call($operation_name, $arguments) {
+    $operation = $this->service->operations[$operation_name];
+    $operation_url = isset($operation['url']) ? $operation['url'] : '';
+    // Replace argument patterns in the operation URL.
+    foreach ($arguments as $key => $value) {
+      if (strpos($operation_url, '@' . $key) !== FALSE) {
+        $operation_url = str_replace('@' . $key, $value, $operation_url);
+        unset($arguments[$key]);
+      }
+    }
+    $client = $this->client();
+    $type = isset($operation['type']) ? $operation['type'] : 'GET';
+    $data = NULL;
+    if (isset($operation['data'])) {
+      $data = $arguments[$operation['data']];
+      unset($arguments[$operation['data']]);
+    }
+    try {
+      $response = $client->execute(new HttpClientRequest($this->service->url . $operation_url, array(
+        'method' => $type,
+        'parameters' => $arguments,
+        'data' => $data,
+      )));
+      return $response;
+    }
+    catch (HttpClientException $e) {
+      throw new WSClientException('Error invoking the REST service %name, operation %operation: %error', array('%name' => $this->service->label, '%operation' => $operation_name, '%error' => $e->getMessage()));
+    }
+  }
+
+  public function formAlter(&$form, &$form_state) {
+    if ($form_state['form'] == 'operation') {
+      $operation = $form_state['operation'];
+
+      $form['url'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Path'),
+        '#default_value' => isset($operation['url']) ? $operation['url'] : '',
+        '#description' => t('The path to append to the services base URL. In order to construct the path using parameter values make use of replacements in the form "@parameter-name". E.g. the path "node/@nid" together with a "nid" parameter could be used to construct the path to a Drupal node.'),
+        '#weight' => -5,
+      );
+      $form['#submit'][] = 'wsclient_rest_operation_form_submit';
+    }
+  }
+
+}
+
+/**
+ * Form submit callback for the operation form.
+ */
+function wsclient_rest_operation_form_submit($form, &$form_state) {
+  $form_state['operation']['url'] = $form_state['values']['url'];
+}

@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Web service client SOAP - installation file.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function wsclient_soap_requirements($phase) {
+  // Ensure translations don't break at install time
+  $t = get_t();
+  $requirement['title'] = $t('PHP SOAP extension');
+  $requirement['description'] = $t('The PHP SOAP extension must be enabled to use the web service client SOAP support module.');
+  if (extension_loaded('soap')) {
+    $requirement['value'] = $t('Enabled');
+    $requirement['severity'] = REQUIREMENT_OK;
+  }
+  else {
+    $requirement['value'] = $t('Missing');
+    $requirement['severity'] = REQUIREMENT_ERROR;
+  }
+  return array('php_soap' => $requirement);
+}

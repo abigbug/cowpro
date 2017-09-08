@@ -1,0 +1,84 @@
+<?php
+
+/**
+ * @file services_entity_test.install
+ * Contains install hooks.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function services_entity_test_schema() {
+  $schema['services_entity_test'] = array(
+    'description' => 'Stores services_entity_test items.',
+    'fields' => array(
+      'eid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique services_entity_test entity ID.',
+      ),
+      'name' => array(
+        'description' => 'The name of the services_entity_test entity.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'type' => array(
+        'description' => 'The type of the services_entity_test entity.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => NULL,
+        'description' => "The {users}.uid of the associated user.",
+      ),
+    ),
+    'indexes' => array(
+      'uid' => array('uid'),
+    ),
+    'foreign keys' => array(
+      'uid' => array('users' => 'uid'),
+    ),
+    'primary key' => array('eid'),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function services_entity_test_install() {
+  // Add FieldAPI fields to our test entity type.
+  $field = array(
+    'field_name'  => 'field_test_text_alpha',
+    'cardinality' => 1,
+    'type'        => 'text',
+    'settings'    => array(
+      'max_length' => 60,
+    ),
+  );
+  field_create_field($field);
+
+  $instance = array(
+    'field_name'  => 'field_test_text_alpha',
+    'entity_type' => 'services_entity_test',
+    'bundle'      => 'alpha',
+    'label'       => 'Label',
+    'widget'      => array(
+      'type'      => 'text_textfield',
+    ),
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'type' => 'text_default',
+      ),
+    ),
+  );
+  field_create_instance($instance);
+}

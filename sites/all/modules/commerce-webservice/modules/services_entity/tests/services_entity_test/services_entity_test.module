@@ -1,0 +1,102 @@
+<?php
+
+/**
+ * @file services_entity_test.module
+ * Provides a test entity type for the services entity tests.
+ */
+
+/**
+ * Implements hook_entity_info().
+ */
+function services_entity_test_entity_info() {
+  $return = array(
+    'services_entity_test' => array(
+      'label' => t('Services Test Entity'),
+      'plural label' => t('Services Test Entities'),
+      'description' => t('An entity type used by the Services Entity tests.'),
+      'entity class' => 'ServicesEntityClass',
+      'controller class' => 'EntityAPIController',
+      'base table' => 'services_entity_test',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'eid',
+        'bundle' => 'type',
+      ),
+      // Make use the class' label() and uri() implementation by default.
+      'label callback' => 'entity_class_label',
+      'uri callback' => 'entity_class_uri',
+      'access callback' => 'services_entity_test_access',
+      'bundles' => array(
+        // Provide two bundles so we can test bundle-related things.
+        'alpha' => array(
+          'label' => t('Alpha'),
+        ),
+        'beta' => array(
+          'label' => t('Beta'),
+        ),
+      ),
+      'module' => 'services_entity_test',
+    ),
+  );
+
+  return $return;
+}
+
+/**
+ * Implements callback_entity_info_access().
+ */
+function services_entity_test_access($op, $entity, $account, $entity_type) {
+  $permission_string = "$op services_entity_test entities";
+
+  // todo: for the index service, fake different 'view' access to different
+  // entities.
+
+  return user_access($permission_string, $account);
+}
+
+/**
+ * Implements hook_permission().
+ */
+function services_entity_test_permission() {
+  return array(
+    'create services_entity_test entities' => array(
+      'title' => t('View'),
+    ),
+    'view services_entity_test entities' => array(
+      'title' => t('View'),
+    ),
+    // This is normally 'edit' for most entities, but this keeps it in line
+    // with the name of the service, so is better DX within the test.
+    'update services_entity_test entities' => array(
+      'title' => t('View'),
+    ),
+    'delete services_entity_test entities' => array(
+      'title' => t('View'),
+    ),
+  );
+}
+
+/**
+ * Main class for test entities.
+ */
+class ServicesEntityClass extends Entity {
+
+  public function __construct(array $values = array(), $entityType = NULL) {
+    parent::__construct($values, 'services_entity_test');
+  }
+
+  /**
+   * Specifies the default label, which is picked up by label() by default.
+   */
+  protected function defaultLabel() {
+    return $this->name;
+  }
+
+  /**
+   * Specifies the default uri, which is picked up by uri() by default.
+   */
+  protected function defaultURI() {
+    return array('path' => 'services_entity_test/' . $this->identifier());
+  }
+
+}

@@ -1,0 +1,159 @@
+<?php
+
+/**
+ * Implements hook_menu()
+ */
+function services_entity_menu() {
+  $items = array();
+
+  $items['admin/config/services/services-entity'] = array(
+    'title' => 'Services Entity settings',
+    'description' => 'Configure entity resources provided by Services.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('services_entity_settings_form'),
+    'access arguments' => array('administer services'),
+  );
+
+  return $items;
+}
+
+/**
+ * Admin settings form for picking the class for entity resources.
+ */
+function services_entity_settings_form($form, $form_state) {
+  $resources = services_entity_get_resource_info();
+  foreach ($resources as $id => $resource) {
+    $options[$resource['class']] = '<strong>' . $resource['title'] . '</strong><div>' . $resource['description'] . '</div>';
+  }
+
+  $form['services_entity_resource_class'] = array(
+    '#title' => 'Default Entity Resource Class',
+    '#description' => 'Select which Resource Controller to use to process the entities where the entity type does not define one.',
+    '#type' => 'radios',
+    '#options' => $options,
+    '#default_value' => variable_get('services_entity_resource_class', 'ServicesEntityResourceController'),
+  );
+
+  $form['services_entity_max_pagesize'] = array(
+    '#title' => 'Maximum Page Size',
+    '#description' => 'Enter the maximum number of items that can be returned per page of an index.',
+    '#type' => 'textfield',
+    '#default_value' => variable_get('services_entity_max_pagesize', 100),
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Returns info about all defined resources.
+ *
+ * @param string $resource
+ *   By default null, else the info for the given resource will be returned.
+ */
+function services_entity_get_resource_info($resource = NULL) {
+  $info = &drupal_static(__FUNCTION__);
+  if (!isset($info)) {
+    $info = module_invoke_all('services_entity_resource_info');
+    drupal_alter('services_entity_resource_info', $info);
+  }
+  if (!empty($resource)) {
+    return $info[$resource];
+  }
+  return $info;
+}
+
+/**
+ * Implements hook_entity_resource_info().
+ *
+ * Provides resources for all entity types.
+ */
+function services_entity_services_entity_resource_info() {
+  $result = array();
+
+  $result['generic'] = array(
+    'title' => 'Generic Entity Processor',
+    'description' => 'Acts as a generic wrapper for entities. Data structures are exactly what they are in Drupal.',
+    'class' => 'ServicesEntityResourceController',
+  );
+  $result['clean'] = array(
+    'title' => 'Clean Entity Processor',
+    'description' => 'An entity wrapper that strips out "drupalisms" such as the array structure and field_ prefixes.',
+    'class' => 'ServicesEntityResourceControllerClean',
+  );
+
+  return $result;
+}
+
+/**
+ * Implements hook_services_resources_alter().
+ */
+function services_entity_services_resources_alter(&$resources) {
+  // For entities that the services module already implements, borrow any operations, actions and relationships.
+  foreach ($resources as $name => $resource) {
+    if (preg_match('/^entity_/', $name)) {
+      $orig_name = preg_replace('/^entity_/', '', $name);
+      if (isset($resources[$orig_name])) {
+        foreach ($resources[$orig_name] as $type => $info) {
+          foreach ($info as $id => $op) {
+            if (!isset($resources[$name][$type][$id])) {
+              $resources[$name][$type][$id] = $op;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_query_alter().
+ *
+ * Convert EntityFieldQuerys on taxonomy terms that have an entity condition
+ * on term bundles (vocabulary machine names). Since the vocabulary machine
+ * name is not present in the {taxonomy_term_data} table itself, we have to
+ * convert the bundle condition into a proprety condition of vocabulary IDs to
+ * match against {taxonomy_term_data}.vid.
+ *
+ * @TODO Remove when http://drupal.org/node/1054162 gets fixed.
+ */
+function services_entity_entity_query_alter($query) {
+  $conditions = &$query->entityConditions;
+
+  // Alter only taxonomy term queries with bundle conditions.
+  if (isset($conditions['entity_type']) && $conditions['entity_type']['value'] == 'taxonomy_term' && isset($conditions['bundle'])) {
+    // Convert vocabulary machine names to vocabulary IDs.
+    $vids = array();
+    if (is_array($conditions['bundle']['value'])) {
+      foreach ($conditions['bundle']['value'] as $vocabulary_machine_name) {
+        $vocabulary = taxonomy_vocabulary_machine_name_load($vocabulary_machine_name);
+        $vids[] = $vocabulary->vid;
+      }
+    }
+    else {
+      $vocabulary = taxonomy_vocabulary_machine_name_load($conditions['bundle']['value']);
+      $vids = $vocabulary->vid;
+    }
+
+    $query->propertyCondition('vid', $vids, $conditions['bundle']['operator']);
+    unset($conditions['bundle']);
+  }
+}
+
+/**
+ * Gets an instance of the resource controller for an entity type.
+ *
+ * @param string $entity_type
+ *   The entity type.
+ *
+ * @return ServicesEntityResourceControllerInterface
+ *   A resource controller object.
+ */
+function _services_entity_get_controller($entity_type) {
+  $info = entity_get_info($entity_type);
+  if (isset($info['resource controller']) && class_exists($info['resource controller'])) {
+    $class = $info['resource controller'];
+  }
+  else {
+    $class = variable_get('services_entity_resource_class', 'ServicesEntityResourceController');
+  }
+  return new $class();
+}
