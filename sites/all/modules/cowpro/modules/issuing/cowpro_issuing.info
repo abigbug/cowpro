@@ -23,6 +23,7 @@ files[] = test/cowpro_issuing.test
 ; Views handlers
 files[] = includes/views/handlers/cowpro_issuing_handler_field_applicant.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_issuing_title.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_field_issuing_title_detail.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_issuing_operations.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_node_operations.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_progress.inc

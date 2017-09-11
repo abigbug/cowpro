@@ -221,6 +221,30 @@ function cowpro_issuing_views_data() {
 			),
 	);
 
+	$data['cowpro_repayment_schedule']['title_detail'] = array(
+			'title' => '贷款名称明细',
+			'help' => '贷款名称明细.',
+			'real field' => 'issuing_id',
+			'field' => array(
+					'handler' => 'cowpro_issuing_handler_field_issuing_title_detail',
+			),
+			'filter' => array(
+					'handler' => 'views_handler_filter_numeric',
+			),
+			'argument' => array(
+					'handler' => 'views_handler_argument_numeric',
+			),
+			'sort' => array(
+					'handler' => 'views_handler_sort',
+			),
+			'relationship' => array(
+					'handler' => 'views_handler_relationship',
+					'base' => 'node',
+					'field' => 'nid',
+					'label' => '贷款申请表',
+			),
+	);
+
 	// The period field
 	$data['cowpro_repayment_schedule']['period'] = array(
 			'title' => 'period',
@@ -311,6 +335,20 @@ function cowpro_issuing_views_data() {
 			),
 	);
 
+	$data['cowpro_repayment_schedule']['referee'] = array(
+			'title' => '推荐人',
+			'help' => '推荐人',
+			'real field' => 'receiver_uid',
+			'field' => array(
+					'handler' => 'cowpro_report_handler_field_referee',
+			),
+			/*
+			'filter' => array(
+					'handler' => 'cowpro_report_handler_filter_referee',
+			),
+			*/
+	);
+
 	// The status field
 	$data['cowpro_repayment_schedule']['status'] = array(
 			'title' => '状态',
@@ -378,6 +416,38 @@ function cowpro_issuing_views_data() {
 	$data['cowpro_repayment_schedule']['received_amount'] = array(
 			'title' => 'received_amount',
 			'help' => '已收款金额',
+			'field' => array(
+					'handler' => 'cowpro_fund_journal_handler_field_amount',
+					'float' => TRUE,
+			),
+			'sort' => array(
+					'handler' => 'views_handler_sort',
+			),
+			'filter' => array(
+					'handler' => 'views_handler_filter_numeric',
+			),
+	);
+
+	// The received_amount field
+	$data['cowpro_repayment_schedule']['capital'] = array(
+			'title' => 'capital',
+			'help' => '应还本金',
+			'field' => array(
+					'handler' => 'cowpro_fund_journal_handler_field_amount',
+					'float' => TRUE,
+			),
+			'sort' => array(
+					'handler' => 'views_handler_sort',
+			),
+			'filter' => array(
+					'handler' => 'views_handler_filter_numeric',
+			),
+	);
+
+	// The received_amount field
+	$data['cowpro_repayment_schedule']['interest'] = array(
+			'title' => 'interest',
+			'help' => '应还利息',
 			'field' => array(
 					'handler' => 'cowpro_fund_journal_handler_field_amount',
 					'float' => TRUE,
