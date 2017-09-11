@@ -1,6 +1,7 @@
 <?php
 
 define('COMMERCE_SERVICE_URL', 'http://shop.jinbeizeng.com/service/');
+define('TOTAL_PAGE', '2');
 
 /**
  * Implements hook_menu().
@@ -51,7 +52,7 @@ function cowpro_shop_menu() {
 function cowpro_shop_theme() {
 	return array(
 			'cowpro_commerce_list' => array(
-					'variables' => array('list' => NULL),
+					'variables' => array('list' => NULL, 'page_html' => NULL),
 					'file' => 'cowpro_shop.pages.inc',
 					'template' => 'cowpro-commerce-list',
 			),
@@ -82,9 +83,30 @@ function cowpro_shop_list($page = 0) {
 	$operation['parameter']['page'] = array('type' => 'integer', 'label' => 'Page NO.');
 	//$operation['result'] = array('type' => 'node', 'label' => 'Node');
 	$service->operations['index'] = $operation;
-	$result = $service->index($page);
 
-	$html = theme('cowpro_commerce_list', array('list' => $result));
+	//缓存商品列表
+	if ( $cache = cache_get('shop_list_cache_'.$page )) {
+		$result = $cache->data;
+	}else {
+		$result = $service->index($page);
+		cache_set('shop_list_cache_'.$page, $result, 'cache', 60 * 60); //1 hour
+	}
+
+	$prev_page = $page - 1;
+	$prev_page >= 0 ? $prev_page_html = "<a href='/shop/".$prev_page."'>上一页</a>" : $prev_page_html = "";
+
+	$out_html = "<div id='shop_list'><a href='/shop'>首页</a>".$prev_page_html."";
+	for( $i = 0; $i <= TOTAL_PAGE; $i++ ) {
+		$j = $i + 1;
+		if( $i == 0 ) $i = '';
+		$out_html .= '<a href="/shop/'.$i.'">'.$j.'</a>';
+	}
+
+	$next_page = $page + 1;
+	$next_page <= TOTAL_PAGE ? $next_page_html = "<a href='/shop/".$next_page."'>下一页</a>" : $next_page_html = "";
+
+	$out_html .= "".$next_page_html."<a href='/shop/".TOTAL_PAGE."'>尾页</a></div>";
+	$html = theme('cowpro_commerce_list', array('list' => $result,'page_html'=>$out_html));
 
 	return $html;
 }
