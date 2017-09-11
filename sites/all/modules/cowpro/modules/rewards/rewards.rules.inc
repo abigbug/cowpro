@@ -66,6 +66,7 @@ function _cowpro_reward_make_loans_to_finished_grant_points($success, $node, $fu
 			}
 
 			$term = current(taxonomy_get_term_by_name('奖金'));
+			$uid_referree = -1;
 			if ($bonus1 > 0) {
 				//奖励投资人的推荐人
 				$relationship_type = user_relationships_type_load(array('name'=>'朋友'));
@@ -90,7 +91,7 @@ function _cowpro_reward_make_loans_to_finished_grant_points($success, $node, $fu
 				}
 			}
 
-			if ($bonus2 > 0) {
+			if (($bonus2 > 0) && ($uid_referree != -1)) {
 				//奖励投资人的推荐人的推荐人
 				$relationship_type = user_relationships_type_load(array('name'=>'朋友'));
 				$relationships = user_relationships_load(array(
