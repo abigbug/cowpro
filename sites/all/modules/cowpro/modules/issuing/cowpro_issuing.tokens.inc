@@ -352,7 +352,7 @@ EOF;
 					$content .= '<td></td>';
 					$content .= '<td>' . $sum2 . '</td>';
 					$content .= '</tr>';
-					$content = '<table border="1" style="margin: 0px auto; border-collapse: collapse; border: 1px solid rgb(0, 0, 0); width: 90%; ">' . $content . '</table>';
+					$content = '<table border="1" style="font-size: 12px;margin: 0px auto; border-collapse: collapse; border: 1px solid rgb(0, 0, 0); width: 90%; ">' . $content . '</table>';
 					$replacements [$original] = $content;
 					break;
 				case 'lender_list' :
@@ -367,7 +367,7 @@ EOF;
 							$lender_list [] = _cowpro_issuing_tokens_utf_substr2($profile_real_name->name);
 						}
 					}
-					$content = '<table border="0" style="margin: 0px auto; border-collapse: collapse; border: 0px solid rgb(0, 0, 0); width: 90%; ">';
+					$content = '<table border="0" style="font-size: 12px;margin: 0px auto; border-collapse: collapse; border: 0px solid rgb(0, 0, 0); width: 90%; ">';
 					$i = 0;
 					foreach ( $lender_list as $l ) {
 						if ($i == 0) {
@@ -390,7 +390,7 @@ EOF;
 				case 'loan_detail':
 					include_once 'includes/cowpro_issuing.repayment_schedule.fun.inc';
 					$field_issuing = $issuing->field_issuing [LANGUAGE_NONE] [0];
-					$content = '<table border="1" style="margin: 0px auto; border-collapse: collapse; border: 1px solid rgb(0, 0, 0); width: 90%; ">';
+					$content = '<table border="1" style="font-size: 12px;margin: 0px auto; border-collapse: collapse; border: 1px solid rgb(0, 0, 0); width: 90%; ">';
 					$content .= '<tr>';
 					$content .= '<td style="text-align:center;">借款详细用途</td>';
 					$content .= '<td style="text-align:center;">' . $issuing->title . '</td>';
@@ -414,7 +414,7 @@ EOF;
 					break;
 				case 'repayment_schedule':
 					include_once 'includes/cowpro_issuing.repayment_schedule.fun.inc';
-					$content = '<table border="1" style="margin: 0px auto; border-collapse: collapse; border: 1px solid rgb(0, 0, 0); width: 90%; ">';
+					$content = '<table border="1" style="font-size: 12px;margin: 0px auto; border-collapse: collapse; border: 1px solid rgb(0, 0, 0); width: 90%; ">';
 					$content .= '<tr>';
 					$content .= '<td style="text-align:center;">还款日</td>';
 					$content .= '<td style="text-align:center;">应还利息</td>';
