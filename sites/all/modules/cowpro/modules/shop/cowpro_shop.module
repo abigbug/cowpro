@@ -80,7 +80,11 @@ function cowpro_shop_list($page = 0) {
 	$operation['label'] = 'Index';
 	$operation['url'] = 'entity_node';
 	$operation['type'] = 'GET';
+	$operation['parameter'] = array();
 	$operation['parameter']['page'] = array('type' => 'integer', 'label' => 'Page NO.');
+	$operation['parameter']['pagesize'] = array('type' => 'integer', 'label' => 'Page Size');
+	$operation['parameter']['sort'] = array('type' => 'text', 'label' => 'Sort');
+	$operation['parameter']['direction'] = array('type' => 'text', 'label' => 'Sort Direction');
 	//$operation['result'] = array('type' => 'node', 'label' => 'Node');
 	$service->operations['index'] = $operation;
 
@@ -88,7 +92,7 @@ function cowpro_shop_list($page = 0) {
 	if ( $cache = cache_get('shop_list_cache_'.$page )) {
 		$result = $cache->data;
 	}else {
-		$result = $service->index($page);
+		$result = $service->index($page, 21, 'sticky', 'DESC');
 		cache_set('shop_list_cache_'.$page, $result, 'cache', 60 * 60); //1 hour
 	}
 
