@@ -102,12 +102,24 @@ function cowpro_report_views_data() {
 			),
 	);
 
+	$data['users']['name_detail'] = array(
+			'title' => '用户昵称与实名',
+			'help' => '用户昵称与真实姓名',
+			'real field' => 'uid',
+			'field' => array(
+					'handler' => 'cowpro_users_handler_field_name_detail',
+			),
+			'filter' => array(
+					'handler' => 'cowpro_users_handler_filter_user',
+			),
+	);
+
 	$data['users']['real_name'] = array(
 			'title' => '实名认证',
 			'help' => '用户已通过实名认证',
 			'real field' => 'uid',
 			'field' => array(
-					'handler' => 'cowpro_report_handler_field_real_name',
+					'handler' => 'cowpro_users_handler_field_real_name',
 			),
 	);
 	$data['users']['mmm'] = array(
@@ -115,7 +127,7 @@ function cowpro_report_views_data() {
 			'help' => '乾多多注册',
 			'real field' => 'uid',
 			'field' => array(
-					'handler' => 'cowpro_report_handler_field_mmm',
+					'handler' => 'cowpro_users_handler_field_mmm',
 			),
 	);
 	$data['users']['mobile_certification'] = array(
@@ -123,10 +135,10 @@ function cowpro_report_views_data() {
 			'help' => '手机验证',
 			'real field' => 'uid',
 			'field' => array(
-					'handler' => 'cowpro_report_handler_field_mobile',
+					'handler' => 'cowpro_users_handler_field_mobile',
 			),
 			'filter' => array(
-					'handler' => 'cowpro_report_handler_filter_mobile',
+					'handler' => 'cowpro_users_handler_filter_mobile',
 			),
 	);
 	$data['users']['payment_password'] = array(
@@ -134,7 +146,7 @@ function cowpro_report_views_data() {
 			'help' => '投标密码',
 			'real field' => 'uid',
 			'field' => array(
-					'handler' => 'cowpro_report_handler_field_payment_password',
+					'handler' => 'cowpro_users_handler_field_payment_password',
 			),
 	);
 	$data['users']['referee'] = array(
@@ -142,11 +154,41 @@ function cowpro_report_views_data() {
 			'help' => '推荐人',
 			'real field' => 'uid',
 			'field' => array(
-					'handler' => 'cowpro_report_handler_field_referee',
+					'handler' => 'cowpro_users_handler_field_referee',
 			),
 			'filter' => array(
-					'handler' => 'cowpro_report_handler_filter_referee',
+					'handler' => 'cowpro_users_handler_filter_referee',
 			),
 	);
+
+	$data['userpoints_txn']['cowpro_operation'] = array(
+			'title' => '操作、动作',
+			'help' => '提供操作、动作相关的链接',
+			'real field' => 'txn_id',
+			'field' => array(
+					'handler' => 'cowpro_userpoints_txn_handler_field_operation',
+			),
+			'filter' => array(
+					'handler' => 'views_handler_filter_string',
+			),
+			'sort' => array(
+					'handler' => 'views_handler_sort',
+			),
+	);
+	$data['userpoints_txn']['cowpro_status'] = array(
+			'title' => '交易状态',
+			'help' => '以友好的方式显示交易状态',
+			'real field' => 'status',
+			'field' => array(
+					'handler' => 'cowpro_userpoints_txn_handler_field_status',
+			),
+			'filter' => array(
+					'handler' => 'cowpro_userpoints_txn_handler_filter_status_select',
+			),
+			'sort' => array(
+					'handler' => 'views_handler_sort',
+			),
+	);
+
 	return $data;
 }

@@ -1,6 +1,6 @@
 <?php
 
-class cowpro_report_handler_field_referee extends views_handler_field {
+class cowpro_users_handler_field_referee extends views_handler_field {
   function render($values) {
   	$result = '';
     $uid = $this->get_value($values);

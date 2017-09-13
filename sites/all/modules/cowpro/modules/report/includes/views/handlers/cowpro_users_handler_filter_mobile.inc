@@ -11,7 +11,7 @@
  *
  * @ingroup views_filter_handlers
  */
-class cowpro_report_handler_filter_referee extends views_handler_filter {
+class cowpro_users_handler_filter_mobile extends views_handler_filter {
   // exposed filter options
   var $always_multiple = TRUE;
 
@@ -95,13 +95,17 @@ class cowpro_report_handler_filter_referee extends views_handler_filter {
   function value_form(&$form, &$form_state) {
   	$form['value'] = array(
   			'#type' => 'textfield',
-  			'#title' => '推荐人的手机号码或者昵称',
-  			'#description' => '输入推荐人的手机号码或者昵称.',
+  			'#title' => '用户的手机号码或者昵称',
+  			'#description' => '输入用户在验证时所使用的手机号码.',
   			'#autocomplete_path' => 'cowpro/referee/autocomplete',
   	);
   }
 
   function query() {
+  	//$table = $this->ensure_my_table();
+  	//$join = new views_join();
+  	//$join->construct('cowpro_customer_profile', $this->table_alias, 'uid', 'uid');
+  	//$this->query->add_where($this->options['group'], "cowpro_customer_profile.search_field", $this->value, "=");
   	$matches = array();
   	$regex = '/^\d+$/';
   	$value = trim($this->value);
@@ -117,20 +121,6 @@ class cowpro_report_handler_filter_referee extends views_handler_filter {
   			$uid = $user->uid;
   		}
   	}
-
-  	$table = $this->ensure_my_table();
-  	$join = new views_join();
-  	$join->construct('user_relationships', $this->table_alias, 'uid', 'requester_id');
-  	$this->query->add_table('user_relationships', NULL, $join);
-  	$this->query->add_where($this->options['group'], "user_relationships.requestee_id", $uid, "=");
+  	$this->query->add_where($this->options['group'], "users.uid", $uid, "=");
   }
 }
-
-/*
-  function query() {
-    $this->ensure_my_table();
-    $op = empty($this->value) ? '<>' : '=';
-    $where = "($this->table_alias.requester_id $op ***CURRENT_USER*** OR $this->table_alias.requestee_id $op ***CURRENT_USER***)";
-    $this->query->add_where_expression($this->options['group'], $where);
-  }
-*/

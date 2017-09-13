@@ -11,6 +11,7 @@
 class cowpro_issuing_handler_field_issuing_title_detail extends views_handler_field {
 
   function render($values) {
+  	//watchdog('cowpro_issuing_handler_field_issuing_title_detail', serialize($values));
   	$path = drupal_get_path ( 'module', 'cowpro_issuing' );
   	include_once $path . '/includes/cowpro_issuing.repayment_schedule.fun.inc';
 
@@ -36,6 +37,7 @@ class cowpro_issuing_handler_field_issuing_title_detail extends views_handler_fi
     $loan_amounts = $issuing ['loan_amounts'];
     $make_loans_time = gmdate("Y年m月d日", $issuing['make_loans_time']);
 
-    return "$str_title|$str_applicant|$loan_term_readable|$loan_amounts|$make_loans_time";
+    $deadline = date("Y年m月d日", $values->cowpro_repayment_schedule_deadline);
+    return "$str_title | $str_applicant | $loan_term_readable | $loan_amounts | $deadline";
   }
 }
