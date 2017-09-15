@@ -27,10 +27,10 @@
 <article class="sopuo-shop-view">
   <div class="Xcontent">
     <ul class="Xcontent01">
-      <div class="Xcontent06"><img src="<?php $img = reset($first_product['images']); print $img['full_url'];?>" id="imgshow"></div>
+      <div class="Xcontent06"><img src="<?php $img = reset($first_product['images']); print $img['url'];?>" id="imgshow"></div>
       <div class="Xcontent08">
-        <?php foreach($first_product['images'] as $img) {?>
-	<div class="Xcontent10"><img src="<?php print $img['full_url']?>" onclick="showimg('<?php print $img['full_url']?>');" ></div>
+        <?php  foreach($first_product['images'] as $img) {?>
+	<div class="Xcontent10"><img src="<?php print $img['url']?>" onclick="showimg('<?php print $img['url']?>');" ></div>
         <?php }?>
       </div>
       <div class="Xcontent13">

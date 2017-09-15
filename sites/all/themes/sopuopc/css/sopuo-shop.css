@@ -88,14 +88,16 @@
 	margin-top: 70px;
 }
 .Xcontent06{
-	width:300px;
+	width:320px;
+        height: 320px;
 	border: 1px solid #e8e8e8;
 	margin-top: 26px;
 	float: left;
 }
 .Xcontent06 img{
        clear: both;
-	width:298px;
+	width:318px;
+        height: 318px;
 }
 .Xcontent08{
 	float: left;
@@ -124,6 +126,7 @@
 }
 .Xcontent10{
 	width: 65px;
+        height: 65px;
 	margin-top: 13px;
 	border: 1px solid #e8e8e8;
 }
@@ -364,3 +367,4 @@
 
 #shop_list{ clear: both; padding-top: 20px; text-align: center}
 #shop_list a{ margin-left: 10px;}
+
