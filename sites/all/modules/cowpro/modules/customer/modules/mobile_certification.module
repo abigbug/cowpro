@@ -351,7 +351,7 @@ function mobile_certification_settings_form($form, &$form_state) {
 function mobile_certification_form_user_register_form_alter(&$form, &$form_state, $form_id) {
 	global $base_url;
 	drupal_add_js(array('basePath' => $base_url), 'setting');
-	drupal_add_js ( drupal_get_path ( 'module', 'mobile_certification' ) . '/mobile_certification.js' );
+	drupal_add_js(drupal_get_path ( 'module', 'mobile_certification') . '/mobile_certification.js');
 	$form['#attached']['js'][] = drupal_get_path('module', 'image_captcha_refresh') . '/image_captcha_refresh.js';
 
 	$form ['mobile_number'] = array (
@@ -367,6 +367,13 @@ function mobile_certification_form_user_register_form_alter(&$form, &$form_state
 					)
 			),
 			'#weight' => - 6,
+			'#ajax'  =>  array (
+					'callback' => 'mobile_validate_js',
+					'method' => 'html',
+					'wrapper' => 'mobile_verify_help',
+					'effect' => 'slide',
+					'event'=>'blur',
+			),
 	);
 
 	$form['captcha'] = array(
@@ -405,22 +412,49 @@ function mobile_certification_form_user_register_form_alter(&$form, &$form_state
 			),
 			'#weight' => 10,
 	);
-
-	$form ['mobile_verify_help'] = array (
-			'#markup' => '<div id=mobile_verify_help><p></p></div>',
-			'#weight' => 5,
+	$form['account']['edit-name'] = array (
+			'#markup' => '<div id=name_verify_help style=color:#ff0000></div>',
+			'#weight' => - 5,
+	);
+	$form['mobile_verify_help'] = array (
+			'#markup' => '<div id=mobile_verify_help style=color:#ff0000><p></p></div>',
+			'#weight' => - 6,
 	);
 	$form ['mobile_verify_help_2'] = array (
-			'#markup' => '<div id=mobile_verify_help_2><p></p></div>',
+			'#markup' => '<div id=mobile_verify_help_2 style=color:#ff0000><p></p></div>',
 			'#weight' => 5,
 	);
 
-	$form['account']['name']['#title'] = '昵称';
-	$form['account']['name']['#description'] = '昵称(不能全部是数字)';
+	$form['account']['name']['#title'] = '昵称(不能全部是数字)';
+
+	$form['account']['name']['#value_callback'] = '该用户名已被使用';
+	$form['account']['name']['#ajax'] = array (
+			'callback' => 'user_validate_js',
+			'method' => 'html',
+			'wrapper' => 'name_verify_help',
+			'effect' => 'slide',
+			'event'=>'blur',
+	);
 	//$form['account']['name']['#description'] = '手机号码，11位数字';
 	$form['#validate'][] = 'mobile_certification_cowpro_customer_profile_mobile_form_validate';
 	$form['#submit'][] = 'mobile_certification_register_form_submit';
+}
 
+function user_validate_js(&$form, $form_state){
+	$result = db_query("SELECT name FROM {users} WHERE name='".$form['account']['name']['#value']."'")->fetchField();
+	if ($result !== FALSE) {
+		return $form['account']['name']['#value_callback'];
+	}else{
+		return '';
+	}
+}
+function mobile_validate_js(&$form, $form_state){
+	$result = db_select('cowpro_customer_profile', 'profile')->fields('profile', array('search_field'))->condition('type', 'mobile')->condition('search_field',  trim ( $form_state ['values'] ['mobile_number'] ))->execute()->fetchAssoc();
+	if ($result !== FALSE) {
+		return '该手机号已被使用';
+	}else{
+		return '';
+	}
 }
 
 function mobile_certification_register_form_submit($form, &$form_state) {
