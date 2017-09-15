@@ -127,6 +127,7 @@ class ServicesCommerceResourceController extends ServicesEntityResourceControlle
       $this->propertyQueryOperation($entity_type, $query, 'OrderBy', $sort, $direction);
     }
 
+    $query->propertyOrderBy('created', 'DESC');
     $result = $query->execute();
 
     if (empty($result)) {
