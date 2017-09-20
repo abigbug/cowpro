@@ -153,6 +153,7 @@ function _cowpro_issuing_bid_form_submit(&$form, &$form_state) {
 		entity_get_controller('cowpro_fund_journal')->save($entity);
 
 		_cowpro_issuing_bid_finished($result['success'], $nid, $journal_id);
+		module_invoke_all ( 'cowpro_issuing_bid_finished', $result['success'], $nid, $journal_id );
 		if ($result['success']) {
 			$message = '投标成功';
 			drupal_set_message($message);
