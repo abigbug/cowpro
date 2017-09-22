@@ -68,6 +68,14 @@ function _cowpro_issuing_bid_form($form, &$form_state) {
 	$form['information'] = array(
 			'#markup' => "<p>当前最大可投资金额为 $bid_avail 元。</p>",
 	);
+
+	$hook = 'cowpro_issuing_bid_form';
+	foreach (module_implements($hook) as $module) {
+		$form += module_invoke($module, $hook, $form, $form_state);
+	}
+
+	module_invoke_all ( 'cowpro_issuing_bid_finished', $result['success'], $nid, $journal_id );
+
 	$form ['submit'] = array (
 			'#type' => 'submit',
 			'#value' => '投标',
@@ -119,47 +127,56 @@ function _cowpro_issuing_bid_form_validate($form, &$form_state) {
 		if ($form_state ['values']['amount'] % 1 != 0) {
 			form_set_error ( 'bid', '投资金额的最小单位是“元”' );
 		}
+		module_invoke_all ( 'cowpro_issuing_bid_form_validate', $form, $form_state );
 	}
 }
 
 function _cowpro_issuing_bid_form_submit(&$form, &$form_state) {
 	if ($form_state ['values'] ['op'] === $form_state ['values'] ['submit']) {
-		$amount = $form_state['input']['amount'];
-		$nid = $form_state['nid'];
-		$uid = $GLOBALS['user']->uid;
-		$entity_value = array(
-				'uid' => $uid,
-				'status' => FALSE,
-				'type' => 'BID',
-				'amount' => $amount,
-				'issuing_id' => $nid,
-				'internal_reference_id' => 'ISSUING-' . $nid,
-		);
-		$entity = entity_create('cowpro_fund_journal', $entity_value);
-		entity_get_controller('cowpro_fund_journal')->save($entity);
-		$journal_id = $entity->journal_id;
-
-		$result = custodian_cowpro_fund_bid($uid, $amount, $nid, $journal_id);
-
-		$entity = entity_load_single('cowpro_fund_journal', $journal_id);
-		if ($result['success']) {
-			$status = TRUE;
-		} else {
-			$status = FALSE;
+		$hook = 'cowpro_issuing_bid_form_submit';
+		$result = TRUE;
+		foreach (module_implements($hook) as $module) {
+			$result = $result && module_invoke($module, $hook, $form, $form_state);
 		}
-		$entity->status = $status;
-		$entity->external_reference_id =$result['external_reference_id'];
-		$entity->data = $result['data'];
-		entity_get_controller('cowpro_fund_journal')->save($entity);
 
-		_cowpro_issuing_bid_finished($result['success'], $nid, $journal_id);
-		module_invoke_all ( 'cowpro_issuing_bid_finished', $result['success'], $nid, $journal_id );
-		if ($result['success']) {
-			$message = '投标成功';
-			drupal_set_message($message);
-		} else {
-			$message = '投标失败:' . $result['message'] . '<br/>代码：' . $result['result_code'];
-			drupal_set_message($message, 'error');
+		if ($result) {
+			$amount = $form_state['input']['amount'];
+			$nid = $form_state['nid'];
+			$uid = $GLOBALS['user']->uid;
+			$entity_value = array(
+					'uid' => $uid,
+					'status' => FALSE,
+					'type' => 'BID',
+					'amount' => $amount,
+					'issuing_id' => $nid,
+					'internal_reference_id' => 'ISSUING-' . $nid,
+			);
+			$entity = entity_create('cowpro_fund_journal', $entity_value);
+			entity_get_controller('cowpro_fund_journal')->save($entity);
+			$journal_id = $entity->journal_id;
+
+			$result = custodian_cowpro_fund_bid($uid, $amount, $nid, $journal_id);
+
+			$entity = entity_load_single('cowpro_fund_journal', $journal_id);
+			if ($result['success']) {
+				$status = TRUE;
+			} else {
+				$status = FALSE;
+			}
+			$entity->status = $status;
+			$entity->external_reference_id =$result['external_reference_id'];
+			$entity->data = $result['data'];
+			entity_get_controller('cowpro_fund_journal')->save($entity);
+
+			_cowpro_issuing_bid_finished($result['success'], $nid, $journal_id);
+			module_invoke_all ( 'cowpro_issuing_bid_finished', $result['success'], $nid, $journal_id );
+			if ($result['success']) {
+				$message = '投标成功';
+				drupal_set_message($message);
+			} else {
+				$message = '投标失败:' . $result['message'] . '<br/>代码：' . $result['result_code'];
+				drupal_set_message($message, 'error');
+			}
 		}
 
 		ctools_include ( 'modal' );
