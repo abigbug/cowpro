@@ -74,8 +74,6 @@ function _cowpro_issuing_bid_form($form, &$form_state) {
 		$form += module_invoke($module, $hook, $form, $form_state);
 	}
 
-	module_invoke_all ( 'cowpro_issuing_bid_finished', $result['success'], $nid, $journal_id );
-
 	$form ['submit'] = array (
 			'#type' => 'submit',
 			'#value' => '投标',
