@@ -149,17 +149,24 @@ function moneymoremore_repayment($repayment_schedules) {
 					'timeout' => 180,//将超时时间设置为三分钟，乾多多服务器（这个问题可能只限于乾多多测试服务器）有时候响应延时可能会比较长，把以要多等一段时间
 			)
 	);
-	$context = stream_context_create ( $options );
-	$response = @file_get_contents ( $url, false, $context );
+	//$context = stream_context_create ( $options );
+	//$response = file_get_contents ( $url, false, $context, 0, 40000 );
+
+	/*
+	 * 以file_get_contents方式请求乾多多服务器的时候，总是拿不到完整的结果（接收不到完整的返回信息）
+	 * 所以现在改用curl方式
+	 */
+	$error_msg = '';
+	$error_no = -1;
+	$response = _HTTP_POST($url, $param, $error_no, $error_msg);
 	if ( $response === FALSE ) {
-		watchdog('moneymoremore_watchdog', 'moneymoremore_repayment: ' . $response, NULL, WATCHDOG_DEBUG);
 		$opt = print_r ($options, TRUE);
 		watchdog('moneymoremore_watchdog', 'moneymoremore_repayment options: ' . $opt, NULL, WATCHDOG_DEBUG);
-		//$error = error_get_last();
+		watchdog('moneymoremore_watchdog', "curl error: $error_no, $error_msg", NULL, WATCHDOG_DEBUG);
 		$result_mmm = array();
 		$result_mmm['success'] = FALSE;
-		$result_mmm['message'] = $http_response_header[0];
-		$result_mmm['result_code'] = 999;//$error['type'];
+		$result_mmm['message'] = $error_msg;
+		$result_mmm['result_code'] = $error_no;
 		return $result_mmm;
 	}
 
@@ -170,6 +177,7 @@ function moneymoremore_repayment($repayment_schedules) {
 
 	$result_mmm = array();
 	if (! is_array ( $result )) {
+		_DEBUG_MMM($response, 'moneymoremore_repayment');
 		watchdog('moneymoremore_watchdog', 'moneymoremore_repayment: ' . $response, NULL, WATCHDOG_DEBUG);
 		// 如果双乾在处理的时候，有交易没有成功，那么$response只有一个JSON对象
 		// 重复转账侦测功能。
@@ -234,4 +242,46 @@ function _moneymoremore_repayment_verify_signature() {
 	$rsa = new RSA ($private_key, $public_key);
 	$verifySignature = $rsa->verify ( $dataStr, $SignInfo );
 	return $verifySignature;
+}
+
+const MMM_PATH_LOG_FILE = "/var/www/debugmmm/debug.txt";
+function _DEBUG_MMM($obj, $flag = "") {
+	$eol = "=======================================$flag\r\n";
+	$backtrace = debug_backtrace ();
+	array_shift ( $backtrace );
+	$results = $eol;
+	// $results = $results . print_r($backtrace, true);
+	$results = $results . print_r ( $obj, true );
+	file_put_contents ( MMM_PATH_LOG_FILE, $results . "\r\n", FILE_APPEND );
+}
+function _HTTP_POST($url, $params, &$error_no, &$error_msg) {
+	/*
+	 $postData = '';
+	 foreach ( $params as $k => $v ) {
+		$postData .= $k . '=' . $v . '&';
+		}
+		rtrim ( $postData, '&' );
+		DEBUG_MMM ( $postData, 'httpPost' );
+		*/
+	$ch = curl_init ();
+	//DEBUG_MMM ( $ch, 'httpPost' );
+	curl_setopt ( $ch, CURLOPT_URL, $url );
+	curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
+	curl_setopt ( $ch, CURLOPT_HEADER, false );
+	//$data = array('name' => 'value', 'name2' => 'value2');
+	curl_setopt($ch, CURLOPT_POSTFIELDS,  $params);
+
+	//curl_setopt ( $ch, CURLOPT_POST, count ( $postData ) );
+	//curl_setopt ( $ch, CURLOPT_POSTFIELDS, $postData );
+	$output = curl_exec ( $ch );
+
+	// Check if any error occurred
+	if(curl_errno($ch))
+	{
+		$error_no = curl_errno($ch);
+		$error_msg = curl_error($ch);
+	}
+
+	curl_close ( $ch );
+	return $output;
 }
