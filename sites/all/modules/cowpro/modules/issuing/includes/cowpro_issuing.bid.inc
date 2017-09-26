@@ -52,7 +52,7 @@ function _cowpro_issuing_bid_form($form, &$form_state) {
 		$balance_available = $balance ['balance'];
 	}
 
-	$form ['$balance_available'] = array (
+	$form ['balance_available'] = array (
 			'#markup' => "<p>可用余额(元)：$balance_available</p>",
 	);
 
@@ -71,7 +71,7 @@ function _cowpro_issuing_bid_form($form, &$form_state) {
 
 	$hook = 'cowpro_issuing_bid_form';
 	foreach (module_implements($hook) as $module) {
-		$form += module_invoke($module, $hook, $form, $form_state);
+		$form = array_merge($form, module_invoke($module, $hook, $form, $form_state));
 	}
 
 	$form ['submit'] = array (
