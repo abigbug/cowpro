@@ -52,6 +52,19 @@ function cowpro_fund_menu() {
 			'file' => 'includes/cowpro_fund_internal_trans.inc',
 			'weight' => 30
 	);
+	$items ['admin/cowpro/config_imprest_account'] = array (
+			'title' => '备用金账户',
+			'description' => '指定备用金账户，用于红包兑现等操作',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'cowpro_fund_settings_form'
+			),
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'file' => 'includes/cowpro_fund.settings.inc'
+	);
 	$items ['cowpro/fund/bankcard'] = array (
 			'title' => '银行卡',
 			'description' => '银行卡',
