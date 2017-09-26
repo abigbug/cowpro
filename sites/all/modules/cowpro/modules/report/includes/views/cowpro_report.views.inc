@@ -86,7 +86,7 @@ function cowpro_report_views_data() {
 			),
 			'filter' => array(
 					'title' => '用户ID',
-					'handler' => 'cowpro_report_handler_filter_user',
+					'handler' => 'cowpro_users_handler_filter_user',
 			),
 			'sort' => array(
 					'handler' => 'views_handler_sort',
