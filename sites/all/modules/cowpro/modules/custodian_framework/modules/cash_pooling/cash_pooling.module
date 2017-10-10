@@ -31,6 +31,14 @@ function cash_pooling_cowpro_fund_withdraw($amount, $bankcard, $journal_id) {
 	return cash_pooling_withdraw($uid, $amount, $bankcard, $journal_id);
 }
 
+function cash_pooling_cowpro_fund_internal_trans($uid_from, $uid_to, $amount) {
+	$result = array();
+	$result['success'] = TRUE;
+	$result['message'] = '';
+	$result['result_code'] = '';
+	return $result;
+}
+
 function cash_pooling_cowpro_fund_bid($amount, $nid, $journal_id) {
 	include_once 'includes/cash_pooling.bid.inc';
 	$uid = $GLOBALS['user']->uid;

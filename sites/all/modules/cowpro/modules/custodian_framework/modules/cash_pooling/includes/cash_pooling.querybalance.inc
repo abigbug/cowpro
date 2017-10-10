@@ -9,7 +9,7 @@ function cash_pooling_cowpro_fund_query_balance($uid) {
 	$result ['status'] = TRUE;
 	$result ['code'] = '0';
 	$result ['msg'] = '';
-	$result ['balance'] = 999;
+	$result ['balance'] = 99999;
 	$result ['lock'] = 9;
 	$result ['account_number'] = 'id_xxx';
 	return $result;
