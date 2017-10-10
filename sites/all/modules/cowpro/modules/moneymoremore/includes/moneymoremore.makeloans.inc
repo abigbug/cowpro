@@ -13,8 +13,8 @@ function moneymoremore_make_loans_to($nid) {
 	$auditType = 1;//审核类型;1.通过;2.退回
 	$resultCode = '';
 	$message = '';
-  global $base_url;
-   	$notifyURL = $base_url . MMM_URL_NOTIRY . 'moneymoremore_make_loans_to';
+	global $base_url;
+	$notifyURL = $base_url . MMM_URL_NOTIRY . 'moneymoremore_make_loans_to';
 	$result = moneymoremore_transfer_audit($nid, $auditType, $notifyURL, $resultCode, $message);
 
 	$resultCode = $result->ResultCode;
@@ -28,7 +28,7 @@ function moneymoremore_make_loans_to($nid) {
 	}
 	$result_mmm['message'] = $message;
 	$result_mmm['result_code'] = $resultCode;
-  return 	$result_mmm;
+	return $result_mmm;
 }
 
 function moneymoremore_make_loans_to_callback() {
