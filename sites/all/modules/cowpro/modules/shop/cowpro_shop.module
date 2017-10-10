@@ -135,7 +135,10 @@ function _cowpro_shop_retrieve_detail($nid) {
 
 function cowpro_shop_detail($nid) {
 	$result = _cowpro_shop_retrieve_detail($nid);
-
+	$key_words_array = array("移动","联通","电信","话费","充值");
+	foreach( $key_words_array as $item ){
+		!strpos($result['title_original'],$item) ? $result['show_bill_input'] = 0 : $result['show_bill_input'] = 1;
+	}
 	drupal_set_title($result['title']);
 	$html = theme('cowpro_commerce_item', array('item' => $result));
 
@@ -160,16 +163,25 @@ function cowpro_shop_buy($nid, $vid) {
 		drupal_set_message('没有找到所需商品！', 'error');
 	} else {
 		$qty = $_GET['qty'];
-		_cowpro_shop_buy_item($nid, $vid, $title, $price, $qty);
+		$mbl = @$_GET['mbl'];
+		_cowpro_shop_buy_item($nid, $vid, $title, $price, $qty, $mbl);
 	}
-	return '';
+	$url = $GLOBALS['base_url'] . "/shop/detail/$nid";
+	return drupal_goto($url);
 }
 
-function _cowpro_shop_buy_item($nid, $vid, $title, $price, $qty) {
+function _cowpro_shop_buy_item($nid, $vid, $title, $price, $qty, $mbl = NULL) {
 	$qty = intval($qty);
 	if ($qty <= 0) {
 		drupal_set_message('要兑换的商品数量不正确！', 'error');
 		return;
+	}
+	if( !empty($mbl) ) {
+		$isMbl = preg_match("/^1[34578]\d{9}$/", $mbl) ? true : false;
+		if( !$isMbl ) {
+			drupal_set_message('输入的手机号码格式不正确！', 'error');
+			return;
+		}
 	}
 
 	global $user;
@@ -181,7 +193,9 @@ function _cowpro_shop_buy_item($nid, $vid, $title, $price, $qty) {
 	}
 
 	//$tid = _blackhat_leadsdata_get_user_points_tid();
-	$desc = "(数量=$qty;nid=$nid;vid=$vid)$title";
+	$user_mobile = db_select('cowpro_customer_profile', 'profile')->fields('profile', array('search_field'))->condition('type', 'mobile')->condition('uid',  $user->uid )->execute()->fetchAssoc();
+	$des_mobile = !empty($mbl) ? $mbl : $user_mobile['search_field'];
+	$desc = "(数量=$qty;nid=$nid;vid=$vid;手机号码=".$des_mobile.")$title";
 	$params = array (
 			'uid' => $user->uid,
 			'points' => 0-$amount,

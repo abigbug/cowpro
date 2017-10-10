@@ -2,27 +2,27 @@
 
 /**
  * @file
- *
- * Available variables:
- * 	$title
- *  $status
- *  $promote
- *  $nid
- *  $type
- *  $body
- *  $products = array();
- *  $products['sku']
- *  $products['title']
- *  $products['product_id']
- *  $products['type']
- *  $products['price']
- *  $products['images'] = $images;
- *
- * @see template_preprocess()
- * @see template_preprocess_cowpro_commerce_item()
- *
- * @ingroup themeable
- */
+*
+* Available variables:
+* 	$title
+*  $status
+*  $promote
+*  $nid
+*  $type
+*  $body
+*  $products = array();
+*  $products['sku']
+*  $products['title']
+*  $products['product_id']
+*  $products['type']
+*  $products['price']
+*  $products['images'] = $images;
+*
+* @see template_preprocess()
+* @see template_preprocess_cowpro_commerce_item()
+*
+* @ingroup themeable
+*/
 ?>
 <article class="sopuo-shop-view">
   <div class="Xcontent">
@@ -48,9 +48,12 @@
 	<div class="Xcontent30">
 	  <form method="get" action="<?php print $first_product['buy_link'];?>">
 	  <p class="Xcontent31">兑换数量：</p><input name="qty" type="text" id="qty" value="1" size="4"class="input" onblur="changePrice()">
+          <?php if ($item['show_bill_input'] == 1) {?>
+          <p class="Xcontent31">手机：</p><input name="mbl" type="text" id="mbl" value="" size="10"class="input" style="width:120px">
+          <?php }?>
           <div class="Xmsdh"><button type="submit">马上兑换</button></div>
 	  </form>
-        </div>	
+        </div>
       </div>
     </ul>
     <div class="field field-name-body field-type-text-with-summary field-label-hidden">
@@ -59,6 +62,6 @@
 	  <p><?php print $body?></p>
 	</div>
       </div>
-    </div> 
+    </div>
   </div>
 </article>
