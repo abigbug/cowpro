@@ -189,8 +189,8 @@ function _cowpro_shop_buy_item($nid, $vid, $title, $price, $qty) {
 			'description' => $desc,
 			'display' => false,
 			//'tid' => $tid,
-			'entity_id' => $nid,
-			'entity_type' => 'order',
+			//'entity_id' => $nid,
+			//'entity_type' => 'order',
 	);
 	$result = userpoints_userpointsapi($params);
 	if ($result['status']) {
