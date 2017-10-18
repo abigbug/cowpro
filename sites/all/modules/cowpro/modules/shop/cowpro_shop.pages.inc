@@ -39,6 +39,8 @@ function template_preprocess_cowpro_commerce_item(&$variables) {
  * @see cowpro-commerce-item.tpl.php
  */
 function template_preprocess_cowpro_commerce_list_item(&$variables) {
+	//$product = reset($variables['item']['products']);
+	//$variables['price'] = intval(floor($product['commerce_price']['und'][0]['amount']/100));
 }
 
 function _cowpro_shop_theme_list_item($item) {

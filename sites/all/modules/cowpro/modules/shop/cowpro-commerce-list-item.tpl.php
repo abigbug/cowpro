@@ -19,6 +19,12 @@
 	<a href=<?php global $base_url; print $base_url . '/shop/detail/' . $item['nid']?>>
           <img src=<?php $first_item = reset($item['products']); print $first_item['field_images']['und'][0]['url']?> width="230" height="260" alt="">
         </a>
+       <br/> 积分：
+       <?php
+       $product = reset($item['products']);
+       $price = intval(floor($product['commerce_price']['und'][0]['amount']/100));
+       print $price;
+       ?>
       </figure>
     </div>
     <header>

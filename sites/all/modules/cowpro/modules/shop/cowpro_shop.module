@@ -136,8 +136,14 @@ function _cowpro_shop_retrieve_detail($nid) {
 function cowpro_shop_detail($nid) {
 	$result = _cowpro_shop_retrieve_detail($nid);
 	$key_words_array = array("移动","联通","电信","话费","充值");
+	$result['show_bill_input'] = 1;
 	foreach( $key_words_array as $item ){
-		!strpos($result['title_original'],$item) ? $result['show_bill_input'] = 0 : $result['show_bill_input'] = 1;
+		if( strpos($result['title_original'],$item) === false )  $result['show_bill_input'] = 0 ;
+	}
+	if( $result['show_bill_input'] == 1 ) {
+		global $user;
+		$mobile = db_select('cowpro_customer_profile', 'profile')->fields('profile', array('search_field'))->condition('type', 'mobile')->condition('uid',  $user->uid )->execute()->fetchAssoc();
+		$result['user_mobile'] = $mobile['search_field'];
 	}
 	drupal_set_title($result['title']);
 	$html = theme('cowpro_commerce_item', array('item' => $result));
@@ -202,6 +208,7 @@ function _cowpro_shop_buy_item($nid, $vid, $title, $price, $qty, $mbl = NULL) {
 			'moderate' => false,
 			'description' => $desc,
 			'display' => false,
+			'reference' => "shop",
 			//'tid' => $tid,
 			//'entity_id' => $nid,
 			//'entity_type' => 'order',
