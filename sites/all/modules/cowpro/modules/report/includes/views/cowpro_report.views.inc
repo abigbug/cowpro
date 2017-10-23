@@ -161,6 +161,21 @@ function cowpro_report_views_data() {
 			),
 	);
 
+	$data['userpoints']['cowpro_operation'] = array(
+			'title' => '操作、动作',
+			'help' => '提供操作、动作相关的链接',
+			'real field' => 'uid',
+			'field' => array(
+					'handler' => 'cowpro_userpoints_handler_field_operation',
+			),
+			'filter' => array(
+					'handler' => 'views_handler_filter_string',
+			),
+			'sort' => array(
+					'handler' => 'views_handler_sort',
+			),
+	);
+
 	$data['userpoints_txn']['cowpro_operation'] = array(
 			'title' => '操作、动作',
 			'help' => '提供操作、动作相关的链接',
