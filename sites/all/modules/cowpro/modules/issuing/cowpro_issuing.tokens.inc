@@ -2,7 +2,7 @@
 
 /*
  * Implementation of hook_token_info.
- */
+*/
 function cowpro_issuing_token_info() {
 	$issuing_type = array (
 			'name' => 'Cowpro Issuing',
@@ -160,14 +160,14 @@ function cowpro_issuing_tokens($type, $tokens, array $data = array(), array $opt
 }
 
 function _cowpro_issuing_tokens_repayment($type, $tokens, array $data = array(), array $options = array()) {
-  if (isset($options['language'])) {
-    $language_code = $options['language']->language;
-  }
-  else {
-    $language_code = LANGUAGE_NONE;
-  }
+	if (isset($options['language'])) {
+		$language_code = $options['language']->language;
+	}
+	else {
+		$language_code = LANGUAGE_NONE;
+	}
 
-  $replacements = array ();
+	$replacements = array ();
 	$sanitize = ! empty ( $options ['sanitize'] );
 
 	// Cowpro repayment schedule tokens.
@@ -236,14 +236,14 @@ function _cowpro_issuing_tokens_repayment($type, $tokens, array $data = array(),
 	return $replacements;
 }
 function _cowpro_issuing_tokens_issuing($type, $tokens, array $data = array(), array $options = array()) {
-  if (isset($options['language'])) {
-    $language_code = $options['language']->language;
-  }
-  else {
-    $language_code = LANGUAGE_NONE;
-  }
+	if (isset($options['language'])) {
+		$language_code = $options['language']->language;
+	}
+	else {
+		$language_code = LANGUAGE_NONE;
+	}
 
-  $replacements = array ();
+	$replacements = array ();
 	$sanitize = ! empty ( $options ['sanitize'] );
 
 	// Cowpro issing tokens.
@@ -424,7 +424,13 @@ EOF;
 					$schedule_list = _cowpro_issuing_build_repayment_schedule ( $field_issuing ['loan_amounts'], $field_issuing ['annual_rate'], $field_issuing ['loan_term'], $field_issuing ['method_repayment'], $field_issuing['make_loans_time'] );
 					foreach ( $schedule_list as $schedule ) {
 						$content .= '<tr>';
-						$content .= '<td style="text-align:center;">' . gmdate ( "Y年m月d日", $schedule ['deadline'] ) . '</td>';
+						/*
+						 gmdate和data 函数区别是gmdate 是UTC时间没有加减时区，date有.比如上海时区，gmdate要比date函数  输出的当前时间少8个小时
+						 * 上海是东八区所以要时区是+8.这里暂时用的是东八时区，以后面对的客户多了，可以用过客户端获取时区，在通过程序实现
+						 * $time_zone是动态获取的
+						 */
+						$time_zone = 3600 * 8;
+						$content .= '<td style="text-align:center;">' . gmdate ( "Y年m月d日", $schedule ['deadline'] + $time_zone ) . '</td>';
 						$content .= '<td style="text-align:center;">' . $schedule ['interest'] . '</td>';
 						$content .= '<td style="text-align:center;">' . $schedule ['capital'] . '</td>';
 						$content .= '</tr>';
