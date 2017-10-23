@@ -8,7 +8,7 @@
   </div>
 </div>
 <header class="sopuo-header clearfix ">
-  <div class="container">
+    <div class="container">
 
       <div class="row">
         <div class="col-md-4 sopuo-logo"> <a class="logo navbar-btn" href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>"> <img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" /> </a> </div>
@@ -33,7 +33,7 @@ if ( $user->uid ) :
   <div id="sopuo-banner" class="clearfix"><?php print render($page['banner']); ?></div>
  <?php endif; ?>
 <div class="sopuo-body-warp">
-  <div class="container">
+  <div class="container" style="background-color: #fff;">
     <div class="row">
       <div class="sopuo-contentall-front">
 
