@@ -81,6 +81,7 @@ function cowpro_shop_list($page = 0) {
 	$operation['url'] = 'entity_node';
 	$operation['type'] = 'GET';
 	$operation['parameter'] = array();
+	$operation['parameter']['entity_type'] = array('type' => 'text', 'label' => 'Entity Type.');
 	$operation['parameter']['page'] = array('type' => 'integer', 'label' => 'Page NO.');
 	$operation['parameter']['pagesize'] = array('type' => 'integer', 'label' => 'Page Size');
 	$operation['parameter']['sort'] = array('type' => 'text', 'label' => 'Sort');
@@ -92,24 +93,25 @@ function cowpro_shop_list($page = 0) {
 	if ( $cache = cache_get('shop_list_cache_'.$page )) {
 		$result = $cache->data;
 	}else {
-		$result = $service->index($page, 21, 'sticky', 'DESC');
+		$result = $service->index('commerce_product', $page, 21, 'sticky', 'DESC');
 		cache_set('shop_list_cache_'.$page, $result, 'cache', 60 * 60); //1 hour
 	}
 
+	$url = $GLOBALS['base_url'];
 	$prev_page = $page - 1;
-	$prev_page >= 0 ? $prev_page_html = "<a href='/shop/".$prev_page."'>上一页</a>" : $prev_page_html = "";
+	$prev_page >= 0 ? $prev_page_html = "<a href='$url/shop/".$prev_page."'>上一页</a>" : $prev_page_html = "";
 
-	$out_html = "<div id='shop_list'><a href='/shop'>首页</a>".$prev_page_html."";
+	$out_html = "<div id='shop_list'><a href='$url/shop'>首页</a>".$prev_page_html."";
 	for( $i = 0; $i <= TOTAL_PAGE; $i++ ) {
 		$j = $i + 1;
 		if( $i == 0 ) $i = '';
-		$out_html .= '<a href="/shop/'.$i.'">'.$j.'</a>';
+		$out_html .= '<a href="' . $url . '/shop/'.$i.'">'.$j.'</a>';
 	}
 
 	$next_page = $page + 1;
-	$next_page <= TOTAL_PAGE ? $next_page_html = "<a href='/shop/".$next_page."'>下一页</a>" : $next_page_html = "";
+	$next_page <= TOTAL_PAGE ? $next_page_html = "<a href='$url/shop/".$next_page."'>下一页</a>" : $next_page_html = "";
 
-	$out_html .= "".$next_page_html."<a href='/shop/".TOTAL_PAGE."'>尾页</a></div>";
+	$out_html .= "".$next_page_html."<a href='$url/shop/".TOTAL_PAGE."'>尾页</a></div>";
 	$html = theme('cowpro_commerce_list', array('list' => $result,'page_html'=>$out_html));
 
 	return $html;
