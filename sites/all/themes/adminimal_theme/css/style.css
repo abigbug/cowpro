@@ -3115,8 +3115,6 @@ body.adminimal-skin-alternative.adminimal-theme.page-admin-structure-features #e
 .page-admin-structure-features-create form div.buttons {
   text-align: left;
 }
-
-
 /**
  * Hide dummy checkbox in Fast Permissions Administration (FPA) see #2653436.
  * by @rcodina.
@@ -3125,6 +3123,9 @@ body.adminimal-skin-alternative.adminimal-theme.page-admin-structure-features #e
   display: none !important;
 }
 
-
 .views-ui-display-tab-bucket .views-display-setting { font-size:14px !important;}
 .views-widget-filter-shs_term_node_tid_depth .form-item-shs-term-node-tid-depth .description  { display:none !important;}
+
+.page-node-add-cowpro-issuing #cowpro-issuing-node-form #edit-field-applicant .overflow-fix .sticky-table tbody tr td img{
+    width: 300px;
+}

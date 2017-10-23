@@ -1,0 +1,674 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","\5FAE\8F6F\96C5\9ED1",Arial,sans-serif;
+    list-style: none;
+    border-style: none;
+    text-decoration: none;
+    font-style: normal;
+}
+body{background-color: #f5f5f5;}
+#sopuo-banner .container {width: 1120px !important;}
+#sopuo-banner #cowpro-statis li{text-align:center;}
+
+#sopuo-banner #block-cowpro-issuing-cowpro-statis {border-bottom: #e9e9e9 1px solid;}
+
+.sopuo-body-warp #block-block-3{ padding-top: 0px; padding-bottom: 20px;}
+
+.sopuo-body-warp #block-block-3 .top_manage{
+    width: 1170px;
+    height: 150px;
+    padding: 26px 0;
+    background: #FFF;
+    margin: 0px auto;
+}
+.sopuo-contentall-front #block-block-3 .top_manage .col-md-3{
+    height: 100px;
+    float: left;
+    margin: 0px auto;
+}
+.sopuo-contentall-front #block-block-3 .top_manage .col-md-3:nth-child(1){
+    border-right: 1px solid #e9e9e9;
+}
+.sopuo-contentall-front #block-block-3 .top_manage .col-md-3:nth-child(2){
+    border-right: 1px solid #e9e9e9;
+}
+.sopuo-contentall-front #block-block-3 .top_manage .col-md-3:nth-child(3){
+    border-right: 1px solid #e9e9e9;
+}
+.top_manage .imgs1 img{
+    width: 85px;
+    float: left;
+    margin-right: 10px;
+    margin-left: 5px;
+}
+.sopuo-body-warp #block-block-3 .top_manage .col-md-3 .imgs1 div{
+    width: 70%;
+    text-align:left;
+    float:right;
+}
+.top_manage .imgs1 .content_header_detail {
+    text-align: left;
+}
+#block-views-all-issuing-block-1 .view-header {
+    border: 1px solid #e9e9e9;
+}
+#block-block-4 .foot_lc {
+    height: 380px;
+}
+#block-block-4 .foot_lc .foot_manage h1 {
+    font-size: 32px;
+    line-height: 120px;
+}
+#block-block-4 .foot_lc .foot_manage ul li{
+    text-align: center;
+}
+#block-block-2 .footer_3 .f_c{
+    width: 40%;
+    padding-left: 60px;
+}
+#block-block-2 .footer_3 .f_r{    
+    width: 26%;
+    padding: 0px;
+    text-align: center;
+}
+#block-block-2 .footer_3 .f_r li{
+    width: 100%;
+    text-align: center;
+}
+#block-block-2 .footer_3 .f_r img{
+    width: 140px;
+}
+
+#block-block-2 .footer_3 .col-md-2 {
+    text-align: center;
+}
+#block-block-2 .footer_3 dd {
+    line-height: 40px;
+}
+.view-display-id-issuing_list .view-header {
+    border: 1px solid #e9e9e9;
+}
+.view-display-id-issuing_list .view-header  #select_num {
+    border-top: #e9e9e9 1px solid;
+    background-color: #ffffff;
+}
+.page-user .sopuo-body-warp{
+    width: 100%;
+    height: auto;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    background: url(../images/regbg.jpg);
+    overflow: hidden;
+    margin: 0px auto;
+}
+.page-user .sopuo-body-warp .container{
+    width: 750px !important;
+    margin: 0px auto;
+}
+@media (min-width: 1200px){
+.page-user .sopuo-body-warp .container{
+       width: 750px;
+  }
+}
+@media (min-width: 992px){
+.page-user .sopuo-body-warp .container{
+       width: 750px;
+  }
+}
+@media (min-width: 768px){
+.page-user .sopuo-body-warp .container{
+       width: 750px;
+  }
+}
+.page-user .sopuo-body-warp aside{
+    display:none;
+}
+.page-user #sopuo-mainbody{
+    width: 750px;
+    height:100%;
+    background-color: #FFF;
+}
+
+.page-user-register #sopuo-mainbody #user-register-form{
+    position:relative;
+    width: 80%;
+    top:30px;
+    height:600px;
+    margin: 0px auto;
+}
+.page-user-register #user-register-form #edit-account{
+    position:relative;
+    width: 100%;
+    height: 180px;
+}
+.page-user-register #user-register-form #edit-account .form-item-name{
+    position:absolute;
+    width: 100%;
+    margin: 0px auto;
+}
+.page-user-register #user-register-form #edit-account .form-item-name label{
+    float: left;
+    width: 40%;
+    height: 42px;
+    line-height: 42px;
+    padding-right: 2%;
+    text-align: right;
+}
+.page-user-register #user-register-form #edit-account .form-item-name input{
+    float: right;
+    width: 58%;
+    height: 42px;
+    line-height: 42px;
+    text-align: left;
+}
+.page-user-register #user-register-form #edit-account #name_verify_help{
+    position:absolute;
+    top:40px;
+    left:42%;
+    height:30px;
+    line-height: 30px;
+    margin: 0px auto;
+}
+.page-user-register #user-register-form #edit-account .form-item-pass .row{
+    width: 100%;
+    margin: 0px auto;
+    position: relative;
+    top:70px;
+}
+.page-user-register #user-register-form #edit-account .form-item-pass .form-item-pass-pass1{
+    width: 100%;
+    margin: 0px auto;
+    position: absolute;
+    z-index: 999;
+}
+.page-user-register .form-item-pass-pass1 label{
+    float: left;
+    width: 40%;
+    height: 42px;
+    line-height: 42px;
+    padding-right: 2%;
+    text-align: right;
+}
+.page-user-register .form-item-pass-pass1 #edit-pass-pass1{
+    float: right;
+    width: 58%;
+    height: 42px;
+    line-height: 42px;
+    text-align: left;
+}
+.page-user-register .form-item-pass-pass1 .progress{
+    position: absolute;
+    left:42%;
+    height: 22px;
+    width: 30%;
+    top:40px;
+}
+.page-user-register .form-item-pass-pass1 .label{
+    position: absolute;
+    left:42%;
+    height: 22px;
+    line-height: 20px;
+    width: 30%;
+    top:50px;
+    z-index: 999;
+}
+.page-user-register #user-register-form .has-feedback label~.form-control-feedback {
+    top: 5px;
+    right: 15px;
+}
+.page-user-register #user-register-form #edit-account .form-item-pass .form-item-pass-pass2{
+    width: 100%;
+    margin: 0px auto;
+    top:80px;
+    position: absolute;
+    z-index: 999;
+}
+.page-user-register #user-register-form #edit-account .form-item-pass .help-block{
+    position: absolute;
+    width: 30%;    
+    padding-left: 2%;
+    text-align: left;
+}
+.page-user-register .form-item-pass-pass2 label{
+    float: left;
+    width: 40%;
+    height: 42px;
+    line-height: 42px;
+    padding-right: 2%;
+    text-align: right;
+}
+.page-user-register .form-item-pass-pass2 #edit-pass-pass2{
+    float: right;
+    width: 58%;
+    height: 42px;
+    line-height: 42px;
+    text-align: left;
+}
+.page-user-register #user-register-form .form-item-mobile-number{
+    position:relative;
+    width: 100%;
+    height:50px;
+    top:25px;
+}
+.page-user-register #user-register-form .form-item-mobile-number label{
+    float: left;
+    width: 40%;
+    height: 42px;
+    line-height: 42px;
+    padding-right: 2%;
+    text-align: right;
+}
+.page-user-register #user-register-form .form-item-mobile-number input{
+    float: right;
+    width: 58%;
+    height: 42px;
+    line-height: 42px;
+    text-align: left;
+}
+.page-user-register #user-register-form  #mobile_verify_help{
+    position: relative;
+    left:42%;
+    height:30px;
+    text-align: left;
+    line-height: 30px;
+    margin: 0px auto;
+}
+.page-user-register #user-register-form,.form-item-verify-code{
+    position:absolute;
+    width: 100%;
+    height:50px;
+    top:290px;
+}
+.page-user-register #user-register-form .form-item-verify-code label{
+    float: left;
+    width: 40%;
+    height: 42px;
+    line-height: 42px;
+    padding-right: 2%;
+    text-align: right;
+}
+.page-user-register #user-register-form .form-item-verify-code input{
+    float: left;
+    margin-left: 2%;
+    width: 28%;
+    height: 42px;
+    line-height: 42px;
+    text-align: left;
+}
+.page-user-register #user-register-form,.send-verify-code{
+    position:absolute;
+    width: 15%;
+    height:40px;
+    top:280px;
+    right:12%;
+}
+.page-user-register #user-register-form,.captcha{
+    position:relative;
+    width: 100%;
+    height:50px;
+    top:22px;
+    margin: 0px auto;
+}
+.page-user-register .captcha .form-item-captcha-response{
+    position:absolute;
+    float: left;
+    width: 100%;
+    height:50px;
+    top:48px;
+    margin: 0px auto;
+    z-index: 999;
+}
+.page-user-register .captcha img{
+    position:absolute;
+    width: 13%;
+    text-align: right;
+    top:55px;
+    right:17%;
+}
+.page-user-register .captcha .form-item-captcha-response label{
+    float: left;
+    width: 40%;
+    height: 42px;
+    line-height: 42px;
+    padding-right: 2%;
+    text-align: right;
+}
+.page-user-register .captcha .form-item-captcha-response input{
+    float: left;
+    margin-left: 2%;
+    width: 28%;
+    height: 42px;
+    line-height: 42px;
+    text-align: left;
+}
+.page-user-register #user-register-form,.reload-captcha-wrapper{
+    position:absolute;
+    width: 100%;
+    height:50px;
+    top:370px;
+    text-align: right;
+}
+.page-user-register #user-register-form .form-item-register-referee{
+    position:relative;
+    width: 100%;
+    height:50px;
+    top:80px;
+}
+.page-user-register .form-item-register-referee label{
+    float: left;
+    width: 40%;
+    height: 42px;
+    line-height: 42px;
+    padding-right: 2%;
+    text-align: right;
+}
+.page-user-register .form-item-register-referee .input-group{
+    float: left;
+    margin-left: 2%;
+    width: 56%;
+    height: 42px;
+    line-height: 42px;
+    text-align: left;
+}
+.page-user-register #edit-actions{
+    position:relative;
+    float: right;
+    width:70%;
+    height:50px;
+    text-align: center;
+    margin: 0px auto;
+    top:90px;
+}
+.page-user-register #user-register-form #edit-submit{
+    height: 45px;
+    width: 100%;
+    font-size: 18px;
+    line-height: 45px;
+    text-align: center;
+    border-radius: 3px;
+    padding: 0;
+}
+
+.page-user #user-login{
+    clear: both;
+    position:relative;
+    width: 76%;
+    height:280px;
+    top:30px;
+}
+.page-user #user-login .form-item-name{
+    position:absolute;
+    width: 100%;
+    margin: 0px auto;
+}
+.page-user #user-login .form-item-name label{
+    float: left;
+    width: 40%;
+    height: 42px;
+    line-height: 42px;
+    padding-right: 2%;
+    text-align: right;
+}
+.page-user #user-login .form-item-name input{
+    float: right;
+    width: 58%;
+    height: 42px;
+    line-height: 42px;
+    text-align: left;
+}
+.page-user #user-login .form-item-pass{
+    position:absolute;
+    width: 100%;
+    top:70px;
+    margin: 0px auto;
+}
+.page-user #user-login  .form-item-pass label{
+    float: left;
+    width: 40%;
+    height: 42px;
+    line-height: 42px;
+    padding-right: 2%;
+    text-align: right;
+}
+.page-user #user-login  .form-item-pass input{
+    float: right;
+    width: 58%;
+    height: 42px;
+    line-height: 42px;
+    text-align: left;
+}
+.page-user #user-login #edit-submit{
+    position:absolute;
+    height: 45px;
+    width: 70%;
+    right:0px;
+    font-size: 18px;
+    line-height: 45px;
+    top:130px;
+    border-radius: 3px;
+    padding: 0;
+}
+
+
+.page-user #reset-password-by-sms-form{
+    clear: both;
+    position:relative;
+    width: 76%;
+    height:280px;
+    top:30px;
+}
+.page-user #reset-password-by-sms-form .form-item-user-name-or-mobile{
+    position:absolute;
+    width: 100%;
+    margin: 0px auto;
+}
+.page-user #reset-password-by-sms-form .form-item-user-name-or-mobile label{
+    float: left;
+    width: 42%;
+    height: 42px;
+    line-height: 42px;
+    padding-right: 2%;
+    text-align: right;
+}
+.page-user #reset-password-by-sms-form .form-item-user-name-or-mobile input{
+    float: right;
+    width: 56%;
+    height: 42px;
+    line-height: 42px;
+    text-align: left;
+}
+.page-user #reset-password-by-sms-form .form-item-verify-code{
+    position:absolute;
+    width: 100%;
+    top:70px;
+    margin: 0px auto;
+}
+.page-user #reset-password-by-sms-form  .form-item-verify-code label{
+    float: left;
+    width: 42%;
+    height: 42px;
+    line-height: 42px;
+    padding-right: 2%;
+    text-align: right;
+}
+.page-user #reset-password-by-sms-form  .form-item-verify-code input{
+    float: left;
+    width: 25%;
+    margin-left: 2%;
+    height: 42px;
+    line-height: 42px;
+    text-align: left;
+}
+.page-user #reset-password-by-sms-form #edit-submit{
+    position:absolute;
+    height: 45px;
+    width: 70%;
+    right:0px;
+    font-size: 18px;
+    line-height: 45px;
+    top:130px;
+    border-radius: 3px;
+    padding: 0;
+}
+.page-user #reset-password-by-sms-form #send_verify{
+    position:absolute;
+    height: 45px;
+    width: 25%;
+    right:0px;
+    font-size: 18px;
+    line-height: 45px;
+    top:58px;
+    border-radius: 3px;
+    padding: 0;
+}
+.node-type-page .sopuo-body-warp{
+    padding-top: 15px;
+    padding-bottom: 20px;
+}
+.node-type-page .container #sopuo-mainbody{ background-color: #FFF;}
+.node-type-page .container #sopuo-mainbody .field-name-body{
+    padding-left: 25px;
+    padding-right: 25px;
+    line-height: 35px;
+}
+.page-shop .sopuo-body-warp{
+    padding-top: 15px;
+    padding-bottom: 20px;
+}
+.page-shop .sopuo-body-warp #sopuo-mainbody{ background-color: #FFF;}
+
+.page-user- .sopuo-body-warp{
+    width: 100%;
+    height: auto;
+    padding:0px;
+    background: url();
+    overflow: hidden;
+    margin: 0px auto;
+}
+.page-user- .sopuo-body-warp .container{
+    width: 1170px !important;
+    margin: 0px auto;
+}
+@media (min-width: 1200px){
+.page-user- .sopuo-body-warp .container{
+       width: 750px;
+  }
+}
+@media (min-width: 992px){
+.page-user- .sopuo-body-warp .container{
+       width: 750px;
+  }
+}
+@media (min-width: 768px){
+.page-user- .sopuo-body-warp .container{
+       width: 750px;
+  }
+}
+.page-user- #sopuo-mainbody{
+    width: 1170px;
+    height:100%;
+    background-color: #f5f5f5;
+}
+#frame_left{
+    background-color: #ffffff;
+}
+#frame_left #block-system-navigation{
+    width: 100%;
+}
+#userpoints-list-transactions,.table-responsive{
+    background-color: #ffffff;
+    min-height: 765px;
+    height: auto;
+    padding: 15px;
+}
+.view-display-id-due_in_list_lender,.table-responsive{
+    min-height: 200px;
+}
+
+.page-user-customer-profiles #cowpro-customer-ui-customer-profile-edit-own-form #edit-profile{
+    clear: both;
+    position:relative;
+    height:320px;
+}
+#cowpro-customer-ui-customer-profile-edit-own-form #edit-profile #send_verify{
+    position: absolute;
+    top:135px;
+    right: 10%;
+}
+#cowpro-customer-ui-customer-profile-edit-own-form #edit-profile .form-item-verify-code{
+    position: absolute;
+    top:110px;
+}
+#edit-profile .form-item-verify-code input{
+    width: 70%;
+}
+#frame_content .tabbable .vertical-tabs-list {
+    background:#f5f5f5;
+}
+#cowpro-customer-ui-customer-profile-edit-own-form #edit-profile .captcha{
+    position: absolute;
+    top:208px;
+}
+#cowpro-customer-ui-customer-profile-edit-own-form #edit-profile .captcha img{
+    float: right;
+    margin-right: 15%;
+    margin-top: 35px;
+    width: 120px;
+}
+#cowpro-customer-ui-customer-profile-edit-own-form #edit-profile .captcha .form-item-captcha-response input{
+    width: 70%;
+}
+#cowpro-customer-ui-customer-profile-edit-own-form #edit-profile .reload-captcha-wrapper{
+    position: absolute;
+    top:248px;
+    right:3%;
+}
+.page-user-customer-profiles-payment-password #cowpro-customer-ui-customer-profile-edit-own-form #edit-profile .form-item-verify-code{
+    top:210px;
+}
+.page-user-customer-profiles-payment-password #cowpro-customer-ui-customer-profile-edit-own-form #edit-profile #mobile_verify_help{
+    margin-left: 10%;
+}
+.page-user-customer-profiles-payment-password #cowpro-customer-ui-customer-profile-edit-own-form #edit-profile #send_verify{
+    top:240px;
+}
+.node-type-cowpro-issuing {background-color: f5f5f5;}
+.node-type-cowpro-issuing .row{ padding-top: 15px;padding-bottom:20px;}
+.page-registration-wizard .container{ padding-top: 15px;padding-bottom: 20px;}
+.page-registration-wizard .container #sopuo-mainbody{ background-color: #fff;}
+
+.node-type-cowpro-issuing .sopuo-body-warp #sopuo-mainbody{ background-color: #fff;}
+
+.page-registration-wizard-payment-password #-registration-wizard-form-warp .panel-body{
+    clear: both;
+    position:relative;
+    height:270px;
+    min-height: 160px;
+}
+.page-registration-wizard-payment-password #-registration-wizard-form-warp .panel-body .form-item-password{
+    position: absolute;
+}
+.page-registration-wizard-payment-password #-registration-wizard-form-warp .panel-body .form-item-password2{
+    position: absolute;
+    top:90px;
+}
+.page-registration-wizard-payment-password #-registration-wizard-form-warp .panel-body .form-item-verify-code{
+    position: absolute;
+    top:165px;
+}
+.page-registration-wizard-payment-password #-registration-wizard-form-warp .panel-body #send_verify{
+    position: absolute;
+    top:175px;
+}
+.page-registration-wizard-payment-password #-registration-wizard-form-warp .panel-body #mobile_verify_help{
+    position: absolute;
+    top:165px;
+    left:10%;
+}
+.page-issuing-list-bidding .jquery-once-1-processed{
+    background-color: #FFF;
+}
+.page-issuing-list-bidding .jquery-once-1-processed .view-header{
+    padding: 15px;
+}

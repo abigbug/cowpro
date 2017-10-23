@@ -174,7 +174,7 @@ div #main-wrapper { background:#ffffff; }
 #block-views-all-issuing-block-1{background: #fff;
     margin-bottom: 30px;}
 #block-views-all-issuing-block-1 .view-header{border: 1px solid #cccccc; height:50px; line-height:50px; overflow:hidden;}
-.project{ background:url(../images/inhands.png) 20px center no-repeat; font-size: 20px;
+.project{ font-size: 20px;
     color: #333333;}
 .project .inearnings{ font-size:14px;color: #a7a7a7; margin-left:20px;}
 .project .inearnings i{color: #39A1EA;}
