@@ -34,6 +34,7 @@ files[] = includes/views/handlers/cowpro_issuing_handler_field_annual_rate.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_loan_amounts.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_method_repayment.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_status.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_field_make_loans_time.inc
 ;files[] = includes/views/handlers/cowpro_issuing_handler_field_receiver_name.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_field_payer_name.inc
 files[] = includes/views/handlers/cowpro_repayment_schedule_handler_field_real_name.inc

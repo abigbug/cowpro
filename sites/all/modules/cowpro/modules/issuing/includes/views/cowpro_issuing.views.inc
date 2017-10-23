@@ -97,6 +97,15 @@ function cowpro_issuing_field_views_data($field) {
 			),
 	);
 
+	$data['field_data_field_issuing']['make_loans_time'] = array(
+			'real field' => 'entity_id',
+			'field' => array(
+					'title' => '满标放款时间',
+					'help' => '满标放款时间',
+					'handler' => 'cowpro_issuing_handler_field_make_loans_time',
+			),
+	);
+
 	$data['field_data_field_issuing']['status'] = array(
 			'real field' => 'entity_id',
 			'field' => array(
@@ -106,8 +115,6 @@ function cowpro_issuing_field_views_data($field) {
 			),
 	);
 
-	$data['field_data_field_applicant']['table']['group']  = 'Issuing';
-	$data['field_data_field_applicant']['table']['entity type']  = 'node';
 	$data['field_data_field_applicant']['applicant_uid'] = array(
 			'real field' => 'entity_id',
 			'field' => array(
@@ -119,6 +126,9 @@ function cowpro_issuing_field_views_data($field) {
 					'handler' => 'cowpro_fund_journal_handler_filter_user',
 			),
 	);
+
+	$data['field_data_field_applicant']['table']['group']  = 'Issuing';
+	$data['field_data_field_applicant']['table']['entity type']  = 'node';
 
 	return $data;
 }
