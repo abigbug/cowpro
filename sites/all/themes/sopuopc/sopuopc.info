@@ -29,6 +29,10 @@ regions[page_bottom] = Page bottom
 ; ========================================
 scripts[] = assets/bootstrap/js/bootstrap.min.js
 scripts[] = assets/jasny/js/jasny-bootstrap.min.js
+
+scripts[] = js/layer.min.js
+scripts[] = js/app.js
+
 scripts[] = js/jquery-rebox.js
 scripts[] = js/sopuo.js
 stylesheets[all][] = assets/font-awesome/css/font-awesome.min.css
@@ -41,3 +45,10 @@ stylesheets[all][] = css/lrtk.css
 stylesheets[all][] = css/jquery-rebox.css
 stylesheets[all][] = css/sopuo-shop.css
 stylesheets[all][] = css/sopuo-style.css
+stylesheets[all][] = css/right_link.css
+
+stylesheets[all][] = css/app.css
+stylesheets[all][] = css/layer.css
+
+
+

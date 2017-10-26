@@ -500,6 +500,20 @@ body{background-color: #f5f5f5;}
     line-height: 42px;
     text-align: left;
 }
+.page-user #reset-password-by-sms-form #mobile_verify_help{
+    position:absolute;
+    top:45px;
+    color: #F00;
+    margin: 0px auto;
+}
+.page-user #reset-password-by-sms-form #mobile_verify_help_2{
+    position:absolute;
+    left:50%;
+    top:45px;
+    color: #F00;
+    margin: 0px auto;
+}
+
 .page-user #reset-password-by-sms-form #edit-submit{
     position:absolute;
     height: 45px;
@@ -629,6 +643,13 @@ body{background-color: #f5f5f5;}
 }
 .page-user-customer-profiles-payment-password #cowpro-customer-ui-customer-profile-edit-own-form #edit-profile #mobile_verify_help{
     margin-left: 10%;
+    color:#F00;
+}
+.page-user-customer-profiles-payment-password #cowpro-customer-ui-customer-profile-edit-own-form #edit-profile #mobile_verify_help_2{
+    position: absolute;
+    margin-left: 40%;
+    top: 210px;
+    color:#F00;
 }
 .page-user-customer-profiles-payment-password #cowpro-customer-ui-customer-profile-edit-own-form #edit-profile #send_verify{
     top:240px;
@@ -665,10 +686,25 @@ body{background-color: #f5f5f5;}
     position: absolute;
     top:165px;
     left:10%;
+    color: #F00;
+}
+.page-registration-wizard-payment-password #-registration-wizard-form-warp .panel-body #mobile_verify_help_2{
+    position: absolute;
+    top:165px;
+    left:40%;
+    color: #F00;
 }
 .page-issuing-list-bidding .jquery-once-1-processed{
     background-color: #FFF;
 }
 .page-issuing-list-bidding .jquery-once-1-processed .view-header{
     padding: 15px;
+}
+
+.page-issuing-list-front .sopuo-body-warp {
+    padding-top: 15px;
+    padding-bottom: 20px;
+}
+.page-issuing-list-front .container #sopuo-mainbody {
+    background-color: #FFF;
 }
