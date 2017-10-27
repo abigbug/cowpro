@@ -1,4 +1,16 @@
 <?php
+function sortByAmount($a, $b) {
+	if ($a->sticky > $b->sticky) {
+		return -1;
+	} else if ($a->sticky < $b->sticky) {
+		return 1;
+	}
+	if ($a->amount == $b->amount) {
+		return 0;
+	} else {
+		return ($a->amount > $b->amount) ? 1 : -1;
+	}
+}
 
 class ServicesCommerceResourceController extends ServicesEntityResourceController {
 
@@ -108,53 +120,60 @@ class ServicesCommerceResourceController extends ServicesEntityResourceControlle
    * Implements ServicesResourceControllerInterface::index().
    */
   public function index($entity_type, $fields, $parameters, $page, $pagesize, $sort, $direction) {
-    // Make sure the pagesize is not too large.
-    $max_pagesize = variable_get('services_entity_max_pagesize', 100);
-    $pagesize = ($max_pagesize < $pagesize) ? $max_pagesize : $pagesize;
-    // Build an EFQ based on the arguments.
-    $query = new EntityFieldQuery();
-    $query
-        ->entityCondition('entity_type', $entity_type)
-        ->range($page * $pagesize, $pagesize);
+  	// Make sure the pagesize is not too large.
+  	$max_pagesize = variable_get('services_entity_max_pagesize', 100);
+  	$pagesize = ($max_pagesize < $pagesize) ? $max_pagesize : $pagesize;
+  	// Build an EFQ based on the arguments.
+  	$query = new EntityFieldQuery();
+  	$query
+  	->entityCondition('entity_type', $entity_type);
+  	//->range($page * $pagesize, $pagesize);
 
-    if (!empty($parameters)) {
-      foreach ($parameters as $field => $value) {
-        $this->propertyQueryOperation($entity_type, $query, 'Condition', $field, $value);
-      }
-    }
-    if ($sort != '') {
-      $direction = ($direction == 'DESC') ? 'DESC' : 'ASC'; // Ensure a valid direction
-      $this->propertyQueryOperation($entity_type, $query, 'OrderBy', $sort, $direction);
-    }
+  	if (!empty($parameters)) {
+  		foreach ($parameters as $field => $value) {
+  			$this->propertyQueryOperation($entity_type, $query, 'Condition', $field, $value);
+  		}
+  	}
+  	if ($sort != '') {
+  		$direction = ($direction == 'DESC') ? 'DESC' : 'ASC'; // Ensure a valid direction
+  		$this->propertyQueryOperation($entity_type, $query, 'OrderBy', $sort, $direction);
+  	}
 
-    $query->propertyOrderBy('created', 'DESC');
-    $result = $query->execute();
+  	$query->propertyOrderBy('created', 'DESC');
+  	$result = $query->execute();
+  	if (empty($result)) {
+  		return services_error(t('No entities found.'), 404);
+  	}
+  	// Convert to actual entities.
+  	$entities = entity_load($entity_type, array_keys($result[$entity_type]));
 
-    if (empty($result)) {
-      return services_error(t('No entities found.'), 404);
-    }
-    // Convert to actual entities.
-    $entities = entity_load($entity_type, array_keys($result[$entity_type]));
+  	foreach ($entities as $id => $entity) {
+  		if (entity_access('view', $entity_type, $entity)) {
+  			// Users get special treatment to remove sensitive data.
+  			if ($entity_type == 'user') {
+  				// Use the helper that Services module already has.
+  				services_remove_user_data($entity);
+  			}
+  			$entity = $this->append_product_fields($entity);
+  			$return[] = $this->limit_fields($entity, $fields);
+  		}
+  	}
 
-    foreach ($entities as $id => $entity) {
-      if (entity_access('view', $entity_type, $entity)) {
-        // Users get special treatment to remove sensitive data.
-        if ($entity_type == 'user') {
-          // Use the helper that Services module already has.
-          services_remove_user_data($entity);
-        }
+  	// The access check may have resulted in there being no entities left.
+  	if (empty($return)) {
+  		return services_error(t('No entities found.'), 404);
+  	}
 
-        $entity = $this->append_product_fields($entity);
-        $return[] = $this->limit_fields($entity, $fields);
-      }
-    }
+  	 foreach( $return as $key => $item ) {
+  		$product = reset($item->products);
+  		$amount = $product->commerce_price['und'][0]['amount'];
+  		$return[$key]->amount = $amount;
+  	}
+  	usort($return, 'sortByAmount');
 
-    // The access check may have resulted in there being no entities left.
-    if (empty($return)) {
-      return services_error(t('No entities found.'), 404);
-    }
-
-    return $return;
+  	$start = $page * $pagesize;
+  	$out_result = array_slice($return, $start, $pagesize, true);
+  	return $out_result;
   }
 
   /**
@@ -293,7 +312,7 @@ class ServicesCommerceResourceController extends ServicesEntityResourceControlle
     }
 
     // Still here if no matching property was found.
-    services_error(t('Parameter @prop does not exist', array('@prop' => $property)), 406);
+    services_error($entity_info['base table'] . '=='.t('Parameter @prop does not exist', array('@prop' => $property)), 406);
   }
 
   /**
