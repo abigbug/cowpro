@@ -125,6 +125,9 @@ function _cowpro_issuing_bid_form_validate($form, &$form_state) {
 		if ($form_state ['values']['amount'] % 1 != 0) {
 			form_set_error ( 'bid', '投资金额的最小单位是“元”' );
 		}
+		if ($form_state ['values']['amount'] < 100) {
+			form_set_error ( 'bid', '投资金额必需大于等于100元' );
+		}
 		module_invoke_all ( 'cowpro_issuing_bid_form_validate', $form, $form_state );
 	}
 }

@@ -148,9 +148,10 @@ function cowpro_fund_internal_trans_do($form, &$form_state) {
 	$uid_from = $form_state['uid_from'];
 	$uid_to = $form_state['uid_to'];
 	$amount = $form_state['amount'];
-	watchdog('internal_trans', "$uid_from;$uid_to;$amount");
+	global $user;
+	$comment = '(' . $user->name . ')' . '手工转账';
 
-	$result = custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount);
+	$result = custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comment);
 
 
 	if ($result['success']) {
@@ -167,8 +168,10 @@ function __cowpro_fund_internal_trans_confirm_form_submit(&$form, &$form_state) 
 		$uid_to = $form_state['uid_to'];
 		$amount = $form_state['amount'];
 		$uid_from = $GLOBALS['user']->uid;
+		global $user;
+		$comment = '(' . $user->name . ')' . '手工转账';
 
-		$result = custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount);
+		$result = custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comment);
 		if ($result['success']) {
 			$message = '转账操作完成';
 			drupal_set_message($message);

@@ -244,9 +244,9 @@ function cowpro_draw_cowpro_issuing_bid_form_submit($form, $form_state) {
 		$uid_from = user_load_by_name ( variable_get ( 'fund_imprest_account', '' ) )->uid; // 转出账户ID
 		$uid_to = $user->uid; // 转入账户ID
 		$amount = $right_voucher; // 转入金额
-		watchdog ( 'internal_trans', "$uid_from;$uid_to;$amount" );
+		$comment = '使用红包';
 
-		$result = custodian_cowpro_fund_internal_trans ( $uid_from, $uid_to, $amount );
+		$result = custodian_cowpro_fund_internal_trans ( $uid_from, $uid_to, $amount, $comment);
 
 		if ($result ['success']) {
 			$term = current ( taxonomy_get_term_by_name ( '代金券' ) );
