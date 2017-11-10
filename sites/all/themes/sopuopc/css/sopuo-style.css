@@ -708,3 +708,7 @@ body{background-color: #f5f5f5;}
 .page-issuing-list-front .container #sopuo-mainbody {
     background-color: #FFF;
 }
+
+.page-myuserpoints #userpoints-list-transactions .userpoints-myuserpoints-total .userpoints-myuserpoints-total-approved td{
+    width: 33%;
+}
