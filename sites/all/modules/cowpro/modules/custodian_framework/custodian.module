@@ -125,6 +125,14 @@ function _providers_build() {
   return array($_providers, $_names);
 }
 
+/**
+ * 充值
+ * @param $uid 充值用户的uid
+ * @param $amount 充值金额
+ * @param $method 充值途径(快捷支付,网银充值,汇款充值,企业网银)
+ * @param $journal_id 日记账编号
+ * @return unknown
+ */
 function custodian_cowpro_fund_topup($uid, $amount, $method, $journal_id) {
 	$module = custodian_default_provider_key();
 	$function = $module . '_cowpro_fund_topup';
@@ -139,10 +147,21 @@ function custodian_cowpro_fund_topup($uid, $amount, $method, $journal_id) {
 	}
 }
 
+/**
+ * 充值方法的回调函数
+ */
 function custodian_cowpro_fund_topup_callback($success, $journal_id, $external_reference_id, $interface_module, $result) {
 	cowpro_fund_topup_callback($success, $journal_id, $external_reference_id, $interface_module, $result);
 }
 
+/**
+ * 提现
+ * @param $uid 提现用户的uid
+ * @param $amount 提现金额
+ * @param $bankcard 提现银行卡号码
+ * @param $journal_id 日记账编号
+ * @return unknown
+ */
 function custodian_cowpro_fund_withdraw($uid, $amount, $bankcard, $journal_id) {
 	$module = custodian_default_provider_key();
 	$function = $module . '_cowpro_fund_withdraw';
@@ -157,10 +176,21 @@ function custodian_cowpro_fund_withdraw($uid, $amount, $bankcard, $journal_id) {
 	}
 }
 
+/**
+ * 提现方法的回调函数
+ */
 function custodian_cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, $interface_module, $result) {
 	cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, $interface_module, $result);
 }
 
+/**
+ * 内部转账
+ * @param $uid_from 转出用户的uid
+ * @param $uid_to 转入用户的uid
+ * @param $amount 转账金额
+ * @param string $comment 备注
+ * @return unknown
+ */
 function custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comment='') {
 	$module = custodian_default_provider_key();
 	$function = $module . '_cowpro_fund_internal_trans';
@@ -191,10 +221,21 @@ function custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comm
 	}
 }
 
+/**
+ * 内部转账方法的回调函数
+ */
 function custodian_cowpro_internal_trans_callback($success, $uid_from, $uid_to, $amount, $interface_module, $result) {
 	cowpro_fund_internal_trans_callback($success, $uid_from, $uid_to, $amount, $interface_module, $result);
 }
 
+/**
+ * 投标
+ * @param $uid 投标用户的uid
+ * @param $amount 投标金额
+ * @param $nid 标的编号
+ * @param $journal_id 日记账编号
+ * @return unknown
+ */
 function custodian_cowpro_fund_bid($uid, $amount, $nid, $journal_id) {
 	$module = custodian_default_provider_key();
 	$function = $module . '_cowpro_fund_bid';
@@ -209,6 +250,11 @@ function custodian_cowpro_fund_bid($uid, $amount, $nid, $journal_id) {
 	}
 }
 
+/**
+ * 流标还款
+ * @param $nid 标的编号
+ * @return unknown
+ */
 function custodian_cowpro_fund_issuing_failing($nid) {
 	$module = custodian_default_provider_key();
 	$function = $module . '_cowpro_fund_issuing_failing';
@@ -223,6 +269,11 @@ function custodian_cowpro_fund_issuing_failing($nid) {
 	}
 }
 
+/**
+ * 满标放款
+ * @param $nid 标的编号
+ * @return unknown
+ */
 function custodian_cowpro_fund_make_loans_to($nid) {
 	$module = custodian_default_provider_key();
 	$function = $module . '_cowpro_fund_make_loans_to';
@@ -237,6 +288,11 @@ function custodian_cowpro_fund_make_loans_to($nid) {
 	}
 }
 
+/**
+ * 到期还款
+ * @param $repayment_schedules 还款计划表的列表
+ * @return unknown
+ */
 function custodian_cowpro_fund_repayment($repayment_schedules) {
 	//TODO _cowpro_issuing_repayment_form_submit()对该方法的调用传入的参数与这里不一致
 	//并且，_cowpro_issuing_repayment_form_submit没有判断还款操作的结果
@@ -253,6 +309,11 @@ function custodian_cowpro_fund_repayment($repayment_schedules) {
 	}
 }
 
+/**
+ * 查询用户余额
+ * @param $uid
+ * @return unknown
+ */
 function custodian_cowpro_fund_balance_contents($uid) {
 	$module = custodian_default_provider_key();
 	$function = $module . '_cowpro_fund_query_balance';
@@ -273,6 +334,13 @@ function custodian_cowpro_fund_balance_contents($uid) {
 	}
 }
 
+/**
+ * The user's account information is being displayed.
+ * @param $account
+ *   The user object on which the operation is being performed.
+ * @param $view_mode
+ *   View mode, e.g. 'full'.
+ */
 function custodian_user_view_fund($account, $view_mode) {
 	$module = custodian_default_provider_key();
 	$function = $module . '_user_view_fund';
@@ -309,6 +377,14 @@ function custodian_user_view_fund($account, $view_mode) {
 	}
 }
 
+/**
+ * 购买债权
+ * @param $amount 购买价格
+ * @param $issuing_id 标的编号
+ * @param $seller_uid 出让人的uid
+ * @param $buyer_uid 买入人的uid
+ * @return unknown
+ */
 function custodian_cowpro_fund_buy_creditor_assignment($amount, $issuing_id, $seller_uid, $buyer_uid) {
 	$module = custodian_default_provider_key();
 	$function = $module . '_cowpro_fund_buy_creditor_assignment';
@@ -323,6 +399,11 @@ function custodian_cowpro_fund_buy_creditor_assignment($amount, $issuing_id, $se
 	}
 }
 
+/**
+ * 读取用户余额
+ * @param unknown $account
+ * @return NULL
+ */
 function custodian_get_balance($account) {
 	$module = custodian_default_provider_key();
 	$function = $module . '_user_view_fund';
