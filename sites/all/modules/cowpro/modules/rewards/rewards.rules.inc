@@ -46,8 +46,8 @@ function _cowpro_reward_make_loans_to_finished_grant_points($success, $node, $fu
 			$loan_amount = $journal->amount;
 			$annualized_amount = ($loan_term / 360) * $loan_amount;//年化投资额
 			$points = round($annualized_amount / 50);//年化投资额的五十分之一，做为投资者的奖励积分
-			$bonus1 = round($annualized_amount * 4 / 1000);//年化投资额的千分之四，以现金的形式奖励投资人的推荐人
-			$bonus2 = round($annualized_amount * 2 / 1000);//年化投资额的千分之二，以现金的形式奖励投资人的推荐人的推荐人
+			$bonus1 = round($annualized_amount * 2 / 1000);//年化投资额的千分之二，以现金的形式奖励投资人的推荐人
+			$bonus2 = round($annualized_amount * 1 / 1000);//年化投资额的千分之一，以现金的形式奖励投资人的推荐人的推荐人
 
 			if ($points > 0) {
 				//奖励投资人
