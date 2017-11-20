@@ -1,5 +1,7 @@
 <?php
 function cowpro_shop_redemption_form($form, &$form_state) {
+	form_load_include ( $form_state, 'inc', 'cowpro_shop', 'cowpro_shop_redemption' );
+
 	$uid = $GLOBALS ['user']->uid;
 	$max_points = userpoints_get_current_points($uid, _cowpro_shop_get_user_points_money_tid());
 
@@ -44,25 +46,44 @@ function cowpro_shop_redemption_done($form, &$form_state) {
 	} else if (intval($form_state['input'] ['points']) > $max_points) {
 		$error = "可兑现数量最多为$max_points ！";
 		ctools_ajax_render_error ( $error );
+	} else if (intval($form_state['input'] ['points']) < 100) {
+		$error = "兑现数量必须大于等于100，或者是100的整数倍 ！";
+		ctools_ajax_render_error ( $error );
+	} else if (intval($form_state['input'] ['points']) % 100 != 0) {
+		$error = "兑现数量必须大于等于100，或者是100的整数倍 ！";
+		ctools_ajax_render_error ( $error );
 	} else {
+		$amount = intval($form_state['input'] ['points']);
+		$uid_from = user_load_by_name ( variable_get ( 'fund_imprest_account', '' ) )->uid; // 转出账户ID
+		global $user;
+		$uid_to = $user->uid;
+		$comment = '(' . $user->name . ')' . '兑现奖金';
 
-		drupal_set_message('兑现成功！');
+		$result = custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comment);
+
+		if ($result['success']) {
+			$term = current ( taxonomy_get_term_by_name ( '奖金' ) );
+			$desc = "兑现奖金：" . $amount . "元";
+			$params = array (
+					'uid' => $user->uid,
+					'points' => 0 - $amount,
+					'description' => $desc,
+					'display' => false,
+					'tid' => $term->tid,
+			);
+			userpoints_userpointsapi ( $params );
+			drupal_set_message('转账成功');
+		} else {
+			drupal_set_message('转账失败，' . $result['message'], 'warning');
+			watchdog('internal_trans', $result['message']. '; code:' . $result['result_code']);
+		}
 
 		$commands = array ();
-		$commands [] = ajax_command_replace ( '#bankcard-list', drupal_render ( $element ) );
-		$commands [] = ctools_modal_command_dismiss ();
+		$url = $GLOBALS['base_url'] . '/myuserpoints';
+		$commands[] = ctools_ajax_command_redirect($url, 0);
 		print ajax_render ( $commands );
 		exit ();
 	}
-}
-function cowpro_shop_ctools_modal_dismiss() {
-	ctools_include ( 'modal' );
-	ctools_include ( 'ajax' );
-	$commands = array ();
-	$commands[] = ctools_modal_command_dismiss();
-	$commands[] = ctools_ajax_command_redirect();
-	print ajax_render ( $commands );
-	exit ();
 }
 function _cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, $interface_module, $result) {
 	if ($success) {
