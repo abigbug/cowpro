@@ -72,7 +72,7 @@ function cowpro_views_views_default_views() {
   );
 
   /* Display: Page */
-  $handler = $view->new_display('page', 'Page', 'page');
+  $handler = $view->new_display('page', 'Page', 'issuing_search');
   $handler->display->display_options['path'] = 'issuing-search';
   $translatables['_wyth'] = array(
     t('Master'),
@@ -490,11 +490,6 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['fields']['annual_rate']['id'] = 'annual_rate';
   $handler->display->display_options['fields']['annual_rate']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['annual_rate']['field'] = 'annual_rate';
-  /* 字段: Issuing: 还款方式 */
-  $handler->display->display_options['fields']['method_repayment']['id'] = 'method_repayment';
-  $handler->display->display_options['fields']['method_repayment']['table'] = 'field_data_field_issuing';
-  $handler->display->display_options['fields']['method_repayment']['field'] = 'method_repayment';
-  $handler->display->display_options['fields']['method_repayment']['element_label_colon'] = FALSE;
   /* 字段: Issuing: 贷款金额 */
   $handler->display->display_options['fields']['loan_amounts']['id'] = 'loan_amounts';
   $handler->display->display_options['fields']['loan_amounts']['table'] = 'field_data_field_issuing';
@@ -504,6 +499,11 @@ function cowpro_views_views_default_views() {
   $handler->display->display_options['fields']['status']['table'] = 'field_data_field_issuing';
   $handler->display->display_options['fields']['status']['field'] = 'status';
   $handler->display->display_options['fields']['status']['label'] = '状态';
+  /* 字段: Issuing: 满标放款时间 */
+  $handler->display->display_options['fields']['make_loans_time']['id'] = 'make_loans_time';
+  $handler->display->display_options['fields']['make_loans_time']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['make_loans_time']['field'] = 'make_loans_time';
+  $handler->display->display_options['fields']['make_loans_time']['label'] = '放款时间';
   /* 字段: Issuing: Operations */
   $handler->display->display_options['fields']['view_issuing']['id'] = 'view_issuing';
   $handler->display->display_options['fields']['view_issuing']['table'] = 'field_data_field_issuing';
@@ -665,10 +665,52 @@ function cowpro_views_views_default_views() {
 
   /* Display: 贷款管理，导出 */
   $handler = $view->new_display('views_data_export', '贷款管理，导出', 'views_data_export_1');
-  $handler->display->display_options['pager']['type'] = 'some';
+  $handler->display->display_options['pager']['type'] = 'none';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['style_plugin'] = 'views_data_export_xls';
   $handler->display->display_options['style_options']['provide_file'] = 0;
   $handler->display->display_options['style_options']['parent_sort'] = 0;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  /* 字段: 节点: 申请人 */
+  $handler->display->display_options['fields']['field_applicant']['id'] = 'field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['table'] = 'field_data_field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['field'] = 'field_applicant';
+  $handler->display->display_options['fields']['field_applicant']['settings'] = array(
+    'user_reference_view_mode' => 'full',
+  );
+  /* 字段: Issuing: progress */
+  $handler->display->display_options['fields']['progress']['id'] = 'progress';
+  $handler->display->display_options['fields']['progress']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['progress']['field'] = 'progress';
+  $handler->display->display_options['fields']['progress']['label'] = '进度';
+  /* 字段: Issuing: 贷款期限 */
+  $handler->display->display_options['fields']['term']['id'] = 'term';
+  $handler->display->display_options['fields']['term']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['term']['field'] = 'term';
+  /* 字段: Issuing: 年利率 */
+  $handler->display->display_options['fields']['annual_rate']['id'] = 'annual_rate';
+  $handler->display->display_options['fields']['annual_rate']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['annual_rate']['field'] = 'annual_rate';
+  /* 字段: Issuing: 贷款金额 */
+  $handler->display->display_options['fields']['loan_amounts']['id'] = 'loan_amounts';
+  $handler->display->display_options['fields']['loan_amounts']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['loan_amounts']['field'] = 'loan_amounts';
+  /* 字段: Issuing: 贷款状态 */
+  $handler->display->display_options['fields']['status']['id'] = 'status';
+  $handler->display->display_options['fields']['status']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['status']['field'] = 'status';
+  /* 字段: Issuing: 满标放款时间 */
+  $handler->display->display_options['fields']['make_loans_time']['id'] = 'make_loans_time';
+  $handler->display->display_options['fields']['make_loans_time']['table'] = 'field_data_field_issuing';
+  $handler->display->display_options['fields']['make_loans_time']['field'] = 'make_loans_time';
+  $handler->display->display_options['fields']['make_loans_time']['label'] = '放款时间';
   $handler->display->display_options['path'] = 'issuing-manage.xls';
   $handler->display->display_options['displays'] = array(
     'issuing_manage' => 'issuing_manage',
@@ -679,6 +721,8 @@ function cowpro_views_views_default_views() {
     'block_1' => 0,
     'issuing_list' => 0,
   );
+  $handler->display->display_options['use_batch'] = 'batch';
+  $handler->display->display_options['segment_size'] = '100';
 
   /* Display: 正在投标的贷款(用户) */
   $handler = $view->new_display('page', '正在投标的贷款(用户)', 'issuing_list_bidding');
@@ -1602,11 +1646,12 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     t('贷款管理'),
     t('贷款期限'),
     t('年利率'),
-    t('还款方式'),
     t('贷款金额'),
     t('状态'),
+    t('放款时间'),
     t('贷款表状态'),
     t('贷款标题'),
+    t('贷款状态'),
     t('正在投标的贷款(用户)'),
     t('正在投标的贷款'),
     t('我的贷款'),
@@ -1782,6 +1827,111 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     t('操作'),
   );
   $export['article_list'] = $view;
+
+  $view = new view();
+  $view->name = 'bankcard_search';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'cowpro_fund_bankcard';
+  $view->human_name = '银行卡查询';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = '银行卡查询';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['use_more_text'] = '更多';
+  $handler->display->display_options['access']['type'] = 'role';
+  $handler->display->display_options['access']['role'] = array(
+    3 => '3',
+  );
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
+  $handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
+  $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = '排序依据';
+  $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
+  $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '30';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = '每页条目数';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- 全部 -';
+  $handler->display->display_options['pager']['options']['expose']['offset_label'] = '偏移量';
+  $handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+  $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+  $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
+  $handler->display->display_options['style_plugin'] = 'table';
+  /* 字段: 银行卡: 用户名 */
+  $handler->display->display_options['fields']['uid']['id'] = 'uid';
+  $handler->display->display_options['fields']['uid']['table'] = 'cowpro_fund_bankcard';
+  $handler->display->display_options['fields']['uid']['field'] = 'uid';
+  /* 字段: 银行卡: 银行卡号 */
+  $handler->display->display_options['fields']['card_no']['id'] = 'card_no';
+  $handler->display->display_options['fields']['card_no']['table'] = 'cowpro_fund_bankcard';
+  $handler->display->display_options['fields']['card_no']['field'] = 'card_no';
+  /* 字段: 银行卡: 持卡人姓名 */
+  $handler->display->display_options['fields']['cardholder']['id'] = 'cardholder';
+  $handler->display->display_options['fields']['cardholder']['table'] = 'cowpro_fund_bankcard';
+  $handler->display->display_options['fields']['cardholder']['field'] = 'cardholder';
+  /* 字段: 银行卡: 开户行 */
+  $handler->display->display_options['fields']['bank_name']['id'] = 'bank_name';
+  $handler->display->display_options['fields']['bank_name']['table'] = 'cowpro_fund_bankcard';
+  $handler->display->display_options['fields']['bank_name']['field'] = 'bank_name';
+  /* 字段: 银行卡: 开户行网点 */
+  $handler->display->display_options['fields']['bank_branch']['id'] = 'bank_branch';
+  $handler->display->display_options['fields']['bank_branch']['table'] = 'cowpro_fund_bankcard';
+  $handler->display->display_options['fields']['bank_branch']['field'] = 'bank_branch';
+  $handler->display->display_options['fields']['bank_branch']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['bank_branch']['hide_alter_empty'] = FALSE;
+  /* 过滤规则: 银行卡: 用户ID */
+  $handler->display->display_options['filters']['uid']['id'] = 'uid';
+  $handler->display->display_options['filters']['uid']['table'] = 'cowpro_fund_bankcard';
+  $handler->display->display_options['filters']['uid']['field'] = 'uid';
+  $handler->display->display_options['filters']['uid']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['uid']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['uid']['expose']['label'] = '用户名';
+  $handler->display->display_options['filters']['uid']['expose']['operator'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['identifier'] = 'uid';
+  $handler->display->display_options['filters']['uid']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+  );
+
+  /* Display: 银行卡查询 */
+  $handler = $view->new_display('page', '银行卡查询', 'page');
+  $handler->display->display_options['path'] = 'bankcard-search';
+  $translatables['bankcard_search'] = array(
+    t('Master'),
+    t('银行卡查询'),
+    t('更多'),
+    t('应用'),
+    t('重置'),
+    t('排序依据'),
+    t('升序'),
+    t('降序'),
+    t('每页条目数'),
+    t('- 全部 -'),
+    t('偏移量'),
+    t('« 第一页'),
+    t('‹ 前一页'),
+    t('下一页 ›'),
+    t('末页 »'),
+    t('用户名'),
+    t('银行卡号'),
+    t('持卡人姓名'),
+    t('开户行'),
+    t('开户行网点'),
+  );
+  $export['bankcard_search'] = $view;
 
   $view = new view();
   $view->name = 'bid_list';
@@ -2503,6 +2653,11 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['receiver_uid']['table'] = 'cowpro_repayment_schedule';
   $handler->display->display_options['fields']['receiver_uid']['field'] = 'receiver_uid';
   $handler->display->display_options['fields']['receiver_uid']['exclude'] = TRUE;
+  /* 字段: 还款详情: 收款方 */
+  $handler->display->display_options['fields']['receiver_uid_1']['id'] = 'receiver_uid_1';
+  $handler->display->display_options['fields']['receiver_uid_1']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['receiver_uid_1']['field'] = 'receiver_uid';
+  $handler->display->display_options['fields']['receiver_uid_1']['exclude'] = TRUE;
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* 过滤规则: 还款详情: 最后还款日 */
@@ -2786,6 +2941,393 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $export['issuing_brief'] = $view;
 
   $view = new view();
+  $view->name = 'repayment_plan';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'cowpro_repayment_schedule';
+  $view->human_name = '近期还款计划';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = '近期本金还款计划';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['use_more_text'] = '更多';
+  $handler->display->display_options['access']['type'] = 'role';
+  $handler->display->display_options['access']['role'] = array(
+    3 => '3',
+  );
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
+  $handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
+  $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = '排序依据';
+  $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
+  $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '30';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = '每页条目数';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- 全部 -';
+  $handler->display->display_options['pager']['options']['expose']['offset_label'] = '偏移量';
+  $handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+  $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+  $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
+  $handler->display->display_options['style_plugin'] = 'table';
+  $handler->display->display_options['style_options']['columns'] = array(
+    'issuing_id' => 'issuing_id',
+    'receiver_uid' => 'receiver_uid',
+    'deadline' => 'deadline',
+    'status' => 'status',
+    'capital' => 'capital',
+    'interest' => 'interest',
+    'referee' => 'referee',
+  );
+  $handler->display->display_options['style_options']['default'] = '-1';
+  $handler->display->display_options['style_options']['info'] = array(
+    'issuing_id' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'receiver_uid' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'deadline' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'status' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'capital' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'interest' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'referee' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+  );
+  /* 字段: 还款详情: 贷款名称 */
+  $handler->display->display_options['fields']['issuing_id']['id'] = 'issuing_id';
+  $handler->display->display_options['fields']['issuing_id']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['issuing_id']['field'] = 'issuing_id';
+  /* 字段: 还款详情: 收款方 */
+  $handler->display->display_options['fields']['receiver_uid']['id'] = 'receiver_uid';
+  $handler->display->display_options['fields']['receiver_uid']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['receiver_uid']['field'] = 'receiver_uid';
+  /* 字段: 还款详情: 最后还款日 */
+  $handler->display->display_options['fields']['deadline']['id'] = 'deadline';
+  $handler->display->display_options['fields']['deadline']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['deadline']['field'] = 'deadline';
+  $handler->display->display_options['fields']['deadline']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['deadline']['custom_date_format'] = 'Y/m/d';
+  $handler->display->display_options['fields']['deadline']['second_date_format'] = 'long';
+  /* 字段: 还款详情: 状态 */
+  $handler->display->display_options['fields']['status']['id'] = 'status';
+  $handler->display->display_options['fields']['status']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['status']['field'] = 'status';
+  /* 字段: 还款详情: capital */
+  $handler->display->display_options['fields']['capital']['id'] = 'capital';
+  $handler->display->display_options['fields']['capital']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['capital']['field'] = 'capital';
+  $handler->display->display_options['fields']['capital']['label'] = '本金';
+  /* 字段: 还款详情: interest */
+  $handler->display->display_options['fields']['interest']['id'] = 'interest';
+  $handler->display->display_options['fields']['interest']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['interest']['field'] = 'interest';
+  $handler->display->display_options['fields']['interest']['label'] = '利息';
+  /* 字段: 损坏/缺失的处理器 */
+  $handler->display->display_options['fields']['referee']['id'] = 'referee';
+  $handler->display->display_options['fields']['referee']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['referee']['field'] = 'referee';
+  $handler->display->display_options['fields']['referee']['label'] = '推荐人';
+  /* 排序标准: 还款详情: 最后还款日 */
+  $handler->display->display_options['sorts']['deadline']['id'] = 'deadline';
+  $handler->display->display_options['sorts']['deadline']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['sorts']['deadline']['field'] = 'deadline';
+  $handler->display->display_options['sorts']['deadline']['granularity'] = 'day';
+  /* 排序标准: 还款详情: 贷款名称 */
+  $handler->display->display_options['sorts']['issuing_id']['id'] = 'issuing_id';
+  $handler->display->display_options['sorts']['issuing_id']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['sorts']['issuing_id']['field'] = 'issuing_id';
+  /* 过滤规则: 还款详情: 最后还款日 */
+  $handler->display->display_options['filters']['deadline']['id'] = 'deadline';
+  $handler->display->display_options['filters']['deadline']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['deadline']['field'] = 'deadline';
+  $handler->display->display_options['filters']['deadline']['operator'] = 'between';
+  $handler->display->display_options['filters']['deadline']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['deadline']['expose']['operator_id'] = 'deadline_op';
+  $handler->display->display_options['filters']['deadline']['expose']['label'] = '最后还款日（格式：yyyy/mm/dd）';
+  $handler->display->display_options['filters']['deadline']['expose']['operator'] = 'deadline_op';
+  $handler->display->display_options['filters']['deadline']['expose']['identifier'] = 'deadline';
+  $handler->display->display_options['filters']['deadline']['expose']['remember'] = TRUE;
+  $handler->display->display_options['filters']['deadline']['expose']['remember_roles'] = array(
+    2 => 0,
+    6 => '6',
+    3 => '3',
+    7 => '7',
+    1 => 0,
+    4 => 0,
+    5 => 0,
+  );
+  /* 过滤规则: 还款详情: 状态 */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = array(
+    'WAITING_FOR' => 'WAITING_FOR',
+  );
+  $handler->display->display_options['filters']['status']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['status']['expose']['operator_id'] = 'status_op';
+  $handler->display->display_options['filters']['status']['expose']['label'] = '状态';
+  $handler->display->display_options['filters']['status']['expose']['operator'] = 'status_op';
+  $handler->display->display_options['filters']['status']['expose']['identifier'] = 'status';
+  $handler->display->display_options['filters']['status']['expose']['remember'] = TRUE;
+  $handler->display->display_options['filters']['status']['expose']['remember_roles'] = array(
+    2 => 0,
+    6 => '6',
+    3 => '3',
+    7 => '7',
+    1 => 0,
+    4 => 0,
+    5 => 0,
+  );
+  /* 过滤规则: 还款详情: 收款方用户ID */
+  $handler->display->display_options['filters']['receiver_uid']['id'] = 'receiver_uid';
+  $handler->display->display_options['filters']['receiver_uid']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['receiver_uid']['field'] = 'receiver_uid';
+  $handler->display->display_options['filters']['receiver_uid']['operator'] = '!=';
+  $handler->display->display_options['filters']['receiver_uid']['value']['value'] = '-1';
+  /* 过滤规则: 还款详情: capital */
+  $handler->display->display_options['filters']['capital']['id'] = 'capital';
+  $handler->display->display_options['filters']['capital']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['filters']['capital']['field'] = 'capital';
+  $handler->display->display_options['filters']['capital']['operator'] = '>';
+  $handler->display->display_options['filters']['capital']['value']['value'] = '0';
+
+  /* Display: 近期本金还款计划 */
+  $handler = $view->new_display('page', '近期本金还款计划', 'page');
+  $handler->display->display_options['path'] = 'repayment-plan';
+
+  /* Display: 近期本金还款计划，导出 */
+  $handler = $view->new_display('views_data_export', '近期本金还款计划，导出', 'views_data_export_1');
+  $handler->display->display_options['pager']['type'] = 'none';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['style_plugin'] = 'views_data_export_xls';
+  $handler->display->display_options['style_options']['provide_file'] = 0;
+  $handler->display->display_options['style_options']['parent_sort'] = 0;
+  $handler->display->display_options['path'] = 'repayment-plan.xls';
+  $handler->display->display_options['displays'] = array(
+    'page' => 'page',
+    'default' => 0,
+    'page_1' => 0,
+  );
+
+  /* Display: 近期本金还款计划二 */
+  $handler = $view->new_display('page', '近期本金还款计划二', 'page_1');
+  $handler->display->display_options['defaults']['group_by'] = FALSE;
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'table';
+  $handler->display->display_options['style_options']['grouping'] = array(
+    0 => array(
+      'field' => 'title_detail',
+      'rendered' => 1,
+      'rendered_strip' => 0,
+    ),
+  );
+  $handler->display->display_options['style_options']['columns'] = array(
+    'title_detail' => 'title_detail',
+    'receiver_uid' => 'receiver_uid',
+    'deadline' => 'deadline',
+    'status' => 'status',
+    'capital' => 'capital',
+    'interest' => 'interest',
+    'referee' => 'referee',
+  );
+  $handler->display->display_options['style_options']['default'] = '-1';
+  $handler->display->display_options['style_options']['info'] = array(
+    'title_detail' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'receiver_uid' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'deadline' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'status' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'capital' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'interest' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'referee' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+  );
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: 还款详情: 贷款名称明细 */
+  $handler->display->display_options['fields']['title_detail']['id'] = 'title_detail';
+  $handler->display->display_options['fields']['title_detail']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['title_detail']['field'] = 'title_detail';
+  $handler->display->display_options['fields']['title_detail']['label'] = '贷款名称';
+  $handler->display->display_options['fields']['title_detail']['exclude'] = TRUE;
+  /* 字段: 还款详情: 收款方 */
+  $handler->display->display_options['fields']['receiver_uid']['id'] = 'receiver_uid';
+  $handler->display->display_options['fields']['receiver_uid']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['receiver_uid']['field'] = 'receiver_uid';
+  /* 字段: 还款详情: 最后还款日 */
+  $handler->display->display_options['fields']['deadline']['id'] = 'deadline';
+  $handler->display->display_options['fields']['deadline']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['deadline']['field'] = 'deadline';
+  $handler->display->display_options['fields']['deadline']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['deadline']['custom_date_format'] = 'Y/m/d';
+  $handler->display->display_options['fields']['deadline']['second_date_format'] = 'long';
+  /* 字段: 还款详情: 状态 */
+  $handler->display->display_options['fields']['status']['id'] = 'status';
+  $handler->display->display_options['fields']['status']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['status']['field'] = 'status';
+  /* 字段: 还款详情: capital */
+  $handler->display->display_options['fields']['capital']['id'] = 'capital';
+  $handler->display->display_options['fields']['capital']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['capital']['field'] = 'capital';
+  $handler->display->display_options['fields']['capital']['label'] = '本金';
+  /* 字段: 还款详情: interest */
+  $handler->display->display_options['fields']['interest']['id'] = 'interest';
+  $handler->display->display_options['fields']['interest']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['interest']['field'] = 'interest';
+  $handler->display->display_options['fields']['interest']['label'] = '利息';
+  /* 字段: 损坏/缺失的处理器 */
+  $handler->display->display_options['fields']['referee']['id'] = 'referee';
+  $handler->display->display_options['fields']['referee']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['referee']['field'] = 'referee';
+  $handler->display->display_options['fields']['referee']['label'] = '推荐人';
+  $handler->display->display_options['path'] = 'repayment-plan2';
+
+  /* Display: 近期本金还款计划二，导出 */
+  $handler = $view->new_display('views_data_export', '近期本金还款计划二，导出', 'views_data_export_2');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = '近期本金还款计划二';
+  $handler->display->display_options['pager']['type'] = 'none';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['style_plugin'] = 'views_data_export_xls';
+  $handler->display->display_options['style_options']['provide_file'] = 0;
+  $handler->display->display_options['style_options']['parent_sort'] = 0;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: 还款详情: 贷款名称明细 */
+  $handler->display->display_options['fields']['title_detail']['id'] = 'title_detail';
+  $handler->display->display_options['fields']['title_detail']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['title_detail']['field'] = 'title_detail';
+  $handler->display->display_options['fields']['title_detail']['label'] = '贷款名称';
+  /* 字段: 还款详情: 收款方 */
+  $handler->display->display_options['fields']['receiver_uid']['id'] = 'receiver_uid';
+  $handler->display->display_options['fields']['receiver_uid']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['receiver_uid']['field'] = 'receiver_uid';
+  /* 字段: 还款详情: 最后还款日 */
+  $handler->display->display_options['fields']['deadline']['id'] = 'deadline';
+  $handler->display->display_options['fields']['deadline']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['deadline']['field'] = 'deadline';
+  $handler->display->display_options['fields']['deadline']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['deadline']['custom_date_format'] = 'Y/m/d';
+  $handler->display->display_options['fields']['deadline']['second_date_format'] = 'long';
+  /* 字段: 还款详情: 状态 */
+  $handler->display->display_options['fields']['status']['id'] = 'status';
+  $handler->display->display_options['fields']['status']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['status']['field'] = 'status';
+  /* 字段: 还款详情: capital */
+  $handler->display->display_options['fields']['capital']['id'] = 'capital';
+  $handler->display->display_options['fields']['capital']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['capital']['field'] = 'capital';
+  $handler->display->display_options['fields']['capital']['label'] = '本金';
+  /* 字段: 还款详情: interest */
+  $handler->display->display_options['fields']['interest']['id'] = 'interest';
+  $handler->display->display_options['fields']['interest']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['interest']['field'] = 'interest';
+  $handler->display->display_options['fields']['interest']['label'] = '利息';
+  /* 字段: 损坏/缺失的处理器 */
+  $handler->display->display_options['fields']['referee']['id'] = 'referee';
+  $handler->display->display_options['fields']['referee']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['fields']['referee']['field'] = 'referee';
+  $handler->display->display_options['fields']['referee']['label'] = '推荐人';
+  $handler->display->display_options['path'] = 'repayment-plan2.xls';
+  $handler->display->display_options['displays'] = array(
+    'page_1' => 'page_1',
+    'default' => 0,
+    'page' => 0,
+  );
+  $handler->display->display_options['sitename_title'] = 0;
+  $translatables['repayment_plan'] = array(
+    t('Master'),
+    t('近期本金还款计划'),
+    t('更多'),
+    t('应用'),
+    t('重置'),
+    t('排序依据'),
+    t('升序'),
+    t('降序'),
+    t('每页条目数'),
+    t('- 全部 -'),
+    t('偏移量'),
+    t('« 第一页'),
+    t('‹ 前一页'),
+    t('下一页 ›'),
+    t('末页 »'),
+    t('贷款名称'),
+    t('收款方'),
+    t('最后还款日'),
+    t('状态'),
+    t('本金'),
+    t('利息'),
+    t('推荐人'),
+    t('最后还款日（格式：yyyy/mm/dd）'),
+    t('近期本金还款计划，导出'),
+    t('近期本金还款计划二'),
+    t('近期本金还款计划二，导出'),
+  );
+  $export['repayment_plan'] = $view;
+
+  $view = new view();
   $view->name = 'repayment_schedule';
   $view->description = '';
   $view->tag = 'cowpro';
@@ -2893,7 +3435,8 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['fields']['deadline']['id'] = 'deadline';
   $handler->display->display_options['fields']['deadline']['table'] = 'cowpro_repayment_schedule';
   $handler->display->display_options['fields']['deadline']['field'] = 'deadline';
-  $handler->display->display_options['fields']['deadline']['date_format'] = 'short';
+  $handler->display->display_options['fields']['deadline']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['deadline']['custom_date_format'] = 'Y/m/d';
   $handler->display->display_options['fields']['deadline']['second_date_format'] = 'short';
   /* 字段: 还款详情: 状态 */
   $handler->display->display_options['fields']['status']['id'] = 'status';
@@ -2908,6 +3451,16 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['arguments']['nid']['summary']['number_of_records'] = '0';
   $handler->display->display_options['arguments']['nid']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['nid']['summary_options']['items_per_page'] = '25';
+  /* 上下文过滤器: 还款详情: 收款方 */
+  $handler->display->display_options['arguments']['receiver_uid']['id'] = 'receiver_uid';
+  $handler->display->display_options['arguments']['receiver_uid']['table'] = 'cowpro_repayment_schedule';
+  $handler->display->display_options['arguments']['receiver_uid']['field'] = 'receiver_uid';
+  $handler->display->display_options['arguments']['receiver_uid']['default_action'] = 'empty';
+  $handler->display->display_options['arguments']['receiver_uid']['exception']['title'] = '全部';
+  $handler->display->display_options['arguments']['receiver_uid']['default_argument_type'] = 'fixed';
+  $handler->display->display_options['arguments']['receiver_uid']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['receiver_uid']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['receiver_uid']['summary_options']['items_per_page'] = '25';
   $translatables['repayment_schedule'] = array(
     t('Master'),
     t('更多'),
@@ -3603,7 +4156,8 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
   $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
   $handler->display->display_options['pager']['type'] = 'some';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '5';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '6';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['style_plugin'] = 'views_bootstrap_carousel_plugin_style';
   $handler->display->display_options['style_options']['interval'] = '5000';
   $handler->display->display_options['style_options']['navigation'] = 1;
@@ -3876,7 +4430,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
   $handler->display->display_options['filters']['created_2']['field'] = 'created';
   $handler->display->display_options['filters']['created_2']['exposed'] = TRUE;
   $handler->display->display_options['filters']['created_2']['expose']['operator_id'] = 'created_2_op';
-  $handler->display->display_options['filters']['created_2']['expose']['label'] = '创建日期';
+  $handler->display->display_options['filters']['created_2']['expose']['label'] = '创建日期(格式：YYYY/MM/DD) ';
   $handler->display->display_options['filters']['created_2']['expose']['use_operator'] = TRUE;
   $handler->display->display_options['filters']['created_2']['expose']['operator'] = 'created_2_op';
   $handler->display->display_options['filters']['created_2']['expose']['identifier'] = 'created_2';
@@ -3887,6 +4441,7 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     3 => 0,
     4 => 0,
     5 => 0,
+    7 => 0,
   );
   /* 过滤规则: User: 手机验证 */
   $handler->display->display_options['filters']['mobile_certification_2']['id'] = 'mobile_certification_2';
@@ -3955,6 +4510,8 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     'page' => 'page',
     'default' => 0,
   );
+  $handler->display->display_options['use_batch'] = 'batch';
+  $handler->display->display_options['segment_size'] = '200';
   $translatables['user_sopuo'] = array(
     t('Master'),
     t('用户查询'),
@@ -3979,11 +4536,542 @@ $node_url = drupal_get_path_alias(\'node/\' . $node_id) ; //url 转化
     t('手机验证'),
     t('投标密码'),
     t('推荐人'),
+    t('创建日期(格式：YYYY/MM/DD) '),
     t('用户的手机号码或者昵称'),
     t('推荐人的手机号码或者昵称 '),
     t('用户查询，导出'),
   );
   $export['user_sopuo'] = $view;
+
+  $view = new view();
+  $view->name = 'userpoints_search';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'userpoints_txn';
+  $view->human_name = '积分与奖金';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = '积分与奖金';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['use_more_text'] = '更多';
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['perm'] = 'access user profiles';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
+  $handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
+  $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = '排序依据';
+  $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
+  $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '30';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = '每页条目数';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- 全部 -';
+  $handler->display->display_options['pager']['options']['expose']['offset_label'] = '偏移量';
+  $handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+  $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+  $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
+  $handler->display->display_options['style_plugin'] = 'table';
+  /* 关联: Userpoints Transactions: User */
+  $handler->display->display_options['relationships']['uid']['id'] = 'uid';
+  $handler->display->display_options['relationships']['uid']['table'] = 'userpoints_txn';
+  $handler->display->display_options['relationships']['uid']['field'] = 'uid';
+  $handler->display->display_options['relationships']['uid']['label'] = '用户';
+  /* 字段: User: 用户昵称与实名 */
+  $handler->display->display_options['fields']['name_detail']['id'] = 'name_detail';
+  $handler->display->display_options['fields']['name_detail']['table'] = 'users';
+  $handler->display->display_options['fields']['name_detail']['field'] = 'name_detail';
+  $handler->display->display_options['fields']['name_detail']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['name_detail']['label'] = '用户';
+
+  /* Display: 积分与奖金 */
+  $handler = $view->new_display('page', '积分与奖金', 'page');
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: User: 用户昵称与实名 */
+  $handler->display->display_options['fields']['name_detail']['id'] = 'name_detail';
+  $handler->display->display_options['fields']['name_detail']['table'] = 'users';
+  $handler->display->display_options['fields']['name_detail']['field'] = 'name_detail';
+  $handler->display->display_options['fields']['name_detail']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['name_detail']['label'] = '用户';
+  /* 字段: Userpoints Transactions: Category */
+  $handler->display->display_options['fields']['tid']['id'] = 'tid';
+  $handler->display->display_options['fields']['tid']['table'] = 'userpoints_txn';
+  $handler->display->display_options['fields']['tid']['field'] = 'tid';
+  $handler->display->display_options['fields']['tid']['label'] = '分类';
+  /* 字段: Userpoints Transactions: Points */
+  $handler->display->display_options['fields']['points']['id'] = 'points';
+  $handler->display->display_options['fields']['points']['table'] = 'userpoints_txn';
+  $handler->display->display_options['fields']['points']['field'] = 'points';
+  $handler->display->display_options['fields']['points']['label'] = '点';
+  /* 字段: Userpoints Transactions: Reference */
+  $handler->display->display_options['fields']['reference']['id'] = 'reference';
+  $handler->display->display_options['fields']['reference']['table'] = 'userpoints_txn';
+  $handler->display->display_options['fields']['reference']['field'] = 'reference';
+  $handler->display->display_options['fields']['reference']['label'] = '参考';
+  /* 字段: Userpoints Transactions: Description */
+  $handler->display->display_options['fields']['description']['id'] = 'description';
+  $handler->display->display_options['fields']['description']['table'] = 'userpoints_txn';
+  $handler->display->display_options['fields']['description']['field'] = 'description';
+  $handler->display->display_options['fields']['description']['label'] = '描述';
+  /* 字段: Userpoints Transactions: Timestamp */
+  $handler->display->display_options['fields']['time_stamp']['id'] = 'time_stamp';
+  $handler->display->display_options['fields']['time_stamp']['table'] = 'userpoints_txn';
+  $handler->display->display_options['fields']['time_stamp']['field'] = 'time_stamp';
+  $handler->display->display_options['fields']['time_stamp']['label'] = '时间';
+  $handler->display->display_options['fields']['time_stamp']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['time_stamp']['custom_date_format'] = 'Y/m/d';
+  $handler->display->display_options['fields']['time_stamp']['second_date_format'] = 'long';
+  /* 字段: Userpoints Transactions: 操作、动作 */
+  $handler->display->display_options['fields']['cowpro_operation']['id'] = 'cowpro_operation';
+  $handler->display->display_options['fields']['cowpro_operation']['table'] = 'userpoints_txn';
+  $handler->display->display_options['fields']['cowpro_operation']['field'] = 'cowpro_operation';
+  $handler->display->display_options['fields']['cowpro_operation']['label'] = '操作';
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* 过滤规则: Userpoints Transactions: Category */
+  $handler->display->display_options['filters']['tid']['id'] = 'tid';
+  $handler->display->display_options['filters']['tid']['table'] = 'userpoints_txn';
+  $handler->display->display_options['filters']['tid']['field'] = 'tid';
+  $handler->display->display_options['filters']['tid']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['tid']['expose']['operator_id'] = 'tid_op';
+  $handler->display->display_options['filters']['tid']['expose']['label'] = '分类';
+  $handler->display->display_options['filters']['tid']['expose']['operator'] = 'tid_op';
+  $handler->display->display_options['filters']['tid']['expose']['identifier'] = 'tid';
+  $handler->display->display_options['filters']['tid']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+  );
+  /* 过滤规则: Userpoints Transactions: Timestamp */
+  $handler->display->display_options['filters']['time_stamp']['id'] = 'time_stamp';
+  $handler->display->display_options['filters']['time_stamp']['table'] = 'userpoints_txn';
+  $handler->display->display_options['filters']['time_stamp']['field'] = 'time_stamp';
+  $handler->display->display_options['filters']['time_stamp']['operator'] = 'between';
+  $handler->display->display_options['filters']['time_stamp']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['time_stamp']['expose']['operator_id'] = 'time_stamp_op';
+  $handler->display->display_options['filters']['time_stamp']['expose']['label'] = '时间(格式：YYYY/MM/DD) ';
+  $handler->display->display_options['filters']['time_stamp']['expose']['operator'] = 'time_stamp_op';
+  $handler->display->display_options['filters']['time_stamp']['expose']['identifier'] = 'time_stamp';
+  $handler->display->display_options['filters']['time_stamp']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+  );
+  $handler->display->display_options['path'] = 'userpoints-search';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = '积分与奖金';
+  $handler->display->display_options['menu']['weight'] = '0';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: 商城购物 */
+  $handler = $view->new_display('page', '商城购物', 'page_1');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = '商城购物';
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: User: 用户昵称与实名 */
+  $handler->display->display_options['fields']['name_detail']['id'] = 'name_detail';
+  $handler->display->display_options['fields']['name_detail']['table'] = 'users';
+  $handler->display->display_options['fields']['name_detail']['field'] = 'name_detail';
+  $handler->display->display_options['fields']['name_detail']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['name_detail']['label'] = '用户';
+  /* 字段: Userpoints Transactions: Points */
+  $handler->display->display_options['fields']['points']['id'] = 'points';
+  $handler->display->display_options['fields']['points']['table'] = 'userpoints_txn';
+  $handler->display->display_options['fields']['points']['field'] = 'points';
+  $handler->display->display_options['fields']['points']['label'] = '点';
+  /* 字段: Userpoints Transactions: Description */
+  $handler->display->display_options['fields']['description']['id'] = 'description';
+  $handler->display->display_options['fields']['description']['table'] = 'userpoints_txn';
+  $handler->display->display_options['fields']['description']['field'] = 'description';
+  $handler->display->display_options['fields']['description']['label'] = '描述';
+  /* 字段: Userpoints Transactions: Timestamp */
+  $handler->display->display_options['fields']['time_stamp']['id'] = 'time_stamp';
+  $handler->display->display_options['fields']['time_stamp']['table'] = 'userpoints_txn';
+  $handler->display->display_options['fields']['time_stamp']['field'] = 'time_stamp';
+  $handler->display->display_options['fields']['time_stamp']['label'] = '时间';
+  $handler->display->display_options['fields']['time_stamp']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['time_stamp']['custom_date_format'] = 'Y/m/d';
+  $handler->display->display_options['fields']['time_stamp']['second_date_format'] = 'long';
+  /* 字段: User: 手机验证 */
+  $handler->display->display_options['fields']['mobile_certification']['id'] = 'mobile_certification';
+  $handler->display->display_options['fields']['mobile_certification']['table'] = 'users';
+  $handler->display->display_options['fields']['mobile_certification']['field'] = 'mobile_certification';
+  $handler->display->display_options['fields']['mobile_certification']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['mobile_certification']['label'] = '手机';
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* 过滤规则: Userpoints Transactions: Category */
+  $handler->display->display_options['filters']['tid']['id'] = 'tid';
+  $handler->display->display_options['filters']['tid']['table'] = 'userpoints_txn';
+  $handler->display->display_options['filters']['tid']['field'] = 'tid';
+  $handler->display->display_options['filters']['tid']['value'] = array(
+    0 => '0',
+  );
+  $handler->display->display_options['filters']['tid']['group'] = 1;
+  $handler->display->display_options['filters']['tid']['expose']['operator_id'] = 'tid_op';
+  $handler->display->display_options['filters']['tid']['expose']['label'] = '分类';
+  $handler->display->display_options['filters']['tid']['expose']['operator'] = 'tid_op';
+  $handler->display->display_options['filters']['tid']['expose']['identifier'] = 'tid';
+  $handler->display->display_options['filters']['tid']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+  );
+  /* 过滤规则: Userpoints Transactions: Reference */
+  $handler->display->display_options['filters']['reference']['id'] = 'reference';
+  $handler->display->display_options['filters']['reference']['table'] = 'userpoints_txn';
+  $handler->display->display_options['filters']['reference']['field'] = 'reference';
+  $handler->display->display_options['filters']['reference']['value'] = 'shop';
+  $handler->display->display_options['filters']['reference']['group'] = 1;
+  /* 过滤规则: Userpoints Transactions: Timestamp */
+  $handler->display->display_options['filters']['time_stamp']['id'] = 'time_stamp';
+  $handler->display->display_options['filters']['time_stamp']['table'] = 'userpoints_txn';
+  $handler->display->display_options['filters']['time_stamp']['field'] = 'time_stamp';
+  $handler->display->display_options['filters']['time_stamp']['operator'] = 'between';
+  $handler->display->display_options['filters']['time_stamp']['group'] = 1;
+  $handler->display->display_options['filters']['time_stamp']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['time_stamp']['expose']['operator_id'] = 'time_stamp_op';
+  $handler->display->display_options['filters']['time_stamp']['expose']['label'] = '时间(格式：YYYY/MM/DD) ';
+  $handler->display->display_options['filters']['time_stamp']['expose']['operator'] = 'time_stamp_op';
+  $handler->display->display_options['filters']['time_stamp']['expose']['identifier'] = 'time_stamp';
+  $handler->display->display_options['filters']['time_stamp']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+  );
+  $handler->display->display_options['path'] = 'userpoints-shop';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = '商城购物';
+  $handler->display->display_options['menu']['weight'] = '0';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: 商城购物，导出 */
+  $handler = $view->new_display('views_data_export', '商城购物，导出', 'views_data_export_1');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = '商城购物，导出';
+  $handler->display->display_options['pager']['type'] = 'none';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['style_plugin'] = 'views_data_export_xls';
+  $handler->display->display_options['style_options']['provide_file'] = 0;
+  $handler->display->display_options['style_options']['parent_sort'] = 0;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: User: 用户昵称与实名 */
+  $handler->display->display_options['fields']['name_detail']['id'] = 'name_detail';
+  $handler->display->display_options['fields']['name_detail']['table'] = 'users';
+  $handler->display->display_options['fields']['name_detail']['field'] = 'name_detail';
+  $handler->display->display_options['fields']['name_detail']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['name_detail']['label'] = '用户';
+  /* 字段: Userpoints Transactions: Points */
+  $handler->display->display_options['fields']['points']['id'] = 'points';
+  $handler->display->display_options['fields']['points']['table'] = 'userpoints_txn';
+  $handler->display->display_options['fields']['points']['field'] = 'points';
+  $handler->display->display_options['fields']['points']['label'] = '点';
+  /* 字段: Userpoints Transactions: Description */
+  $handler->display->display_options['fields']['description']['id'] = 'description';
+  $handler->display->display_options['fields']['description']['table'] = 'userpoints_txn';
+  $handler->display->display_options['fields']['description']['field'] = 'description';
+  $handler->display->display_options['fields']['description']['label'] = '描述';
+  /* 字段: Userpoints Transactions: Timestamp */
+  $handler->display->display_options['fields']['time_stamp']['id'] = 'time_stamp';
+  $handler->display->display_options['fields']['time_stamp']['table'] = 'userpoints_txn';
+  $handler->display->display_options['fields']['time_stamp']['field'] = 'time_stamp';
+  $handler->display->display_options['fields']['time_stamp']['label'] = '时间';
+  $handler->display->display_options['fields']['time_stamp']['date_format'] = 'custom';
+  $handler->display->display_options['fields']['time_stamp']['custom_date_format'] = 'Y/m/d';
+  $handler->display->display_options['fields']['time_stamp']['second_date_format'] = 'long';
+  /* 字段: User: 手机验证 */
+  $handler->display->display_options['fields']['mobile_certification']['id'] = 'mobile_certification';
+  $handler->display->display_options['fields']['mobile_certification']['table'] = 'users';
+  $handler->display->display_options['fields']['mobile_certification']['field'] = 'mobile_certification';
+  $handler->display->display_options['fields']['mobile_certification']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['mobile_certification']['label'] = '手机';
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* 过滤规则: Userpoints Transactions: Category */
+  $handler->display->display_options['filters']['tid']['id'] = 'tid';
+  $handler->display->display_options['filters']['tid']['table'] = 'userpoints_txn';
+  $handler->display->display_options['filters']['tid']['field'] = 'tid';
+  $handler->display->display_options['filters']['tid']['value'] = array(
+    0 => '0',
+  );
+  $handler->display->display_options['filters']['tid']['group'] = 1;
+  /* 过滤规则: Userpoints Transactions: Reference */
+  $handler->display->display_options['filters']['reference']['id'] = 'reference';
+  $handler->display->display_options['filters']['reference']['table'] = 'userpoints_txn';
+  $handler->display->display_options['filters']['reference']['field'] = 'reference';
+  $handler->display->display_options['filters']['reference']['value'] = 'shop';
+  $handler->display->display_options['filters']['reference']['group'] = 1;
+  /* 过滤规则: Userpoints Transactions: Timestamp */
+  $handler->display->display_options['filters']['time_stamp']['id'] = 'time_stamp';
+  $handler->display->display_options['filters']['time_stamp']['table'] = 'userpoints_txn';
+  $handler->display->display_options['filters']['time_stamp']['field'] = 'time_stamp';
+  $handler->display->display_options['filters']['time_stamp']['operator'] = 'between';
+  $handler->display->display_options['filters']['time_stamp']['group'] = 1;
+  $handler->display->display_options['filters']['time_stamp']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['time_stamp']['expose']['operator_id'] = 'time_stamp_op';
+  $handler->display->display_options['filters']['time_stamp']['expose']['label'] = '时间(格式：YYYY/MM/DD) ';
+  $handler->display->display_options['filters']['time_stamp']['expose']['operator'] = 'time_stamp_op';
+  $handler->display->display_options['filters']['time_stamp']['expose']['identifier'] = 'time_stamp';
+  $handler->display->display_options['filters']['time_stamp']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+  );
+  $handler->display->display_options['path'] = 'userpoints-shop.xls';
+  $handler->display->display_options['displays'] = array(
+    'page_1' => 'page_1',
+    'default' => 0,
+    'page' => 0,
+  );
+  $handler->display->display_options['sitename_title'] = 0;
+  $translatables['userpoints_search'] = array(
+    t('Master'),
+    t('积分与奖金'),
+    t('更多'),
+    t('应用'),
+    t('重置'),
+    t('排序依据'),
+    t('升序'),
+    t('降序'),
+    t('每页条目数'),
+    t('- 全部 -'),
+    t('偏移量'),
+    t('« 第一页'),
+    t('‹ 前一页'),
+    t('下一页 ›'),
+    t('末页 »'),
+    t('用户'),
+    t('分类'),
+    t('点'),
+    t('.'),
+    t(','),
+    t('参考'),
+    t('描述'),
+    t('时间'),
+    t('操作'),
+    t('时间(格式：YYYY/MM/DD) '),
+    t('商城购物'),
+    t('手机'),
+    t('商城购物，导出'),
+  );
+  $export['userpoints_search'] = $view;
+
+  $view = new view();
+  $view->name = 'userpoints_sum';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'userpoints';
+  $view->human_name = '全部积分';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = '全部积分';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['use_more_text'] = '更多';
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['perm'] = 'access user profiles';
+  $handler->display->display_options['cache']['type'] = 'time';
+  $handler->display->display_options['cache']['results_lifespan'] = '3600';
+  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['output_lifespan'] = '3600';
+  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['exposed_form']['options']['submit_button'] = '应用';
+  $handler->display->display_options['exposed_form']['options']['reset_button_label'] = '重置';
+  $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = '排序依据';
+  $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = '升序';
+  $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = '降序';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '30';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = '每页条目数';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- 全部 -';
+  $handler->display->display_options['pager']['options']['expose']['offset_label'] = '偏移量';
+  $handler->display->display_options['pager']['options']['tags']['first'] = '« 第一页';
+  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ 前一页';
+  $handler->display->display_options['pager']['options']['tags']['next'] = '下一页 ›';
+  $handler->display->display_options['pager']['options']['tags']['last'] = '末页 »';
+  $handler->display->display_options['style_plugin'] = 'table';
+  /* 关联: Userpoints: User */
+  $handler->display->display_options['relationships']['uid']['id'] = 'uid';
+  $handler->display->display_options['relationships']['uid']['table'] = 'userpoints';
+  $handler->display->display_options['relationships']['uid']['field'] = 'uid';
+  $handler->display->display_options['relationships']['uid']['label'] = '用户';
+  /* 字段: User: 用户昵称与实名 */
+  $handler->display->display_options['fields']['name_detail']['id'] = 'name_detail';
+  $handler->display->display_options['fields']['name_detail']['table'] = 'users';
+  $handler->display->display_options['fields']['name_detail']['field'] = 'name_detail';
+  $handler->display->display_options['fields']['name_detail']['relationship'] = 'uid';
+  /* 字段: User: 手机验证 */
+  $handler->display->display_options['fields']['mobile_certification']['id'] = 'mobile_certification';
+  $handler->display->display_options['fields']['mobile_certification']['table'] = 'users';
+  $handler->display->display_options['fields']['mobile_certification']['field'] = 'mobile_certification';
+  $handler->display->display_options['fields']['mobile_certification']['relationship'] = 'uid';
+  /* 字段: Userpoints: Current 积分 in category */
+  $handler->display->display_options['fields']['points']['id'] = 'points';
+  $handler->display->display_options['fields']['points']['table'] = 'userpoints';
+  $handler->display->display_options['fields']['points']['field'] = 'points';
+  $handler->display->display_options['fields']['points']['label'] = '分值';
+  /* 字段: Userpoints: Points category */
+  $handler->display->display_options['fields']['tid']['id'] = 'tid';
+  $handler->display->display_options['fields']['tid']['table'] = 'userpoints';
+  $handler->display->display_options['fields']['tid']['field'] = 'tid';
+  $handler->display->display_options['fields']['tid']['label'] = '分类';
+  /* 字段: Userpoints: 操作、动作 */
+  $handler->display->display_options['fields']['cowpro_operation']['id'] = 'cowpro_operation';
+  $handler->display->display_options['fields']['cowpro_operation']['table'] = 'userpoints';
+  $handler->display->display_options['fields']['cowpro_operation']['field'] = 'cowpro_operation';
+  $handler->display->display_options['fields']['cowpro_operation']['label'] = '操作';
+  /* 排序标准: Userpoints: Current 积分 in category */
+  $handler->display->display_options['sorts']['points']['id'] = 'points';
+  $handler->display->display_options['sorts']['points']['table'] = 'userpoints';
+  $handler->display->display_options['sorts']['points']['field'] = 'points';
+  $handler->display->display_options['sorts']['points']['order'] = 'DESC';
+  /* 过滤规则: Userpoints: Points category */
+  $handler->display->display_options['filters']['tid']['id'] = 'tid';
+  $handler->display->display_options['filters']['tid']['table'] = 'userpoints';
+  $handler->display->display_options['filters']['tid']['field'] = 'tid';
+  $handler->display->display_options['filters']['tid']['group'] = 1;
+  $handler->display->display_options['filters']['tid']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['tid']['expose']['operator_id'] = 'tid_op';
+  $handler->display->display_options['filters']['tid']['expose']['label'] = '分类';
+  $handler->display->display_options['filters']['tid']['expose']['operator'] = 'tid_op';
+  $handler->display->display_options['filters']['tid']['expose']['identifier'] = 'tid';
+  $handler->display->display_options['filters']['tid']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+    8 => 0,
+  );
+  /* 过滤规则: Userpoints: Current 积分 in category */
+  $handler->display->display_options['filters']['points']['id'] = 'points';
+  $handler->display->display_options['filters']['points']['table'] = 'userpoints';
+  $handler->display->display_options['filters']['points']['field'] = 'points';
+  $handler->display->display_options['filters']['points']['operator'] = '>';
+  $handler->display->display_options['filters']['points']['group'] = 1;
+  $handler->display->display_options['filters']['points']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['points']['expose']['operator_id'] = 'points_op';
+  $handler->display->display_options['filters']['points']['expose']['label'] = '分值大于';
+  $handler->display->display_options['filters']['points']['expose']['operator'] = 'points_op';
+  $handler->display->display_options['filters']['points']['expose']['identifier'] = 'points';
+  $handler->display->display_options['filters']['points']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6 => 0,
+    3 => 0,
+    4 => 0,
+    5 => 0,
+    7 => 0,
+    8 => 0,
+  );
+
+  /* Display: 全部积分 */
+  $handler = $view->new_display('page', '全部积分', 'page');
+  $handler->display->display_options['path'] = 'userpoints-sum';
+  $handler->display->display_options['menu']['type'] = 'normal';
+  $handler->display->display_options['menu']['title'] = '全部积分';
+  $handler->display->display_options['menu']['weight'] = '0';
+  $handler->display->display_options['menu']['context'] = 0;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: 全部积分，导出 */
+  $handler = $view->new_display('views_data_export', '全部积分，导出', 'views_data_export_1');
+  $handler->display->display_options['pager']['type'] = 'none';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['style_plugin'] = 'views_data_export_xls';
+  $handler->display->display_options['style_options']['provide_file'] = 0;
+  $handler->display->display_options['style_options']['parent_sort'] = 0;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* 字段: User: 用户昵称与实名 */
+  $handler->display->display_options['fields']['name_detail']['id'] = 'name_detail';
+  $handler->display->display_options['fields']['name_detail']['table'] = 'users';
+  $handler->display->display_options['fields']['name_detail']['field'] = 'name_detail';
+  $handler->display->display_options['fields']['name_detail']['relationship'] = 'uid';
+  /* 字段: User: 手机验证 */
+  $handler->display->display_options['fields']['mobile_certification']['id'] = 'mobile_certification';
+  $handler->display->display_options['fields']['mobile_certification']['table'] = 'users';
+  $handler->display->display_options['fields']['mobile_certification']['field'] = 'mobile_certification';
+  $handler->display->display_options['fields']['mobile_certification']['relationship'] = 'uid';
+  /* 字段: Userpoints: Current 积分 in category */
+  $handler->display->display_options['fields']['points']['id'] = 'points';
+  $handler->display->display_options['fields']['points']['table'] = 'userpoints';
+  $handler->display->display_options['fields']['points']['field'] = 'points';
+  $handler->display->display_options['fields']['points']['label'] = '分值';
+  /* 字段: Userpoints: Points category */
+  $handler->display->display_options['fields']['tid']['id'] = 'tid';
+  $handler->display->display_options['fields']['tid']['table'] = 'userpoints';
+  $handler->display->display_options['fields']['tid']['field'] = 'tid';
+  $handler->display->display_options['fields']['tid']['label'] = '分类';
+  $handler->display->display_options['path'] = 'userpoints-sum.xls';
+  $handler->display->display_options['displays'] = array(
+    'page' => 'page',
+    'default' => 0,
+  );
+  $handler->display->display_options['use_batch'] = 'batch';
+  $handler->display->display_options['segment_size'] = '100';
+  $translatables['userpoints_sum'] = array(
+    t('Master'),
+    t('全部积分'),
+    t('更多'),
+    t('应用'),
+    t('重置'),
+    t('排序依据'),
+    t('升序'),
+    t('降序'),
+    t('每页条目数'),
+    t('- 全部 -'),
+    t('偏移量'),
+    t('« 第一页'),
+    t('‹ 前一页'),
+    t('下一页 ›'),
+    t('末页 »'),
+    t('用户'),
+    t('用户昵称与实名'),
+    t('手机验证'),
+    t('分值'),
+    t('.'),
+    t(','),
+    t('分类'),
+    t('操作'),
+    t('分值大于'),
+    t('全部积分，导出'),
+  );
+  $export['userpoints_sum'] = $view;
 
   return $export;
 }
