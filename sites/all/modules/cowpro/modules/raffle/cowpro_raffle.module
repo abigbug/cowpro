@@ -1,0 +1,211 @@
+<?php
+function cowpro_raffle_menu() {
+  $items = array ();
+  $items ['cowpro/raffle'] = array (
+    'title' => '积分抽奖',
+    'description' => '积分抽奖',
+    'page callback' => 'cowpro_raffle_show',
+    'access callback' => TRUE,
+  );
+ $items ['cowpro/raffle_ajax'] = array (
+    'page callback' => 'cowpro_raffle_ajax',
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+function cowpro_raffle_theme() {
+  return array (
+    'cowpro_raffle_see' => array (
+      'variables' => array (
+        'items' => NULL,
+      ),
+      'template' => 'cowpro-raffle-see',
+    ),
+  );
+}
+function cowpro_raffle_show(){
+  $html = theme ('cowpro_raffle_see');
+  return $html;
+}
+//开始积分抽奖
+function cowpro_raffle_ajax(){
+  global $user;
+  $username = @$user->name;
+  $amount=15;        //每次抽奖消耗积分
+  //判断是否登录
+  if ($user->uid){
+    $points = userpoints_get_current_points($user->uid);
+    //判断积分是否满足抽奖条件
+    if ($points < $amount) {
+      $data['err_msg'] = '积分不足，不能参与抽奖！';
+      echo json_encode($data);
+      die();
+    }else{
+        //扣除积分
+        $params = array (
+          'uid' => $user->uid,
+          'points' => 0-$amount,
+          'moderate' => false,
+          'description' => "积分抽奖消耗积分！",
+          'display' => false,
+          'reference' => "raffle",
+        );
+        $result = userpoints_userpointsapi($params);
+        if (!$result['status']) {
+           $data['err_msg'] = '扣除积分失败，不能参与抽奖！';
+           echo json_encode($data);
+           die();
+        } else {
+           $prize_arr = array(
+             '0' => array(
+                       'id' => 1,
+                       'prize' => '100元投资抵用券',
+                       'v' => 1,                            //中奖几率
+                       'type' => 'voucher',
+                       'amount' => '100',
+             ),
+             '1' => array(
+                       'id' => 2,
+                       'prize' => '50元投资抵用券',
+                       'v' => 2,
+                       'type' => 'voucher',
+                       'amount' => '50',
+            ),
+            '2' => array(
+                       'id' => 3,
+                       'prize' => '谢谢参与!',
+                       'v' => 45,
+                       'type' => '',
+                       'amount' => '0',
+            ),
+           '3' => array(
+                       'id' => 4,
+                       'prize' => '30元投资抵用券',
+                       'v' => 3,
+                       'type' => 'voucher',
+                       'amount' => '30',
+            ),
+           '4' => array(
+                       'id' => 5,
+                       'prize' => '10元投资抵用券',
+                       'v' => 4,
+                       'type' => 'voucher',
+                       'amount' => '10',
+            ),
+           '5' => array(
+                       'id' => 6,
+                       'prize' => '谢谢参与',
+                       'v' => 45,
+                       'type' => '',
+                       'amount' => '0',
+            ),
+           '6' => array(
+                       'id' => 7,
+                       'prize' => '30积分',
+                       'v' => 5,
+                       'type' => 'points',
+                       'amount' => '30',
+            ),
+           '7' => array(
+                       'id' => 8,
+                       'prize' => '20积分',
+                       'v' => 6,
+                       'type' => 'points',
+                       'amount' => '20',
+            ),
+           '8' => array(
+                       'id' => 9,
+                       'prize' => '谢谢参与',
+                       'v' => 45,
+                       'type' => '',
+                       'amount' => '0',
+            ),
+           '9' => array(
+                       'id' => 10,
+                       'prize' => '10积分',
+                       'v' => 7,
+                       'type' => 'points',
+                       'amount' => '10',
+            ),
+           '10' => array(
+                       'id' => 11,
+                       'prize' => '10元投资抵用券',
+                       'v' => 4,
+                       'type' => 'voucher',
+                       'amount' => '10',
+            ),
+           '11' => array(
+                       'id' => 12,
+                       'prize' => '谢谢参与',
+                       'v' => 45,
+                       'type' => '',
+                       'amount' => '0',
+            ),
+          );
+          foreach ($prize_arr as $k=>$v) {
+            $arr[$v['id']] = $v['v'];
+          }
+          $prize_id = _cowpro_raffle_get_rand($arr); //根据概率获取奖项id
+          foreach($prize_arr as $k=>$v){ //获取前端奖项位置
+            if($v['id'] == $prize_id){
+             $prize_site = $k;
+             break;
+            }
+          }
+          $res = $prize_arr[$prize_id - 1]; //中奖项
+          $expirydate = time () + (7 * 3600 * 24);
+            if ($res['type'] == "voucher") {
+              $term = current ( taxonomy_get_term_by_name ( '代金券' ) );
+              $params2 = array (
+		'uid' => $user->uid,
+		'points' => $res['amount'],
+		'description' => '积分抽奖代金券奖励',
+		'display' => FALSE,
+		'entity_type' => 'node',
+		'entity_id' => 0,
+		'tid' => $term->tid,
+		'reference' => "raffle",
+		'expirydate' => $expirydate,
+              );
+            } else if ($res['type'] == "points") {
+              $params2 = array (
+		'uid' => $user->uid,
+		'points' => 0+$res['amount'],
+		'description' => '积分抽奖积分奖励',
+		'display' => FALSE,
+		'entity_type' => 'node',
+		'entity_id' => 0,
+		'tid' => 0,
+		'reference' => "raffle",
+              );
+            }
+            userpoints_userpointsapi ( $params2 );
+            $data['prize_name'] = $res['prize'];
+            $data['prize_site'] = $prize_site;//前端奖项从-1开始
+            $data['prize_id'] = $prize_id;
+            echo json_encode($data);
+            die();
+        }
+    }
+  }else{
+    $data['err_msg'] = "您还没登录，登录才能参与抽奖！";
+    echo json_encode($data);
+    die();
+  }
+}
+
+function _cowpro_raffle_get_rand($proArr) {
+    $data = '';
+    $proSum = array_sum($proArr); //概率数组的总概率精度
+    foreach ($proArr as $k => $v) { //概率数组循环
+        $randNum = mt_rand(1, $proSum);
+        if ($randNum <= $v) {
+            $data = $k;
+            break;
+        } else {
+            $proSum -= $v;
+        }
+    }
+    unset($proArr);
+    return $data;
+  }
