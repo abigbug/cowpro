@@ -485,6 +485,23 @@ function cowpro_issuing_views_data() {
 			),
 	);
 
+	// The deadline field
+	$data['cowpro_repayment_schedule']['deadline_2'] = array(
+			'title' => '最后还款日_2',
+			'help' => '最后还款时间(过滤条件默认为当天)',
+			'real field' => 'deadline',
+			'field' => array(
+					'handler' => 'views_handler_field_date',
+			),
+			'sort' => array(
+					'handler' => 'views_handler_sort_date',
+			),
+			'filter' => array(
+					//'handler' => 'views_handler_filter_date',
+					'handler' => 'cowpro_date_views_filter_handler_simple',
+			),
+	);
+
 	// 债权转让金额
 	$data['cowpro_repayment_schedule']['data'] = array(
 			'title' => 'creditor_assignment_amount',
