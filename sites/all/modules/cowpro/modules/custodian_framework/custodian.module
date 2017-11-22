@@ -197,10 +197,29 @@ function custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comm
 	if (function_exists($function)) {
 		$result = $function($uid_from, $uid_to, $amount);
 		if ($result['success'] === TRUE) {
-			$uid = $GLOBALS['user']->uid;
+			$uname_from = user_load($uid_from)->name;
+			$uname_to = user_load($uid_to)->name;
+			$transfer = "($uname_from[$uid_from]->$uname_to[$uid_to])";
+
+			$uid = $uid_from;
 			$entity_value = array(
 					'uid' => $uid,
-					'status' => FALSE,
+					'status' => TRUE,
+					'type' => 'INTERNAL_TRANS',
+					'amount' => 0 - $amount,
+			);
+			$entity = entity_create('cowpro_fund_journal', $entity_value);
+			$data = array();
+			$data['interface_module'] = $module;
+			$data['result'] = $result;
+			$data['comment'] = $comment . $transfer;
+			$entity->data = $data;
+			$entity = entity_get_controller('cowpro_fund_journal')->save($entity);
+
+			$uid = $uid_to;
+			$entity_value = array(
+					'uid' => $uid,
+					'status' => TRUE,
 					'type' => 'INTERNAL_TRANS',
 					'amount' => $amount,
 			);
@@ -208,7 +227,7 @@ function custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comm
 			$data = array();
 			$data['interface_module'] = $module;
 			$data['result'] = $result;
-			$data['comment'] = $comment;
+			$data['comment'] = $comment . $transfer;
 			$entity->data = $data;
 			$entity = entity_get_controller('cowpro_fund_journal')->save($entity);
 		}
