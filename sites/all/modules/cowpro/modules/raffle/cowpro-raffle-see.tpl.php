@@ -41,7 +41,7 @@
       <tr><td>1、中奖积分将存入积分总数，可用作商城兑换商品或积分抽奖；</td></tr>
       <tr><td>2、10元投资抵用券，7天有效期，单笔投资满10000可使用；</td></tr>
       <tr><td>3、30元投资抵用券，7天有效期，单笔投资满20000可使用；</td></tr>
-      <tr><td>4、40元投资抵用券，7天有效期，单笔投资满30000可使用；</td></tr>
+      <tr><td>4、50元投资抵用券，7天有效期，单笔投资满30000可使用；</td></tr>
       <tr><td>5、100元投资抵用券，7天有效期，单笔投资满50000可使用；</td></tr>
       <tr><td><br></td></tr>
       <tr><td><font color="#FF0308">关于解释权：</font></td></tr>
@@ -93,11 +93,12 @@
         if (lottery.times > lottery.cycle + 10 && lottery.index == prize_site) {
           var prize_id = jQuery("#lottery").attr("prize_id");
           var prize_name = jQuery("#lottery").attr("prize_name");
+          var points = jQuery("#lottery").attr("points");
           clearTimeout(lottery.timer);
           lottery.prize = 0;
           lottery.times = 0;
           click = false;
-          setTimeout(function(){alert("\n抽奖结果："+prize_name+"\n")},lottery.timer);
+          setTimeout(function(){alert("\n抽奖结果："+prize_name+"\n\n您的积分还有："+points+"分，请合理规划您的积分！\n")},lottery.timer);
         } else {
           if (lottery.times < lottery.cycle) {
             lottery.speed -= 10;
@@ -134,6 +135,7 @@
                 $("#lottery").attr("prize_site", data.prize_site);
                 $("#lottery").attr("prize_id", data.prize_id);
                 $("#lottery").attr("prize_name", data.prize_name);
+                $("#lottery").attr("points", data.points);
                 roll();
                 click = true;
                 return false;
