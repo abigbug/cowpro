@@ -1588,3 +1588,9 @@ function cowpro_issuing_title_autocomplete($string = '') {
 
 	drupal_json_output($matches);
 }
+
+function cowpro_issuing_get_user_status($uid) {
+	include_once 'includes/cowpro_issuing.status.inc';
+	$receivable_amount=_cowpro_issuing_get_user_status($uid);
+        return $receivable_amount;
+}

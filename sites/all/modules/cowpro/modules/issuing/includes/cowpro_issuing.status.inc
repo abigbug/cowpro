@@ -134,7 +134,6 @@ function _cowpro_issuing_user_view_lender($account, $view_mode) {
 			'#markup' => $receivable_amount,
 	);
 }
-
 /**
  * 检查 $uid 是否是 $requestee_id 的朋友关系
  * @param unknown $uid
@@ -155,3 +154,12 @@ function _cowpro_issuing_user_relationship_check($uid, $requestee_id) {
 	$uid_referree = $relationship->requestee_id;
 	return $uid_referree == $requestee_id;
 }
+
+//获得用户的待收款总数
+function _cowpro_issuing_get_user_status($uid){
+	$receivable_amount = db_query("SELECT SUM(receivable_amount - received_amount) FROM {cowpro_repayment_schedule} WHERE receiver_uid = $uid")->fetchField();
+	if ($receivable_amount === NULL) {
+	  $receivable_amount = 0;
+	}
+        return $receivable_amount;
+} 

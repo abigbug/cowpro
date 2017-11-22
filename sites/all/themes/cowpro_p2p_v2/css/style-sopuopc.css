@@ -363,13 +363,14 @@ ul.userpoints-points em{ font-style:normal;}
 #block-system-navigation ul.menu.nav-justified>li,#block-block-6 ul.menu.nav-justified>li{ width:100%; float:none; display:block; background:#fff; line-height:48px;}
 #block-system-navigation ul.menu.nav-justified>li a,#block-block-6 ul.menu.nav-justified>li a{ padding:0;}
 #user-profile-form .label-warning{ display:none;}
-#-registration-wizard-form-warp .vertical-tabs-processed{ background:#fff; border:1px solid #ddd; border-top:0; margin-bottom:20px;}
-#-registration-wizard-form-warp .wizard-trail{ margin-bottom:20px;}
+#-registration-wizard-form-warp .vertical-tabs-processed{ background:#fff; border-top:0; margin-bottom:20px;}
+#-registration-wizard-form-warp .wizard-trail{ width: 85%; margin: 0px auto; margin-bottom:20px;}
 .content_foot .the-xiangx{ margin-top:10px;}
 .the-xiangx div.ctools-dropbutton { margin-top:2px; }
 .wizard-trail{ font-size:0;}
-.wizard-trail span{ display:inline-block; width:24%;}
-.wizard-trail span a{ display:block; background:url(../images/audited.png) left center no-repeat; background-size:40px; padding-left:50px; line-height:50px; font-size:18px;}
+.wizard-trail span{ display:inline-block; width:50%;}
+.wizard-trail span span{ display:inline-block; width:100%;}
+.wizard-trail span a{ display:block; background:url(../images/audited.png) left center no-repeat;background-size:20px; padding-left:30px; line-height:40px; font-size:14px;}
 #-registration-wizard-form-warp #edit-actions{ margin-top:20px;}
 .wizard-trail span a.active{ color:#39A1EA}
 #invite-form,#cowpro-fund-topup,#cowpro-fund-withdraw{ background:#fff; padding:20px;}
@@ -899,7 +900,7 @@ article, figure {
 #unique-wrapper .horizontal-tabs-list{ border-bottom: 2px solid #CCC}
 #block-system-main .profile .the-list-block{ width: 22%;float: left;text-align: center;}
 #block-system-main .profile dl{ overflow:scroll; margin-bottom: 0px; padding-top: 5px}
-#block-system-main .profile h3 { padding-bottom: 5px; font-size: 16px}
+#block-system-main .profile h3 { padding-bottom: 5px;color: #FFB226; font-size: 16px}
 #block-system-main .profile .the-list-block:nth-child(4){ width: 30%}
 #block-system-main .profile dl:nth-of-type(4) .the-list-block,#block-system-main .cowpro_issuing_views .the-list-block {width: 100%;}
 #block-system-main .profile .the-list-block .view-content .views-table thead { background: #EFEFEF; font-size: 13px;border: 1px solid #DDDDDD; height: 30px; line-height: 30px}
@@ -1729,12 +1730,12 @@ article, figure {
 }
 #userpoints-list-transactions .form-wrapper .sticky-table thead th:nth-child(1){ width: 13%;height: 35px;text-align: center;}
 #userpoints-list-transactions .form-wrapper .sticky-table thead th:nth-child(2){ width: 13%;text-align: center;}
-#userpoints-list-transactions .form-wrapper .sticky-table thead th:nth-child(3){ width: 20%;text-align: center;}
-#userpoints-list-transactions .form-wrapper .sticky-table thead th:nth-child(4){ width: 25%;text-align: center;}
+#userpoints-list-transactions .form-wrapper .sticky-table thead th:nth-child(3){ width: 15%;text-align: center;}
+#userpoints-list-transactions .form-wrapper .sticky-table thead th:nth-child(4){ width: 23%;text-align: center;}
 #userpoints-list-transactions .form-wrapper .sticky-table thead th:nth-child(5){ width: 13%;text-align: center;}
 #userpoints-list-transactions .form-wrapper .sticky-table thead th:nth-child(6){ width: 13%;text-align: center;}
 
-#userpoints-list-transactions .form-wrapper .sticky-table tbody td{ text-align: center;    background: #ffffff;}
+#userpoints-list-transactions .form-wrapper .sticky-table tbody td{ text-align: center;background: #ffffff;}
 
 #userpoints-list-transactions .form-wrapper table:nth-child(4){
     width: 100%;
@@ -1922,12 +1923,14 @@ font-family: Microsoft Yahei;
     width: 50%;
     background-color: #f5f5f5;
     float: left;
+    height: 260px;
     text-align: center;
 }
 .section-shop .block-content .item-list .all-products .views-row-even{
     width: 50%;
     background-color: #f5f5f5;
     float: right;
+    height: 260px;
     text-align: center;
 }
 .section-shop .block-content .item-list .all-products .views-row-odd figure img{
@@ -1973,8 +1976,7 @@ font-family: Microsoft Yahei;
 } 
 .section-shop .sopuo-shop-view .Xcontent13 .Xcontent14{
    position: absolute;
-   font-size: 12px;    
-   width: 95%;
+   font-size: 12px;
    padding-top: 10px;
    padding-left: 8px;
    padding-right: 8px;
@@ -2045,3 +2047,42 @@ font-family: Microsoft Yahei;
 } 
 
 .section-shop .sopuo-shop-view .Xcontent30{ width: 100%;height: 30px;}  
+
+
+#-registration-wizard-form-warp .vertical-tabs {
+    margin: 0px;
+    position: static;
+    margin-top: 10px;
+    padding-bottom: 10px;
+}
+#-registration-wizard-form-warp .vertical-tabs ul.vertical-tabs-list {
+    position: static;
+    margin: 0px;
+    width: 100%;
+    border: 0px;
+}
+#-registration-wizard-form-warp .vertical-tabs-list li {
+    width: 50%;
+    float: left;
+    border-left: 0px;
+    border-right: 0px;
+}
+
+#userpoints-list-transactions table.userpoints-myuserpoints-total {
+    width: 100%;
+}
+#userpoints-list-transactions table.userpoints-myuserpoints-total tbody tr td {
+    width: 33.3%;
+    height: 30px;
+    line-height: 30px;
+}
+#userpoints-list-transactions .form-item-tid{
+    width: 100%;
+    position: relative;
+}
+#userpoints-list-transactions .form-item-tid label{
+    width: 50%;
+    float: left;
+    position:absolute;
+    line-height: 24px;
+}

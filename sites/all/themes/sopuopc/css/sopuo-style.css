@@ -731,3 +731,83 @@ body{background-color: #f5f5f5;}
 .sopuo-header-top .container .row .col-md-6:nth-child(2){
    width: 70%; 
 }
+
+.login_block {
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    float: right;
+    overflow: hidden;
+    height: 20em;
+    top: 120px;
+    width: 350px;
+}
+.login_block .login_background {
+    position: absolute;
+    top: 0px;
+    right: 0;
+    width: 350px;
+    height: 20em;
+    background: #000;
+    z-index: 2;
+    filter: alpha(opacity=50);
+    -moz-opacity: 0.5;
+    -khtml-opacity: 0.5;
+    opacity: 0.5;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+.login_block .after_login {
+    height: 290px;
+    width: 350px;
+    padding: 20px 36px;
+    overflow: hidden;
+    position: absolute;
+    top: 0px;
+    z-index: 3;
+    float: right;
+}
+.after_login .user_info .user_img {
+    background: url(../images/noavatar_big.gif) no-repeat;
+    background-size: 97px 96px;
+    width: 97px;
+    height: 96px;
+    padding: 2px;
+    overflow: hidden;
+    float: left;
+    margin-left: 0px;
+}
+.after_login .user_info .user_info_d {
+    float: left;
+    margin-left: 10px;
+}
+.after_login .user_money {
+    overflow: hidden;
+    width: 120%;
+    padding-top: 10px;
+}
+.after_login .user_name {
+    width: 76%;
+}
+.after_login .user_name a {
+    display: block;
+    float: right;
+    width: 66px;
+    height: 21px;
+    border-radius: 3px;
+    background: #bfebfa;
+    text-align: center;
+    line-height: 21px;
+    margin-right: 13px;
+    font-size: 12px;
+}
+.after_login .user_name a:hover {
+    background: #39A1EA;
+    color: #fff;
+}
+.after_login .user_info .user_info_d div{
+    height: 25px;
+    line-height: 25px;
+    color: #FFF;
+}
