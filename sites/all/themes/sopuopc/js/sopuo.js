@@ -88,7 +88,10 @@ jQuery(document).ready(function($) {
 	/*将drupal_message 信息以弹出框的形式显示*/
 	var msg = $("div.messages");
 	if (msg.size() > 0) {
-		alert(msg.text());
+          var msgbox=msg.text();
+          if(msgbox.indexOf("Warning:")=="-1"){
+            alert(msgbox);  
+          }
 	}
     jQuery("#bootstrap-panel--3 .field-items").rebox({ selector: 'a' });
 
