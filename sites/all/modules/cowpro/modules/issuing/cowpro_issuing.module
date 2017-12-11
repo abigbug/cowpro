@@ -335,6 +335,25 @@ function cowpro_issuing_menu() {
 			'context' => MENU_CONTEXT_INLINE,
 	);
 
+	$items ['issuing/%node/register'] = array (
+			'title' => '同步到托管方',
+			'description' => '将标的信息同步到托管方',
+			'page callback' => 'cowpro_issuing_command',
+			'page arguments' => array (
+					'register custodian',
+					1,
+			),
+			'access callback' => 'cowopro_issuing_access',
+			'access arguments' => array (
+					'register custodian',
+					1,
+			),
+			'file' => 'includes/cowpro_issuing.command.inc',
+			'weight' => 30,
+			'type' => MENU_CALLBACK | MENU_LOCAL_TASK,
+			'context' => MENU_CONTEXT_INLINE,
+	);
+
 	$items['issuing/autocomplete'] = array(
 			'title' => 'Issuing Title autocomplete',
 			'page callback' => 'cowpro_issuing_title_autocomplete',
@@ -1450,7 +1469,9 @@ function cowpro_issuing_node_presave($node) {
 		// 将 'COWPRO_ISSUING_STATUS_AUDITED 审核通过' 的状态更新为 'COWPRO_ISSUING_STATUS_INVITE_BIDS_START 正在投标'
 		if (($node->field_issuing[LANGUAGE_NONE][0]['status'] == COWPRO_ISSUING_STATUS_AUDITED)
 				&& ($node->field_issuing[LANGUAGE_NONE][0]['start_time'] <= time ())) {
-			$node->field_issuing[LANGUAGE_NONE][0]['status'] = COWPRO_ISSUING_STATUS_INVITE_BIDS_START;
+			if (! custodian_cowpro_fund_issuing_publish_defined()) {
+				$node->field_issuing[LANGUAGE_NONE][0]['status'] = COWPRO_ISSUING_STATUS_INVITE_BIDS_START;
+			}
 		}
 	}
 }

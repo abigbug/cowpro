@@ -72,47 +72,6 @@ function cowpro_fund_menu() {
 			'access callback' => 'cowpro_fund_real_name_verified',
 			'type' => MENU_CALLBACK,
 	);
-	$items ['cowpro/fund/bankcard/%/delete'] = array (
-			'title' => '删除银行卡',
-			'description' => '删除银行卡',
-			'page callback' => 'cowpro_fund_bankcard_delete',
-	    'page arguments' => array(3),
-			'access callback' => 'cowpro_fund_real_name_verified',
-			'type' => MENU_CALLBACK,
-	);
-	$items ['cowpro/fund/bankcard/%/delete/sure'] = array (
-			'title' => '删除银行卡(确认)',
-			'description' => '删除银行卡(确认)',
-			'page callback' => 'cowpro_fund_bankcard_delete',
-	    'page arguments' => array(3, 5),
-			'access callback' => 'cowpro_fund_real_name_verified',
-			'type' => MENU_CALLBACK,
-	);
-	$items ['cowpro/fund/bankcard/add'] = array (
-			'title' => '添加银行卡',
-			'description' => '添加银行卡',
-			'page callback' => 'cowpro_fund_bankcard_add',
-			'access callback' => 'cowpro_fund_real_name_verified',
-			'type' => MENU_CALLBACK,
-	);
-	$items ['cowpro/fund/dismiss'] = array (
-			'title' => '关闭模态窗口',
-			'description' => '关闭ctools模态窗口',
-			'page callback' => 'cowpro_fund_ctools_modal_dismiss',
-			'access callback' => TRUE,
-			'type' => MENU_CALLBACK,
-			'file' => 'includes/cowpro_fund_withdraw.inc',
-	);
-
-	/*
-	$items ['cowpro/fund/refresh_city_list/%'] = array (
-			'title' => '更新城市列表',
-			'description' => '更新城市列表',
-			'page callback' => 'cowpro_fund_refresh_city_list',
-	    'page arguments' => array(3),
-			'type' => MENU_CALLBACK,
-	);
-	*/
 	return $items;
 }
 

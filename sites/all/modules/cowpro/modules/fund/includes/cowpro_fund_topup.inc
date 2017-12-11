@@ -26,19 +26,18 @@ function cowpro_fund_topup($form, &$form_state) {
 			'#input' => TRUE,
 	);
 
-	$method = array(
-			'2' => '快捷支付',
-			'' => '网银充值',
-			'3' => '汇款充值',
-			'4' => '企业网银',
-	);
-	$form['topup_method'] = array(
-			'#type' => 'radios',
-			'#title' => '充值方式',
-			'#default_value' => '2',
-			'#options' => $method,
-			'#description' => '',
-	);
+	$method = custodian_get_topup_method();
+	if ($method != NULL) {
+		reset($method);
+		$first_key = key($method);
+		$form['topup_method'] = array(
+				'#type' => 'radios',
+				'#title' => '充值方式',
+				'#default_value' => $first_key,
+				'#options' => $method,
+				'#description' => '',
+		);
+	}
 
 	$form['topup'] = array(
 			'#type' => 'submit',
@@ -60,7 +59,7 @@ function cowpro_fund_topup_validate($form, &$form_state) {
 
 function cowpro_fund_topup_submit($form, &$form_state) {
 	$amount = $form_state['input']['amount'];
-	$method = $form_state['input']['topup_method'];
+	$method = isset($form_state['input']['topup_method']) ? $form_state['input']['topup_method'] : '';
 	//$moudle = $form_state['input']['topup_interface'];
 
 	$uid = $GLOBALS['user']->uid;

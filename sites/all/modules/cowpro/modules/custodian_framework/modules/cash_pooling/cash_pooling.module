@@ -76,3 +76,19 @@ function cash_pooling_cowpro_fund_buy_creditor_assignment($amount, $issuing_id, 
 	include_once 'includes/cash_pooling.creditorassignment.inc';
 	return cash_pooling_creditor_assignment($amount, $issuing_id, $seller_uid, $buyer_uid);
 }
+
+function cash_pooling_get_bank_card_operator($profile) {
+	return '解绑银行卡';
+}
+
+function cash_pooling_get_topup_method() {
+	$method = array(
+			'快捷支付' => '快捷支付',
+			'网银充值' => '网银充值',
+	);
+	return $method;
+}
+
+function cash_pooling_cowpro_fund_issuing_publish($nid) {
+	return TRUE;
+}

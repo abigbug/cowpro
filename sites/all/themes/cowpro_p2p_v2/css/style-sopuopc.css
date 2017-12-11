@@ -1378,11 +1378,14 @@ article, figure {
     width: 35%;
     left:68%;
     position: absolute;
-    bottom: 273px;
+    bottom: 270px;
+    height: 20px;
+    overflow: hidden;
     z-index:99999;
 }
 #user-register-form .reload-captcha-wrapper .reload-captcha{
     color: #1A8AD8;
+    font-size: 12px;
 }
 #user-register-form .form-item-verify-code{
    clear: both;
@@ -2045,7 +2048,6 @@ font-family: Microsoft Yahei;
    height: 22px;
    width: 40px;
 } 
-
 .section-shop .sopuo-shop-view .Xcontent30{ width: 100%;height: 30px;}  
 
 

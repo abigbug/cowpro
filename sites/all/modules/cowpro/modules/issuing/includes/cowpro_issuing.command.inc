@@ -18,6 +18,7 @@
  *        	- 'issuing repayment'://到期还款
  *        	- 'view contract'://查看合同
  *        	- 'download contract'://下载合同
+ *        	- 'register custodian'://将标的信息注册到第三方托管服务商
  *
  * @param $node The
  *        	node object on which the operation is to be performed, or node type
@@ -125,6 +126,14 @@ function _cowopro_issuing_access($op, $node, $account = NULL) {
 			break;
 		case 'download contract' : // 下载合同
 			$result = TRUE;
+			break;
+		case 'register custodian' : // 将标的信息注册到第三方托管服务商
+			if (($node->field_issuing[LANGUAGE_NONE][0]['status'] == COWPRO_ISSUING_STATUS_AUDITED)
+				&& custodian_cowpro_fund_issuing_publish_defined()) {
+				$result = user_access ( 'make loans to', $account );
+			} else {
+				$result = FALSE;
+			}
 			break;
 	}
 	return $result;
@@ -253,6 +262,7 @@ function _cowpro_issuing_user_access_buy_creditor_assignment($nid, $account) {
  *        	- 'issuing repayment'://到期还款
  *        	- 'view contract'://查看合同
  *        	- 'download contract'://下载合同
+ *        	- 'register custodian'://将标的信息注册到第三方托管服务商
  *
  * @param $node The
  *        	node object on which the operation is to be performed, or node type
@@ -331,7 +341,11 @@ function _cowpro_issuing_command($op, $node, $account = NULL) {
 			require_once 'cowpro_issuing.contract.inc';
 			return _cowpro_issuing_contract_download($node);
 			break;
-	}
+		case 'register custodian' : // 将标的信息注册到第三方托管服务商
+			require_once 'cowpro_issuing.register.inc';
+			return _cowpro_issuing_register($node);
+			break;
+		}
 	return $result;
 }
 

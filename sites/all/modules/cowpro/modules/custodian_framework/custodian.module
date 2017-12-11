@@ -270,6 +270,57 @@ function custodian_cowpro_fund_bid($uid, $amount, $nid, $journal_id) {
 }
 
 /**
+ * 将标的信息同步到第三方托管服务商
+ * @param $nid 标的编号
+ * @return 如果托管方同步成功，返回 TRUE，否则返回 FALSE
+ */
+function custodian_cowpro_fund_issuing_publish($nid) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_cowpro_fund_issuing_publish';
+	if (function_exists($function)) {
+		$result = $function($nid);
+		return $result;
+	} else {
+		$msg = array(
+				'%function' => $function,
+		);
+		watchdog('custodian', '方法"%function"未定义', $msg, WATCHDOG_ERROR);
+	}
+}
+
+/**
+ * 判断当前的第三方托管系统是否有“标的信息同步”的接口
+ * @return 如果有“标的信息同步”的接口，返回 TRUE，否则返回 FALSE
+ */
+function custodian_cowpro_fund_issuing_publish_defined() {
+	$module = custodian_default_provider_key();
+	$function = $module . '_cowpro_fund_issuing_publish';
+	if (function_exists($function)) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
+/**
+ * 标的信息同步操作已成功
+ * @param $nid 标的编号
+ * @return 如果托管方同步操作已完成，返回 TRUE，否则返回 FALSE
+ */
+/*
+function custodian_cowpro_fund_issuing_publish_succeed($nid) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_cowpro_fund_issuing_publish_succeed';
+	if (function_exists($function)) {
+		$result = $function($nid);
+		return $result;
+	} else {
+		return TRUE;
+	}
+}
+*/
+
+/**
  * 流标还款
  * @param $nid 标的编号
  * @return unknown
@@ -431,4 +482,69 @@ function custodian_get_balance($account) {
 		$balance = $function($account->uid);
 	}
 	return $balance;
+}
+
+/**
+ * 获得托管银行对用户银行卡的操作接口的驱动
+ * @param 银行卡信息 $profile
+ * $profile->card_no 银行卡号码
+ * $profile->card_no_original 原银行卡号码（如果是更新银行卡，就有这个属性，否则，这个属性为‘’）
+ * $profile->cardholder 持卡人姓名
+ * $profile->bank_name 开户银行
+ * $profile->bank_branch 银行营业网点
+ * $profile->province 所在地（省）
+ * $profile->city 所在地（市）
+ * $profile->mobile 在银行登记的手机号
+ * $profile->verified 如果已通过银行验证，这个属性为 TRUE，否则，这个属性为 FALSE
+ * @return
+ * 如果托管银行没有对银行卡的操作接口，返回 NULL
+ * 否则，返回一个操作标签，这个操作标签可以是“绑定银行卡”、“更新银行卡”……等等
+ */
+function custodian_get_bank_card_operator($profile) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_get_bank_card_operator';
+	$result = NULL;
+	if (function_exists($function)) {
+		$result = $function($profile);
+	}
+	return $result;
+}
+
+/**
+ * 驱动托管银行对银行卡操作的接口
+ * @param $operator 在 custodian_get_bank_card_operator() 方法中返回的操作标签
+ * @param 银行卡信息  $profile
+ * $profile 对象的属性，可以参考 custodian_get_bank_card_operator() 方法的注释
+ * @return NULL
+ */
+function custodian_bank_card_operator_submit($operator, $profile) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_bank_card_operator_submit';
+	$result = NULL;
+	if (function_exists($function)) {
+		$result = $function($operator, $profile);
+	}
+	return $result;
+}
+
+/**
+ * 获得用户在托管银行充值时可以选用的充值方式的列表
+ *
+ * @return 如果托管银行不需要用户选择充值方式，就返回 NULL
+ * 否则，要返回一个数组结构，包含用户可选的充值方式，例如，下面是乾多多返回的可选充值方式的样例：
+ * 	$result = array(
+ * 		'2' => '快捷支付',
+ * 		'' => '网银充值',
+ * 		'3' => '汇款充值',
+ * 		'4' => '企业网银',
+ * );
+ */
+function custodian_get_topup_method() {
+	$module = custodian_default_provider_key();
+	$function = $module . '_get_topup_method';
+	$result = NULL;
+	if (function_exists($function)) {
+		$result = $function();
+	}
+	return $result;
 }

@@ -1,0 +1,317 @@
+<?php
+function bank_card_cowpro_customer_profile_bank_card_create($values) {
+	$values += array (
+		'type' => '借记卡',
+		'card_no' => '',
+		'card_no_original' => '',
+		'cardholder' => '',
+		'bank_name' => '',
+		'bank_branch' => '',
+		'province' => '',
+		'city' => '',
+		'mobile' => '',
+	);
+	return $values;
+}
+function bank_card_cowpro_customer_profile_bank_card_save($profile) {
+	$data = array ();
+	$data ['type'] = $profile->type;
+	$data ['card_no'] = $profile->card_no;
+	$data ['card_no_original'] = $profile->card_no_original;
+	$data ['cardholder'] = $profile->cardholder;
+	$data ['bank_name'] = $profile->bank_name;
+	$data ['bank_branch'] = $profile->bank_branch;
+	$data ['province'] = $profile->province;
+	$data ['city'] = $profile->city;
+	$data ['mobile'] = $profile->mobile;
+	$profile->data = $data;
+	$profile->verified = TRUE;
+	$profile->search_field = $profile->cardholder . '@' . $profile->card_no;
+	return $profile;
+}
+function bank_card_cowpro_customer_profile_bank_card_load($profile) {
+	$profile->type = $profile->data ['type'];
+	$profile->card_no = $profile->data ['card_no'];
+	$profile->card_no_original = $profile->data ['card_no_original'];
+	$profile->cardholder = $profile->data ['cardholder'];
+	$profile->bank_name = $profile->data ['bank_name'];
+	$profile->bank_branch = $profile->data ['bank_branch'];
+	$profile->province = $profile->data ['province'];
+	$profile->city = $profile->data ['city'];
+	$profile->mobile = $profile->data ['mobile'];
+	return $profile;
+}
+function bank_card_cowpro_customer_profile_bank_card_form($form, &$form_state, $profile) {
+	$form ['cardholder'] = array (
+			'#type' => 'textfield',
+			'#title' => '持卡人',
+			'#default_value' => $profile->cardholder,
+			'#size' => 60,
+			'#maxlength' => 128,
+			'#required' => TRUE,
+	);
+
+	/*
+	$card_type = array (
+			0 => '借记卡',
+			1 => '信用卡',
+	);
+	$form ['card_type'] = array (
+			'#type' => 'radios',
+			'#title' => '帐户类型',
+			'#default_value' => 0,
+			'#options' => $profile->type,
+			'#description' => '',
+	);
+	*/
+
+	$vocab = taxonomy_vocabulary_machine_name_load ( 'bank_list' );
+	$banks = taxonomy_term_load_multiple ( array (), array (
+			'vid' => $vocab->vid,
+	) );
+	$options = array ();
+	foreach ( $banks as $bank ) {
+		$options [$bank->name] = $bank->name;
+	}
+	$form ['bank_name'] = array (
+			'#type' => 'select',
+			'#title' => '选择银行',
+			'#options' => $options,
+			'#default_value' => $profile->bank_name,
+			'#description' => '',
+	);
+
+	$form ['bank_located'] = array (
+			'#type' => 'fieldset',
+			'#title' => '开户行所在地',
+			'#id' => 'bank_located',
+	);
+
+	$provinces = china_address_api_get_province_list ( 'region_name_cn' );
+	if ($profile->province != '') {
+		$default_province = $profile->province;
+	} else {
+		$default_province = '湖北';
+	}
+	if ($profile->city != '') {
+		$default_city = $profile->city;
+	} else {
+		$default_city = '襄樊';
+	}
+	$form ['bank_located'] ['province'] = array (
+			'#type' => 'select',
+			'#title' => '省',
+			'#options' => $provinces,
+			'#default_value' => $default_province,
+			'#description' => '',
+			'#ajax' => array (
+					'callback' => 'bank_card_refresh_city_list',
+					'wrapper' => 'bank_located_city',
+					'method' => 'replace',
+					'event' => 'change',
+			),
+	);
+
+	$form ['bank_located'] ['city'] = _bank_card_build_city_select ( $default_province, $default_city );
+
+	$form ['bank_branch'] = array (
+			'#type' => 'textfield',
+			'#title' => '开户行网点',
+			'#default_value' => $profile->bank_branch,
+			'#size' => 60,
+			'#maxlength' => 128,
+			'#required' => FALSE,
+	);
+	$form ['card_no'] = array (
+			'#type' => 'textfield',
+			'#title' => '银行卡号',
+			'#default_value' => $profile->card_no,
+			'#size' => 19,
+			'#maxlength' => 19,
+			'#required' => TRUE,
+	);
+	$form ['card_no2'] = array (
+			'#type' => 'textfield',
+			'#title' => '确认卡号',
+			'#default_value' => $profile->card_no,
+			'#size' => 19,
+			'#maxlength' => 19,
+			'#required' => TRUE,
+	);
+	$form ['card_no_original'] = array (
+			'#type' => 'hidden',
+			'#default_value' => $profile->card_no,
+			'#size' => 19,
+			'#maxlength' => 19,
+			'#required' => FALSE,
+	);
+	$form ['mobile'] = array (
+			'#type' => 'textfield',
+			'#title' => '银行卡绑定的手机号',
+			'#default_value' => $profile->mobile,
+			'#size' => 19,
+			'#maxlength' => 19,
+			'#required' => FALSE,
+	);
+
+	return $form;
+}
+function bank_card_cowpro_customer_profile_bank_card_form_alter($form, &$form_state, $profile) {
+	$operator = custodian_get_bank_card_operator($profile);
+	if ($operator != NULL) {
+		$form['actions'] ['operator'] = array (
+				'#type' => 'submit',
+				'#name' => 'operator',
+				'#value' => $operator,
+				'#submit' => array('cowpro_customer_customer_profile_form_submit'),//$form['actions']['submit'] ['#submit'],
+		);
+	}
+	return $form;
+}
+function bank_card_cowpro_customer_profile_bank_card_form_validate($form, &$form_state) {
+}
+function bank_card_cowpro_customer_profile_bank_card_form_submit($form, &$form_state, &$profile) {
+	$profile->card_no = $form_state ['values'] ['card_no'];
+	$profile->card_no_original = $form_state ['values'] ['card_no_original'];
+	$profile->cardholder = $form_state ['values'] ['cardholder'];
+	$profile->bank_name = $form_state ['values'] ['bank_name'];
+	$profile->bank_branch = $form_state ['values'] ['bank_branch'];
+	$profile->province = $form_state ['values'] ['province'];
+	$profile->city = $form_state ['values'] ['city'];
+	$profile->mobile = $form_state ['values'] ['mobile'];
+	cowpro_customer_profile_save($profile);
+	if ($form_state ['clicked_button'] ['#value'] === $form_state ['values'] ['operator']) {
+		custodian_bank_card_operator_submit($form_state ['values'] ['operator'], $profile);
+	}
+	$form_state['redirect'] = 'registration_wizard';
+
+}
+function bank_card_refresh_city_list($form, &$form_state) {
+	$province = $form_state ['input']['province'];
+	$element = _bank_card_build_city_select ( $province );
+	$element ['#id'] = 'edit-city';
+	$element ['#name'] = 'city';
+	return $element;
+}
+function _bank_card_build_city_select($province = NULL, $city = NULL) {
+	if (! is_null ( $province )) {
+		$cities = china_address_api_get_city_list_by_name ( $province, 'region_name_cn' );
+	} else {
+		$cities = array ();
+	}
+
+	$values = array_values($cities);
+	if (! is_null ( $province )) {
+		$value = $city;
+	} else {
+		$value = array_shift($values);
+	}
+	$element = array (
+			'#type' => 'select',
+			'#title' => '市',
+			'#options' => $cities,
+			'#default_value' => $value,
+			'#description' => '',
+			'#prefix' => '<div id="bank_located_city">',
+			'#suffix' => '</div>'
+	);
+	return $element;
+}
+
+function bank_card_cowpro_customer_profile_bank_card_extra_fields() {
+	$result = array (
+			'form' => array (
+					'card_no' => array (
+							'label' => '卡号',
+							'description' => '银行卡号码',
+							'weight' => - 9,
+					),
+					'cardholder' => array (
+							'label' => '持卡人',
+							'description' => '持卡人姓名',
+							'weight' => - 9,
+					),
+					'bank_name' => array (
+							'label' => '开户行',
+							'description' => '开户行',
+							'weight' => - 9,
+					),
+					'bank_branch' => array (
+							'label' => '开户行网点',
+							'description' => '开户行网点',
+							'weight' => - 9,
+					),
+					'province' => array (
+							'label' => '开户行所在地（省）',
+							'description' => '开户行所在地（省）',
+							'weight' => - 9,
+					),
+					'city' => array (
+							'label' => '开户行所在地（市）',
+							'description' => '开户行所在地（市）',
+							'weight' => - 9,
+					),
+					'mobile' => array (
+							'label' => '银行卡绑定的手机号',
+							'description' => '银行卡绑定的手机号',
+							'weight' => - 9,
+					),
+			),
+			'display' => array (
+					'card_no' => array (
+							'label' => '卡号',
+							'description' => '银行卡号码',
+							'weight' => - 9,
+					),
+					'cardholder' => array (
+							'label' => '持卡人',
+							'description' => '持卡人姓名',
+							'weight' => - 9,
+					),
+					'bank_name' => array (
+							'label' => '开户行',
+							'description' => '开户行',
+							'weight' => - 9,
+					),
+					'bank_branch' => array (
+							'label' => '开户行网点',
+							'description' => '开户行网点',
+							'weight' => - 9,
+					),
+					'province' => array (
+							'label' => '开户行所在地（省）',
+							'description' => '开户行所在地（省）',
+							'weight' => - 9,
+					),
+					'city' => array (
+							'label' => '开户行所在地（市）',
+							'description' => '开户行所在地（市）',
+							'weight' => - 9,
+					),
+					'mobile' => array (
+							'label' => '银行卡绑定的手机号',
+							'description' => '银行卡绑定的手机号',
+							'weight' => - 9,
+					),
+			)
+	);
+
+	return $result;
+}
+
+/**
+ * Implements hook_cowpro_customer_profile_type_info().
+ */
+function bank_card_cowpro_customer_profile_type_info() {
+	$profile_types = array ();
+
+	$profile_types ['bank_card'] = array (
+			'type' => 'bank_card',
+			'name' => '银行卡绑定',
+			'description' => '用户绑定银行卡，用于将来的充值与提现操作。',
+			'help' => '',
+			'weight' => 100,
+	);
+
+	return $profile_types;
+}

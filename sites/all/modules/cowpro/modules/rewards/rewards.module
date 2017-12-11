@@ -12,6 +12,17 @@ function rewards_menu() {
 			'access callback' => 'user_is_logged_in',
 			'type' => MENU_NORMAL_ITEM,
 	);
+	$items ['cowpro/rewards/employee_registration'] = array (
+			'title' => '员工登记',
+			'description' => '',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+				'cowpro_rewards_employee_registration_form',
+			),
+			'access arguments' => array('access user profiles'),
+			'file' => 'includes/rewards.employee_registration.inc',
+			'type' => MENU_NORMAL_ITEM,
+	);
 
 	return $items;
 }
