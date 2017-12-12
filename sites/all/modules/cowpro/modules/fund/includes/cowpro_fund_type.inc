@@ -6,6 +6,7 @@ define('COWPRO_FUND_TYPE_ISSUING_FAILING', 'ISSUING_FAILING'); // 流标退款
 define('COWPRO_FUND_TYPE_MAKE_LOANS_TO', 'MAKE_LOANS_TO'); // 满标放款
 define('COWPRO_FUND_TYPE_REPAYMENT_RECEIPTS', 'REPAYMENT_RECEIPTS'); // 按期还款，收款方
 define('COWPRO_FUND_TYPE_REPAYMENT_PAYMENTS', 'REPAYMENT_PAYMENTS'); // 按期还款，付款方
+define('COWPRO_FUND_TYPE_INTERNAL_TRANS', 'INTERNAL_TRANS'); // 内部转账
 
 function _cowpro_fund_get_readable_status($status) {
 	$result = '';
@@ -47,5 +48,6 @@ function _cowpro_fund_get_type_options() {
 	$options[COWPRO_FUND_TYPE_MAKE_LOANS_TO] = '满标放款';
 	$options[COWPRO_FUND_TYPE_REPAYMENT_RECEIPTS] = '按期还款，收款方';
 	$options[COWPRO_FUND_TYPE_REPAYMENT_PAYMENTS] = '按期还款，付款方';
+	$options[COWPRO_FUND_TYPE_INTERNAL_TRANS] = '内部转账';
 	return $options;
 }
