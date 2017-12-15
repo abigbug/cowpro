@@ -197,24 +197,31 @@ function custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comm
 	if (function_exists($function)) {
 		$result = $function($uid_from, $uid_to, $amount);
 		if ($result['success'] === TRUE) {
-			$uname_from = user_load($uid_from)->name;
-			$uname_to = user_load($uid_to)->name;
-			$transfer = "($uname_from[$uid_from]->$uname_to[$uid_to])";
+			if ($uid_from != NULL) {
+				$uname_from = user_load($uid_from)->name;
+				$uname_to = user_load($uid_to)->name;
+				$transfer = "($uname_from [$uid_from] -> $uname_to [$uid_to])";
+			} else {
+				$uname_to = user_load($uid_to)->name;
+				$transfer = "(平台帐户 -> $uname_to [$uid_to])";
+			}
 
-			$uid = $uid_from;
-			$entity_value = array(
-					'uid' => $uid,
-					'status' => TRUE,
-					'type' => 'INTERNAL_TRANS',
-					'amount' => 0 - $amount,
-			);
-			$entity = entity_create('cowpro_fund_journal', $entity_value);
-			$data = array();
-			$data['interface_module'] = $module;
-			$data['result'] = $result;
-			$data['comment'] = $comment . $transfer;
-			$entity->data = $data;
-			$entity = entity_get_controller('cowpro_fund_journal')->save($entity);
+			if ($uid_from != NULL) {
+				$uid = $uid_from;
+				$entity_value = array(
+						'uid' => $uid,
+						'status' => TRUE,
+						'type' => 'INTERNAL_TRANS',
+						'amount' => 0 - $amount,
+				);
+				$entity = entity_create('cowpro_fund_journal', $entity_value);
+				$data = array();
+				$data['interface_module'] = $module;
+				$data['result'] = $result;
+				$data['comment'] = $comment . $transfer;
+				$entity->data = $data;
+				$entity = entity_get_controller('cowpro_fund_journal')->save($entity);
+			}
 
 			$uid = $uid_to;
 			$entity_value = array(
@@ -380,7 +387,7 @@ function custodian_cowpro_fund_repayment($repayment_schedules) {
 }
 
 /**
- * 查询用户余额
+ * 查询用户余额，并拼装成可读信息
  * @param $uid
  * @return unknown
  */
@@ -396,6 +403,25 @@ function custodian_cowpro_fund_balance_contents($uid) {
 			$result = $balance ['msg'];
 		}
 		return $result;
+	} else {
+		$msg = array(
+				'%function' => $function,
+		);
+		watchdog('custodian', '方法"%function"未定义', $msg, WATCHDOG_ERROR);
+	}
+}
+
+/**
+ * 查询用户余额
+ * @param $uid
+ * @return unknown
+ */
+function custodian_cowpro_fund_balance($uid) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_cowpro_fund_query_balance';
+	if (function_exists($function)) {
+		$balance = $function($uid);
+		return $balance;
 	} else {
 		$msg = array(
 				'%function' => $function,
@@ -545,6 +571,43 @@ function custodian_get_topup_method() {
 	$result = NULL;
 	if (function_exists($function)) {
 		$result = $function();
+	}
+	return $result;
+}
+
+/**
+ * 获得托管银行对用户银行账户的操作接口的驱动
+ * @return
+ * 如果托管银行没有对银行账户的操作接口，返回 NULL
+ * 否则，返回一个数组类型，数组中的每一个元素对应一个操作标签，这个操作标签可以是“重置交易密码”……等等
+ * 例如，返回的结果可以是下面形式：
+ * array (
+ * 	'1' => '重置交易密码',
+ * 	'2' => 'xxxxxx',
+ * )
+ * 注意：数组中的key在接口中会被忽略，只有数组中的value起作用
+ */
+function custodian_get_bank_account_operator() {
+	$module = custodian_default_provider_key();
+	$function = $module . '_get_bank_account_operator';
+	$result = NULL;
+	if (function_exists($function)) {
+		$result = $function();
+	}
+	return $result;
+}
+
+/**
+ * 驱动托管银行对银行账户操作的接口
+ * @param $operator 在 custodian_get_bank_account_operator() 方法中返回的操作标签
+ * @return NULL
+ */
+function custodian_bank_account_operator_submit($operator) {
+	$module = custodian_default_provider_key();
+	$function = $module . '_bank_account_operator_submit';
+	$result = NULL;
+	if (function_exists($function)) {
+		$result = $function($operator);
 	}
 	return $result;
 }
