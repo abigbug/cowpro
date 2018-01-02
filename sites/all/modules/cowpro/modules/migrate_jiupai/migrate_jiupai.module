@@ -1,0 +1,523 @@
+<?php
+/*
+ * 导出COWPRO系统数据并生成TXT文件
+ * 要导出的数据包括：用户信息、用户余额信息、标的信息、资金交易信息
+ */
+/**
+ * Implements hook_menu().
+ */
+function migrate_jiupai_menu() {
+	$items = array ();
+	$items ['admin/cowpro/bankcard_migrate_jiupai'] = array (
+			'title' => '银行卡信息迁移到用户表',
+			'description' => '',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'migrate_jiupai_bankcard_form'
+			),
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_NORMAL_ITEM
+	);
+	$items ['admin/cowpro/go_migrate_jiupai'] = array (
+			'title' => '导出目标数据库',
+			'description' => '',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'migrate_jiupai_go_form'
+			),
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_NORMAL_ITEM
+	);
+        $items ['admin/cowpro/sync_jiupai_profile'] = array (
+			'title' => '同步用户九派信息',
+			'description' => '',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'migrate_jiupai_profile_form'
+			),
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_NORMAL_ITEM
+	);
+	$items ['admin/cowpro/go_issuing_accno_jiupai'] = array (
+			'title' => '生成标的台账账号',
+			'description' => '',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'issuing_accno_jiupai_go_form'
+			),
+			'access arguments' => array (
+					'configure p2p'
+			),
+			'type' => MENU_NORMAL_ITEM
+	);
+	return $items;
+}
+
+function migrate_jiupai_go_form($form, &$form_state) {
+	$form ['description'] = array (
+			'#type' => 'markup',
+			'#markup' => t ( '将目标数据库中的用户信息、用户余额信息、标的信息、资金交易信息等导出生成txt文件.<br/><br/>' )
+	);
+	$form ['submit'] = array (
+			'#type' => 'submit',
+			'#value' => '导出'
+	);
+	return $form;
+}
+/**
+ * Submit handler.
+ *
+ * @param array $form
+ *        	Form API form.
+ * @param array $form_state
+ *        	Form API form.
+ */
+
+function migrate_jiupai_go_form_submit($form, &$form_state) {
+	$function = 'migrate_jiupai_go_batch';
+	$batch = $function ();
+	batch_set ( $batch );
+}
+function migrate_jiupai_go_batch() {
+        $filepath ="jbz_totalinfo_20171214.txt";
+        $count_title=" 文件提供日期         压缩文件名称            txt文件个数      数据量      金额\r\n";
+        file_put_contents($filepath, $count_title,FILE_APPEND);
+	$operations = array ();
+        //查询关联了钱多多账户并且ID不等于1的用户信息
+        $count = 0;
+        $result=db_query("SELECT distinct uid  FROM {cowpro_customer_profile} where type='moneymoremore' and uid>1 order by uid asc");
+        if ($result) {
+          foreach ($result as $row) {
+                $uid=$row->uid;
+                $count ++;
+		$operations [] = array (
+				'migrate_jiupai_batch_op_user',
+				array (
+					$uid,
+					t( '(导出用户，编号 @operation)', array (
+					'@operation' => $uid,
+					))
+				)
+		);
+	  }
+        }
+	drupal_set_message ( t ( '导出用户信息及余额操作，共  @num 项', array (
+			'@num' => $count,
+	) ) );
+        
+        $users_count=date("Y年m月d日",time())."  jbz_userinfo_20171214             1           " .$count."\r\n";
+        $users_balance_count=$users_count.date("Y年m月d日",time())."  jbz_acctinfo_20171214             1           " .$count."\r\n";
+        file_put_contents($filepath, $users_balance_count,FILE_APPEND);
+
+        //查询满标放款，未开始还款和还款未完毕的标的信息
+        $issuingcount = 0;
+        $result_issuing=db_query("SELECT entity_id FROM {field_data_field_issuing} where field_issuing_status='REPAYMENT' and deleted=0 order by entity_id desc");
+        if ($result_issuing) {
+          foreach ($result_issuing as $row) {
+                $eid=$row->entity_id;
+                $issuingcount ++;
+		$operations [] = array (
+				'migrate_jiupai_batch_op_issuing',
+				array (
+					$eid,
+					t( '(导出标的，编号 @operation)', array (
+					'@operation' => $eid,
+					))
+				)
+		); 
+	  }
+        }
+	drupal_set_message ( t ( '标的导出操作，共  @num 项', array (
+			'@num' => $issuingcount,
+	) ) );
+        $pro_count=date("Y年m月d日",time())." jbz_projectinfo_20171214             1           " .$issuingcount."\r\n";
+        file_put_contents($filepath, $pro_count,FILE_APPEND);
+        
+        //查询资金交易
+        $transactcount = 0;
+        $result_transact=db_query("SELECT schedule_id FROM {cowpro_repayment_schedule} where receiver_uid<>-1 and capital<>0 and (status='COMPLETED' or status='WAITING_FOR') order by schedule_id desc");
+        if ($result_transact) {
+          foreach ($result_transact as $row) {
+                $sid=$row->schedule_id;
+                $transactcount ++;
+		$operations [] = array (
+				'migrate_jiupai_batch_op_transact',
+				array (
+					$sid,
+					t( '(导出标的资金交易信息，编号 @operation)', array (
+					'@operation' => $sid,
+					))
+				)
+		);
+	  }
+        }
+	drupal_set_message ( t ( '标的资金交易信息导出操作，共  @num 项', array (
+			'@num' => $transactcount,
+	) ) );
+        $trade_count=date("Y年m月d日",time())." jbz_tradeinfo_20171214             1           " .$transactcount."\r\n";
+        file_put_contents($filepath, $trade_count,FILE_APPEND);
+        
+	$batch = array (
+		'operations' => $operations,
+		'finished' => 'migrate_jiupai_batch_finished',
+	);
+	return $batch;
+}
+function migrate_jiupai_batch_op_user($jiupai_uid, $operation_details, &$context) {
+        $result_name = db_query("SELECT uid,search_field FROM {cowpro_customer_profile} WHERE uid=".$jiupai_uid." and type='real_name'");
+        foreach ($result_name as $row) {
+          $user_No = $jiupai_uid;    //会员编号
+          $user_list = explode(';', $row->search_field);
+          $user_Name = $user_list[0];  //客户姓名
+          $user_IdNo = $user_list[1];  //客户证件号
+        }
+        $result_mobile = db_query("SELECT uid,search_field FROM {cowpro_customer_profile} WHERE uid=".$jiupai_uid." and type='mobile'");
+        foreach ($result_mobile as $row) {
+          $user_Mobile = $row->search_field;             //手机号
+        }
+        $jiupai_Date = date("Ymd",time());                     //互金平台日期
+        $jiupai_Time = date("His",time());                     //互金平台时间
+        $jiupai_SeqNo = "jbz".date("Ymd",time()).time().$jiupai_uid;       //互金平台业务流水号
+        $jbz_Code="jbz";                                       //平台代码
+        $user_type="00";                                       //会员类型  00:个人
+        $user_role="09";                                       //会员角色  00：投资方 01：融资方 02：担保方 09：全部
+        $user_IdNoType="00";                                   //证件类型
+        $user_State=0;                                         //用户状态 0-初始;1-正常;2-注销;3-作废;4-未审核(用于企业用户)正常用户移植到存管状态为初始
+        $users_contents=$jiupai_Date."|-|".$jiupai_Time."|-|".$jiupai_SeqNo."|-|".$jbz_Code."|-|".$user_No."|-|".$user_type."|-|".$user_role."|-|".$user_Name."|-|".$user_IdNoType."|-|".$user_IdNo."|-|".$user_Mobile."|-||-||-||-||-||-||-||-||-||-||-|".$user_State."|-|\r\n";
+        $filepath ="jbz_userinfo_20171214.txt";
+        file_put_contents($filepath, $users_contents, FILE_APPEND);
+        
+        //获取用户账户余额
+        $balance = custodian_cowpro_fund_balance($jiupai_uid);
+        if ($balance ['success']) {
+	  $availableamount=number_format($balance['balance'],2,".","");
+	}
+        $user_State="00";   //账户状态
+        $balance_contents=$jbz_Code."|-|".$jiupai_uid."|-|".$availableamount."|-|".$user_State."|-||-|\r\n";
+        $filepath ="jbz_acctinfo_20171214.txt";
+        file_put_contents($filepath, $balance_contents, FILE_APPEND);
+        
+	$context ['amount'] = $availableamount;
+	$context['results'][] = $context ['amount'];
+	return;
+}
+function migrate_jiupai_batch_op_issuing($jiupai_eid, $operation_details, &$context) {
+        $jbz_Code="jbz";                                       //平台代码
+        $jiupai_Date = date("Ymd",time());                     //互金平台日期
+        $jiupai_Time = date("His",time());                     //互金平台时间
+        $jiupai_SeqNo = "jbz".date("Ymd",time()).time().$jiupai_eid;       //互金平台业务流水号
+        $jiupai_Currency="CNY";                                //币种
+        $jiupai_Min=number_format(100,2,".","");               //起投金额
+        // 已投金额
+        $capital_SUM = db_query("SELECT SUM(capital) FROM {cowpro_repayment_schedule} WHERE receiver_uid<>-1 and issuing_id =".$jiupai_eid)->fetchField();
+        // 已投人数
+        $uid_COUNT= db_query("SELECT count(receiver_uid) FROM {cowpro_repayment_schedule} WHERE period=1 and receiver_uid<>-1 and issuing_id =".$jiupai_eid)->fetchField();
+        
+        $node = node_load($jiupai_eid);
+        if ($node) {
+          $node_title=$node->title;                               //标的名称
+          $loanAmount = $node->field_issuing[LANGUAGE_NONE][0]['loan_amounts'];      // 标的金额
+          $node_uid = $node->field_applicant[LANGUAGE_NONE][0]['uid'];               // 所属用户
+          $annualrate = $node->field_issuing[LANGUAGE_NONE][0]['annual_rate'];       //预期收益率
+          $methodrepayment = $node->field_issuing[LANGUAGE_NONE][0]['method_repayment'];  // 还款方式 
+          if($methodrepayment=='average_capital_plus_interest_method'){
+            $repayment="03";
+          }else if($methodrepayment=='average_capital_method'){
+            $repayment="04";
+          }else if($methodrepayment=='balloon_loan'){
+            $repayment="02";
+          }
+        }
+        //查询还款计划，标的期数和日期
+        $result_repayment = db_query("SELECT distinct period,deadline FROM {cowpro_repayment_schedule} WHERE issuing_id =".$jiupai_eid);
+        $deadlist="";
+        foreach ($result_repayment as $row) {
+          $period = $row->period;    //期数
+          $deadline = $row->deadline;    //日期
+          $time_zone = 3600 * 8;
+          $deadtime=gmdate("Ymd", $deadline + $time_zone);
+          if($deadlist==""){
+            $deadlist=$period."|".$deadtime;
+          }else{
+            $deadlist=$deadlist."$$".$period."|".$deadtime;
+          }
+        }
+        //状态
+        $repayment_state="03";
+        //已还本金
+        //$paid_amount = db_query("SELECT SUM(paid_amount) FROM {cowpro_repayment_schedule} WHERE status='COMPLETED' and issuing_id =".$jiupai_eid)->fetchField();
+        $paid_amount=number_format(0,2,".","");
+        $issuing_contents=$jbz_Code."|-|".$jiupai_Date."|-|".$jiupai_Time."|-|".$jiupai_SeqNo."|-|".$jiupai_eid."|-|".$node_title."|-|".$jiupai_Currency."|-|".number_format($loanAmount,2,".","")."|-|".$node_uid."|-|".$jiupai_Min."|-|".number_format($capital_SUM,2,".","")."|-|".$uid_COUNT."|-|".$annualrate."|-|".$repayment."|-|".$deadlist."|-|".$repayment_state."|-||-|".$paid_amount."|-|\r\n";
+        $filepath ="jbz_projectinfo_20171214.txt";
+        file_put_contents($filepath, $issuing_contents, FILE_APPEND);
+}
+function migrate_jiupai_batch_op_transact($jiupai_sid, $operation_details, &$context) {
+       $result_repayment = db_query("SELECT schedule_id,issuing_id,payer_uid,receiver_uid,capital FROM {cowpro_repayment_schedule} WHERE schedule_id=".$jiupai_sid);
+        foreach ($result_repayment as $row) {
+          $issuingid = $row->issuing_id;                 //标的编号
+          $receiveruid = $row->receiver_uid;             //借方编号
+          $result_name = db_query("SELECT uid,search_field FROM {cowpro_customer_profile} WHERE uid=".$receiveruid." and type='real_name'");
+          foreach ($result_name as $row2) {
+            $user_list = explode(';', $row2->search_field);
+            $user_Name = $user_list[0];  //借方户名 
+          } 
+          $payeruid = $row->payer_uid;                    //借方编号
+          $result_name2 = db_query("SELECT uid,search_field FROM {cowpro_customer_profile} WHERE uid=".$payeruid." and type='real_name'");
+          foreach ($result_name2 as $row3) {
+            $user_list2 = explode(';', $row3->search_field);
+            $user_Name2 = $user_list2[0];  //贷方户名
+          }
+          $capital_amount = $row->capital;      //金额
+        }
+        $jiupai_Date = date("Ymd",time());                     //互金平台日期
+        $jiupai_Time = date("His",time());                     //互金平台时间
+        $jbz_Code="jbz";                                       //平台代码
+        $jiupai_SeqNo = "jbz".date("Ymd",time()).time().$jiupai_sid;       //互金平台业务流水号
+        $jiupai_Currency="CNY";                                //币种
+        $jiupai_Type="T01";                                    //交易类型  T01-投标;T07-受让,T08-代偿
+        $jiupai_Other="03";                                    //其他金额类型   01-费用;02-标的收益;03-提现手续费
+        $jiupai_Otheramount=number_format(0,2,".","");         //其他金额 
+        $jiupai_State="1";                                     //交易状态  1-成功       
+        $transact_contents=$jiupai_Date."|-|".$jiupai_Time."|-|".$jbz_Code."|-|".$jiupai_SeqNo."|-|".$issuingid."|-|".$jiupai_Type."|-|".$receiveruid."|-|".$user_Name."|-|".$payeruid."|-|".$user_Name2."|-|".$jiupai_Currency."|-|".$capital_amount."|-|".$jiupai_Other."|-|".$jiupai_Otheramount."|-|".$jiupai_State."|-||-|\r\n";
+        $filepath ="jbz_tradeinfo_20171214.txt";
+        file_put_contents($filepath, $transact_contents, FILE_APPEND);
+}
+
+function migrate_jiupai_batch_finished($success, $results, $operations) {
+	if ($success) {
+            $amount = 0;
+            foreach ($results as $result) {
+	      $amount += $result;
+	    }
+            drupal_set_message ( t ( '用户总金额 @count .', array (
+                            '@count' => $amount,
+            ) ) );
+            drupal_set_message('导出完成');
+	} else {
+		$error_operation = reset ( $operations );
+		drupal_set_message ( t ( 'An error occurred while processing @operation with arguments : @args', array (
+				'@operation' => $error_operation [0],
+				'@args' => print_r ( $error_operation [0], TRUE )
+		) ), 'error' );
+	}
+}
+
+function migrate_jiupai_profile_form($form, &$form_state){
+    $form ['description'] = array (
+			'#type' => 'markup',
+			'#markup' => t ( '将目标数据库中的关联过钱多多用户同步到九派profile.<br/><br/>' )
+	);
+	$form ['submit'] = array (
+			'#type' => 'submit',
+			'#value' => '同步'
+	);
+	return $form;
+}
+
+function migrate_jiupai_profile_form_submit($form, &$form_state) {
+	$function = 'migrate_jiupai_profile';
+	$batch = $function ();
+	batch_set ( $batch );
+}
+function migrate_jiupai_profile() {
+        //查询关联了钱多多账户并且ID不等于1的用户信息
+        $count = 0;
+        $result=db_query("SELECT distinct uid  FROM {cowpro_customer_profile} where type='moneymoremore' and uid<>1 order by uid asc");
+        if ($result) {
+          foreach ($result as $row) {
+                $uid=$row->uid;
+                $count ++;
+		$operations [] = array (
+				'migrate_jiupai_profile_user',
+				array (
+					$uid,
+					t( '(同步用户到九派profile，编号 @operation)', array (
+					'@operation' => $uid,
+					))
+				)
+		);                
+	  }
+        }
+	drupal_set_message ( t ( '导出用户信息及余额操作，共  @num 项', array (
+			'@num' => $count,
+	) ) );
+
+        
+	$batch = array (
+		'operations' => $operations,
+		'finished' => 'migrate_jiupai_profile_finished',
+	);
+	return $batch;
+}
+
+function migrate_jiupai_profile_user($uid, $operation_details, &$context){
+    $profile = cowpro_customer_profile_new('jiupaipay',$uid);
+    
+    $profile->jpp_account_number = $uid;
+    $profile->jpp_id = '';
+    $profile->jpp_authorize = false;
+    $profile->jpp_result_message = '';
+    $profile->jpp_result_code = '';
+    $profile->jpp_password = false;
+    $profile->jpp_bank_card = false;
+    $profile->verified = true;
+    
+    cowpro_customer_profile_save($profile);
+}
+
+function migrate_jiupai_profile_finished($success, $results, $operations) {
+	if ($success) {
+		drupal_set_message('同步成功');
+	} else {
+		$error_operation = reset ( $operations );
+		drupal_set_message ( t ( 'An error occurred while processing @operation with arguments : @args', array (
+				'@operation' => $error_operation [0],
+				'@args' => print_r ( $error_operation [0], TRUE )
+		) ), 'error' );
+	}
+}
+
+function migrate_jiupai_bankcard_form($form, &$form_state) {
+	$form ['description'] = array (
+			'#type' => 'markup',
+			'#markup' => t ( '将原银行卡cowpro_fund_bankcard表数据迁移插入到用户信息表中cowpro_customer_profile.<br/><br/>' )
+	);
+	$form ['submit'] = array (
+			'#type' => 'submit',
+			'#value' => 'Go'
+	);
+	return $form;
+}
+function migrate_jiupai_bankcard_form_submit($form, &$form_state) {
+	$function = 'migrate_jiupai_bankcard_batch';
+	$batch = $function ();
+	batch_set ( $batch );
+}
+function migrate_jiupai_bankcard_batch() {
+	$operations = array ();
+        $count = 0;
+        $result=db_query("select uid,MAX(bankcard_id) as bankcard_id from cowpro_fund_bankcard group by uid");
+        if ($result) {
+          foreach ($result as $row) {
+                $bankcardid=$row->bankcard_id;;
+                $count ++;
+		$operations [] = array (
+				'migrate_jiupai_batch_bankcard_user',
+				array (
+					$bankcardid,
+					t( '(迁移银行卡信息，编号 @operation)', array (
+					'@operation' => $bankcardid,
+					))
+				)
+		);                
+	  }
+        }
+	drupal_set_message ( t ( '迁移银行卡信息操作，共  @num 项', array (
+			'@num' => $count,
+	) ) );
+        
+	$batch = array (
+		'operations' => $operations,
+		'finished' => 'migrate_jiupai_bankcard_batch_finished',
+	);
+	return $batch;
+}
+function migrate_jiupai_batch_bankcard_user($jiupai_bid, $operation_details, &$context) {
+        $result_bankcard = db_query("SELECT bankcard_id,uid,card_no,cardholder,bank_name,bank_branch,province,city FROM {cowpro_fund_bankcard} WHERE bankcard_id=".$jiupai_bid);
+        foreach ($result_bankcard as $row) {
+          $user_No = $row->uid;    //会员编号
+          $profile = cowpro_customer_profile_new('bank_card',$user_No);
+          $profile->uid = $user_No; 
+          $profile->card_no = $row->card_no; 
+          $profile->cardholder = $row->cardholder; 
+          $profile->bank_name = $row->bank_name; 
+          $profile->bank_branch = $row->bank_branch; 
+          $profile->province = $row->province; 
+          $profile->city = $row->city; 
+
+          cowpro_customer_profile_save($profile);
+        }
+}
+function migrate_jiupai_bankcard_batch_finished($success, $results, $operations) {
+	if ($success) {
+		drupal_set_message('同步成功');
+	} else {
+		$error_operation = reset ( $operations );
+		drupal_set_message ( t ( 'An error occurred while processing @operation with arguments : @args', array (
+				'@operation' => $error_operation [0],
+				'@args' => print_r ( $error_operation [0], TRUE )
+		) ), 'error' );
+	}
+}
+
+function issuing_accno_jiupai_go_form($form, &$form_state){
+    $form ['description'] = array (
+			'#type' => 'markup',
+			'#markup' => t ( '批量生成标的台账账号.<br/><br/>' )
+	);
+	$form ['submit'] = array (
+			'#type' => 'submit',
+			'#value' => '生成'
+	);
+	return $form;
+}
+
+function issuing_accno_jiupai_go_form_submit($form, &$form_state) {
+	$function = 'issuing_accno_jiupai_go_batch';
+	$batch = $function ();
+	batch_set ( $batch );
+}
+function issuing_accno_jiupai_go_batch() {
+        $accnocount = 0;
+        $result_accno=db_query("SELECT entity_id FROM {field_data_field_issuing} where field_issuing_status='REPAYMENT' and deleted=0 order by entity_id desc");
+        if ($result_accno) {
+          foreach ($result_accno as $row) {
+                $eid=$row->entity_id;
+                $accnocount ++;
+		$operations [] = array (
+				'migrate_jiupai_issuing_accno',
+				array (
+					$eid,
+					t( '(标的台账账号，编号 @operation)', array (
+					'@operation' => $eid,
+					))
+				)
+		); 
+	  }
+        }
+	drupal_set_message ( t ( '生成标的台账账号操作，共  @num 项', array (
+			'@num' => $accnocount,
+	) ) );
+	$batch = array (
+		'operations' => $operations,
+		'finished' => 'migrate_jiupai_issuing_accno_finished',
+	);
+	return $batch;
+}
+
+function migrate_jiupai_issuing_accno($nid, $operation_details, &$context){
+    db_insert('jiupaipay_issuing_accno')
+          ->fields(array(
+            'issuing_object_accno' => $nid,
+            'nid' => $nid,
+            ))
+          ->execute();
+}
+
+function migrate_jiupai_issuing_accno_finished($success, $results, $operations) {
+	if ($success) {
+		drupal_set_message('生成成功');
+	} else {
+		$error_operation = reset ( $operations );
+		drupal_set_message ( t ( 'An error occurred while processing @operation with arguments : @args', array (
+				'@operation' => $error_operation [0],
+				'@args' => print_r ( $error_operation [0], TRUE )
+		) ), 'error' );
+	}
+}

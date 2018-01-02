@@ -1,0 +1,642 @@
+<?php
+include_once 'includes/jiupaipay.const.inc';
+include_once 'includes/jiupaipay.fun.inc';
+
+/**
+ * Implements hook_provider_info().
+ */
+function jiupaipay_provider_info() {
+	return array(
+			'jiupaipay' => array(
+					'name' => '九派支付',
+					'description' => '“九派支付”第三方托管平台',
+					'configure form' => 'jiupaipay_settings_form',
+			),
+	);
+}
+
+/**
+ * Implements hook_menu().
+ */
+function jiupaipay_menu() {
+	$items = array ();
+
+	$items ['cowpro/jiupaipay/callback/%'] = array (
+			'page callback' => 'jiupaipay_callback',
+			'page arguments' => array (3),
+			'access callback' => TRUE,
+			'type' => MENU_CALLBACK,
+			'file' => 'includes/jiupaipay.fun.inc'
+	);
+        $items ['cowpro/jiupaipay/record'] = array (
+          'title' => '交易状态查询',
+	  'page callback' =>"drupal_get_form",
+          'page arguments' => array ('jiupaipay_cowpro_fund_record_form'),
+	  'access callback' => TRUE,
+          'description' => '',
+          'type' => MENU_CALLBACK,
+        );
+        $items ['cowpro/jiupaipay/file'] = array (
+          'title' => '文件下载通知',
+	  'page callback' =>"drupal_get_form",
+          'page arguments' => array ('jiupaipay_cowpro_fund_file_form'),
+	  'access callback' => TRUE,
+          'description' => '',
+          'type' => MENU_CALLBACK,
+        );
+	return $items;
+}
+
+
+function jiupaipay_settings_form($form, &$form_state) {
+	require_once 'includes/jiupaipay.settings.inc';
+	return _jiupaipay_settings_form($form, $form_state);
+}
+
+
+function jiupaipay_cowpro_customer_profile_jiupaipay_create($values) {
+	$values += array(
+			'jpp_account_number' => '',//九派虚拟账号
+			'jpp_id' => '',//九派二类户账号
+			//'mmm_auth_state' => '',//实名认证状态(1.未实名认证,2.快捷支付认证,3.其他认证)
+			'jpp_result_code' => '',//返回码(88表示成功,其它代码参考《乾多多自主清算系统接口参数说明.doc》)
+			'jpp_result_message' => '',//返回信息(与result_code对应的文字信息)
+                        'jpp_authorize' => FALSE,//用户授权
+                        'jpp_password' => FALSE,//用户交易密码
+                        'jpp_bank_card' => FALSE,//用户是否绑定银行卡
+			//'mmm_authorize_type_1' => FALSE,//用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)
+			//'mmm_authorize_type_2' => FALSE,//用户授权P2P平台可以对资金进行“还款”操作
+			//'mmm_authorize_type_3' => FALSE,//用户授权P2P平台可以对资金进行“二次分配审核”操作
+	);
+	return $values;
+}
+
+function jiupaipay_cowpro_customer_profile_jiupaipay_save($profile) {
+	$data = array();
+
+        $data['jpp_account_number'] = $profile->jpp_account_number;
+        $data['jpp_id'] = $profile->jpp_id;
+        $data['jpp_authorize'] = $profile->jpp_authorize;
+        $data['jpp_result_code'] = $profile->jpp_result_code;
+        $data['jpp_result_message'] = $profile->jpp_result_message;
+        $data['jpp_password'] = $profile->jpp_password;
+        $data['jpp_bank_card'] = $profile->jpp_bank_card;
+        $profile->data = $data;
+        $profile->search_field = $profile->jpp_account_number;
+	//$data['mmm_auth_state'] = $profile->mmm_auth_state;
+	//$data['mmm_result_code'] = $profile->mmm_result_code;
+	//$data['mmm_result_message'] = $profile->mmm_result_message;
+	//$data['mmm_authorize_type_1'] = $profile->mmm_authorize_type_1;
+	//$data['mmm_authorize_type_2'] = $profile->mmm_authorize_type_2;
+	//$data['mmm_authorize_type_3'] = $profile->mmm_authorize_type_3;
+	
+	return $profile;
+}
+
+function jiupaipay_cowpro_customer_profile_jiupaipay_load($profile) {
+       $profile->jpp_account_number = $profile->data['jpp_account_number'];
+       $profile->jpp_id = $profile->data['jpp_id'];
+       $profile->jpp_authorize = $profile->data['jpp_authorize'];
+       $profile->jpp_result_message = $profile->data['jpp_result_message'];
+       $profile->jpp_result_code = $profile->data['jpp_result_code'];
+       $profile->jpp_password = $profile->data['jpp_password'];
+       $profile->jpp_bank_card = $profile->data['jpp_bank_card'];
+            
+	//$profile->mmm_auth_state = $profile->data['mmm_auth_state'];
+	//$profile->mmm_result_code = $profile->data['mmm_result_code'];
+	//$profile->mmm_result_message = $profile->data['mmm_result_message'];
+	//$profile->mmm_authorize_type_1 = $profile->data['mmm_authorize_type_1'];
+	//$profile->mmm_authorize_type_2 = $profile->data['mmm_authorize_type_2'];
+	//$profile->mmm_authorize_type_3 = $profile->data['mmm_authorize_type_3'];
+	return $profile;
+}
+
+function jiupaipay_cowpro_customer_profile_jiupaipay_form($form, &$form_state, $profile) {
+	if ($profile->verified) {
+		$form['jpp_account_number'] = array(
+				'#type' => 'textfield',
+				'#title' => '九派账号',
+				'#description' => '',
+				'#default_value' => $profile->jpp_account_number,
+				'#disabled' => TRUE,
+				'#maxlength' => 20,
+				'#weight' => 10,
+		);
+
+		$form['jpp_id'] = array(
+				'#type' => 'hidden',
+				'#title' => '九派二类户账号',
+				'#default_value' => $profile->jpp_id,
+				'#disabled' => TRUE,
+				'#maxlength' => 20,
+				'#weight' => 20,
+		);
+
+	} else {
+		$form['jpp_information'] = array(
+				'#markup' => '请点击按钮完成与“九派支付”托管帐户的同步操作',
+		);
+	}
+
+	return $form;
+}
+
+function jiupaipay_cowpro_customer_profile_jiupaipay_form_alter($form, &$form_state, $profile) {
+	if (! $profile->verified) {
+		$form['actions']['submit']['#value'] = JPP_OP_BIND_ACCOUNT;
+		$form['profile']['actions'] = $form['actions'];
+	} else if ((!$profile->jpp_authorize)) {
+		$form['actions']['submit']['#value'] = JPP_OP_AUTHORIZE;
+		$form['profile']['actions'] = $form['actions'];
+	} else {
+		$form['profile']['jpp_ok'] = array(
+			'#markup' => '<div>已关联、已授权</div>',
+			'#weight' => 50,
+		);
+	}
+	$form['profile_verified']['verified']['#disabled'] = TRUE;
+	unset($form['actions']['submit']);
+	
+	$operator = custodian_get_bank_account_operator();
+	if ($operator != NULL) {
+      $i = 0;
+      foreach($operator as $op) {
+		$form['actions'] ['operator' . $i] = array (
+				'#type' => 'submit',
+				'#name' => 'operator',
+				'#value' => $op,
+				'#submit' => array('cowpro_customer_customer_profile_form_submit'),
+		);
+        $i = $i + 1;
+      }
+	}
+	
+	return $form;
+}
+
+function jiupaipay_cowpro_customer_profile_jiupaipay_form_submit($form, &$form_state, &$profile) {
+	if (isset($form_state ['values'] ['op']) && ($form_state ['values'] ['op'] === JPP_OP_BIND_ACCOUNT)) {
+		include_once 'includes/jiupaipay.createnewacct.inc';
+		$uid = $profile->uid;
+		$profile_real_name = cowpro_customer_profile_load_one_row_with_conditions($uid, 'real_name');
+		$profile_mobile = cowpro_customer_profile_load_one_row_with_conditions($uid, 'mobile');
+
+		if (is_null($profile_mobile) || (!property_exists($profile_mobile, 'mobile_number' ))) {
+			drupal_set_message('末进行手机认证', 'error');
+			return;
+		}
+		if (is_null($profile_real_name) || (!property_exists($profile_real_name, 'name' ))) {
+			drupal_set_message('末进行实名认证', 'error');
+			return;
+		}
+		if (is_null($profile_real_name) || (!property_exists($profile_real_name, 'id_no' ))) {
+			drupal_set_message('末进行实名认证', 'error');
+			return;
+		}
+                if (is_null($profile_real_name) || (!property_exists($profile_real_name, 'idvalidDate' ))) {
+			drupal_set_message('末进行实名认证', 'error');
+			return;
+		}
+                if (is_null($profile_real_name) || (!property_exists($profile_real_name, 'idexpiryDate' ))) {
+			drupal_set_message('末进行实名认证', 'error');
+			return;
+		}
+
+		$u = array();
+		$u['uid'] = $uid;
+		$u['mobile_number'] = $profile_mobile->mobile_number;
+		$u['name'] = $profile_real_name->name;
+		$u['id_no'] = $profile_real_name->id_no;
+                $u['idvalidDate'] = $profile_real_name->idvalidDate;
+                $u['idexpiryDate'] = $profile_real_name->idexpiryDate;
+		jiupaipay_create_new_acct($u);
+	} else if (isset($form_state ['values'] ['op']) && ($form_state ['values'] ['op'] === JPP_OP_AUTHORIZE)) {
+		include_once 'includes/jiupaipay.authorize.inc';
+		$uid = $profile->uid;
+		$u = array();
+		$u['uid'] = $uid;
+                jiupaipay_check_pwd($uid,4);
+	} else if ($form_state ['clicked_button'] ['#value'] === $form_state ['values'] ['operator']) {
+		custodian_bank_account_operator_submit($form_state ['values'] ['operator']);
+	}
+		
+}
+
+function jiupaipay_cowpro_customer_profile_jiupaipay_extra_fields() {
+	$result = array(
+			'form' => array(
+					'mmm_account_number' => array(
+							'label' => '乾多多数字账户(可用于登录)',
+							'description' => '',
+							'weight' => -9,
+					),
+					'mmm_id' => array(
+							'label' => '用户的乾多多标识(以m开头)',
+							'description' => '',
+							'weight' => -8,
+					),
+					'mmm_auth_state' => array(
+							'label' => '实名认证状态',
+							'description' => '1.未实名认证,2.快捷支付认证,3.其他认证',
+							'weight' => -7,
+					),
+					'mmm_result_code' => array(
+							'label' => '返回码',
+							'description' => '88表示成功,其它代码参考《乾多多自主清算系统接口参数说明.doc》',
+							'weight' => -6,
+					),
+					'mmm_result_message' => array(
+							'label' => '返回信息',
+							'description' => '与“返回码”对应的文字信息',
+							'weight' => -5,
+					),
+					'mmm_authorize_type_1' => array(
+							'label' => '投标转账授权',
+							'description' => '用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)',
+							'weight' => 10,
+					),
+					'mmm_authorize_type_2' => array(
+							'label' => '还款转账授权',
+							'description' => '用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)',
+							'weight' => 20,
+					),
+					'mmm_authorize_type_3' => array(
+							'label' => '二次分配审核授权',
+							'description' => '用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)',
+							'weight' => 30,
+					),
+			),
+			'display' => array(
+					'mmm_account_number' => array(
+							'label' => '乾多多数字账户(可用于登录)',
+							'description' => '',
+							'weight' => -9,
+					),
+					'mmm_id' => array(
+							'label' => '用户的乾多多标识(以m开头)',
+							'description' => '',
+							'weight' => -8,
+					),
+					'mmm_auth_state' => array(
+							'label' => '实名认证状态',
+							'description' => '1.未实名认证,2.快捷支付认证,3.其他认证',
+							'weight' => -7,
+					),
+					'mmm_result_code' => array(
+							'label' => '返回码',
+							'description' => '88表示成功,其它代码参考《乾多多自主清算系统接口参数说明.doc》',
+							'weight' => -6,
+					),
+					'mmm_result_message' => array(
+							'label' => '返回信息',
+							'description' => '与“返回码”对应的文字信息',
+							'weight' => -5,
+					),
+					'mmm_authorize_type_1' => array(
+							'label' => '授权“投标”',
+							'description' => '用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)',
+							'weight' => 10,
+					),
+					'mmm_authorize_type_2' => array(
+							'label' => '授权“还款”',
+							'description' => '用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)',
+							'weight' => 20,
+					),
+					'mmm_authorize_type_3' => array(
+							'label' => '授权“二次分配审核”',
+							'description' => '用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)',
+							'weight' => 30,
+					),
+			),
+	);
+
+	return $result;
+}
+
+/**
+ * Implements hook_cowpro_customer_profile_type_info().
+ */
+function jiupaipay_cowpro_customer_profile_type_info() {
+	$profile_types = array();
+
+	$profile_types['jiupaipay'] = array(
+			'type' => 'jiupaipay',
+			'name' => '九派支付账户',
+			'description' => '',
+			'help' => '',
+			'weight' => 200,
+	);
+
+	return $profile_types;
+}
+
+
+function jiupaipay_cowpro_register($uid,$journal_id,$returnType,$journal_name) {
+	include_once 'includes/jiupaipay.register.inc';
+	return jiupaipay_register($uid,$journal_id,$returnType,$journal_name);
+}
+
+
+function jiupaipay_get_bank_card_operator($profile){
+    global $user;
+    $profile = cowpro_customer_profile_load_one_row_with_conditions($user->uid, 'jiupaipay');
+    if ($profile == NULL) {
+            $profile = cowpro_customer_profile_new('jiupaipay', $user->uid);
+    }
+    if( !$profile->jpp_bank_card ) {
+        return "绑定银行卡";
+    }else{
+        return "解绑银行卡";
+    }
+}
+
+function jiupaipay_bank_card_operator_submit($operator, $profile){
+    include_once 'includes/jiupaipay.fun.inc';
+    global $user;
+    
+    $profile_jiupaipay = cowpro_customer_profile_load_one_row_with_conditions($user->uid, 'jiupaipay');
+    if ($profile_jiupaipay == NULL) {
+            $profile_jiupaipay = cowpro_customer_profile_new('jiupaipay', $user->uid);
+    }
+    if( !$profile_jiupaipay->jpp_password ) {
+        $result['success'] = false;
+        $result['message'] = "请您先设置交易密码";
+        return $result;
+    }
+    
+    if( $operator == "绑定银行卡" ) {
+        $step = 1;
+    }else if( $operator == "解绑银行卡" ){
+        $step = 2;
+    }
+    jiupaipay_check_pwd($user->uid,$step);
+}
+
+//标的信息同步
+function jiupaipay_cowpro_fund_issuing_publish($nid){
+    include_once 'includes/jiupaipay.issuing_publish.inc';
+    return jiupaipay_issuing_publish($nid);
+}
+
+//标的流标
+function jiupaipay_cowpro_fund_issuing_failing($nid){
+    include_once 'includes/jiupaipay.issuingfailing.inc';
+    return jiupaipay_issuing_failing($nid);
+}
+
+//满标放款
+function jiupaipay_cowpro_fund_make_loans_to($nid){
+    include_once 'includes/jiupaipay.makeloans.inc';
+    return jiupaipay_make_loans_to($nid);
+}
+
+//投标
+function jiupaipay_cowpro_fund_bid($uid, $amount, $nid, $journal_id){
+    $profile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'jiupaipay' );
+    if( !$profile->jpp_authorize) {
+        $result['success'] = false;
+        $result['message'] = "你没有委托授权九派";
+        return $result;
+    }
+    include_once 'includes/jiupaipay.bid.inc';
+    return jiupaipay_bid($uid, $amount, $nid, $journal_id);
+}
+
+//到期还款
+function jiupaipay_cowpro_fund_repayment($repayment_schedules){
+    include_once 'includes/jiupaipay.repayment.inc';
+    return jiupaipay_repayment($repayment_schedules);
+}
+
+//出款
+function jiupaipay_cowpro_fund_out_money($repayment_schedules){
+    include_once 'includes/jiupaipay.outMoney.inc';
+    return jiupaipay_outMoney($repayment_schedules);
+}
+
+//内部转账
+function jiupaipay_cowpro_fund_internal_trans($uid_from, $uid_to, $amount) {
+    include_once 'includes/jiupaipay.internaltrans.inc';
+    return jiupaipay_internal_trans($uid_from, $uid_to, $amount);
+}
+
+//债权转让
+function jiupaipay_cowpro_fund_buy_creditor_assignment($amount, $issuing_id, $seller_uid, $buyer_uid) {
+    include_once 'includes/jiupaipay.creditorassignment.inc';
+    return jiupaipay_creditor_assignment($amount, $issuing_id, $seller_uid, $buyer_uid);
+}
+
+//返回充值方式
+function jiupaipay_get_topup_method(){
+    return $result = array( 
+        1 => "网银充值",
+        2 => "快捷充值",
+                            );
+}
+
+//充值
+function jiupaipay_cowpro_fund_topup($uid, $amount, $method, $journal_id){
+    $profile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'jiupaipay' );
+    if (! $profile->jpp_account_number) {
+        $result['success'] = false;
+        $result['message'] = "您还没有关联九派账号";
+        return $result;
+    }
+
+    //$profile_bank_card = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'bank_card' );
+    if( !$profile->jpp_bank_card) {
+        $result['success'] = false;
+        $result['message'] = "没有绑定银行卡";
+        return $result;
+    }
+     include_once 'includes/jiupaipay.fun.inc';
+     global $user;
+     $data['amount'] = $amount;
+     $data['method'] = $method;
+     $data['journal_id'] = $journal_id;
+     
+    jiupaipay_check_pwd($user->uid,5,$data);
+}
+
+//提现
+function jiupaipay_cowpro_fund_withdraw($uid, $amount, $card, $journal_id){
+    $profile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'jiupaipay' );
+    if (! $profile) {
+            $result['success'] = false;
+            $result['message'] = "没有绑定九派支付账号";
+            return $result;
+    }
+
+    $profile_bank_card = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'bank_card' );
+    if( !$profile->jpp_bank_card) {
+            $result['success'] = false;
+            $result['message'] = "没有绑定银行卡号";
+            return $result;
+    }
+     include_once 'includes/jiupaipay.fun.inc';
+     global $user;
+     $data['amount'] = $amount;
+     $data['card'] = $card;
+     $data['journal_id'] = $journal_id;
+     
+    jiupaipay_check_pwd($user->uid,7,$data);
+}
+
+//查询托管账户信息
+function jiupaipay_cowpro_fund_query_balance($uid) {
+	include_once 'includes/jiupaipay.querybalance.inc';
+	$balance = _jiupaipay_cowpro_fund_query_balance($uid);
+	if (! $balance ['status']) {
+		$result = $balance ['msg'];
+	}
+	$balance['success'] = $balance ['status'];
+	return $balance;
+}
+
+//查询托管账户信息
+function jiupaipay_user_view_fund($uid) {
+	include_once 'includes/jiupaipay.querybalance.inc';
+	$balance = _jiupaipay_cowpro_fund_query_balance($uid);
+	if (! $balance ['status']) {
+		$result = $balance ['msg'];
+	}
+	$balance['success'] = $balance ['status'];
+	return $balance;
+}
+
+//返回交易密码驱动字符串
+function jiupaipay_get_bank_account_operator(){
+    global $user;
+    $result = array();
+   $profile = cowpro_customer_profile_load_one_row_with_conditions ( $user->uid, 'jiupaipay' );
+    if ($profile == NULL) {
+            $profile = cowpro_customer_profile_new('jiupaipay', $user->uid);
+    }
+   if( !$profile->jpp_password) {
+          $result[] = '设置九派交易密码';
+   }
+   
+  $result[] = '修改九派交易密码';
+  $result[] = '重置九派交易密码';
+    return $result;
+}
+
+//驱动交易密码 设置 修改 重置
+function jiupaipay_bank_account_operator_submit($operator){
+    global $user;
+    $profile = cowpro_customer_profile_load_one_row_with_conditions ( $user->uid, 'jiupaipay' );
+    if( !$profile->jpp_password && $operator != "设置九派交易密码") {
+            $result['success'] = false;
+            $result['message'] = "没有设置交易密码";
+            return $result;
+    }
+    include_once 'includes/jiupaipay.pwd.inc';
+    if( $operator == "修改九派交易密码" ) {
+        return jiupaipay_modify_pwd($user->uid);
+    }else if( $operator == "重置九派交易密码" ){
+        return jiupaipay_reset_pwd($user->uid);
+    }else if( $operator == "设置九派交易密码" ){
+        return jiupaipay_register_pwd($user->uid);
+    }
+    
+}
+
+//查询交易状态
+function jiupaipay_cowpro_fund_record_form($form, &$form_state) {
+	$form = array();
+	$form ['record_No'] = array (
+			'#type' => 'textfield',
+			'#title' => '业务流水号',
+			'#default_value' => '',
+			'#input' => TRUE,
+	);
+	$form['record_types'] = array(
+			'#type' => 'select',
+			'#title' => '业务类型',
+			'#options' => array(
+                            'U01' => t('个人客户注册'),
+                            'U02' => t('客户信息修改'),
+                            'B01' => t('客户绑卡'),
+                            'B02' => t('客户解绑'),
+                            'B03' => t('客户绑卡修改'),
+                            'T01' => t('投标'),
+                            'T02' => t('取消投标'),
+                            'T03' => t('放款'),
+                            'T04' => t('还款'),
+                            'T05' => t('出款'),
+                            'T06' => t('转让'),
+                            'T07' => t('受让'),
+                            'T08' => t('代偿'),
+                            'T09' => t('代偿回款'),
+                            'T10' => t('营销'),
+                            'T11' => t('冲正'),
+                            'T12' => t('其他费用收取'),
+                            'R01' => t('客户代扣充值'),
+                            'R02' => t('客户网银充值'),
+                            'R03' => t('营销充值'),
+                            'R04' => t('代偿充值'),
+                            'R05' => t('费用充值'),
+                            'R06' => t('垫资充值'),
+                            'R07' => t('线下充值'),
+                            'W01' => t('客户提现'),
+                            'W02' => t('营销提现'),
+                            'W03' => t('代偿提现'),
+                            'W04' => t('费用提现'),
+                            'W05' => t('垫资提现'),
+                            'W06' => t('企业委托提现'),
+                         ),
+			'#description' => '',
+	);
+
+	$form['record'] = array(
+			'#type' => 'submit',
+			'#value' => '查询',
+	);
+	return $form;
+}
+function jiupaipay_cowpro_fund_record_form_submit($form, &$form_state) {
+	include_once 'includes/jiupaipay.record.inc';
+        global $user;
+	$record = _jiupaipay_cowpro_fund_query_record($user->uid);
+        //var_dump($record);die();
+        if($record["dealStatus"]==0){
+            $dealStatus="失败";
+        }elseif($record["dealStatus"]==1){
+            $dealStatus="成功";
+        }else{
+            $dealStatus="处理中";
+        }
+        drupal_set_message("业务流水号：".$record["oldbusinessSeqNo"]."&nbsp;&nbsp;&nbsp;处理状态：".$dealStatus."&nbsp;&nbsp;&nbsp;处理结果：".$record["msg"]);
+}
+
+//文件下载通知
+function jiupaipay_cowpro_fund_file_form($form, &$form_state) {
+	$form = array();
+	$form ['liquDate'] = array (
+			'#type' => 'textfield',
+			'#title' => '对账日期',
+			'#default_value' => '',
+			'#input' => TRUE,
+	);
+	$form['filetype'] = array(
+			'#type' => 'select',
+			'#title' => '文件类型',
+			'#options' => array(
+                            'TRADECHECK' => t('交易明细'),
+                            'P2PTRADECHECKRESULT' => t('交易明细结果'),
+                         ),
+			'#description' => '',
+	);
+
+	$form['file'] = array(
+			'#type' => 'submit',
+			'#value' => '发送通知',
+	);
+	return $form;
+}
+function jiupaipay_cowpro_fund_file_form_submit($form, &$form_state) {
+	include_once 'includes/jiupaipay.file.inc';
+        global $user;
+	$file = _jiupaipay_cowpro_fund_query_file($user->uid);
+        var_dump($file);die();
+}

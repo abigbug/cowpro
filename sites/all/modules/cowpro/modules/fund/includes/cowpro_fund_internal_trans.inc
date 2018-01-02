@@ -1,6 +1,7 @@
 <?php
 function cowpro_fund_internal_trans($form, &$form_state) {
 	$form = array ();
+	/*
 	$form['user_from'] = array(
 			'#type' => 'textfield',
 			'#title' => '转出账户：',
@@ -11,6 +12,7 @@ function cowpro_fund_internal_trans($form, &$form_state) {
 			'#weight' => -1,
 			'#reguired' => TRUE,
 	);
+	*/
 
 	$form['user_to'] = array(
 			'#type' => 'textfield',
@@ -39,7 +41,7 @@ function cowpro_fund_internal_trans($form, &$form_state) {
 			'#type' => 'numberfield',
 			'#title' => '转账金额(元)',
 			'#step' => 0.01,
-			'#min' => 0,
+			//'#min' => 0,
 			'#max' => 999999,
 			'#default_value' => 0,
 			'#input' => TRUE
@@ -61,7 +63,7 @@ function cowpro_fund_internal_trans($form, &$form_state) {
 }
 
 function cowpro_fund_internal_trans_validate($form, &$form_state) {
-	if (( float ) trim ( $form_state ['input'] ['amount'] ) <= 0) {
+	if (( float ) trim ( $form_state ['input'] ['amount'] ) == 0) {
 		form_error ( $form ['amount'], "请填写有效的转账金额" );
 	}
 }
@@ -145,14 +147,13 @@ function cowpro_fund_internal_trans_confirm($uid_from, $uid_to, $amount, &$form_
 }
 
 function cowpro_fund_internal_trans_do($form, &$form_state) {
-	$uid_from = $form_state['uid_from'];
+	$uid_from = NULL;//$form_state['uid_from'];
 	$uid_to = $form_state['uid_to'];
 	$amount = $form_state['amount'];
 	global $user;
 	$comment = '(' . $user->name . ')' . '手工转账';
 
 	$result = custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comment);
-
 
 	if ($result['success']) {
 		drupal_set_message('转账成功');

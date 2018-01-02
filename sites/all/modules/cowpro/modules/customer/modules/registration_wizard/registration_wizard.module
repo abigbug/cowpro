@@ -336,13 +336,18 @@ function registration_wizard_get_result($object) {
  * Implements hook_user_login().
  */
 function registration_wizard_user_login(&$edit, $account) {
+	global $user;
+	$role = user_role_load_by_name('administrator');
+	if (user_has_role($role->rid, $user)) {
+		return;
+	}
+
 	$profile_types = registration_wizard_get_available_profile_types();
 	foreach ($profile_types as $value) {
 		if ($value['type'] == 'credentials') {
 			continue;//不对“证明文件”做检查
 		}
 		if ($value['included']) {
-			global $user;
 			$conditions = array(
 					'uid' => $user->uid,
 					'type' => $value['type'],
@@ -358,6 +363,9 @@ function registration_wizard_user_login(&$edit, $account) {
 				}
 			}
 			if ($redirect) {
+				if ($value['type'] == 'jiupaipay') {
+					drupal_set_message('尊敬的客户，我们与宜宾商业银行合作，由宜宾商业银行提供资金托服务，请您重新设置银行交易密码并绑定银行卡，以方便您的投资操作。');
+				}
 				$edit['redirect'] = 'registration_wizard/' . $value['type'];
 				break;
 			}

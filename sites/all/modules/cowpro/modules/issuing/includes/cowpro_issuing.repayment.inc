@@ -169,14 +169,12 @@ function _cowpro_issuing_repayment_finished($success, $repayment_schedules) {
 }
 
 function _cowpro_issuing_repayment_update($repayment_schedules) {
-	$paid_amount = 0;//累计贷款人本期还款总额
+	$period_list = array();//记录 $repayment_schedules 里面是第几期还款，（注意：有可能一次就还了多期）
 	foreach ($repayment_schedules as $repayment) {
 		$repayment->status = 'COMPLETED';
 		$repayment->paid_amount = $repayment->payable_amount;
 		$repayment->received_amount = $repayment->receivable_amount;
 		entity_save ( 'cowpro_repayment_schedule', $repayment );
-
-		$paid_amount += $repayment->payable_amount;
 
 		//登记债权人的收款流水帐
 		$issuing_id = $repayment->issuing_id;
@@ -194,59 +192,73 @@ function _cowpro_issuing_repayment_update($repayment_schedules) {
 		);
 		$entity = entity_create('cowpro_fund_journal', $journal);
 		entity_get_controller('cowpro_fund_journal')->save($entity);
+
+		if (! in_array($repayment->period, $period_list)) {
+			$period_list[] = $repayment->period;//把还款期数记录下来，用于后面更新贷款人（融资人）的cowpro_repayment_schedule
+		}
 	}
 
 	$values = array_values ( $repayment_schedules );
 	$repayment = array_shift($values);
 	$issuing_id = $repayment->issuing_id;
-	$period = $repayment->period;
 	$period_total = $repayment->period_total;
 
-	//cowpro_repayment_schedule表中，每一期的还款记录中有一个receiver_uid=-1的记录
-	//是为了views输出方便而存在的冗余记录
-	//在当期还款完毕以后，我们要在这里更新这条记录
-	$conditions = array (
-			'issuing_id' => $issuing_id,
-			'period' => $period,
-			'receiver_uid' => -1,
-			'status' => 'WAITING_FOR',
-	);
-	$reset = FALSE;
-	$schedules = entity_load ( 'cowpro_repayment_schedule', FALSE, $conditions, $reset );
-	$schedule = array_shift($schedules);
-	if ($schedule) {
-		/*
-		 * 在实际运行中，$schedule->payable_amount == $schedule->paid_amount 这个判断，有时候是正确的，但有时候应该相等而结果却是不等
-		 * 推测有可能是数据库与PHP当中，实数有小尾巴的原因
-		 * 所以现在暂时不做判断，直接将 status 登录为 COMPLETED
-		 */
-		//$schedule->paid_amount = $schedule->paid_amount + $paid_amount;
-		//if ($schedule->payable_amount == $schedule->paid_amount) {
-			$schedule->status = 'COMPLETED';
-		//}
-		entity_save ( 'cowpro_repayment_schedule', $schedule );
+	foreach ($period_list as $period) {
+		//cowpro_repayment_schedule表中，每一期的还款记录中有一个receiver_uid=-1的记录
+		//是为了views输出方便而存在的冗余记录
+		//在当期还款完毕以后，我们要在这里更新这条记录
+		$conditions = array (
+				'issuing_id' => $issuing_id,
+				'period' => $period,
+				'receiver_uid' => -1,
+				'status' => 'WAITING_FOR',
+		);
+		$reset = FALSE;
+		$schedules = entity_load ( 'cowpro_repayment_schedule', FALSE, $conditions, $reset );
+		$schedule = array_shift($schedules);
+		if ($schedule) {
+			/*
+			 * 在实际运行中，$schedule->payable_amount == $schedule->paid_amount 这个判断，有时候是正确的，但有时候应该相等而结果却是不等
+			 * 推测有可能是数据库与PHP当中，实数有小尾巴的原因
+			 * 所以现在暂时不做判断，直接将 status 登录为 COMPLETED
+			 */
+			//$schedule->paid_amount = $schedule->paid_amount + $paid_amount;
+			//if ($schedule->payable_amount == $schedule->paid_amount) {
+				$schedule->status = 'COMPLETED';
+			//}
+			entity_save ( 'cowpro_repayment_schedule', $schedule );
+		}
 	}
 
-	//登记贷款人的付款流水帐
-	$internal_reference_id = 'ISSUING-' . $issuing_id . ';PERIOD-' . $period . '/' . $period_total;
-	$journal = array(
-			'uid' => $repayment->payer_uid,
-			'status' => TRUE,
-			'type' => 'REPAYMENT_PAYMENTS',
-			'amount' => $paid_amount,
-			'internal_reference_id' => $internal_reference_id,
-			'external_reference_id' => '',
-	);
-	$entity = entity_create('cowpro_fund_journal', $journal);
-	entity_get_controller('cowpro_fund_journal')->save($entity);
+	foreach ($period_list as $period) {
+		$paid_amount = 0;//累计贷款人（融资人）本期还款总额
+		foreach ($repayment_schedules as $repayment) {
+			if ($repayment->period == $period) {
+				$paid_amount += $repayment->payable_amount;
+			}
+		}
 
-	//表cowpro_repayment_schedule可能因为正在进行债权转让而将status字段标记为"ASSIGNABLE"
-	//这种情况下，系统要自动中止债权转让，将status字段重新标记为"WAITING_FOR"
-	$count = db_update('cowpro_repayment_schedule')
-	->fields(array('status' => 'WAITING_FOR'))
-  ->condition('issuing_id', $issuing_id)
-  ->condition('status', 'ASSIGNABLE')
-  ->execute();
+		//登记贷款人（融资人）的付款流水帐
+		$internal_reference_id = 'ISSUING-' . $issuing_id . ';PERIOD-' . $period . '/' . $period_total;
+		$journal = array(
+				'uid' => $repayment->payer_uid,
+				'status' => TRUE,
+				'type' => 'REPAYMENT_PAYMENTS',
+				'amount' => $paid_amount,
+				'internal_reference_id' => $internal_reference_id,
+				'external_reference_id' => '',
+		);
+		$entity = entity_create('cowpro_fund_journal', $journal);
+		entity_get_controller('cowpro_fund_journal')->save($entity);
+
+		//表cowpro_repayment_schedule可能因为正在进行债权转让而将status字段标记为"ASSIGNABLE"
+		//这种情况下，系统要自动中止债权转让，将status字段重新标记为"WAITING_FOR"
+		$count = db_update('cowpro_repayment_schedule')
+		->fields(array('status' => 'WAITING_FOR'))
+	  ->condition('issuing_id', $issuing_id)
+	  ->condition('status', 'ASSIGNABLE')
+	  ->execute();
+	}
 	/*
 	watchdog('cowpro_repayment', '中止与“issuing_id:%id”相关的债权转让，更新cowpro_repayment_schedule记录，共 %count 条',
 			array('%id' => $issuing_id, '%count' => $count), WATCHDOG_DEBUG);

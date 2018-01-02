@@ -149,11 +149,14 @@ function sms_ylxf_send($number = NULL, $message = NULL, $options = array()) {
 	$result = array();
 	$result['result'] = array();
 
+	/*
 	if ((strpos($message, '验证码') === false) && (strpos($message, '还款') === false)) {
 		$result['status'] = FALSE;
 		$result['result']['msg'] = '十九大期间，信息审查，短信发送受限';
+		$result['message'] = '十九大期间，信息审查，短信发送受限';
 		return $result;
 	}
+	*/
 
 	$gateway = sms_gateways('gateway', 'ylxf');
 	$signature = $gateway['configuration']['signature'];
@@ -182,6 +185,7 @@ function sms_ylxf_send($number = NULL, $message = NULL, $options = array()) {
 		watchdog('sms_ylxf', '电话%number,编号%id,发送成功。内容：%content', $msg, WATCHDOG_DEBUG);
 		$result['status'] = TRUE;
 		$result['result']['msg'] = '编号:' + $pieces [1];
+		$result['message'] = '编号:' + $pieces [1];
 	} else {
 		$msg = array(
 				'%number' => $number,
@@ -190,6 +194,7 @@ function sms_ylxf_send($number = NULL, $message = NULL, $options = array()) {
 		watchdog('sms_ylxf', '错误信息：电话%number,状态:%status', $msg, WATCHDOG_ERROR);
 		$result['status'] = FALSE;
 		$result['result']['msg'] = '状态:' + $pieces [1];
+		$result['message'] = '状态:' + $pieces [1];
 	}
 	return $result;
 }

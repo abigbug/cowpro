@@ -201,11 +201,11 @@ function sms_send($number, $message, $options = array()) {
     $function = $module . '_sms_send';
     $function($number, $message, $options, $gateway);
   }
-  
+
   if (module_exists('token')) {
     $message = token_replace($message);
   }
-  
+
   $response = NULL;
   if (isset($gateway['send']) && function_exists($gateway['send'])) {
     $response = $gateway['send']($number, $message, $options);

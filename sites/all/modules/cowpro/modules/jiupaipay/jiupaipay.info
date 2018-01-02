@@ -1,0 +1,10 @@
+name = jiu pai pay
+description = 九派支付第三方托管
+package = _CowPro
+configure = admin/cowpro/config_jiupaipay
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"
+

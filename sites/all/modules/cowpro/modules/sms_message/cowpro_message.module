@@ -12,6 +12,7 @@ const COWPRO_SMS_REPAYMENT_RECEIVER_MESSAGE = '尊敬的用户[user:name]，您�
 const COWPRO_SMS_REPAYMENT_REMIND_MESSAGE = '尊敬的用户[user:name]，您本期(第[cowpro_repayment_schedule:period]/[cowpro_repayment_schedule:period_total]期)贷款“[cowpro_issuing:title]”的还款日是[cowpro_repayment_schedule:deadline]日，还款金额[cowpro_repayment_schedule:payable_total_current_period]，请按时还款。';
 const COWPRO_SMS_FUND_TOPUP_MESSAGE = '尊敬的用户[user:name]，您刚才充值[cowpro_fund_journal:amount]已成功，特此通知。';
 const COWPRO_SMS_FUND_WITHDRAW_MESSAGE = '尊敬的用户[user:name]，您刚才的提现申请[cowpro_fund_journal:amount]已提交，特此通知。';
+const COWPRO_SMS_SITE_MAINTENANCE_MESSAGE = '尊敬的用户您好，为配合银行存管系统上线，平台将于2017年12月21日12时-31日24时进行系统维护，维护期间您将暂时无法充值、提现、投资，详情见官网!';
 
 /**
  * @file
@@ -41,6 +42,18 @@ function cowpro_message_menu() {
 			'page callback' => 'drupal_get_form',
 			'page arguments' => array (
 					'cowpro_message_log_settings_form',
+			),
+			'access arguments' => array (
+					'configure p2p',
+			),
+			'type' => MENU_NORMAL_ITEM,
+	);
+	$items ['admin/cowpro/config_sms_site_message'] = array (
+			'title' => '网站维护给用户群发短信模板',
+			'description' => '设置网站维护提醒短信的内容',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'cowpro_message_site_maintenance_form',
 			),
 			'access arguments' => array (
 					'configure p2p',
@@ -326,3 +339,90 @@ function cowpro_message_user_login(&$edit, $account) {
 	rules_invoke_event('cowpro_fund_bid_finished', TRUE, $node, $journal);
 }
 */
+
+function cowpro_message_site_maintenance_form($form, &$form_state) {
+	$form = array ();
+	$form ['cowpro_sms_site_maintenance_message'] = array (
+			'#title' => '向用户发送网站维护消息的内容',
+			'#type' => 'textarea',
+			'#default_value' => variable_get ( 'cowpro_sms_site_maintenance_message', COWPRO_SMS_SITE_MAINTENANCE_MESSAGE ),
+	);	
+        $form ['submit'] = array (
+			'#type' => 'submit',
+			'#value' => '发送'
+	);
+	return $form;
+}
+
+
+function cowpro_message_site_maintenance_form_submit($form, &$form_state) {
+	$function = 'cowpro_message_site_maintenance_batch';
+	$batch = $function ($form_state['input']['cowpro_sms_site_maintenance_message']);
+	batch_set ( $batch );
+}
+function cowpro_message_site_maintenance_batch($site_maintenance) {
+        $count = 0;
+        $result_users=db_query("SELECT uid FROM {users} where uid>1 order by login desc");
+        if ($result_users) {
+          foreach ($result_users as $row) {
+                $uid=$row->uid;
+                $count ++;
+		$operations [] = array (
+				'cowpro_message_site_maintenance_send',
+				array (
+					$uid,
+                                        $site_maintenance,
+					t( '(维护短信发送，编号 @operation)', array (
+					'@operation' => $uid,
+					))
+				)
+		); 
+	  }
+        }
+	drupal_set_message ( t ( '维护短信发送操作，共  @num 项', array (
+			'@num' => $count,
+	) ) );
+	$batch = array (
+		'operations' => $operations,
+		'finished' => 'cowpro_message_site_maintenance_send_finished',
+	);
+	return $batch;
+}
+
+function cowpro_message_site_maintenance_send($uid,$site_maintenance,$operation_details, &$context){
+        $result_name = db_query("SELECT data FROM {cowpro_customer_profile} WHERE type=:type AND uid=:uid",array(":type"=>'real_name',":uid"=>$uid))->fetchField();
+        $result_mobile = db_query("SELECT data FROM {cowpro_customer_profile} WHERE type=:type AND uid=:uid",array(":type"=>'mobile',":uid"=>$uid))->fetchField();
+        $result_name = unserialize($result_name);
+        $result_mobile = unserialize($result_mobile);
+        
+        $name = $result_name['name'];
+        $mobile_number = $result_mobile['mobile_number'];
+        $site_name = variable_get ( 'site_name' );
+        $site_maintenance = str_replace ( '[user:name]', $name, $site_maintenance );
+        $successed = cowpro_message_send ( $mobile_number, $site_maintenance );
+
+        if ($successed) {
+                $response = array (
+                                'status' => 200,
+                );
+        } else {
+                $response = array (
+                                'status' => 500,
+                                'message' => '短消息发送失败，请联系网站管理员.',
+                );
+        }
+
+
+}
+
+function cowpro_message_site_maintenance_send_finished($success, $results, $operations) {
+	if ($success) {
+		drupal_set_message('发送成功');
+	} else {
+		$error_operation = reset ( $operations );
+		drupal_set_message ( t ( 'An error occurred while processing @operation with arguments : @args', array (
+				'@operation' => $error_operation [0],
+				'@args' => print_r ( $error_operation [0], TRUE )
+		) ), 'error' );
+	}
+}

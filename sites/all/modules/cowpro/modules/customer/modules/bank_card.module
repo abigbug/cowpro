@@ -151,7 +151,7 @@ function bank_card_cowpro_customer_profile_bank_card_form($form, &$form_state, $
 			'#default_value' => $profile->mobile,
 			'#size' => 19,
 			'#maxlength' => 19,
-			'#required' => FALSE,
+			'#required' => TRUE,
 	);
 
 	return $form;

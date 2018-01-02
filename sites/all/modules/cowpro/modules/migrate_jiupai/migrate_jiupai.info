@@ -1,0 +1,10 @@
+name = Migrate from JIUPAI
+description = 导出COWPRO系统数据库给九派
+package = _CowPro
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2017-12-11
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"
+

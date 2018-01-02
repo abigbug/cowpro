@@ -1,0 +1,74 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function jiupaipay_schema() {
+	$schema = array ();
+	$schema ['jiupaipay_data_tmp'] = array (
+			'description' => '九派充值提现数据存储',
+			'fields' => array (
+					'id' => array (
+							'description' => '自增主键序号.',
+							'type' => 'serial',
+							'unsigned' => TRUE,
+							'not null' => TRUE
+					),
+					'businessSeqNo' => array (
+							'description' => '业务流水号',
+							'type' => 'varchar', 
+                                                        'length' => 255,  
+							'not null' => TRUE,
+							'default' => 0
+					),
+					'data' => array (
+                                                        'type' => 'text',  
+                                                        'not null' => false,  
+                                                        'size' => 'big',  
+                                                        'serialize' => true,  
+                                                        'description' => '业务处理数据', 
+					),
+					'uid' => array (
+							'description' => '用户ID',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0
+					),
+			),
+			'primary key' => array (
+					'id'
+			),
+	);
+	$schema ['jiupaipay_issuing_accno'] = array (
+			'description' => '存储标的台账账号',
+			'fields' => array (
+					'id' => array (
+							'description' => '自增主键序号.',
+							'type' => 'serial',
+							'unsigned' => TRUE,
+							'not null' => TRUE
+					),
+					'nid' => array (
+							'description' => '标的ID',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0
+					),
+					'issuing_object_accno' => array (
+                                                        'type' => 'varchar',  
+                                                        'length' => 64,  
+                                                        'not null' => true,
+                                                        'default' => '',  
+                                                        'description' => '标的台账账号'  
+					),
+			),
+			'primary key' => array (
+					'id'
+			),
+	);
+	return $schema;
+}
+function jiupaipay_uninstall() {
+  drupal_uninstall_schema('jiupaipay_data_tmp');
+  drupal_uninstall_schema('jiupaipay_issuing_accno');
+}

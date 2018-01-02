@@ -211,7 +211,6 @@ function _cowpro_issuing_bid_finished($success, $nid, $journal_id) {
 			entity_get_controller('node')->resetCache(array($nid));
 		}
 	}
-
 	$args = array();
 	$args[] = $success;
 	$args[] = $nid;

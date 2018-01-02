@@ -74,6 +74,11 @@ function cowpro_fund_topup_submit($form, &$form_state) {
 	$journal_id = $entity->journal_id;
 
 	$result = custodian_cowpro_fund_topup($uid, $amount, $method, $journal_id);
+	if (isset($result['success']) && $result['success']) {
+		drupal_set_message($result['message']);
+	} else if (isset($result['success']) && !$result['success']) {
+		drupal_set_message($result['message'], 'error');
+	}
 }
 
 function _cowpro_fund_topup_callback($success, $journal_id, $external_reference_id, $interface_module, $result) {
