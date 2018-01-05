@@ -85,9 +85,9 @@ function _jiupaipay_cowpro_fund_query_balance($uid) {
           $result ['status'] = TRUE;
 	  $result ['code'] = '0';
 	  $result ['msg'] = '';
-	  $result ['withdraw'] = $response['outBody']['withdrawalamount'];      //可提现余额
-	  $result ['balance'] = $response['outBody']['availableamount'];        //可投标余额
-	  $result ['lock'] =$response['outBody']['transitamount'] ;             //冻结金额
+	  $result ['withdraw'] = number_format($response['outBody']['withdrawalamount'],2,".","");      //可提现余额
+	  $result ['balance'] = number_format($response['outBody']['availableamount'],2,".","");        //可投标余额
+	  $result ['lock'] =number_format($response['outBody']['transitamount'],2,".","");             //冻结金额
 	 // $result ['asset'] =$response['outBody']['assetamount'] ;              //账户总资产
 	  $result ['account_number'] =$aes->encrypt($response['outBody']['accountNo']);        //台账账号
         }else {

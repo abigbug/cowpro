@@ -76,19 +76,23 @@ function jiupaipay_withdraw($uid, $amount, $card, $journal_id,$businessSeqNo) {
         $result = jiupaipay_curl_api($curl_post_data);
         $result = json_decode($result,true);
         //var_dump($result);
-        $success = $result['respHeader']['respCode'] == 'P2PS000';
+        //$success = $result['respHeader']['respCode'] == 'P2PS000';
+        global $base_url;
         $external_reference_id = $result['respHeader']['serviceSn'];
         if( $result['respHeader']['respCode'] == 'P2PS000' ){
-            custodian_cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, 'jiupaipay', $result);
-            drupal_set_message("提现成功");
-            drupal_goto(SERVER_HOST."/user");
+            //custodian_cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, 'jiupaipay', $result);
+            drupal_set_message("受理成功");
+            drupal_goto($base_url."/user");
+        }else{
+            drupal_set_message($result['respHeader']['respMsg'],"error");
+            drupal_goto($base_url."/user");
         }
 }
 
 // 提现校验密码回调
 function jiupaipay_withdraw_callback($data) {
     global $user;
-    if( $data['flag'] == 1 && $data['userId'] == $user->uid ) {
+    if( intval($data['flag']) == 1 ) {
         $result = db_query("SELECT data FROM jiupaipay_data_tmp WHERE uid=:uid AND businessSeqNo = :businessSeqNo",array(":uid"=>$data['userId'],":businessSeqNo"=>$data['businessSeqNo']))->fetchField();
         $result = unserialize($result);
         jiupaipay_withdraw($data['userId'],$result['amount'],$result['card'],$result['journal_id'],$data['businessSeqNo']);

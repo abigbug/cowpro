@@ -6,6 +6,7 @@ include_once 'jiupaipay.outMoney.inc';
  * 按期还款
  */
 function jiupaipay_repayment($repayment_schedules) {
+
     $values = array_values ( $repayment_schedules );
     $repayment = array_shift($values);
     $payer_uid = $repayment->payer_uid;
@@ -74,7 +75,7 @@ function jiupaipay_repayment($repayment_schedules) {
     $result = jiupaipay_curl_api($curl_post_data);
     $result_jpp = array();
     $result = json_decode($result,true);
-    //var_dump($result);
+
     if( $result['respHeader']['respCode'] == 'P2P0000' ) {
         $result_jpp['success'] = TRUE;
     }else{

@@ -130,24 +130,24 @@ body{background-color: #f5f5f5;}
     background-color: #FFF;
 }
 
-.page-user-register #sopuo-mainbody #user-register-form{
+.page-user-register #sopuo-mainbody .user-info-from-cookie{
     position:relative;
     width: 80%;
     top:30px;
     height:600px;
     margin: 0px auto;
 }
-.page-user-register #user-register-form #edit-account{
+.page-user-register .user-info-from-cookie #edit-account{
     position:relative;
     width: 100%;
     height: 180px;
 }
-.page-user-register #user-register-form #edit-account .form-item-name{
+.page-user-register .user-info-from-cookie #edit-account .form-item-name{
     position:absolute;
     width: 100%;
     margin: 0px auto;
 }
-.page-user-register #user-register-form #edit-account .form-item-name label{
+.page-user-register .user-info-from-cookie #edit-account .form-item-name label{
     float: left;
     width: 40%;
     height: 42px;
@@ -155,14 +155,14 @@ body{background-color: #f5f5f5;}
     padding-right: 2%;
     text-align: right;
 }
-.page-user-register #user-register-form #edit-account .form-item-name input{
+.page-user-register .user-info-from-cookie #edit-account .form-item-name input{
     float: right;
     width: 58%;
     height: 42px;
     line-height: 42px;
     text-align: left;
 }
-.page-user-register #user-register-form #edit-account #name_verify_help{
+.page-user-register .user-info-from-cookie #edit-account #name_verify_help{
     position:absolute;
     top:40px;
     left:42%;
@@ -170,13 +170,13 @@ body{background-color: #f5f5f5;}
     line-height: 30px;
     margin: 0px auto;
 }
-.page-user-register #user-register-form #edit-account .form-item-pass .row{
+.page-user-register .user-info-from-cookie #edit-account .form-item-pass .row{
     width: 100%;
     margin: 0px auto;
     position: relative;
     top:70px;
 }
-.page-user-register #user-register-form #edit-account .form-item-pass .form-item-pass-pass1{
+.page-user-register .user-info-from-cookie #edit-account .form-item-pass .form-item-pass-pass1{
     width: 100%;
     margin: 0px auto;
     position: absolute;
@@ -213,18 +213,18 @@ body{background-color: #f5f5f5;}
     top:50px;
     z-index: 999;
 }
-.page-user-register #user-register-form .has-feedback label~.form-control-feedback {
+.page-user-register .user-info-from-cookie .has-feedback label~.form-control-feedback {
     top: 5px;
     right: 15px;
 }
-.page-user-register #user-register-form #edit-account .form-item-pass .form-item-pass-pass2{
+.page-user-register .user-info-from-cookie #edit-account .form-item-pass .form-item-pass-pass2{
     width: 100%;
     margin: 0px auto;
     top:80px;
     position: absolute;
     z-index: 999;
 }
-.page-user-register #user-register-form #edit-account .form-item-pass .help-block{
+.page-user-register .user-info-from-cookie #edit-account .form-item-pass .help-block{
     position: absolute;
     width: 30%;    
     padding-left: 2%;
@@ -245,13 +245,13 @@ body{background-color: #f5f5f5;}
     line-height: 42px;
     text-align: left;
 }
-.page-user-register #user-register-form .form-item-mobile-number{
+.page-user-register .user-info-from-cookie .form-item-mobile-number{
     position:relative;
     width: 100%;
     height:50px;
     top:25px;
 }
-.page-user-register #user-register-form .form-item-mobile-number label{
+.page-user-register .user-info-from-cookie .form-item-mobile-number label{
     float: left;
     width: 40%;
     height: 42px;
@@ -259,14 +259,14 @@ body{background-color: #f5f5f5;}
     padding-right: 2%;
     text-align: right;
 }
-.page-user-register #user-register-form .form-item-mobile-number input{
+.page-user-register .user-info-from-cookie .form-item-mobile-number input{
     float: right;
     width: 58%;
     height: 42px;
     line-height: 42px;
     text-align: left;
 }
-.page-user-register #user-register-form  #mobile_verify_help{
+.page-user-register .user-info-from-cookie  #mobile_verify_help{
     position: relative;
     left:42%;
     height:30px;
@@ -274,13 +274,13 @@ body{background-color: #f5f5f5;}
     line-height: 30px;
     margin: 0px auto;
 }
-.page-user-register #user-register-form,.form-item-verify-code{
+.page-user-register .user-info-from-cookie,.form-item-verify-code{
     position:absolute;
     width: 100%;
     height:50px;
     top:290px;
 }
-.page-user-register #user-register-form .form-item-verify-code label{
+.page-user-register .user-info-from-cookie .form-item-verify-code label{
     float: left;
     width: 40%;
     height: 42px;
@@ -288,7 +288,7 @@ body{background-color: #f5f5f5;}
     padding-right: 2%;
     text-align: right;
 }
-.page-user-register #user-register-form .form-item-verify-code input{
+.page-user-register .user-info-from-cookie .form-item-verify-code input{
     float: left;
     margin-left: 2%;
     width: 28%;
@@ -296,14 +296,14 @@ body{background-color: #f5f5f5;}
     line-height: 42px;
     text-align: left;
 }
-.page-user-register #user-register-form,.send-verify-code{
+.page-user-register .user-info-from-cookie,.send-verify-code{
     position:absolute;
     width: 15%;
     height:40px;
     top:280px;
     right:12%;
 }
-.page-user-register #user-register-form,.captcha{
+.page-user-register .user-info-from-cookie,.captcha{
     position:relative;
     width: 100%;
     height:50px;
@@ -342,7 +342,7 @@ body{background-color: #f5f5f5;}
     line-height: 42px;
     text-align: left;
 }
-.page-user-register #user-register-form,.reload-captcha-wrapper{
+.page-user-register .user-info-from-cookie,.reload-captcha-wrapper{
     position:absolute;
     width: 100%;
     height:10px;
@@ -350,7 +350,7 @@ body{background-color: #f5f5f5;}
     text-align: right;    
     z-index: 9999999;
 }
-.page-user-register #user-register-form .form-item-register-referee{
+.page-user-register .user-info-from-cookie .form-item-register-referee{
     position:relative;
     width: 100%;
     height:50px;
@@ -381,7 +381,7 @@ body{background-color: #f5f5f5;}
     margin: 0px auto;
     top:90px;
 }
-.page-user-register #user-register-form #edit-submit{
+.page-user-register .user-info-from-cookie #edit-submit{
     height: 45px;
     width: 100%;
     font-size: 18px;
@@ -657,8 +657,10 @@ body{background-color: #f5f5f5;}
 }
 .node-type-cowpro-issuing {background-color: f5f5f5;}
 .node-type-cowpro-issuing .row{ padding-top: 15px;padding-bottom:20px;}
-.page-registration-wizard .container{ padding-top: 15px;padding-bottom: 20px;}
+//.page-registration-wizard .container{ padding-top: 15px;padding-bottom: 20px;}
 .page-registration-wizard .container #sopuo-mainbody{ background-color: #fff;}
+
+.page-registration-wizard .sopuo-body-warp { padding-top: 15px;}
 
 .node-type-cowpro-issuing .sopuo-body-warp #sopuo-mainbody{ background-color: #fff;}
 
@@ -811,3 +813,5 @@ body{background-color: #f5f5f5;}
     line-height: 25px;
     color: #FFF;
 }
+
+

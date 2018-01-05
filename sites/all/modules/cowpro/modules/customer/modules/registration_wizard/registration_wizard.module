@@ -77,8 +77,8 @@ function registration_wizard_form($step = NULL) {
   	'finish text' => '完成',
   	'free trail' => TRUE,
     'show trail' => TRUE,
-    'show back' => TRUE,
-    'show cancel' => TRUE,
+    'show back' => FALSE,
+    'show cancel' => FALSE,
     'show return' => FALSE,
     'next callback' =>  'registration_wizard_wizard_next',
     'finish callback' => 'registration_wizard_wizard_finish',
@@ -145,6 +145,10 @@ function registration_wizard_form($step = NULL) {
   } else {
   	unset($form['buttons']['next']);
   }
+
+  //不要显示“下一步”以及“完成”按钮
+  unset($form['buttons']['next']);
+  unset($form['buttons']['return']);
   $output = drupal_render($form);
 
   if ($js) {
@@ -362,11 +366,17 @@ function registration_wizard_user_login(&$edit, $account) {
 					$redirect = TRUE;
 				}
 			}
+			if( $value['type'] == 'jiupaipay' ) {
+				if( !$profile->jpp_password ) {
+					$redirect = TRUE;
+				}
+			}
+
 			if ($redirect) {
+				$edit['redirect'] = 'registration_wizard/' . $value['type'];
 				if ($value['type'] == 'jiupaipay') {
 					drupal_set_message('尊敬的客户，我们与宜宾商业银行合作，由宜宾商业银行提供资金托服务，请您重新设置银行交易密码并绑定银行卡，以方便您的投资操作。');
 				}
-				$edit['redirect'] = 'registration_wizard/' . $value['type'];
 				break;
 			}
 		}

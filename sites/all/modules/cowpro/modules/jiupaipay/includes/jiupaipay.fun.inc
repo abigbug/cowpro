@@ -149,6 +149,7 @@ function _moneymoremore_get_microtime()
  * $step 步骤（1,银行卡绑定.2,解绑银行卡.3,授权......） 
  *  */
 function jiupaipay_check_pwd($uid,$step,$data = NULL){
+        global $base_url;
         include_once ("libs/RSA.php");
         $rsa_private_key = variable_get(PRIVATE_KEY_ON_JIUPAIPAY);
 	$rsa_public_key = variable_get(PUBLIC_KEY_ON_JIUPAIPAY);
@@ -156,7 +157,7 @@ function jiupaipay_check_pwd($uid,$step,$data = NULL){
         
         $register_password_data['systemCode'] = "jbz";
         $register_password_data['userId'] = $uid;
-        $register_password_data['backURL'] = SERVER_HOST."/cowpro/jiupaipay/callback/jiupaipay_step_".$step;
+        $register_password_data['backURL'] = $base_url."/cowpro/jiupaipay/callback/jiupaipay_step_".$step;
         $register_password_data['signTime'] = round(microtime(true) * 1000);
         $password_sign_info = $register_password_data['signTime']."|". $register_password_data['userId'];
         $register_password_data['signature'] = $rsa->sign($password_sign_info);

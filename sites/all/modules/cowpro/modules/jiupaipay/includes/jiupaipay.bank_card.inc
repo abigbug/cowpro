@@ -11,21 +11,21 @@ include_once ("libs/Common.php");
  * @param array $user
  * @param string $businessSeqNo 校验交易密码流水
  */
-function jiupaipay_bank_card_unbundling($user,$businessSeqNo) {
+function jiupaipay_bank_card_unbundling($userId,$businessSeqNo) {
         $header = jiupaipay_header("U00001");
         
-        $profile_bank_card = cowpro_customer_profile_load_one_row_with_conditions($user->uid, 'bank_card');
+        $profile_bank_card = cowpro_customer_profile_load_one_row_with_conditions($userId, 'bank_card');
         if ($profile_bank_card == NULL) {
-                $profile = cowpro_customer_profile_new('bank_card', $user->uid);
+                $profile = cowpro_customer_profile_new('bank_card', $userId);
         }
         
-        $profile_mobile = cowpro_customer_profile_load_one_row_with_conditions($user->uid, 'mobile');
+        $profile_mobile = cowpro_customer_profile_load_one_row_with_conditions($userId, 'mobile');
         if ($profile_mobile == NULL) {
-                $profile_mobile = cowpro_customer_profile_new('mobile', $user->uid);
+                $profile_mobile = cowpro_customer_profile_new('mobile', $userId);
         }
         $aes = new AES(JPP_AES_KEY,JPP_AES_IV);
         $post_data = array();
-        $post_data['customerId'] = $user->uid;
+        $post_data['customerId'] = $userId;
         $post_data['businessSeqNo'] = $businessSeqNo;
         $post_data['busiTradeType'] = 'B02';
 	$post_data['ctype'] = "00";
@@ -69,7 +69,7 @@ function jiupaipay_bank_card_unbundling($user,$businessSeqNo) {
         foreach( $post_data as $value ){
             $signInfo .= "|".$value;
         } 
-        $post_data['customerId'] = $aes->encrypt($user->uid);
+        $post_data['customerId'] = $aes->encrypt($userId);
         $post_data['bankAccountNo'] = $aes->encrypt($profile_bank_card->card_no);
         $post_data['phoneNo'] = $aes->encrypt($profile_mobile->mobile_number);
         $post_data['bankAccountName'] = $aes->encrypt($profile_bank_card->cardholder);
@@ -88,15 +88,16 @@ function jiupaipay_bank_card_unbundling($user,$businessSeqNo) {
         $result = json_decode($result,true);
         //var_dump($result);
         if( $result['respHeader']['respCode'] == 'P2P0000' ) {
-            $profile = cowpro_customer_profile_load_one_row_with_conditions($user->uid, 'jiupaipay');
+            $profile = cowpro_customer_profile_load_one_row_with_conditions($userId, 'jiupaipay');
             if ($profile == NULL) {
-                    $profile = cowpro_customer_profile_new('jiupaipay', $user->uid);
+                    $profile = cowpro_customer_profile_new('jiupaipay', $userId);
             }
             $profile->jpp_bank_card = FALSE;//九派支付台账账号
             cowpro_customer_profile_save($profile);
             
             drupal_set_message("解绑银行卡成功");
-            drupal_goto(SERVER_HOST."/registration_wizard");
+            global $base_url;
+            drupal_goto($base_url."/registration_wizard");
             //echo "解绑银行卡成功";
         }else{
             echo $result['respHeader']['respMsg'];
@@ -104,25 +105,25 @@ function jiupaipay_bank_card_unbundling($user,$businessSeqNo) {
        
 }
 
-function jiupaipay_bank_card($user,$businessSeqNo){
+function jiupaipay_bank_card($userId,$businessSeqNo){
     include_once ("libs/RSA.php");
      $rsa_private_key = variable_get(PRIVATE_KEY_ON_JIUPAIPAY);
      $rsa_public_key = variable_get(PUBLIC_KEY_ON_JIUPAIPAY);
      $rsa = new RSA ($rsa_private_key, $rsa_public_key);
      
-    $profile_bank_card = cowpro_customer_profile_load_one_row_with_conditions($user->uid, 'bank_card');
+    $profile_bank_card = cowpro_customer_profile_load_one_row_with_conditions($userId, 'bank_card');
     if ($profile_bank_card == NULL) {
-            $profile_bank_card = cowpro_customer_profile_new('bank_card', $user->uid);
+            $profile_bank_card = cowpro_customer_profile_new('bank_card', $userId);
     }
     
-    $profile_real_name = cowpro_customer_profile_load_one_row_with_conditions($user->uid, 'real_name');
+    $profile_real_name = cowpro_customer_profile_load_one_row_with_conditions($userId, 'real_name');
     if ($profile_real_name == NULL) {
-            $profile_real_name = cowpro_customer_profile_new('real_name', $user->uid);
+            $profile_real_name = cowpro_customer_profile_new('real_name', $userId);
     }
-    
+    global $base_url;
      $bank_card_data = array();
      $bank_card_data['systemCode'] = "jbz";
-     $bank_card_data['userId'] = $user->uid;
+     $bank_card_data['userId'] = $userId;
      $bank_card_data['cardNo'] = $profile_bank_card->card_no;
      $bank_card_data['idCardNo'] = $profile_real_name->id_no;
      $bank_card_data['bankName'] = $profile_bank_card->bank_name;
@@ -133,7 +134,7 @@ function jiupaipay_bank_card($user,$businessSeqNo){
      $bank_card_data['idCardNoType'] = "2";
      $bank_card_data['cardNoType'] = "2";
      $bank_card_data['cardPhoneNumberType'] = "2";
-     $bank_card_data['backURL'] = SERVER_HOST."/cowpro/jiupaipay/callback/jiupaipay_step_3";
+     $bank_card_data['backURL'] = $base_url."/cowpro/jiupaipay/callback/jiupaipay_step_3";
      $bank_card_data['signTime'] = round(microtime(true) * 1000);
      $bank_card_sign_data = $bank_card_data['signTime']."|". $bank_card_data['userId'];
      $bank_card_data['signature'] = $rsa->sign($bank_card_sign_data);
@@ -167,23 +168,24 @@ function jiupaipay_bank_card($user,$businessSeqNo){
 
 function jiupaipay_bank_card_callback($data,$step) {
     global $user;
-    if( $data['flag'] == 1 && $data['userId'] == $user->uid ) {
+    if( intval($data['flag']) == 1 ) {
         if( $step == 1 ) {
             //绑定银行卡
-            jiupaipay_bank_card($user,$data['businessSeqNo']);
+            jiupaipay_bank_card($data['userId'],$data['businessSeqNo']);
         }else if( $step == 2 ){
             //解绑银行卡
-            jiupaipay_bank_card_unbundling($user,$data['businessSeqNo']);
+            jiupaipay_bank_card_unbundling($data['userId'],$data['businessSeqNo']);
         }else if( $step == 3 ){
-            if( $data['userId'] == $user->uid && $data['flag'] == 1 ) {
-                $profile_jiupaipay = cowpro_customer_profile_load_one_row_with_conditions($user->uid, 'jiupaipay');
+            if( intval($data['flag']) == 1 ) {
+                $profile_jiupaipay = cowpro_customer_profile_load_one_row_with_conditions(intval($data['userId']), 'jiupaipay');
                 if ($profile_jiupaipay == NULL) {
-                        $profile_jiupaipay = cowpro_customer_profile_new('jiupaipay', $user->uid);
+                        $profile_jiupaipay = cowpro_customer_profile_new('jiupaipay', intval($data['userId']));
                 }
                 $profile_jiupaipay->jpp_bank_card = TRUE;
                 cowpro_customer_profile_save($profile_jiupaipay);
                 drupal_set_message("绑定银行卡成功");
-                drupal_goto(SERVER_HOST.'/registration_wizard');
+                global $base_url;
+                drupal_goto($base_url.'/registration_wizard');
             }else{
                 drupal_set_message("绑定银行卡失败");
             }

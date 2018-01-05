@@ -74,11 +74,9 @@ function jiupaipay_outMoney($repayment_schedules,$result_repayment) {
 
         $curl_post_data['reqHeader'] = $header;
         $curl_post_data['inBody'] = $post_data;
-        //var_dump($post_data);
         $result = jiupaipay_curl_api($curl_post_data);
         $result_jpp = array();
         $result = json_decode($result,true);
-        //var_dump($result);
         if( $result['respHeader']['respCode'] == 'P2P0000' ) {
             $result_jpp['success'] = TRUE;
         }else{

@@ -128,6 +128,9 @@ function _cowpro_issuing_bid_form_validate($form, &$form_state) {
 		if ($form_state ['values']['amount'] < 100) {
 			form_set_error ( 'bid', '投资金额必需大于等于100元' );
 		}
+		if ($form_state ['values']['amount'] > 200000) {
+			form_set_error ( 'bid', '当投资金额大于二十万元的时候，请拆分成多笔资金分别投资' );
+		}
 		module_invoke_all ( 'cowpro_issuing_bid_form_validate', $form, $form_state );
 	}
 }

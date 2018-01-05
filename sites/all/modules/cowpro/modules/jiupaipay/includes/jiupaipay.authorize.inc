@@ -47,7 +47,9 @@ function jiupaipay_authorize($uid,$businessSeqNo) {
             $profile->jpp_authorize = TRUE;
             cowpro_customer_profile_save($profile);
             drupal_set_message("授权成功");
-            drupal_goto(SERVER_HOST."/registration_wizard/jiupaipay");
+            
+            global $base_url;
+            drupal_goto($base_url."/registration_wizard/jiupaipay");
         }else{
             echo $result['respHeader']['respMsg'];
         }
@@ -58,7 +60,7 @@ function jiupaipay_authorize($uid,$businessSeqNo) {
 //验证交易密码 成功之后回调授权
 function jiupaipay_authorize_callback($data){
     global $user;
-    if( $data['flag'] == 1 && $data['userId'] == $user->uid ) {
+    if( intval($data['flag']) == 1 ) {
         jiupaipay_authorize($data['userId'],$data['businessSeqNo']);
     }
 }

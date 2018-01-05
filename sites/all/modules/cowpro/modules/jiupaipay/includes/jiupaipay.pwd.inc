@@ -12,13 +12,13 @@ include_once ("libs/Common.php");
  */
 function jiupaipay_modify_pwd($uid) {    
     //修改交易密码
-
+     global $base_url;
     $rsa_private_key = variable_get(PRIVATE_KEY_ON_JIUPAIPAY);
     $rsa_public_key = variable_get(PUBLIC_KEY_ON_JIUPAIPAY);
     $rsa = new RSA ($rsa_private_key, $rsa_public_key);
     $register_password_data['systemCode'] = "jbz";
     $register_password_data['userId'] = $uid;
-    $register_password_data['backURL'] = "https://test.jinbeizeng.com/cowpro/jiupaipay/callback/modify_password";
+    $register_password_data['backURL'] = $base_url."/cowpro/jiupaipay/callback/modify_password";
     $register_password_data['signTime'] = round(microtime(true) * 1000);
     $password_sign_info = $register_password_data['signTime']."|". $register_password_data['userId'];
     $register_password_data['signature'] = $rsa->sign($password_sign_info);
@@ -40,17 +40,18 @@ function jiupaipay_modify_pwd($uid) {
        
 }
 
-// 设置交易密码回调
+// 修改交易密码回调
 function jiupaipay_modify_password_callback($data) {
     global $user;
-    if( $data['flag'] == 1 && $data['userId'] == $user->uid ) {
-        $profile = cowpro_customer_profile_load_one_row_with_conditions($user->uid, 'jiupaipay');
+    if( intval($data['flag']) == 1 ) {
+        $profile = cowpro_customer_profile_load_one_row_with_conditions($data['userId'], 'jiupaipay');
         if ($profile == NULL) {
-                $profile = cowpro_customer_profile_new('jiupaipay', $user->uid);
+                $profile = cowpro_customer_profile_new('jiupaipay', $data['userId']);
         }
         $profile->jpp_password = true;
         drupal_set_message("修改交易密码成功");
-        drupal_goto(SERVER_HOST."/registration_wizard/jiupaipay");
+        global $base_url;
+        drupal_goto($base_url."/registration_wizard/jiupaipay");
     }
 }
 
@@ -61,13 +62,13 @@ function jiupaipay_modify_password_callback($data) {
  * @param int $uid
  */
 function jiupaipay_reset_pwd($uid) {    
-
+    global $base_url;
     $rsa_private_key = variable_get(PRIVATE_KEY_ON_JIUPAIPAY);
     $rsa_public_key = variable_get(PUBLIC_KEY_ON_JIUPAIPAY);
     $rsa = new RSA ($rsa_private_key, $rsa_public_key);
     $register_password_data['systemCode'] = "jbz";
     $register_password_data['userId'] = $uid;
-    $register_password_data['backURL'] = SERVER_HOST."/cowpro/jiupaipay/callback/reset_password";
+    $register_password_data['backURL'] = $base_url."/cowpro/jiupaipay/callback/reset_password";
     $register_password_data['signTime'] = round(microtime(true) * 1000);
     $password_sign_info = $register_password_data['signTime']."|". $register_password_data['userId'];
     $register_password_data['signature'] = $rsa->sign($password_sign_info);
@@ -89,17 +90,18 @@ function jiupaipay_reset_pwd($uid) {
        
 }
 
-// 设置交易密码回调
+// 重置交易密码回调
 function jiupaipay_reset_password_callback($data) {
     global $user;
-    if( $data['flag'] == 1 && $data['userId'] == $user->uid ) {
-        $profile = cowpro_customer_profile_load_one_row_with_conditions($user->uid, 'jiupaipay');
+    if( intval($data['flag']) == 1) {
+        $profile = cowpro_customer_profile_load_one_row_with_conditions($data['userId'], 'jiupaipay');
         if ($profile == NULL) {
-                $profile = cowpro_customer_profile_new('jiupaipay', $user->uid);
+                $profile = cowpro_customer_profile_new('jiupaipay', $data['userId']);
         }
         $profile->jpp_password = true;
         drupal_set_message("重置交易密码成功");
-        drupal_goto("https://test.jinbeizeng.com/registration_wizard/jiupaipay");
+        global $base_url;
+        drupal_goto($base_url."/registration_wizard/jiupaipay");
     }
 }
 
@@ -110,13 +112,13 @@ function jiupaipay_reset_password_callback($data) {
  * @param int $uid
  */
 function jiupaipay_register_pwd($uid) {    
-
+    global $base_url;
     $rsa_private_key = variable_get(PRIVATE_KEY_ON_JIUPAIPAY);
     $rsa_public_key = variable_get(PUBLIC_KEY_ON_JIUPAIPAY);
     $rsa = new RSA ($rsa_private_key, $rsa_public_key);
     $register_password_data['systemCode'] = "jbz";
     $register_password_data['userId'] = $uid;
-    $register_password_data['backURL'] = SERVER_HOST."/cowpro/jiupaipay/callback/register_password";
+    $register_password_data['backURL'] = $base_url."/cowpro/jiupaipay/callback/register_password";
     $register_password_data['signTime'] = round(microtime(true) * 1000);
     $password_sign_info = $register_password_data['signTime']."|". $register_password_data['userId'];
     $register_password_data['signature'] = $rsa->sign($password_sign_info);

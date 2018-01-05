@@ -81,6 +81,7 @@ function bank_card_cowpro_customer_profile_bank_card_form($form, &$form_state, $
 			'#description' => '',
 	);
 
+	/*
 	$form ['bank_located'] = array (
 			'#type' => 'fieldset',
 			'#title' => '开户行所在地',
@@ -88,16 +89,19 @@ function bank_card_cowpro_customer_profile_bank_card_form($form, &$form_state, $
 	);
 
 	$provinces = china_address_api_get_province_list ( 'region_name_cn' );
+	$profile->province = str_replace('省', '', $profile->province);
 	if ($profile->province != '') {
 		$default_province = $profile->province;
 	} else {
 		$default_province = '湖北';
 	}
+	$profile->city = str_replace('市', '', $profile->city);
 	if ($profile->city != '') {
 		$default_city = $profile->city;
 	} else {
 		$default_city = '襄樊';
 	}
+
 	$form ['bank_located'] ['province'] = array (
 			'#type' => 'select',
 			'#title' => '省',
@@ -113,7 +117,7 @@ function bank_card_cowpro_customer_profile_bank_card_form($form, &$form_state, $
 	);
 
 	$form ['bank_located'] ['city'] = _bank_card_build_city_select ( $default_province, $default_city );
-
+*/
 	$form ['bank_branch'] = array (
 			'#type' => 'textfield',
 			'#title' => '开户行网点',
@@ -166,6 +170,7 @@ function bank_card_cowpro_customer_profile_bank_card_form_alter($form, &$form_st
 				'#submit' => array('cowpro_customer_customer_profile_form_submit'),//$form['actions']['submit'] ['#submit'],
 		);
 	}
+	unset($form['actions']['submit']);
 	return $form;
 }
 function bank_card_cowpro_customer_profile_bank_card_form_validate($form, &$form_state) {
@@ -176,8 +181,8 @@ function bank_card_cowpro_customer_profile_bank_card_form_submit($form, &$form_s
 	$profile->cardholder = $form_state ['values'] ['cardholder'];
 	$profile->bank_name = $form_state ['values'] ['bank_name'];
 	$profile->bank_branch = $form_state ['values'] ['bank_branch'];
-	$profile->province = $form_state ['values'] ['province'];
-	$profile->city = $form_state ['values'] ['city'];
+	//$profile->province = $form_state ['values'] ['province'];
+	//$profile->city = $form_state ['values'] ['city'];
 	$profile->mobile = $form_state ['values'] ['mobile'];
 	cowpro_customer_profile_save($profile);
 	if ($form_state ['clicked_button'] ['#value'] === $form_state ['values'] ['operator']) {
@@ -188,9 +193,14 @@ function bank_card_cowpro_customer_profile_bank_card_form_submit($form, &$form_s
 }
 function bank_card_refresh_city_list($form, &$form_state) {
 	$province = $form_state ['input']['province'];
-	$element = _bank_card_build_city_select ( $province );
-	$element ['#id'] = 'edit-city';
-	$element ['#name'] = 'city';
+	if (isset($form['edit-city'])) {
+		$form['edit-city']['#options'] = china_address_api_get_city_list_by_name ( $province, 'region_name_cn' );
+		$element = $form['edit-city'];
+	} else {
+		$element = _bank_card_build_city_select ( $province );
+		$element ['#id'] = 'edit-city';
+		$element ['#name'] = 'city';
+	}
 	return $element;
 }
 function _bank_card_build_city_select($province = NULL, $city = NULL) {
@@ -217,7 +227,6 @@ function _bank_card_build_city_select($province = NULL, $city = NULL) {
 	);
 	return $element;
 }
-
 function bank_card_cowpro_customer_profile_bank_card_extra_fields() {
 	$result = array (
 			'form' => array (

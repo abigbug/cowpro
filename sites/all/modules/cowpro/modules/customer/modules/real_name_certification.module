@@ -61,7 +61,7 @@ function real_name_certification_cowpro_customer_profile_real_name_create($value
 function real_name_certification_cowpro_customer_profile_real_name_save($profile) {
 	$data = array();
 	$data['name'] = $profile->name;
-	$data['id_no'] = $profile->id_no;
+	$data['id_no'] = strtoupper($profile->id_no);//按人民银行要求，身份证最后一位可能的“X”，需要是大写
 	$data['scanning_copy_1'] = $profile->scanning_copy_1;
 	$data['scanning_copy_2'] = $profile->scanning_copy_2;
 	$profile->data = $data;
@@ -72,7 +72,7 @@ function real_name_certification_cowpro_customer_profile_real_name_save($profile
 
 function real_name_certification_cowpro_customer_profile_real_name_load($profile) {
 	$profile->name = $profile->data['name'];
-	$profile->id_no = $profile->data['id_no'];
+	$profile->id_no = strtoupper($profile->data['id_no']);//按人民银行要求，身份证最后一位可能的“X”，需要是大写
 	$profile->scanning_copy_1 = $profile->data['scanning_copy_1'];
 	$profile->scanning_copy_2 = $profile->data['scanning_copy_2'];
 	return $profile;

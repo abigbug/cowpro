@@ -28,8 +28,8 @@ function jiupaipay_create_new_acct($user) {
         $post_data['certFImage'] = "";
         $post_data['certBImage'] = "";
         $post_data['certInfo'] = "";
-        $post_data['idvalidDate'] = $user['idvalidDate'];
-        $post_data['idexpiryDate'] = $user['idexpiryDate'];
+        $post_data['idvalidDate'] = "";
+        $post_data['idexpiryDate'] = "";
         $post_data['jobType'] = "0";
         $post_data['job'] = "";
         $post_data['postcode'] = "441000";
@@ -93,10 +93,12 @@ function jiupaipay_create_new_acct($user) {
             //echo "关联九派支付成功";
             
             //设置交易密码
+            global $base_url;
             //$backUrl = urlencode('https://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
             $register_password_data['systemCode'] = "jbz";
             $register_password_data['userId'] = $user['uid'];
-            $register_password_data['backURL'] = SERVER_HOST."/cowpro/jiupaipay/callback/register_password";
+            
+            $register_password_data['backURL'] = $base_url."/cowpro/jiupaipay/callback/register_password";
             $register_password_data['signTime'] = round(microtime(true) * 1000);
             $password_sign_info = $register_password_data['signTime']."|". $register_password_data['userId'];
             $register_password_data['signature'] = $rsa->sign($password_sign_info);
@@ -124,16 +126,18 @@ function jiupaipay_create_new_acct($user) {
 // 设置交易密码回调
 function jiupaipay_register_password_callback($data) {
     global $user;
-    if( $data['flag'] == 1 && $data['userId'] == $user->uid ) {
-        $profile = cowpro_customer_profile_load_one_row_with_conditions($user->uid, 'jiupaipay');
+    if( intval($data['flag']) == 1 ) {
+        $profile = cowpro_customer_profile_load_one_row_with_conditions($data['userId'], 'jiupaipay');
         if ($profile == NULL) {
-                $profile = cowpro_customer_profile_new('jiupaipay', $user->uid);
+                $profile = cowpro_customer_profile_new('jiupaipay', $data['userId']);
         }
+        $base_url ;
         $profile->jpp_password = true;
         cowpro_customer_profile_save($profile);
        // echo "设置九派交易密码成功";
         drupal_set_message("关联九派托管成功");
-        drupal_goto(SERVER_HOST."/registration_wizard/jiupaipay");
+         global $base_url;
+        drupal_goto($base_url."/registration_wizard/jiupaipay");
     }
 }
 
