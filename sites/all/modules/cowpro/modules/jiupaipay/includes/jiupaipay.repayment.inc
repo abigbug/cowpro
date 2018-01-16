@@ -37,7 +37,7 @@ function jiupaipay_repayment($repayment_schedules) {
         "cebitAccountNo"=> $issuing_accno,
         "currency" => "CNY",
         "amount" => $pay_total_amount,
-        "summaryCode"=> "T04"
+        "summaryCode"=> "T12"
         );
     $post_data['accountList'][] = $accountList;
     $post_data['contractList'] = array();

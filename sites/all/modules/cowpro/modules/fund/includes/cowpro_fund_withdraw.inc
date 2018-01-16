@@ -65,6 +65,9 @@ function cowpro_fund_withdraw_submit($form, &$form_state) {
 		$journal_id = $entity->journal_id;
 
 		$result = custodian_cowpro_fund_withdraw($uid, $amount,	$card, $journal_id);
+		if (! $result['success']) {
+			drupal_set_message($result ['message'], 'error');
+		}
 	} else if ($form_state['clicked_button']['#name'] == 'bankcard_operator') {
 		$uid = $GLOBALS ['user']->uid;
 		$profile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'bank_card' );

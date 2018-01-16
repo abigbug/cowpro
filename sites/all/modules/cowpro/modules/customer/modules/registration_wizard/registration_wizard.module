@@ -96,6 +96,15 @@ function registration_wizard_form($step = NULL) {
   $profile_types = registration_wizard_get_available_profile_types();
   foreach ($profile_types as $value) {
   	if ($value['included']) {
+  		if ($value['type'] == 'credentials') {
+  			//只有'debtor'(融资人)这个角色需要证明文件
+  			global $user;
+  			$role = user_role_load_by_name('debtor');
+  			if (! user_has_role($role->rid, $user)) {
+  				continue;
+  			}
+  		}
+
   		$form_info['order'][$value['type']] = $value['name'];
   		$form_info['forms'][$value['type']] = array(
   				'form id' => '_registration_wizard_form_warp',

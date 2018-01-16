@@ -54,7 +54,7 @@ function cowpro_shop_redemption_done($form, &$form_state) {
 		ctools_ajax_render_error ( $error );
 	} else {
 		$amount = intval($form_state['input'] ['points']);
-		$uid_from = user_load_by_name ( variable_get ( 'fund_imprest_account', '' ) )->uid; // 转出账户ID
+		$uid_from = NULL;//user_load_by_name ( variable_get ( 'fund_imprest_account', '' ) )->uid; // 转出账户ID
 		global $user;
 		$uid_to = $user->uid;
 		$comment = '(' . $user->name . ')' . '兑现奖金';

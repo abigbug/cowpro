@@ -42,8 +42,99 @@ function cowpro_shop_menu() {
 			'page callback' => 'cowpro_shop_redemption',
 			'access callback' => 'user_is_logged_in',
 			'type' => MENU_CALLBACK,
+			'file' => 'includes/cowpro_shop_redemption.inc',
 	);
 	return $items;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function cowpro_shop_views_api()
+{
+	return array(
+			'api' => 3,
+			'path' => drupal_get_path('module', 'cowpro_shop') . '/includes/views',
+	);
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function cowpro_shop_entity_info() {
+	$return = array (
+			'cowpro_shop_deliver' => array (
+					'label' => t ( 'Cowpro Shop Deliver' ),
+					'controller class' => 'CowproShopDeliverEntityController',
+					'base table' => 'cowpro_shop_deliver',
+					'fieldable' => FALSE,
+					'entity keys' => array (
+							'id' => 'deliver_id',
+					),
+					'bundles' => array (),
+					'load hook' => 'cowpro_shop_deliver_load',
+					'view modes' => array (
+							'tweaky' => array(
+									'label' => t('Tweaky'),
+									'custom settings' => FALSE,
+							),
+					),
+					'access callback' => 'cowpro_shop_entity_access',
+			),
+	);
+
+	return $return;
+}
+
+/**
+ * Implements callback_entity_info_access().
+ */
+function cowpro_shop_entity_access($op, $entity, $account, $entity_type) {
+	return TRUE;
+}
+
+/**
+ * Implementation of hook_action_info().
+ */
+function cowpro_shop_action_info() {
+	return array (
+			'cowpro_shop_deliver_action_on' => array (
+					'type' => 'cowpro_shop_deliver',
+					'label' => '已发货',
+					'behavior' => array (
+							'views_property'
+					),
+					'configurable' => FALSE,
+					'vbo_configurable' => FALSE,
+					'triggers' => array (
+							'any'
+					),
+					'aggregate' => TRUE
+			),
+			'cowpro_shop_deliver_action_off' => array (
+					'type' => 'cowpro_shop_deliver',
+					'label' => '未发货',
+					'behavior' => array (
+							'views_property'
+					),
+					'configurable' => FALSE,
+					'vbo_configurable' => FALSE,
+					'triggers' => array (
+							'any'
+					),
+					'aggregate' => TRUE
+			),
+	);
+}
+
+function cowpro_shop_deliver_action_on(&$entities, $context = array()) {
+	require_once 'includes/cowpro_shop.deliver.inc';
+	_cowpro_shop_deliver_action ( $entities, $context, 1 );
+}
+
+function cowpro_shop_deliver_action_off(&$entities, $context = array()) {
+	require_once 'includes/cowpro_shop.deliver.inc';
+	_cowpro_shop_deliver_action ( $entities, $context, 0 );
 }
 
 /**
@@ -53,18 +144,18 @@ function cowpro_shop_theme() {
 	return array(
 			'cowpro_commerce_list' => array(
 					'variables' => array('list' => NULL, 'page_html' => NULL),
-					'file' => 'cowpro_shop.pages.inc',
-					'template' => 'cowpro-commerce-list',
+					'file' => 'includes/cowpro_shop.pages.inc',
+					'template' => 'includes/cowpro-commerce-list',
 			),
 			'cowpro_commerce_list_item' => array(
 					'variables' => array('item' => NULL),
-					'file' => 'cowpro_shop.pages.inc',
-					'template' => 'cowpro-commerce-list-item',
+					'file' => 'includes/cowpro_shop.pages.inc',
+					'template' => 'includes/cowpro-commerce-list-item',
 			),
 			'cowpro_commerce_item' => array(
 					'variables' => array('item' => NULL),
-					'file' => 'cowpro_shop.pages.inc',
-					'template' => 'cowpro-commerce-item',
+					'file' => 'includes/cowpro_shop.pages.inc',
+					'template' => 'includes/cowpro-commerce-item',
 			),
 	);
 }
@@ -210,12 +301,22 @@ function _cowpro_shop_buy_item($nid, $vid, $title, $price, $qty, $mbl = NULL) {
 			'moderate' => false,
 			'description' => $desc,
 			'display' => false,
-			'reference' => "shop",
+			'reference' => 'shop',
 			//'tid' => $tid,
 			//'entity_id' => $nid,
 			//'entity_type' => 'order',
 	);
 	$result = userpoints_userpointsapi($params);
+
+
+	if ($result['status']) {
+		$entity_value = array(
+				'txn_id' => $params['txn_id'],
+		);
+		$entity = entity_create('cowpro_shop_deliver', $entity_value);
+		entity_get_controller('cowpro_shop_deliver')->save($entity);
+	}
+
 	if ($result['status']) {
 		drupal_set_message('兑换申请已成功提交，我们的客服会与你联系！');
 	} else {

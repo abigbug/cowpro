@@ -60,7 +60,7 @@ function jiupaipay_authorize($uid,$businessSeqNo) {
 //验证交易密码 成功之后回调授权
 function jiupaipay_authorize_callback($data){
     global $user;
-    if( intval($data['flag']) == 1 ) {
+    if( intval($data['flag']) == 1  && verify_h5($data) ) {
         jiupaipay_authorize($data['userId'],$data['businessSeqNo']);
     }
 }

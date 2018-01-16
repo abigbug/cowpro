@@ -1204,7 +1204,9 @@ function cowpro_issuing_field_presave($entity_type, $entity, $field, $instance, 
 		if (isset ( $item ['issuing_review'] )) {
 			$item = array_merge ( $item, $item ['issuing_review'] );
 			if ($item ['issuing_review'] ['audited'] == 1) {
-				$item ['status'] = COWPRO_ISSUING_STATUS_AUDITED;
+				if (!isset($item ['status']) || ($item ['status'] == COWPRO_ISSUING_STATUS_UNAUDITED) || ($item ['status'] == COWPRO_ISSUING_STATUS_INVITE_BIDS_FAILED)) {
+					$item ['status'] = COWPRO_ISSUING_STATUS_AUDITED;
+				}
 			}
 		}
 		$item ['data'] = isset ( $item ['data'] ) ? $item ['data'] : array ();

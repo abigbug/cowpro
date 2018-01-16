@@ -1,5 +1,5 @@
 name = jiu pai pay
-description = 九派支付第三方托管
+description = 宜宾市商业银行
 package = _CowPro
 configure = admin/cowpro/config_jiupaipay
 

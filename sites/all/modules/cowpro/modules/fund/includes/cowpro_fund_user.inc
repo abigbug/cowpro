@@ -70,7 +70,6 @@ html;
 		$html = str_replace('#checkin#', $checkin, $html);
 		$html = str_replace('#checkin_status#', $checkin_status, $html);
 		$html = str_replace('#logout#', $logout, $html);
-		$html = str_replace('#user_name#', $GLOBALS ['user']->name, $html);
 		$html = str_replace('#receivable_amount#', $receivable_amount, $html);
 		$html = str_replace('#withdraw_ye#', $withdraw_ye, $html);
 		$html = str_replace('#points#', $points, $html);
@@ -84,7 +83,7 @@ html;
 <div class="login_block">
       <div class="login_background" style="opacity: 0.5;"></div>
            <div class="after_login">
-                <div class="fast_login">快速登陆</div>
+                <div class="fast_login">快速登录</div>
                 #form#
            </div>
      </div>

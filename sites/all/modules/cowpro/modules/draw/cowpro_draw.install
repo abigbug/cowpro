@@ -1,8 +1,9 @@
+
 <?php
 
 /**
  * Implements hook_schema().
- */
+*/
 function cowpro_draw_schema() {
 	$schema = array ();
 

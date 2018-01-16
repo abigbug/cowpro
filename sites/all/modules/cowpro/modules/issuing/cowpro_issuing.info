@@ -46,6 +46,7 @@ files[] = includes/views/handlers/cowpro_creditor_assignment_handler_field_amoun
 ; files[] = includes/views/handlers/cowpro_creditor_assignment_handler_filter_amount.inc
 files[] = includes/views/handlers/cowpro_creditor_assignment_handler_field_operations.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_filter_issuing_title.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_filter_issuing_applicant.inc
 files[] = includes/views/handlers/cowpro_repayment_schedule_handler_filter_payer.inc
 
 ; Information added by Drupal.org packaging script on 2015-01-16

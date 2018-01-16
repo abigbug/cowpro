@@ -14,7 +14,7 @@ include_once ("libs/Common.php");
  */
 function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id,$businessSeqNo) {
         $header = jiupaipay_header("T00001");
-        
+
         $aes = new AES(JPP_AES_KEY,JPP_AES_IV);
         $post_data = array();
         $post_data['businessSeqNo'] = $businessSeqNo;
@@ -37,8 +37,8 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id,$businessSeqN
             "otherAmounttype" => "01",
             "otherAmount" => "",
             );
-        
-        
+
+
         $post_data['deductType'] = "";
         $post_data['busiBranchNo'] = "";
         $post_data['payType'] = "00";
@@ -48,7 +48,7 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id,$businessSeqN
         $post_data['platformAccountNo'] = "";
         $post_data['accountList'][] = $accountList;
         $post_data_tmp = $post_data;
-  
+
         $oderNo = $post_data_tmp["accountList"][0]['oderNo'];
         unset($post_data_tmp["accountList"][0]['oderNo']);
         foreach( $post_data_tmp['accountList'][0] as $key=>$value ){
@@ -57,8 +57,8 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id,$businessSeqN
         unset($post_data_tmp['accountList']);
         ksort($post_data_tmp);
         ksort($post_data);
-        
-        $signInfo = $header['signTime'];   
+
+        $signInfo = $header['signTime'];
         foreach( $post_data_tmp as $value ){
             $signInfo .= "|".$value;
         }
@@ -66,24 +66,24 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id,$businessSeqN
         //file_put_contents("/var/www/test.jinbeizeng.net/sites/all/modules/cowpro/modules/jiupaipay/includes/test.txt",$post_data['businessSeqNo'],FILE_APPEND);
         $post_data['bankAccountNo'] = $aes->encrypt($post_data['bankAccountNo']);
         $post_data["accountList"][0]['cebitAccountNo'] = $aes->encrypt($accountList['cebitAccountNo']);
-        
-        
+
+
         $rsa_private_key = variable_get(PRIVATE_KEY_ON_JIUPAIPAY);
 	$rsa_public_key = variable_get(PUBLIC_KEY_ON_JIUPAIPAY);
 	$rsa = new RSA ($rsa_private_key, $rsa_public_key);
 	$signData = $rsa->sign ( $signInfo );
         $header['signature'] = $signData;
-        
+
         $curl_post_data['reqHeader'] = $header;
         $curl_post_data['inBody'] = $post_data;
-        
+
         $result = jiupaipay_curl_api($curl_post_data);
         $result = json_decode($result,true);
         //var_dump($result);
         if( $result['respHeader']['respCode'] == 'P2PS000' ) {
             $success = TRUE;
         }
-        
+
         $external_reference_id = $result['respHeader']['serviceSn'];
         if( $post_data['rType'] == "R01" ) {
             //custodian_cowpro_fund_topup_callback($success, $journal_id, $external_reference_id, 'jiupaipay', $result);
@@ -96,7 +96,7 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id,$businessSeqN
             }
         }
         if( $result['respHeader']['respCode'] == 'P2PS000' && $post_data['rType'] == "R02" ) {
-            
+
             //调用网银列表页面
             $data_pay['OUT_ID'] = "jbz_pay".round(microtime(true) * 1000);
             $data_pay['TRAN_TIME'] = date("YmdHis",time());
@@ -109,7 +109,7 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id,$businessSeqN
             $data_pay['ACCT_NO'] = "123123213";
             $data_pay['ACCT_NAME'] = "123123";
             $data_pay['B_ACCT_NO'] = "01573201000000528";
-            $data_pay['B_ACCT_NAME'] = "天风天财（武汉）金融信息服务有限公司（资金存管户）";    
+            $data_pay['B_ACCT_NAME'] = "天风天财（武汉）金融信息服务有限公司（资金存管户）";
             $data_pay['SUB_SOURCE_TYPE'] = "jbz";
             $data_pay['PAY_AMT'] = $amount;
             $data_pay['GOODS_NAME'] = "充值";
@@ -117,7 +117,7 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id,$businessSeqN
             $data_tmp = $data_pay;
             unset($data_tmp['BACK_URL']);
             unset($data_tmp['FRONT_URL']);
-            
+
             ksort($data_tmp);
             $signInfoPay = "";
             foreach( $data_tmp as $key=>$value ){
@@ -150,64 +150,66 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id,$businessSeqN
             echo $html;
             drupal_exit();
         }
-	
+
 }
 
 // 充值回调
 function jiupaipay_topup_callback($data) {
-    global $user;
-    if( intval($data['flag']) == 1 ) {
-        $result = db_query("SELECT data FROM jiupaipay_data_tmp WHERE uid=:uid AND businessSeqNo = :businessSeqNo",array(":uid"=>$data['userId'],":businessSeqNo"=>$data['businessSeqNo']))->fetchField();
-        $result = unserialize($result);
-        jiupaipay_topup($data['userId'],$result['amount'],$result['method'],$result['journal_id'],$data['businessSeqNo']);
-    }
+	global $user;
+	if( intval($data['flag']) == 1  && verify_h5($data) ) {
+		$result = db_query("SELECT data FROM jiupaipay_data_tmp WHERE uid=:uid AND businessSeqNo = :businessSeqNo",array(":uid"=>$data['userId'],":businessSeqNo"=>$data['businessSeqNo']))->fetchField();
+		$result = unserialize($result);
+		jiupaipay_topup($data['userId'],$result['amount'],$result['method'],$result['journal_id'],$data['businessSeqNo']);
+	}
 }
-
 //充值银行同步回调
 function jiupaipay_topup_bank_return($data){
     global $base_url;
     drupal_goto($base_url."/user");
-    
+
 }
 
 //充值银行异步回调
 function jiupaipay_topup_bank_notify($data){
-    $result_string = file_get_contents("php://input");
-    $result = json_decode($result_string,true);
-    //$aa = file_put_contents("/var/www/test.jinbeizeng.net/sites/all/modules/cowpro/modules/jiupaipay/includes/test.txt",$result_string."---111",FILE_APPEND);
-    $success = false;
+	$result_string = file_get_contents("php://input");
+	if( !empty($result_string) ) {
+		$result = json_decode($result_string,true);
 
-    if( $result['inBody']['respCode'] == "P2P0000" ) {
-        $success = true;
-    }
-    
-    $external_reference_id = $result['inBody']['businessSeqNo'];
-    $tdata = db_query("SELECT data FROM jiupaipay_data_tmp WHERE businessSeqNo = :businessSeqNo",array(":businessSeqNo"=>$result['inBody']['oldbusinessSeqNo']))->fetchField();
-    $tdata = unserialize($tdata);
-    if( array_key_exists("method",$tdata) ) {
-        custodian_cowpro_fund_topup_callback($success, $tdata['journal_id'], $external_reference_id, 'jiupaipay', $result);
-    }else{
-       custodian_cowpro_fund_withdraw_callback($success, $tdata['journal_id'], $external_reference_id, 'jiupaipay', $result);
-    }
+		$success = false;
 
-    $header['version'] = '1.0';
-    $header['merchantCode'] = 'jbz';
-    $header['txnType'] = "R00001";
-    $header['clientSn'] = $header['txnType']."@".round(microtime(true) * 1000);
-    $header['clientDate'] = date("Ymd",time());
-    $header['clientTime'] = date("His",time());
-    $header['serviceSn'] = $result['reqHeader']['clientSn'];
-    $header['serviceDate'] = $result['reqHeader']['clientDate'];
-    $header['serviceTime'] = $result['reqHeader']['clientTime'];
-    $header['respCode'] = $result['inBody']['respCode'];
-    $header['respMsg'] = $result['inBody']['respMsg'];
-    $header['signTime'] = round(microtime(true) * 1000);
-    $header['signature'] = "";                                                                                                                                                                                                                                                                                                
+		if( $result['inBody']['respCode'] == "P2P0000" ) {
+			$success = true;
+		}
 
-    $result_jpp['reqHeader'] = $header;
-    $result_jpp['outBody'] = "";
-    echo json_encode($result_jpp);
-    
+		$external_reference_id = $result['inBody']['businessSeqNo'];
+		$tdata = array();
+		$tdata = db_query("SELECT data FROM jiupaipay_data_tmp WHERE businessSeqNo = :businessSeqNo",array(":businessSeqNo"=>$result['inBody']['oldbusinessSeqNo']))->fetchField();
+		if( !empty($tdata) ) {
+			$tdata = unserialize($tdata);
+			if( array_key_exists("method",$tdata) ) {
+				custodian_cowpro_fund_topup_callback($success, $tdata['journal_id'], $external_reference_id, 'jiupaipay', $result);
+			}else{
+				custodian_cowpro_fund_withdraw_callback($success, $tdata['journal_id'], $external_reference_id, 'jiupaipay', $result);
+			}
+		}
+
+		$header['version'] = '1.0';
+		$header['merchantCode'] = 'jbz';
+		$header['txnType'] = "R00001";
+		$header['clientSn'] = $header['txnType']."@".round(microtime(true) * 1000);
+		$header['clientDate'] = date("Ymd",time());
+		$header['clientTime'] = date("His",time());
+		$header['serviceSn'] = $result['reqHeader']['clientSn'];
+		$header['serviceDate'] = $result['reqHeader']['clientDate'];
+		$header['serviceTime'] = $result['reqHeader']['clientTime'];
+		$header['respCode'] = $result['inBody']['respCode'];
+		$header['respMsg'] = $result['inBody']['respMsg'];
+		$header['signTime'] = round(microtime(true) * 1000);
+		$header['signature'] = "";
+
+		$result_jpp['reqHeader'] = $header;
+		$result_jpp['outBody'] = "";
+		echo json_encode($result_jpp);
+	}
+
 }
-
-

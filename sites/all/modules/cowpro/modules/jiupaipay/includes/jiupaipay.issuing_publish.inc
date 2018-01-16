@@ -64,9 +64,12 @@ function jiupaipay_issuing_publish($nid,$busiTradeType = "P01",$projectStatus = 
         $result = json_decode($result,true);
   
         $result_jpp = array();
-        if( $result['respHeader']['respCode'] == 'P2P0000' ) {
+        $result_jpp['success'] = false;
+        $result['outBody']['objectaccNo'] = $aes->decrypt($result['outBody']['objectaccNo']);
+
+        if( $result['respHeader']['respCode'] == 'P2P0000' && verify_api($result['outBody'],$result['respHeader']['signature'],$result['respHeader']['signTime']) ) {
             if( $busiTradeType == "P01" ) {
-                $acc_no = $aes->decrypt($result['outBody']['objectaccNo']);
+                $acc_no = $result['outBody']['objectaccNo'];
                 $sql_data['issuing_object_accno'] = $acc_no;
                 $sql_data['nid'] = $nid;
                 db_insert('jiupaipay_issuing_accno')
@@ -78,9 +81,8 @@ function jiupaipay_issuing_publish($nid,$busiTradeType = "P01",$projectStatus = 
             }
             $result_jpp['success'] = true;
            
-        }else{
-            $result_jpp['success'] = false;
         }
+        
         $result_jpp['result_code'] = $result['respHeader']['respCode'];
         $result_jpp['message'] = $result['respHeader']['respMsg'];
         return $result_jpp;

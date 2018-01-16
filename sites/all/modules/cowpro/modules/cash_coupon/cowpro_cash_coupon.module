@@ -52,7 +52,7 @@ function cowpro_cash_coupon_cowpro_issuing_bid_form_submit($form, $form_state) {
 		$txn_id = reset ( explode ( '_', $form_state ['values'] ['voucher'] ) ); // 获取代金券ID
 		$right_voucher = end ( explode ( '_', $form_state ['values'] ['voucher'] ) ); // 获取代金券金额
 
-		$uid_from = user_load_by_name ( variable_get ( 'fund_imprest_account', '' ) )->uid; // 转出账户ID
+		$uid_from = NULL;//user_load_by_name ( variable_get ( 'fund_imprest_account', '' ) )->uid; // 转出账户ID
 		$uid_to = $user->uid; // 转入账户ID
 		$amount = $right_voucher; // 转入金额
 		$comment = '使用代金卷';
@@ -77,7 +77,8 @@ function cowpro_cash_coupon_cowpro_issuing_bid_form_submit($form, $form_state) {
 			$result = userpoints_userpointsapi ( $params );
 			return true;
 		} else {
-			$message = '代金券转账失败';
+			$message = '代金券转账失败:' . $result['message'] .	'(' . $result['result_code'] . ')';
+
 			drupal_set_message ( $message, 'error' );
 			return false;
 		}

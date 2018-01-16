@@ -140,9 +140,14 @@ function jiupaipay_bank_card($userId,$businessSeqNo){
      $bank_card_data['signature'] = $rsa->sign($bank_card_sign_data);
      $bank_card_data['businessSeqNo'] = $businessSeqNo;
      
+    if( ismobile_sevice() ) {
+        $url = JPP_BANK_CARD_URL_MOBILE;
+    }else{
+        $url = JPP_BANK_CARD_URL;
+    }
      
      $html = '
- <form id="formu" name="formu" action="' . JPP_BANK_CARD_URL . '" method="get">
+ <form id="formu" name="formu" action="' . $url . '" method="get">
          <input id="systemCode" name="systemCode" value="' .  $bank_card_data['systemCode'] . '" type="hidden" />
          <input id="userId" name="userId" value="' .  $bank_card_data['userId'] . '" type="hidden" />
          <input id="backURL" name="backURL" value="' .  $bank_card_data['backURL'] . '" type="hidden" />
@@ -167,8 +172,8 @@ function jiupaipay_bank_card($userId,$businessSeqNo){
 }
 
 function jiupaipay_bank_card_callback($data,$step) {
-    global $user;
-    if( intval($data['flag']) == 1 ) {
+
+    if( intval($data['flag']) == 1 && verify_h5($data) ) {
         if( $step == 1 ) {
             //绑定银行卡
             jiupaipay_bank_card($data['userId'],$data['businessSeqNo']);
@@ -176,7 +181,7 @@ function jiupaipay_bank_card_callback($data,$step) {
             //解绑银行卡
             jiupaipay_bank_card_unbundling($data['userId'],$data['businessSeqNo']);
         }else if( $step == 3 ){
-            if( intval($data['flag']) == 1 ) {
+            if( intval($data['flag']) == 1  && verify_h5($data) ) {
                 $profile_jiupaipay = cowpro_customer_profile_load_one_row_with_conditions(intval($data['userId']), 'jiupaipay');
                 if ($profile_jiupaipay == NULL) {
                         $profile_jiupaipay = cowpro_customer_profile_new('jiupaipay', intval($data['userId']));

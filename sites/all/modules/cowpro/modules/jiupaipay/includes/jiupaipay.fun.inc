@@ -162,7 +162,35 @@ function jiupaipay_check_pwd($uid,$step,$data = NULL){
         $password_sign_info = $register_password_data['signTime']."|". $register_password_data['userId'];
         $register_password_data['signature'] = $rsa->sign($password_sign_info);
         $register_password_data['businessSeqNo'] = "jbz".date("Ymd",time()).time();
+        $real_name = cowpro_customer_profile_load_one_row_with_conditions($uid,"real_name");
+        $card_no = cowpro_customer_profile_load_one_row_with_conditions($uid,"bank_card");
+        $submit_html = "";
         
+        $register_password_data['userName'] = $real_name->name;
+        if( $step == 1 ) { //绑卡
+            $register_password_data['operType'] = "B01";
+            $register_password_data['cardNo'] = $card_no->card_no;
+            $submit_html .= '<input id="cardNo" name="cardNo" value="' .  $register_password_data['cardNo'] . '" type="hidden" />';
+        }else if( $step == 2 ) {//解绑
+            $register_password_data['operType'] = "B02";
+            $register_password_data['cardNo'] = $card_no->card_no;
+        }else if( $step == 4 ){//授权
+            $register_password_data['operType'] = "B04";
+            
+        }else if( $step == 5 ){//充值
+            if( $data['method'] == 1 ) {
+                $register_password_data['operType'] = "R02";
+            }else if( $data['method'] == 2 ){
+                $register_password_data['operType'] = "R01";
+            }
+            $register_password_data['amount'] = $data['amount'];
+            $submit_html .= '<input id="amount" name="amount" value="' .  $register_password_data['amount'] . '" type="hidden" />';
+        }else if( $step == 7 ) {// 提现
+            $register_password_data['operType'] = "W01";
+            $register_password_data['amount'] = $data['amount'];
+            $submit_html .= '<input id="amount" name="amount" value="' .  $register_password_data['amount'] . '" type="hidden" />';
+        }
+         
         if( !empty($data) ) {
             $sql_data['data'] = serialize($data);
             $sql_data['businessSeqNo'] = $register_password_data['businessSeqNo'];
@@ -175,17 +203,27 @@ function jiupaipay_check_pwd($uid,$step,$data = NULL){
             ))
           ->execute();
         }
-        
+
+        if( ismobile_sevice() ) {
+            $url = JPP_CHECK_TRANSACTION_PASSWORD_URL_MOBILE;
+        }else{
+            $url = JPP_CHECK_TRANSACTION_PASSWORD_URL;
+        }
+
         $html = '
-    <form id="formu" name="formu" action="' . JPP_CHECK_TRANSACTION_PASSWORD_URL . '" method="get">
+    <form id="formu" name="formu" action="' . $url . '" method="get">
             <input id="systemCode" name="systemCode" value="' .  $register_password_data['systemCode'] . '" type="hidden" />
             <input id="userId" name="userId" value="' .  $register_password_data['userId'] . '" type="hidden" />
             <input id="backURL" name="backURL" value="' .  $register_password_data['backURL'] . '" type="hidden" />
             <input id="signTime" name="signTime" value="' .  $register_password_data['signTime'] . '" type="hidden" />
             <input id="signature" name="signature" value="' .  $register_password_data['signature'] . '" type="hidden" /> 
             <input id="businessSeqNo" name="businessSeqNo" value="' .  $register_password_data['businessSeqNo'] . '" type="hidden" />
+            <input id="operType" name="operType" value="' .  $register_password_data['operType'] . '" type="hidden" />
+            <input id="userName" name="userName" value="' .  $register_password_data['userName'] . '" type="hidden" />
+            '.$submit_html.'
             <script language="javascript">window.onload=function(){document.formu.submit();}</script>
     </form>';
+   
         echo $html;
         drupal_exit();
 }
@@ -225,4 +263,35 @@ function jiupaipay_curl_api($data){
     }
     curl_close($ch);
     return $result;
+}
+
+//判断是否是移动端
+function ismobile_sevice(){
+    $browser = browscap_get_browser();
+    if( $browser['ismobiledevice'] == "true" ) {
+        return true;
+    }else{
+        return false;
+    }
+}
+
+//h5 验签
+function verify_h5($data){     
+    $rsa_private_key = variable_get(PRIVATE_KEY_ON_JIUPAIPAY);
+    $rsa_public_key = variable_get(PUBLIC_KEY_ON_JIUPAIPAY);
+    $rsa = new RSA ($rsa_private_key, $rsa_public_key);
+    $dataStr = $data['signTime']."|".$data['userId'];
+    $verify = $rsa->verify($dataStr, $data['signature']);
+    return $verify;
+}
+//接口验签
+function verify_api($data,$sign,$signtime){
+    
+    $dataStr = implode("|", $data);
+    $dataStr = $signtime."|".$dataStr;
+    $rsa_private_key = variable_get(PRIVATE_KEY_ON_JIUPAIPAY);
+    $rsa_public_key = variable_get(PUBLIC_KEY_ON_JIUPAIPAY);
+    $rsa = new RSA ($rsa_private_key, $rsa_public_key);
+    $verify = $rsa->verify($dataStr, $sign);
+    return $verify;
 }

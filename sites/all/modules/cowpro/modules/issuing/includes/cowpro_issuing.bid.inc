@@ -178,7 +178,7 @@ function _cowpro_issuing_bid_form_submit(&$form, &$form_state) {
 				$message = '投标成功';
 				drupal_set_message($message);
 			} else {
-				$message = '投标失败:' . $result['message'] . '<br/>代码：' . $result['result_code'];
+				$message = '投标失败:' . $result['message'] . '<br/>(代码：' . $result['result_code'] . ')';
 				drupal_set_message($message, 'error');
 			}
 		}

@@ -90,7 +90,7 @@ jQuery(document).ready(function($) {
 	if (msg.size() > 0) {
           var msgbox=msg.text();
           if(msgbox.indexOf("Warning:")=="-1"){
-            alert(msgbox);  
+            //alert(msgbox);
           }
 	}
     jQuery("#bootstrap-panel--3 .field-items").rebox({ selector: 'a' });

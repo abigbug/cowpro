@@ -813,5 +813,132 @@ body{background-color: #f5f5f5;}
     line-height: 25px;
     color: #FFF;
 }
+.node-type-cowpro-issuing .sopuo-header-top .container .row{ padding: 0px;}
+.node-type-cowpro-issuing .sopuo-body-warp .container .row{padding-top: 15px;padding-bottom: 20px;}
 
+#modalContent {
+    top: 180px !important;
+}
+
+.wizard-trail span {
+    display: inline-block;
+    width: 20%;
+}
+.page-registration-wizard-mobile .sopuo-body-warp #-registration-wizard-form-warp{
+    height: 700px;
+    min-height:700px;
+}
+.page-registration-wizard-mobile .sopuo-body-warp #-registration-wizard-form-warp #edit-profile{
+    height: 350px;
+    min-height: 350px;
+}
+.page-registration-wizard-mobile .sopuo-body-warp #-registration-wizard-form-warp #edit-profile{
+    position:relative;
+}
+.page-registration-wizard-mobile .sopuo-body-warp #-registration-wizard-form-warp #edit-profile .form-item-mobile-number{
+    position:absolute;
+    top:20px;
+}
+.page-registration-wizard-mobile .sopuo-body-warp #-registration-wizard-form-warp #edit-profile .form-item-verify-code{
+    position: absolute;
+    top:95px;
+}
+.page-registration-wizard-mobile .sopuo-body-warp #-registration-wizard-form-warp #edit-profile .captcha{
+    position: absolute;
+    top:175px;
+}
+.page-registration-wizard-mobile .sopuo-body-warp #-registration-wizard-form-warp #edit-profile #send_verify{
+    position: absolute;
+    top:110px;
+}
+.page-registration-wizard-mobile .sopuo-body-warp #-registration-wizard-form-warp #edit-profile #mobile_verify_help{
+    position: absolute;
+    top:190px;
+    left:40%;
+    color: #F00;
+}
+.page-registration-wizard-mobile .sopuo-body-warp #-registration-wizard-form-warp #edit-profile #mobile_verify_help_2{
+    position: absolute;
+    top:220px;
+    left:40%;
+    color: #F00;
+}
+.page-registration-wizard-mobile .sopuo-body-warp #-registration-wizard-form-warp #edit-profile .reload-captcha-wrapper{
+    position: absolute;
+    top:200px;
+    color: #F00;
+    right:65%;
+}
+.page-registration-wizard-mobile .sopuo-body-warp #-registration-wizard-form-warp #edit-profile .captcha .form-item-captcha-response input{
+    width: 50%;
+}
+
+.alert-block{
+    background-color:#ffffff;
+    border-radius: 8px;
+    box-shadow: 0 50px 150px rgba(100, 0, 0, .5);
+    border: #e5e2e2 1px solid;
+    font-family: 'Microsoft Yahei';
+    padding: 17px;
+    text-align: center;
+   line-height: 28px;
+   font-size: 14px;
+   z-index: 999999999;
+   width: 600px;
+   min-height: 180px;
+   max-height: 450px;
+   overflow: hidden;
+   left: 50%;
+   top: 15%;
+   margin: 0px auto;
+   margin-left: -300px!important;
+   /*FF IE7 该值为本身高的一半*/
+   margin-top: 0px;
+   position: fixed!important;
+   /* FF IE7*/
+   position: absolute;
+}
+.alert-block a{
+    width: 40%;
+    float: right;
+    height: 30px;
+    text-align: right;
+    color:#666;
+    z-index: 99999999999;
+}
+.alert-block .close{
+    font-size: 30px;
+    position:absolute;
+    left:55%;
+}
+.alert-block .element-invisible{
+    position:absolute;
+    clear:both;
+    position:relative!important;
+    width: 98%;
+    float: left;
+    font-weight:bold;
+    text-align: left;
+    border-bottom:#b35452 1px solid;
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+    color:#a94442;
+}
+.alert-block ul{
+    clear:both;
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.alert-block ul li{
+    width: 100%;
+    line-height: 28px;
+    text-align: left;
+}
+
+#frame_content .vertical-tabs-panes{
+    min-height: 260px;
+    max-height: 660px;
+}
 

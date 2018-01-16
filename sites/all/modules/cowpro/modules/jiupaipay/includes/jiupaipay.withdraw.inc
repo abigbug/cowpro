@@ -92,7 +92,7 @@ function jiupaipay_withdraw($uid, $amount, $card, $journal_id,$businessSeqNo) {
 // 提现校验密码回调
 function jiupaipay_withdraw_callback($data) {
     global $user;
-    if( intval($data['flag']) == 1 ) {
+    if( intval($data['flag']) == 1  && verify_h5($data) ) {
         $result = db_query("SELECT data FROM jiupaipay_data_tmp WHERE uid=:uid AND businessSeqNo = :businessSeqNo",array(":uid"=>$data['userId'],":businessSeqNo"=>$data['businessSeqNo']))->fetchField();
         $result = unserialize($result);
         jiupaipay_withdraw($data['userId'],$result['amount'],$result['card'],$result['journal_id'],$data['businessSeqNo']);

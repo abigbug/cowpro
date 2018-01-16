@@ -130,6 +130,14 @@ function cowpro_report_views_data() {
 					'handler' => 'cowpro_users_handler_field_mmm',
 			),
 	);
+	$data['users']['ybccb'] = array(
+			'title' => '宜宾银行',
+			'help' => '宜宾银行注册',
+			'real field' => 'uid',
+			'field' => array(
+					'handler' => 'cowpro_users_handler_field_ybccb',
+			),
+	);
 	$data['users']['mobile_certification'] = array(
 			'title' => '手机验证',
 			'help' => '手机验证',

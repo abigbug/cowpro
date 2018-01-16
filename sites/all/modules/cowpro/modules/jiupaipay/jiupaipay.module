@@ -77,8 +77,87 @@ function jiupaipay_menu() {
 			'type' => MENU_NORMAL_ITEM,
 			'file' => 'includes/jiupaipay.getfiles.inc'
 	);
+        $items ['cowpro/jiupaipay/topupp_marketing'] = array (
+            'title' => '平台营销账号充值',
+            'description' => '平台营销账号充值',
+            'page callback' => 'drupal_get_form',
+            'page arguments' => array("topupp_marketing_form"),
+            'access arguments' => array (
+					'configure p2p'
+			),
+            'menu_name' => 'navigation',
+            'type' => MENU_NORMAL_ITEM,
+            'file' => 'includes/jiupaipay.topup.inc',
+	);
+        
+        $items ['cowpro/jiupaipay/ledger_account'] = array (
+            'title' => '查看台账账号结果',
+            'description' => '查看台账账号结果',
+            'page callback' => 'jiupaipay_jedger_account',
+            'page arguments' => '',
+            'access arguments' => array (
+					'configure p2p'
+			),
+            'menu_name' => 'navigation',
+            'type' => MENU_NORMAL_ITEM,
+            'file' => 'includes/jiupaipay.ledgerAccount.inc',
+	);
 	return $items;
 }
+
+function topupp_marketing_form($form,&$form_state){
+    $form = array();
+	$form ['amount'] = array (
+			'#type' => 'numberfield',
+			'#title' => '充值金额',
+                        '#min' => 0,
+			'#max' => 999999,
+                        '#required' => TRUE,
+			'#input' => TRUE,
+	);
+        $form['method'] = array(
+			'#type' => 'hidden',
+			'#value' => "3",
+	);
+        $form['topup_marketing'] = array(
+			'#type' => 'submit',
+			'#value' => '充值',
+	);
+        return $form;
+}
+
+function topupp_marketing_form_submit($form,&$form_state){
+
+    $data['amount'] = $form_state['input']['amount'];
+    $data['method'] = $form_state['input']['method'];
+    $role = user_role_load_by_name('administrator');
+    $uid = $role->rid;
+
+    $entity_value = array(
+                    'uid' => $uid,
+                    'status' => FALSE,
+                    'type' => 'TOPUP',
+                    'amount' => $data['amount'],
+    );
+    $entity = entity_create('cowpro_fund_journal', $entity_value);
+    $entity = entity_get_controller('cowpro_fund_journal')->save($entity);
+    $journal_id = $entity->journal_id;
+    $data['journal_id'] = $journal_id;
+    $sql_data['data'] = serialize($data);
+    $sql_data['businessSeqNo'] = "jbz".date("Ymd",time()).time();;
+    $sql_data['uid'] = $uid;
+    db_insert('jiupaipay_data_tmp')
+    ->fields(array(
+      'data' => $sql_data['data'],
+      'businessSeqNo' => $sql_data['businessSeqNo'],
+      'uid' => $uid,
+      ))
+    ->execute();
+    
+    jiupaipay_topup($uid, $data['amount'], $data['method'], $journal_id,$sql_data['businessSeqNo']);
+    
+}
+
 function jiupaipay_permission() {
 	$permissions = array (
 			'jiupaipay get files list' => array (
@@ -158,7 +237,7 @@ function jiupaipay_cowpro_customer_profile_jiupaipay_form($form, &$form_state, $
 	if ($profile->verified) {
 		$form ['jpp_account_number'] = array (
 				'#type' => 'textfield',
-				'#title' => '九派账号',
+				'#title' => '宜宾商业银行账号',
 				'#description' => '',
 				'#default_value' => $profile->jpp_account_number,
 				'#disabled' => TRUE,
@@ -176,7 +255,7 @@ function jiupaipay_cowpro_customer_profile_jiupaipay_form($form, &$form_state, $
 		);
 	} else {
 		$form ['jpp_information'] = array (
-				'#markup' => '请点击按钮完成与“九派支付”托管帐户的同步操作'
+				'#markup' => '请点击按钮完成与“宜宾商业银行”托管帐户的同步操作'
 		);
 	}
 
@@ -186,7 +265,7 @@ function jiupaipay_cowpro_customer_profile_jiupaipay_form_alter($form, &$form_st
 	if (! $profile->verified) {
 		$form ['actions'] ['submit'] ['#value'] = JPP_OP_BIND_ACCOUNT;
 		$form ['profile'] ['actions'] = $form ['actions'];
-	} else if ((! $profile->jpp_authorize)) {
+	} else if ( ! $profile->jpp_authorize && $profile->jpp_password) {
 		$form ['actions'] ['submit'] ['#value'] = JPP_OP_AUTHORIZE;
 		$form ['profile'] ['actions'] = $form ['actions'];
 	} else {
@@ -363,7 +442,7 @@ function jiupaipay_cowpro_customer_profile_type_info() {
 
 	$profile_types ['jiupaipay'] = array (
 			'type' => 'jiupaipay',
-			'name' => '九派支付账户',
+			'name' => '宜宾商业银行',
 			'description' => '',
 			'help' => '',
 			'weight' => 200
@@ -385,6 +464,15 @@ function jiupaipay_get_bank_card_operator($profile) {
 		return "绑定银行卡";
 	} else {
 		return "解绑银行卡";
+	}
+}
+function jiupaipay_bank_card_editable() {
+	global $user;
+	$profile = cowpro_customer_profile_load_one_row_with_conditions ( $user->uid, 'jiupaipay' );
+	if (($profile === NULL) || (! $profile->jpp_bank_card)) {
+		return TRUE;
+	} else {
+		return FALSE;
 	}
 }
 function jiupaipay_bank_card_operator_submit($operator, $profile) {
@@ -432,7 +520,7 @@ function jiupaipay_cowpro_fund_bid($uid, $amount, $nid, $journal_id) {
 	$profile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'jiupaipay' );
 	if (! $profile->jpp_authorize) {
 		$result ['success'] = false;
-		$result ['message'] = "你没有委托授权九派";
+		$result ['message'] = "你没有委托授权宜宾商业银行";
 		return $result;
 	}
 	include_once 'includes/jiupaipay.bid.inc';
@@ -476,7 +564,7 @@ function jiupaipay_cowpro_fund_topup($uid, $amount, $method, $journal_id) {
 	$profile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'jiupaipay' );
 	if (! $profile->jpp_account_number) {
 		$result ['success'] = false;
-		$result ['message'] = "您还没有关联九派账号";
+		$result ['message'] = "您还没有关联宜宾商业银行账号";
 		return $result;
 	}
 
@@ -500,7 +588,7 @@ function jiupaipay_cowpro_fund_withdraw($uid, $amount, $card, $journal_id) {
 	$profile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'jiupaipay' );
 	if (! $profile) {
 		$result ['success'] = false;
-		$result ['message'] = "没有绑定九派支付账号";
+		$result ['message'] = "没有绑定宜宾商业银行支付账号";
 		return $result;
 	}
 
@@ -549,12 +637,13 @@ function jiupaipay_get_bank_account_operator() {
 	if ($profile == NULL) {
 		$profile = cowpro_customer_profile_new ( 'jiupaipay', $user->uid );
 	}
-	if (! $profile->jpp_password) {
-		$result [] = '设置九派交易密码';
+	if (! $profile->jpp_password && $profile->jpp_account_number) {
+		$result [] = '设置宜商行交易密码';
 	}
-
-	$result [] = '修改九派交易密码';
-	$result [] = '重置九派交易密码';
+        if( $profile->jpp_password ) {
+            $result [] = '修改宜商行交易密码';
+            $result [] = '重置宜商行交易密码';
+        }
 	return $result;
 }
 
@@ -562,17 +651,17 @@ function jiupaipay_get_bank_account_operator() {
 function jiupaipay_bank_account_operator_submit($operator) {
 	global $user;
 	$profile = cowpro_customer_profile_load_one_row_with_conditions ( $user->uid, 'jiupaipay' );
-	if (! $profile->jpp_password && $operator != "设置九派交易密码") {
+	if (! $profile->jpp_password && $operator != "设置宜商行交易密码") {
 		$result ['success'] = false;
 		$result ['message'] = "没有设置交易密码";
 		return $result;
 	}
 	include_once 'includes/jiupaipay.pwd.inc';
-	if ($operator == "修改九派交易密码") {
+	if ($operator == "修改宜商行交易密码") {
 		return jiupaipay_modify_pwd ( $user->uid );
-	} else if ($operator == "重置九派交易密码") {
+	} else if ($operator == "重置宜商行交易密码") {
 		return jiupaipay_reset_pwd ( $user->uid );
-	} else if ($operator == "设置九派交易密码") {
+	} else if ($operator == "设置宜商行交易密码") {
 		return jiupaipay_register_pwd ( $user->uid );
 	}
 }
@@ -679,3 +768,18 @@ function jiupaipay_cowpro_fund_file_form_submit($form, &$form_state) {
 	var_dump ( $file );
 	die ();
 }
+
+/*
+ * $fund_type 类型参考 cowpro_fund_type.inc
+ */
+function jiupaipay_result_parser($fund_type, $result) {
+	$msg = '';
+	$data = $result;
+	switch ($fund_type) {
+		case 'TOPUP':
+                    $msg = $data['result']['inBody']['respMsg'] . '-' . $data['result']['inBody']['respCode'];
+                break;
+	}
+	return $msg;
+}
+

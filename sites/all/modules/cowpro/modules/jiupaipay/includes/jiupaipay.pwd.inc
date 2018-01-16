@@ -24,8 +24,14 @@ function jiupaipay_modify_pwd($uid) {
     $register_password_data['signature'] = $rsa->sign($password_sign_info);
     $register_password_data['businessSeqNo'] = "jbz_modify_password".date("Ymd",time()).time();
 
+     if( ismobile_sevice()  ) {
+        $url = JPP_MODIFY_TRANSACTION_PASSWORD_URL_MOBILE;
+    }else{
+        $url = JPP_MODIFY_TRANSACTION_PASSWORD_URL;
+    }
+    
     $html = '
-<form id="formu" name="formu" action="' . JPP_MODIFY_TRANSACTION_PASSWORD_URL . '" method="get">
+<form id="formu" name="formu" action="' . $url . '" method="get">
         <input id="systemCode" name="systemCode" value="' .  $register_password_data['systemCode'] . '" type="hidden" />
         <input id="userId" name="userId" value="' .  $register_password_data['userId'] . '" type="hidden" />
         <input id="backURL" name="backURL" value="' .  $register_password_data['backURL'] . '" type="hidden" />
@@ -43,7 +49,7 @@ function jiupaipay_modify_pwd($uid) {
 // 修改交易密码回调
 function jiupaipay_modify_password_callback($data) {
     global $user;
-    if( intval($data['flag']) == 1 ) {
+    if( intval($data['flag']) == 1  && verify_h5($data) ) {
         $profile = cowpro_customer_profile_load_one_row_with_conditions($data['userId'], 'jiupaipay');
         if ($profile == NULL) {
                 $profile = cowpro_customer_profile_new('jiupaipay', $data['userId']);
@@ -74,6 +80,12 @@ function jiupaipay_reset_pwd($uid) {
     $register_password_data['signature'] = $rsa->sign($password_sign_info);
     $register_password_data['businessSeqNo'] = "jbz_modify_password".date("Ymd",time()).time();
 
+    if( ismobile_sevice() ) {
+        $url = JPP_RESET_TRANSACTION_PASSWORD_URL_MOBILE;
+    }else{
+        $url = JPP_RESET_TRANSACTION_PASSWORD_URL;
+    }
+    
     $html = '
 <form id="formu" name="formu" action="' . JPP_RESET_TRANSACTION_PASSWORD_URL . '" method="get">
         <input id="systemCode" name="systemCode" value="' .  $register_password_data['systemCode'] . '" type="hidden" />
@@ -93,7 +105,7 @@ function jiupaipay_reset_pwd($uid) {
 // 重置交易密码回调
 function jiupaipay_reset_password_callback($data) {
     global $user;
-    if( intval($data['flag']) == 1) {
+    if( intval($data['flag']) == 1 && verify_h5($data) ) {
         $profile = cowpro_customer_profile_load_one_row_with_conditions($data['userId'], 'jiupaipay');
         if ($profile == NULL) {
                 $profile = cowpro_customer_profile_new('jiupaipay', $data['userId']);
@@ -124,6 +136,12 @@ function jiupaipay_register_pwd($uid) {
     $register_password_data['signature'] = $rsa->sign($password_sign_info);
     $register_password_data['businessSeqNo'] = "jbz_register_password".date("Ymd",time()).time();
 
+    if( ismobile_sevice() ) {
+        $url = JPP_REGISTER_TRANSACTION_PASSWORD_URL_MOBILE;
+    }else{
+        $url = JPP_REGISTER_TRANSACTION_PASSWORD_URL;
+    }
+    
     $html = '
 <form id="formu" name="formu" action="' . JPP_REGISTER_TRANSACTION_PASSWORD_URL . '" method="get">
         <input id="systemCode" name="systemCode" value="' .  $register_password_data['systemCode'] . '" type="hidden" />

@@ -8,3 +8,7 @@ core = 7.x
 version = "7.x-0.01"
 core = "7.x"
 project = "cowpro"
+
+files[] = includes/cowpro_shop_deliver.controller.inc
+files[] = includes/views/handlers/cowpro_shop_deliver_handler_field_status.inc
+files[] = includes/views/handlers/cowpro_shop_deliver_handler_filter_status.inc

@@ -536,6 +536,18 @@ function custodian_get_bank_card_operator($profile) {
 	return $result;
 }
 
+function custodian_bank_card_editable() {
+	$module = custodian_default_provider_key();
+	$function = $module . '_bank_card_editable';
+	$result = NULL;
+	if (function_exists($function)) {
+		$result = $function();
+	} else {
+		$result = TRUE;
+	}
+	return $result;
+}
+
 /**
  * 驱动托管银行对银行卡操作的接口
  * @param $operator 在 custodian_get_bank_card_operator() 方法中返回的操作标签

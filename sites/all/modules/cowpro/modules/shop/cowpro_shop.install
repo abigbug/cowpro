@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function cowpro_shop_schema() {
+	$schema = array ();
+
+	$schema ['cowpro_shop_deliver'] = array (
+			'description' => '记录用户兑换商品的处理情况',
+			'fields' => array (
+					'deliver_id' => array (
+							'description' => '序号.',
+							'type' => 'serial',
+							'unsigned' => TRUE,
+							'not null' => TRUE,
+					),
+					'txn_id' => array (
+							'description' => 'userpoints_txn id.',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0,
+					),
+					'status' => array (
+							'description' => '处理情况，0未处理  1已处理',
+							'type' => 'int',
+							'unsigned' => TRUE,
+							'not null' => TRUE,
+							'default' => 1,
+							'size' => 'tiny',
+					),
+					'created' => array(
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0,
+							'description' => 'The time that the record was created, as a Unix timestamp.',
+					),
+					'changed' => array(
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0,
+							'description' => 'The time that the record was last edited, as a Unix timestamp.',
+					),
+			),
+			'primary key' => array (
+					'deliver_id'
+			),
+	);
+	return $schema;
+}

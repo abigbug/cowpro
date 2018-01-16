@@ -16,6 +16,7 @@ files[] = includes/views/handlers/cowpro_userpoints_txn_handler_field_operation.
 files[] = includes/views/handlers/cowpro_users_handler_field_name_detail.inc
 files[] = includes/views/handlers/cowpro_users_handler_field_real_name.inc
 files[] = includes/views/handlers/cowpro_users_handler_field_mmm.inc
+files[] = includes/views/handlers/cowpro_users_handler_field_ybccb.inc
 files[] = includes/views/handlers/cowpro_users_handler_field_mobile.inc
 files[] = includes/views/handlers/cowpro_users_handler_field_payment_password.inc
 files[] = includes/views/handlers/cowpro_users_handler_field_referee.inc

@@ -58,7 +58,7 @@ function cowpro_fund_schema() {
 							'scale' => 2
 					),
 					'status' => array (
-							'description' => '1:表示交易成功; 0:表示交易失败; 针对type=BID这钟类型，还有status=2这种情况，表示"投标"以后"流标返款"成功的用例',
+							'description' => '1:表示交易成功; 0:表示交易失败; 99:表示交易结果未知(“充值”这类需要异步返回结果的操作中，在还没有收到结果的时候，就是“未知”状态); 针对type=BID这钟类型，还有status=2这种情况，表示"投标"以后"流标返款"成功的用例',
 							'type' => 'int',
 							'not null' => TRUE,
 							'default' => 1

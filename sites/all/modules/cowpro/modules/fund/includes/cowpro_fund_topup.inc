@@ -65,7 +65,7 @@ function cowpro_fund_topup_submit($form, &$form_state) {
 	$uid = $GLOBALS['user']->uid;
 	$entity_value = array(
 			'uid' => $uid,
-			'status' => FALSE,
+			'status' => 99,
 			'type' => 'TOPUP',
 			'amount' => $amount,
 	);
@@ -82,16 +82,16 @@ function cowpro_fund_topup_submit($form, &$form_state) {
 }
 
 function _cowpro_fund_topup_callback($success, $journal_id, $external_reference_id, $interface_module, $result) {
-	if ($success) {
-		$entity = entity_load_single('cowpro_fund_journal', $journal_id);
-		$entity->status = TRUE;
+	$entity = entity_load_single('cowpro_fund_journal', $journal_id);
+	$entity->status = $success;
+	if (isset($external_reference_id)) {
 		$entity->external_reference_id = $external_reference_id;
-		$data = array();
-		$data['interface_module'] = $interface_module;
-		$data['result'] = $result;
-		$entity->data = $data;
-		entity_get_controller('cowpro_fund_journal')->save($entity);
 	}
+	$data = array();
+	$data['interface_module'] = $interface_module;
+	$data['result'] = $result;
+	$entity->data = $data;
+	entity_get_controller('cowpro_fund_journal')->save($entity);
 
 	$args = array();
 	$args[] = $success;

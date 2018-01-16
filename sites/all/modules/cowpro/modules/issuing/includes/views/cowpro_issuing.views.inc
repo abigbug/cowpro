@@ -116,19 +116,24 @@ function cowpro_issuing_field_views_data($field) {
 	);
 
 	$data['field_data_field_applicant']['applicant_uid'] = array(
+			'title' => '申请人',
+			'help' => '申请人',
 			'real field' => 'entity_id',
 			'field' => array(
-					'title' => '申请人',
-					'help' => '申请人',
 					'handler' => 'cowpro_issuing_handler_field_applicant',
 			),
 			'filter' => array(
-					'handler' => 'cowpro_fund_journal_handler_filter_user',
+					'handler' => 'cowpro_issuing_handler_filter_issuing_applicant',
 			),
 	);
 
 	$data['field_data_field_applicant']['table']['group']  = 'Issuing';
 	$data['field_data_field_applicant']['table']['entity type']  = 'node';
+	$data['field_data_field_applicant']['table']['base'] = array(
+			'field' => 'entity_id',
+			'title' => '融资人',
+			'help' => '融资人',
+	);
 
 	return $data;
 }

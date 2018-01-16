@@ -20,8 +20,8 @@ function jiupaipay_internal_trans($uid_from, $uid_to, $amount) {
         $profile_jiupaipay = cowpro_customer_profile_load_one_row_with_conditions($uid_to, 'jiupaipay');
 
         $post_data = array();
-        $post_data['businessSeqNo'] = "jbz".date("Ymd",time()).time();
         $post_data['busiTradeType'] = 'T10';
+        $post_data['businessSeqNo'] = "jbz".date("Ymd",time()).time()."@".$post_data['busiTradeType'];
         $post_data['entrustflag'] = "01";
         $accountList = array(
             "oderNo"=>1,

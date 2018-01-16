@@ -49,6 +49,7 @@ function bank_card_cowpro_customer_profile_bank_card_form($form, &$form_state, $
 			'#size' => 60,
 			'#maxlength' => 128,
 			'#required' => TRUE,
+			'#disabled' => ! custodian_bank_card_editable(),
 	);
 
 	/*
@@ -79,6 +80,7 @@ function bank_card_cowpro_customer_profile_bank_card_form($form, &$form_state, $
 			'#options' => $options,
 			'#default_value' => $profile->bank_name,
 			'#description' => '',
+			'#disabled' => ! custodian_bank_card_editable(),
 	);
 
 	/*
@@ -125,6 +127,7 @@ function bank_card_cowpro_customer_profile_bank_card_form($form, &$form_state, $
 			'#size' => 60,
 			'#maxlength' => 128,
 			'#required' => FALSE,
+			'#disabled' => ! custodian_bank_card_editable(),
 	);
 	$form ['card_no'] = array (
 			'#type' => 'textfield',
@@ -133,6 +136,7 @@ function bank_card_cowpro_customer_profile_bank_card_form($form, &$form_state, $
 			'#size' => 19,
 			'#maxlength' => 19,
 			'#required' => TRUE,
+			'#disabled' => ! custodian_bank_card_editable(),
 	);
 	$form ['card_no2'] = array (
 			'#type' => 'textfield',
@@ -141,6 +145,7 @@ function bank_card_cowpro_customer_profile_bank_card_form($form, &$form_state, $
 			'#size' => 19,
 			'#maxlength' => 19,
 			'#required' => TRUE,
+			'#disabled' => ! custodian_bank_card_editable(),
 	);
 	$form ['card_no_original'] = array (
 			'#type' => 'hidden',
@@ -156,6 +161,7 @@ function bank_card_cowpro_customer_profile_bank_card_form($form, &$form_state, $
 			'#size' => 19,
 			'#maxlength' => 19,
 			'#required' => TRUE,
+			'#disabled' => ! custodian_bank_card_editable(),
 	);
 
 	return $form;
