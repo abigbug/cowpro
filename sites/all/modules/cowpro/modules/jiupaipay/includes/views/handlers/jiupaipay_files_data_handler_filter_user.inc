@@ -11,7 +11,8 @@
  *
  * @ingroup views_filter_handlers
  */
-class cowpro_users_handler_filter_user extends views_handler_filter {
+
+class jiupaipay_files_data_handler_filter_user extends views_handler_filter {
   // exposed filter options
   var $always_multiple = TRUE;
 
@@ -83,6 +84,6 @@ class cowpro_users_handler_filter_user extends views_handler_filter {
   		}
   	}
 
-  	$this->query->add_where($this->options['group'], "users.uid", $uid, "=");
+  	$this->query->add_where($this->options['group'], "jiupaipay_files_data.uid", $uid, "=");
   }
 }

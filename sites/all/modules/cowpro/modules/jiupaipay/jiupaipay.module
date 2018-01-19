@@ -783,3 +783,13 @@ function jiupaipay_result_parser($fund_type, $result) {
 	return $msg;
 }
 
+/**
+ * Implements hook_views_api().
+ */
+function jiupaipay_views_api()
+{
+	return array(
+			'api' => 3,
+			'path' => drupal_get_path('module', 'jiupaipay') . '/includes/views',
+	);
+}

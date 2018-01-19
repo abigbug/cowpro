@@ -48,7 +48,7 @@ function cowpro_message_menu() {
 			),
 			'type' => MENU_NORMAL_ITEM,
 	);
-	$items ['admin/cowpro/config_sms_site_message'] = array (
+            $items ['admin/cowpro/config_sms_site_message'] = array (
 			'title' => '网站维护给用户群发短信模板',
 			'description' => '设置网站维护提醒短信的内容',
 			'page callback' => 'drupal_get_form',
@@ -346,37 +346,62 @@ function cowpro_message_site_maintenance_form($form, &$form_state) {
 			'#title' => '向用户发送网站维护消息的内容',
 			'#type' => 'textarea',
 			'#default_value' => variable_get ( 'cowpro_sms_site_maintenance_message', COWPRO_SMS_SITE_MAINTENANCE_MESSAGE ),
-	);	
+	);
+	$form ['cowpro_sms_site_number'] = array (
+			'#title' => '自定义用户电话或用户名',
+			'#type' => 'textarea',
+			'#default_value' => '',
+	);
         $form ['submit'] = array (
 			'#type' => 'submit',
 			'#value' => '发送'
 	);
 	return $form;
 }
-
-
 function cowpro_message_site_maintenance_form_submit($form, &$form_state) {
 	$function = 'cowpro_message_site_maintenance_batch';
-	$batch = $function ($form_state['input']['cowpro_sms_site_maintenance_message']);
+        $site_message=$form_state['input']['cowpro_sms_site_maintenance_message'];
+        $site_number=$form_state['input']['cowpro_sms_site_number'];
+	$batch = $function ($site_message,$site_number);
 	batch_set ( $batch );
 }
-function cowpro_message_site_maintenance_batch($site_maintenance) {
+function cowpro_message_site_maintenance_batch($site_message,$site_number) {
         $count = 0;
-        $result_users=db_query("SELECT uid FROM {users} where uid>1 order by login desc");
+        if( !empty($site_number) ) {
+            $result = explode("\r\n", $site_number);
+            $result_users = array();
+            foreach( $result as $value ) {
+               if( preg_match("/^1[34578]\d{9}$/", $value) ) {
+                   $uid = db_query("SELECT uid FROM {cowpro_customer_profile} where type='mobile' AND search_field='".$value."'")->fetchField();
+               }else{
+                   $uid = db_query("SELECT uid FROM {users} where name='".$value."'")->fetchField();
+               }
+
+               if( !empty($uid) ) $result_users[] = $uid;
+            }
+        }else{
+            $result_users = db_query("SELECT uid FROM {users} where uid>1 order by login desc");
+        }
+
         if ($result_users) {
           foreach ($result_users as $row) {
-                $uid=$row->uid;
                 $count ++;
+                if( is_object($row) ) {
+                    $uid = $row->uid;
+                }else{
+                    $uid = $row;
+                }
+
 		$operations [] = array (
 				'cowpro_message_site_maintenance_send',
 				array (
 					$uid,
-                                        $site_maintenance,
+                                        $site_message,
 					t( '(维护短信发送，编号 @operation)', array (
 					'@operation' => $uid,
 					))
 				)
-		); 
+		 );
 	  }
         }
 	drupal_set_message ( t ( '维护短信发送操作，共  @num 项', array (
@@ -389,12 +414,12 @@ function cowpro_message_site_maintenance_batch($site_maintenance) {
 	return $batch;
 }
 
-function cowpro_message_site_maintenance_send($uid,$site_maintenance,$operation_details, &$context){
+function cowpro_message_site_maintenance_send($uid,$site_maintenance, $context){
         $result_name = db_query("SELECT data FROM {cowpro_customer_profile} WHERE type=:type AND uid=:uid",array(":type"=>'real_name',":uid"=>$uid))->fetchField();
         $result_mobile = db_query("SELECT data FROM {cowpro_customer_profile} WHERE type=:type AND uid=:uid",array(":type"=>'mobile',":uid"=>$uid))->fetchField();
         $result_name = unserialize($result_name);
         $result_mobile = unserialize($result_mobile);
-        
+
         $name = $result_name['name'];
         $mobile_number = $result_mobile['mobile_number'];
         $site_name = variable_get ( 'site_name' );
@@ -411,8 +436,6 @@ function cowpro_message_site_maintenance_send($uid,$site_maintenance,$operation_
                                 'message' => '短消息发送失败，请联系网站管理员.',
                 );
         }
-
-
 }
 
 function cowpro_message_site_maintenance_send_finished($success, $results, $operations) {

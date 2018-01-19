@@ -130,6 +130,30 @@ function cowpro_report_views_data() {
 					'handler' => 'cowpro_users_handler_field_mmm',
 			),
 	);
+	$data['users']['bankcard_bank_address'] = array(
+			'title' => '开户行',
+			'help' => '开户行及营业网点',
+			'real field' => 'uid',
+			'field' => array(
+					'handler' => 'cowpro_users_handler_field_bankcard_bank_address',
+			),
+	);
+	$data['users']['bankcard_holder'] = array(
+			'title' => '持卡人',
+			'help' => '持卡人姓名',
+			'real field' => 'uid',
+			'field' => array(
+					'handler' => 'cowpro_users_handler_field_bankcard_holder',
+			),
+	);
+	$data['users']['bankcard_no'] = array(
+			'title' => '卡号',
+			'help' => '卡号',
+			'real field' => 'uid',
+			'field' => array(
+					'handler' => 'cowpro_users_handler_field_bankcard_no',
+			),
+	);
 	$data['users']['ybccb'] = array(
 			'title' => '宜宾银行',
 			'help' => '宜宾银行注册',

@@ -66,9 +66,64 @@ function jiupaipay_schema() {
 					'id'
 			),
 	);
+	$schema ['jiupaipay_files_data'] = array (
+			'description' => '宜宾对账文件查询',
+			'fields' => array (
+					'id' => array (
+							'description' => '自增主键序号.',
+							'type' => 'serial',
+							'unsigned' => TRUE,
+							'not null' => TRUE
+					),
+					'file_date' => array (
+							'description' => '文件日期',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0
+					),
+					'file_name' => array (
+                                                        'type' => 'varchar',  
+                                                        'length' => 100,  
+                                                        'not null' => true,
+                                                        'default' => '',  
+                                                        'description' => '文件名称'  
+					),
+					'business_no' => array (
+                                                        'type' => 'varchar',  
+                                                        'length' => 100,  
+                                                        'not null' => true,
+                                                        'default' => '',  
+                                                        'description' => '业务流水号'  
+					),
+					'business_type' => array (
+                                                        'type' => 'varchar',  
+                                                        'length' => 10,  
+                                                        'not null' => true,
+                                                        'default' => '',  
+                                                        'description' => '业务类型'  
+					),
+					'uid' => array (
+							'description' => '用户ID',
+							'type' => 'int',
+							'not null' => TRUE,
+							'default' => 0
+					),
+					'turnover' => array (
+							'description' => '交易金额',
+							'type' => 'float',
+							'not null' => TRUE,
+							'default' => ''
+					),
+			),
+			'primary key' => array (
+					'id'
+			),
+	);
+        
 	return $schema;
 }
 function jiupaipay_uninstall() {
   drupal_uninstall_schema('jiupaipay_data_tmp');
   drupal_uninstall_schema('jiupaipay_issuing_accno');
+  drupal_uninstall_schema('jiupaipay_files_data');
 }

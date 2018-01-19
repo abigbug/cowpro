@@ -130,7 +130,7 @@ function bank_card_cowpro_customer_profile_bank_card_form($form, &$form_state, $
 			'#disabled' => ! custodian_bank_card_editable(),
 	);
 	$form ['card_no'] = array (
-			'#type' => 'textfield',
+			'#type' => 'hidden',
 			'#title' => '银行卡号',
 			'#default_value' => $profile->card_no,
 			'#size' => 19,
@@ -139,7 +139,7 @@ function bank_card_cowpro_customer_profile_bank_card_form($form, &$form_state, $
 			'#disabled' => ! custodian_bank_card_editable(),
 	);
 	$form ['card_no2'] = array (
-			'#type' => 'textfield',
+			'#type' => 'hidden',
 			'#title' => '确认卡号',
 			'#default_value' => $profile->card_no,
 			'#size' => 19,
