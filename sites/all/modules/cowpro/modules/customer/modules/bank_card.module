@@ -121,7 +121,7 @@ function bank_card_cowpro_customer_profile_bank_card_form($form, &$form_state, $
 	$form ['bank_located'] ['city'] = _bank_card_build_city_select ( $default_province, $default_city );
 */
 	$form ['bank_branch'] = array (
-			'#type' => 'textfield',
+			'#type' => 'hidden',
 			'#title' => '开户行网点',
 			'#default_value' => $profile->bank_branch,
 			'#size' => 60,

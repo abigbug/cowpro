@@ -8,8 +8,8 @@ include_once 'includes/jiupaipay.fun.inc';
 function jiupaipay_provider_info() {
 	return array (
 			'jiupaipay' => array (
-					'name' => '九派支付',
-					'description' => '“九派支付”第三方托管平台',
+					'name' => '宜宾商行',
+					'description' => '宜宾商行',
 					'configure form' => 'jiupaipay_settings_form'
 			)
 	);
@@ -93,7 +93,7 @@ function jiupaipay_menu() {
         $items ['cowpro/jiupaipay/ledger_account'] = array (
             'title' => '查看台账账号结果',
             'description' => '查看台账账号结果',
-            'page callback' => 'jiupaipay_jedger_account',
+            'page callback' => 'jiupaipay_ledger_account',
             'page arguments' => '',
             'access arguments' => array (
 					'configure p2p'
@@ -781,5 +781,16 @@ function jiupaipay_result_parser($fund_type, $result) {
                 break;
 	}
 	return $msg;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function jiupaipay_views_api()
+{
+	return array(
+			'api' => 3,
+			'path' => drupal_get_path('module', 'jiupaipay') . '/includes/views',
+	);
 }
 
