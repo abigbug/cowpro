@@ -77,7 +77,7 @@ function jiupaipay_menu() {
 			'type' => MENU_NORMAL_ITEM,
 			'file' => 'includes/jiupaipay.getfiles.inc'
 	);
-        $items ['cowpro/jiupaipay/topupp_marketing'] = array (
+        $items ['cowpro/jiupaipay/topup_marketing'] = array (
             'title' => '平台营销账号充值',
             'description' => '平台营销账号充值',
             'page callback' => 'drupal_get_form',
@@ -100,7 +100,7 @@ function jiupaipay_menu() {
 			),
             'menu_name' => 'navigation',
             'type' => MENU_NORMAL_ITEM,
-            'file' => 'includes/jiupaipay.ledgerAccount.inc',
+            'file' => 'includes/jiupaipay.ledger_account.inc',
 	);
 	return $items;
 }
@@ -783,13 +783,3 @@ function jiupaipay_result_parser($fund_type, $result) {
 	return $msg;
 }
 
-/**
- * Implements hook_views_api().
- */
-function jiupaipay_views_api()
-{
-	return array(
-			'api' => 3,
-			'path' => drupal_get_path('module', 'jiupaipay') . '/includes/views',
-	);
-}

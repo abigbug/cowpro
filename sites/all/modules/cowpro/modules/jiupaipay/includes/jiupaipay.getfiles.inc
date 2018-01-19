@@ -73,7 +73,7 @@ function jiupaipay_get_files_content($file_name){
               $business_type=$itemArray[3];   //业务类型
               $turnover = $itemArray[7];    //交易金额
               $file_date_unix= strtotime($file_date);
-              if(($business_type === "T01") or ($business_type === "T04") or ($business_type === "W01")){ // T01或T04或W01类型
+              if(($business_type === "T01") or ($business_type === "T04") or ($business_type === "W01") or ($business_type === "T12")){ // T01或T04或W01类型
                 $uid = $itemArray[4];
                 db_insert('jiupaipay_files_data')
                   ->fields(array(

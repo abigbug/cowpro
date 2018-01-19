@@ -86,7 +86,7 @@
     hide($content['links']);
     hide($content['field_tags']);
     //hide($content['body']);
-    hide($content['field_topic_img']['#title']);
+    unset($content['field_topic_img']['#title']);
     print render($content);
   ?>
   <?php if (!empty($content['field_tags']) || !empty($content['links'])): ?>
