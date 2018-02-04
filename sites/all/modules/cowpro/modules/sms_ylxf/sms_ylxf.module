@@ -273,13 +273,14 @@ function _sms_ylxf_post($action, $param = array()) {
 	// use key 'http' even if you send the request to https://...
 	$options = array (
 			'http' => array (
+					'timeout' => 10,  //10 Seconds,设置一个较短的超时时间，以避免“屹立雄风”的服务器故障导致我们的页面响应延时
 					'header' => "Content-type: application/x-www-form-urlencoded\r\n",
 					'method' => 'POST',
 					'content' => http_build_query ( $param )
 			)
 	);
 	$context = stream_context_create ( $options );
-	$response = file_get_contents ( $url, false, $context );
+	$response = @file_get_contents ( $url, false, $context );
 	return $response;
 }
 

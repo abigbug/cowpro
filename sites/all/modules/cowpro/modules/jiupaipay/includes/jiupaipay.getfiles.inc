@@ -5,7 +5,7 @@ include_once ("jiupaipay.fun.inc");
 include_once ("libs/AES.php");
 
 /*
-  列出九派对账文件
+  列出宜宾对账文件
  */
 function jiupaipay_get_files_list(){
     $dir = DRUPAL_ROOT."/sites/default/files/jiupaipay";
@@ -45,7 +45,7 @@ function jiupaipay_get_files_content($file_name){
       $result = db_query ( "SELECT * FROM {jiupaipay_files_data} WHERE file_name='".$left_file_name[0]."'" )->fetchAll ();
       if ($result) {
         //输出文本中所有的行，直到文件结束为止。  
-        drupal_goto($base_url."/yibin-search");
+        drupal_goto($base_url."/ycccb-search");
       }else{
         //以空格分割的第二个元素判断是否有对账信息，如果等于0就直接显示没有对账信息
         $contents=explode(" ", $file_content);

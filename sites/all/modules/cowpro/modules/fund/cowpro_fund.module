@@ -302,12 +302,14 @@ function cowpro_fund_block_info() {
 			'info' => '显示登录用户的资金余额',
 			'status' => TRUE,
 			'region' => BLOCK_REGION_NONE,
+			'cache' => DRUPAL_CACHE_PER_USER,
   	  //'pages' => '/',
 	);
 	$blocks['cowpro_fund_user'] = array(
 			'info' => '显示与登录用户相关的快捷链接',
 			'status' => TRUE,
 			'region' => BLOCK_REGION_NONE,
+			'cache' => DRUPAL_CACHE_PER_USER,
 			//'pages' => '/',
 	);
 

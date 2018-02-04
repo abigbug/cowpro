@@ -128,6 +128,10 @@ class CowProCustomerProfileEntityController extends DrupalCowProEntityController
    */
   public function attachLoad(&$queried_profiles, $revision_id = FALSE) {
     foreach ($queried_profiles as $profile_id => &$profile) {
+    	//参考：
+    	//https://www.toolmao.com/php-unserialize-error-at-offset
+    	//https://stackoverflow.com/questions/10152904/unserialize-function-unserialize-error-at-offset
+    	//$profile->data = preg_replace_callback('#s:(\d+):"(.*?)";#s',function($match){return 's:'.strlen($match[2]).':"'.$match[2].'";';}, $profile->data);
     	$profile->data = unserialize($profile->data);
 
       $hook = 'cowpro_customer_profile_' . $profile->type . '_load';
