@@ -1030,18 +1030,18 @@ article, figure {
 .mobile-device-only.view-display-id-issuing_list .the-huaik{ display: none}
 
 
-/* 微信端顶部 LOGO */
+/* 寰俊绔《閮� LOGO */
 #page .main-bar-wrapper .container-12 .grid-3 ,#page .main-bar-wrapper .container-12 .grid-9{width: 100%; text-align:center;}
 #page .main-bar-wrapper .container-12 .grid-3 img{ width: 70%; margin: 0px auto; }
 
-/* 微信端用户登录 */
+/* 寰俊绔敤鎴风櫥褰� */
 #user-login{ 
     width: 100%; 
     height: 200px;
     padding-bottom: 10px;
     border: #dfdfdf 1px solid;
 }
-/* 用户登录行 */
+/* 鐢ㄦ埛鐧诲綍琛� */
 #user-login .form-item-name{
    width: 100%; 
    margin: 0px auto;
@@ -1068,7 +1068,7 @@ article, figure {
    padding-bottom:12px;
    z-index:999;
 }
-/* 用户登录行 标题 */
+/* 鐢ㄦ埛鐧诲綍琛� 鏍囬 */
 #user-login label{
     float:left;
     height: 52px;
@@ -1079,7 +1079,7 @@ article, figure {
     font-size: 14px;    
     border-right: 1px solid #e2e2e2;
 }
-/* 微信端登录文本框 */
+/* 寰俊绔櫥褰曟枃鏈 */
 #user-login #edit-name,#edit-pass{
     margin-left: 15px;
     height: 30px;
@@ -1091,7 +1091,7 @@ article, figure {
     z-index:9999;
     background-color:#e8e8e8;
 }
-/* 用户登录行 提示 */
+/* 鐢ㄦ埛鐧诲綍琛� 鎻愮ず */
 #user-login .description{
     margin-left: 30%;
 }
@@ -1101,7 +1101,7 @@ article, figure {
     margin-bottom: 40px;
     margin-top: 12px;
 }
-/* 用户登录 按钮 */
+/* 鐢ㄦ埛鐧诲綍 鎸夐挳 */
 #user-login .form-submit{ 
     width: 90%; 
     height: 35px;
@@ -1130,7 +1130,7 @@ article, figure {
     border: 1px solid transparent;
 }
 
-/* 微信端用户注册 */
+/* 寰俊绔敤鎴锋敞鍐� */
 #user-register-form{ 
     width: 100%; 
     min-height: 500px;
@@ -1139,11 +1139,11 @@ article, figure {
     border: #dfdfdf 1px solid;
     position:relative;
 }
-/* 用户登录行 提示 */
+/* 鐢ㄦ埛鐧诲綍琛� 鎻愮ず */
 #user-register-form .description{
     margin-left: 28%;
 }
-/* 用户登录行 */
+/* 鐢ㄦ埛鐧诲綍琛� */
 #user-register-form .form-item-name{
    width: 100%; 
    margin: 0px auto;
@@ -1168,7 +1168,7 @@ article, figure {
     font-size: 14px;    
     border-right: 1px solid #e2e2e2;
 }
-/* 微信端注册文本框 */
+/* 寰俊绔敞鍐屾枃鏈 */
 #user-register-form #edit-name{
     margin-left: 15px;
     height: 30px;
@@ -1194,7 +1194,7 @@ article, figure {
    z-index:999;
 }
 
-/* 微信端注册密码 */
+/* 寰俊绔敞鍐屽瘑鐮� */
 #user-register-form .password-parent label{
     position:absolute;
     width: 25%;
@@ -1229,7 +1229,7 @@ article, figure {
     top:10px;
 }
 
-/* 微信端注册确认密码 */
+/* 寰俊绔敞鍐岀‘璁ゅ瘑鐮� */
 #user-register-form .confirm-parent{
    clear:both;
    position:relative; 
@@ -1279,7 +1279,7 @@ article, figure {
     z-index:9999;
     background-color:#e8e8e8;
 }
-/* 用户注册行 提示 */
+/* 鐢ㄦ埛娉ㄥ唽琛� 鎻愮ず */
 #user-register-form #edit-account .description{
     line-height: 20px;
 }
@@ -1503,7 +1503,7 @@ article, figure {
     font-size: 0.85em;
 }
 
-/* 用户密码修改 */
+/* 鐢ㄦ埛瀵嗙爜淇敼 */
 #user-profile-form{
     width: 100%; 
     min-height: 300px;
@@ -2087,4 +2087,70 @@ font-family: Microsoft Yahei;
     float: left;
     position:absolute;
     line-height: 24px;
+}
+
+.lc_img{
+    padding-top: 10px;
+}
+.m_r {
+    width: 100%;
+    height: 61px;
+    float: right;
+}
+.m_r .mr_t {
+    height: 61px;
+}
+.m_r .mr_t .phone1 {
+    margin: 10px 0;
+}
+.m_r .mr_t .phone2 {
+    width: 100%;
+    background: #fff;
+    margin: 0 auto;
+}
+.m_r .mr_t .phone2 p {
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+    margin: 0 auto;
+    border-bottom: 1px solid #e5e5e5;
+}
+.m_r .mr_t .phone2 p span {
+    font-size: 14px;
+    display: block;
+    float: left;
+    width: 30%;
+    padding-left: 18px;
+    height: 60px;
+    line-height: 60px;
+}
+.m_r .mr_t .phone2 p i {
+    display: none;
+    float: left;
+    color: #999999;
+    font-size: 14px;
+    height: 60px;
+    line-height: 60px;
+}
+.m_r .mr_t .phone2 p b {
+    display: block;
+    float: left;
+    width: 30%;
+    text-align: center;
+    color: #53aa1b;
+    font-size: 14px;
+    position: relative;
+    height: 60px;
+    line-height: 60px;
+}
+.m_r .mr_t .phone2 p strong {
+    font-size: 14px;
+    color: #006ba9;
+    display: inline-block;
+    width: 30%;
+    text-align: right;
+    cursor: pointer;
+}
+.m_r .mr_t .phone2 p strong a{
+   color: #006ba9;
 }

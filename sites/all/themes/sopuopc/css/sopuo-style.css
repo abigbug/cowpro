@@ -942,3 +942,79 @@ body{background-color: #f5f5f5;}
     max-height: 660px;
 }
 
+.page-registration-wizard #sopuo-mainbody{
+    min-height: 1000px;
+}
+.page-registration-wizard #sopuo-mainbody #-registration-wizard-form-list-show{
+    width: 100%;
+}
+.page-registration-wizard #sopuo-mainbody .lc_img{
+    width: 100%;
+    margin: 0px auto;
+    text-align: center;
+    padding-bottom: 20px;
+}
+.page-registration-wizard #sopuo-mainbody .m_r {
+    width: 860px;
+    height: 60px;
+    float: right;
+}
+.page-registration-wizard #sopuo-mainbody .m_r .mr_t {
+    height: 60px;
+}
+.page-registration-wizard #sopuo-mainbody .m_r .mr_t .phone1 {
+    height: 156px;
+    margin: 10px 0;
+}
+.page-registration-wizard #sopuo-mainbody .m_r .mr_t .phone2 {
+    width: 860px;
+    background: #fff;
+    margin: 0 auto;
+}
+.page-registration-wizard #sopuo-mainbody .m_r .mr_t .phone2 p {
+    width: 780px;
+    height: 60px;
+    line-height: 60px;
+    margin: 0 auto;
+    border-bottom: 1px solid #e5e5e5;
+}
+.page-registration-wizard #sopuo-mainbody .m_r .mr_t .phone2 p span {
+    font-size: 14px;
+    display: block;
+    float: left;
+    width: 140px;
+    padding-left: 18px;
+    height: 60px;
+    line-height: 60px;
+}
+.page-registration-wizard #sopuo-mainbody .m_r .mr_t .phone2 p i {
+    display: block;
+    float: left;
+    width: 430px;
+    color: #999999;
+    font-size: 14px;
+    height: 60px;
+    line-height: 60px;
+}
+.page-registration-wizard #sopuo-mainbody .m_r .mr_t .phone2 p b {
+    display: block;
+    float: left;
+    width: 80px;
+    text-align: center;
+    color: #53aa1b;
+    font-size: 14px;
+    position: relative;
+    height: 60px;
+    line-height: 60px;
+}
+.page-registration-wizard #sopuo-mainbody .m_r .mr_t .phone2 p strong {
+    font-size: 14px;
+    color: #006ba9;
+    display: inline-block;
+    width: 100px;
+    text-align: right;
+    cursor: pointer;
+}
+.page-registration-wizard #sopuo-mainbody .m_r .mr_t .phone2 p strong a{
+   color: #006ba9;
+}
