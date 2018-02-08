@@ -77,85 +77,85 @@ function jiupaipay_menu() {
 			'type' => MENU_NORMAL_ITEM,
 			'file' => 'includes/jiupaipay.getfiles.inc'
 	);
-        $items ['cowpro/jiupaipay/topup_marketing'] = array (
-            'title' => '平台营销账号充值',
-            'description' => '平台营销账号充值',
-            'page callback' => 'drupal_get_form',
-            'page arguments' => array("topupp_marketing_form"),
-            'access arguments' => array (
+	$items ['cowpro/jiupaipay/topup_marketing'] = array (
+			'title' => '平台营销账号充值',
+			'description' => '平台营销账号充值',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array("topupp_marketing_form"),
+			'access arguments' => array (
 					'configure p2p'
 			),
-            'menu_name' => 'navigation',
-            'type' => MENU_NORMAL_ITEM,
-            'file' => 'includes/jiupaipay.topup.inc',
+			'menu_name' => 'navigation',
+			'type' => MENU_NORMAL_ITEM,
+			'file' => 'includes/jiupaipay.topup.inc',
 	);
-        
-        $items ['cowpro/jiupaipay/ledger_account'] = array (
-            'title' => '查看台账账号结果',
-            'description' => '查看台账账号结果',
-            'page callback' => 'jiupaipay_ledger_account',
-            'page arguments' => '',
-            'access arguments' => array (
+
+	$items ['cowpro/jiupaipay/ledger_account'] = array (
+			'title' => '查看台账账号结果',
+			'description' => '查看台账账号结果',
+			'page callback' => 'jiupaipay_ledger_account',
+			'page arguments' => '',
+			'access arguments' => array (
 					'configure p2p'
 			),
-            'menu_name' => 'navigation',
-            'type' => MENU_NORMAL_ITEM,
-            'file' => 'includes/jiupaipay.ledger_account.inc',
+			'menu_name' => 'navigation',
+			'type' => MENU_NORMAL_ITEM,
+			'file' => 'includes/jiupaipay.ledger_account.inc',
 	);
 	return $items;
 }
 
 function topupp_marketing_form($form,&$form_state){
-    $form = array();
+	$form = array();
 	$form ['amount'] = array (
 			'#type' => 'numberfield',
 			'#title' => '充值金额',
-                        '#min' => 0,
+			'#min' => 0,
 			'#max' => 999999,
-                        '#required' => TRUE,
+			'#required' => TRUE,
 			'#input' => TRUE,
 	);
-        $form['method'] = array(
+	$form['method'] = array(
 			'#type' => 'hidden',
 			'#value' => "3",
 	);
-        $form['topup_marketing'] = array(
+	$form['topup_marketing'] = array(
 			'#type' => 'submit',
 			'#value' => '充值',
 	);
-        return $form;
+	return $form;
 }
 
 function topupp_marketing_form_submit($form,&$form_state){
 
-    $data['amount'] = $form_state['input']['amount'];
-    $data['method'] = $form_state['input']['method'];
-    $role = user_role_load_by_name('administrator');
-    $uid = $role->rid;
+	$data['amount'] = $form_state['input']['amount'];
+	$data['method'] = $form_state['input']['method'];
+	$role = user_role_load_by_name('administrator');
+	$uid = $role->rid;
 
-    $entity_value = array(
-                    'uid' => $uid,
-                    'status' => FALSE,
-                    'type' => 'TOPUP',
-                    'amount' => $data['amount'],
-    );
-    $entity = entity_create('cowpro_fund_journal', $entity_value);
-    $entity = entity_get_controller('cowpro_fund_journal')->save($entity);
-    $journal_id = $entity->journal_id;
-    $data['journal_id'] = $journal_id;
-    $sql_data['data'] = serialize($data);
-    $sql_data['businessSeqNo'] = "jbz".date("Ymd",time()).time();;
-    $sql_data['uid'] = $uid;
-    db_insert('jiupaipay_data_tmp')
-    ->fields(array(
-      'data' => $sql_data['data'],
-      'businessSeqNo' => $sql_data['businessSeqNo'],
-      'uid' => $uid,
-      ))
-    ->execute();
-    
-    jiupaipay_topup($uid, $data['amount'], $data['method'], $journal_id,$sql_data['businessSeqNo']);
-    
+	$entity_value = array(
+			'uid' => $uid,
+			'status' => FALSE,
+			'type' => 'TOPUP',
+			'amount' => $data['amount'],
+	);
+	$entity = entity_create('cowpro_fund_journal', $entity_value);
+	$entity = entity_get_controller('cowpro_fund_journal')->save($entity);
+	$journal_id = $entity->journal_id;
+	$data['journal_id'] = $journal_id;
+	$sql_data['data'] = serialize($data);
+	$sql_data['businessSeqNo'] = "jbz".date("Ymd",time()).time();;
+	$sql_data['uid'] = $uid;
+	db_insert('jiupaipay_data_tmp')
+	->fields(array(
+			'data' => $sql_data['data'],
+			'businessSeqNo' => $sql_data['businessSeqNo'],
+			'uid' => $uid,
+	))
+	->execute();
+
+	jiupaipay_topup($uid, $data['amount'], $data['method'], $journal_id,$sql_data['businessSeqNo']);
+
 }
 
 function jiupaipay_permission() {
@@ -182,16 +182,16 @@ function jiupaipay_cowpro_customer_profile_jiupaipay_create($values) {
 	$values += array (
 			'jpp_account_number' => '', // 九派虚拟账号
 			'jpp_id' => '', // 九派二类户账号
-			                // 'mmm_auth_state' => '',//实名认证状态(1.未实名认证,2.快捷支付认证,3.其他认证)
+			// 'mmm_auth_state' => '',//实名认证状态(1.未实名认证,2.快捷支付认证,3.其他认证)
 			'jpp_result_code' => '', // 返回码(88表示成功,其它代码参考《乾多多自主清算系统接口参数说明.doc》)
 			'jpp_result_message' => '', // 返回信息(与result_code对应的文字信息)
 			'jpp_authorize' => FALSE, // 用户授权
 			'jpp_password' => FALSE, // 用户交易密码
 			'jpp_bank_card' => FALSE
 	) // 用户是否绑定银行卡
-	                          // 'mmm_authorize_type_1' => FALSE,//用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)
-	                          // 'mmm_authorize_type_2' => FALSE,//用户授权P2P平台可以对资金进行“还款”操作
-	                          // 'mmm_authorize_type_3' => FALSE,//用户授权P2P平台可以对资金进行“二次分配审核”操作
+	// 'mmm_authorize_type_1' => FALSE,//用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)
+	// 'mmm_authorize_type_2' => FALSE,//用户授权P2P平台可以对资金进行“还款”操作
+	// 'mmm_authorize_type_3' => FALSE,//用户授权P2P平台可以对资金进行“二次分配审核”操作
 	;
 	return $values;
 }
@@ -443,7 +443,7 @@ function jiupaipay_cowpro_customer_profile_type_info() {
 	$profile_types ['jiupaipay'] = array (
 			'type' => 'jiupaipay',
 			'name' => '宜宾商业银行',
-			'description' => '',
+			'description' => '与宜宾商业银行合作资金存管，保障您的资金安全',
 			'help' => '',
 			'weight' => 200
 	);
@@ -640,10 +640,10 @@ function jiupaipay_get_bank_account_operator() {
 	if (! $profile->jpp_password && $profile->jpp_account_number) {
 		$result [] = '设置宜商行交易密码';
 	}
-        if( $profile->jpp_password ) {
-            $result [] = '修改宜商行交易密码';
-            $result [] = '重置宜商行交易密码';
-        }
+	if( $profile->jpp_password ) {
+		$result [] = '修改宜商行交易密码';
+		$result [] = '重置宜商行交易密码';
+	}
 	return $result;
 }
 
@@ -777,8 +777,8 @@ function jiupaipay_result_parser($fund_type, $result) {
 	$data = $result;
 	switch ($fund_type) {
 		case 'TOPUP':
-                    $msg = $data['result']['inBody']['respMsg'] . '-' . $data['result']['inBody']['respCode'];
-                break;
+			$msg = $data['result']['inBody']['respMsg'] . '-' . $data['result']['inBody']['respCode'];
+			break;
 	}
 	return $msg;
 }
