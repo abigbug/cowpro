@@ -60,6 +60,7 @@ html;
                 }
                 $points = userpoints_get_current_points($uid);           //我的积分
                 $points_money=userpoints_get_current_points($uid, _cowpro_shop_get_user_points_money_tid());   //我的奖金
+                $points_money = $points_money / 100;
 
 		$html = str_replace('#user_name#', $GLOBALS ['user']->name, $html);
 		$html = str_replace('#user_center#', $user_center, $html);

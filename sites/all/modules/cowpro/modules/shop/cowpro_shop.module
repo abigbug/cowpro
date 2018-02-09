@@ -100,7 +100,7 @@ function cowpro_shop_action_info() {
 	return array (
 			'cowpro_shop_deliver_action_on' => array (
 					'type' => 'cowpro_shop_deliver',
-					'label' => '已发货',
+					'label' => '已处理',
 					'behavior' => array (
 							'views_property'
 					),
@@ -113,7 +113,7 @@ function cowpro_shop_action_info() {
 			),
 			'cowpro_shop_deliver_action_off' => array (
 					'type' => 'cowpro_shop_deliver',
-					'label' => '未发货',
+					'label' => '未处理',
 					'behavior' => array (
 							'views_property'
 					),
@@ -345,7 +345,7 @@ function cowpro_shop_userpoints_list_transactions_alter(&$output) {
 							'class' => array('userpoints-myuserpoints-total-approved'),
 					),
 					array(
-							'data' => array('奖金', userpoints_get_current_points($account->uid, _cowpro_shop_get_user_points_money_tid()), ctools_modal_text_button ( '兑现奖金', 'shop/redemption', '兑现奖金' )),
+							'data' => array('奖金', userpoints_get_current_points($account->uid, _cowpro_shop_get_user_points_money_tid()) / 100, ctools_modal_text_button ( '兑现奖金', 'shop/redemption', '兑现奖金' )),
 							'class' => array('userpoints-myuserpoints-total-approved'),
 					),
 			),

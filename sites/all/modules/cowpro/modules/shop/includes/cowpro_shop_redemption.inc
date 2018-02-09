@@ -4,6 +4,7 @@ function cowpro_shop_redemption_form($form, &$form_state) {
 
 	$uid = $GLOBALS ['user']->uid;
 	$max_points = userpoints_get_current_points($uid, _cowpro_shop_get_user_points_money_tid());
+	$max_points = $max_points / 100;
 
 	$form = array ();
 	$form ['help'] = array (
@@ -37,6 +38,7 @@ function cowpro_shop_redemption_form($form, &$form_state) {
 function cowpro_shop_redemption_done($form, &$form_state) {
 	$uid = $GLOBALS ['user']->uid;
 	$max_points = userpoints_get_current_points($uid, _cowpro_shop_get_user_points_money_tid());
+	$max_points = $max_points / 100;
 
 	ctools_include ( 'modal' );
 	ctools_include ( 'ajax' );
@@ -66,7 +68,7 @@ function cowpro_shop_redemption_done($form, &$form_state) {
 			$desc = "兑现奖金：" . $amount . "元";
 			$params = array (
 					'uid' => $user->uid,
-					'points' => 0 - $amount,
+					'points' => 0 - $amount * 100,
 					'description' => $desc,
 					'display' => false,
 					'tid' => $term->tid,

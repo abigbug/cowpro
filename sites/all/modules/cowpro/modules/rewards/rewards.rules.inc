@@ -107,8 +107,8 @@ function _cowpro_reward_repayment_finished_grant_points($success, $node, $repaym
 		foreach ($fund_journals as $journal) {
 			$loan_amount = $journal->amount;
 			$annualized_amount = ($loan_term / 360) * $loan_amount;//年化投资额
-			$bonus1 = round(($annualized_amount / $period_total) * 3 / 1000);//年化投资额的千分之三，以现金的形式奖励投资人的推荐人
-			$bonus2 = round(($annualized_amount / $period_total) * 2 / 1000);//年化投资额的千分之二，以现金的形式奖励投资人的推荐人的推荐人
+			$bonus1 = round(($annualized_amount / $period_total) * 3 / 1000) * 100;//年化投资额的千分之三，以现金的形式奖励投资人的推荐人
+			$bonus2 = round(($annualized_amount / $period_total) * 2 / 1000) * 100;//年化投资额的千分之二，以现金的形式奖励投资人的推荐人的推荐人
 
 			$term = current(taxonomy_get_term_by_name('奖金'));
 			$uid_referree = -1;
