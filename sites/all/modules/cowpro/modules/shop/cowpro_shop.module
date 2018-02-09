@@ -331,6 +331,13 @@ function cowpro_shop_userpoints_list_transactions_alter(&$output) {
 	ctools_modal_add_js ();
 
 	$account = $output['#account'];
+	$i = 0;
+	foreach ($output['list']['table']['#rows'] as $row) {
+		if ($row['data'][1]['data'] === '奖金') {
+			$output['list']['table']['#rows'][$i]['data'][0]['data'] = $row['data'][0]['data'] / 100;
+		}
+		$i++;
+	}
 	$output['list']['summary_table'] = array(
 			'#theme' => 'table',
 			'#header' => array(
