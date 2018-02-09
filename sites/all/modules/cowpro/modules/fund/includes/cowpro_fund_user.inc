@@ -2,9 +2,9 @@
 
 /**
  * A module-defined block content function.
-*/
+ */
 function _cowpro_fund_user_contents() {
-	if( user_is_logged_in() ) {
+	if (user_is_logged_in ()) {
 		$html = <<<html
 <div class="login_block">
 	<div class="login_background" style="opacity: 0.5;"></div>
@@ -43,7 +43,7 @@ html;
 		$topup = "$base_url/cowpro/fund/topup";
 		$withdraw = "$base_url/cowpro/fund/withdraw";
 		$logout = "$base_url/user/logout";
-		if (cowpro_rewards_have_checked_in()) {
+		if (cowpro_rewards_have_checked_in ()) {
 			$checkin = '#';
 			$checkin_status = '已签到';
 		} else {
@@ -52,34 +52,34 @@ html;
 		}
 
 		$uid = $GLOBALS ['user']->uid;
-                $receivable_amount=cowpro_issuing_get_user_status($uid);                        //我的待收款
-                $balance = custodian_get_balance($GLOBALS ['user']);
-                $withdraw_ye = 0;
-                if ($balance) {
-                    $withdraw_ye = $balance ['balance'];                //可提现余额
-                }
-                $points = userpoints_get_current_points($uid);           //我的积分
-                $points_money=userpoints_get_current_points($uid, _cowpro_shop_get_user_points_money_tid());   //我的奖金
-                $points_money = $points_money / 100;
+		$receivable_amount = cowpro_issuing_get_user_status ( $uid ); // 我的待收款
+		$balance = custodian_get_balance ( $GLOBALS ['user'] );
+		$withdraw_ye = 0;
+		if ($balance) {
+			$withdraw_ye = $balance ['balance']; // 可提现余额
+		}
+		$points = userpoints_get_current_points ( $uid ); // 我的积分
+		$points_money = userpoints_get_current_points ( $uid, _cowpro_shop_get_user_points_money_tid () ); // 我的奖金
+		$points_money = $points_money / 100;
 
-		$html = str_replace('#user_name#', $GLOBALS ['user']->name, $html);
-		$html = str_replace('#user_center#', $user_center, $html);
-		$html = str_replace('#registration_wizard#', $registration_wizard, $html);
-		$html = str_replace('#fund#', $fund, $html);
-		$html = str_replace('#topup#', $topup, $html);
-		$html = str_replace('#withdraw#', $withdraw, $html);
-		$html = str_replace('#checkin#', $checkin, $html);
-		$html = str_replace('#checkin_status#', $checkin_status, $html);
-		$html = str_replace('#logout#', $logout, $html);
-		$html = str_replace('#receivable_amount#', $receivable_amount, $html);
-		$html = str_replace('#withdraw_ye#', $withdraw_ye, $html);
-		$html = str_replace('#points#', $points, $html);
-		$html = str_replace('#points_money#', $points_money, $html);
-		$result = array(
-				'#markup' => $html,
+		$html = str_replace ( '#user_name#', $GLOBALS ['user']->name, $html );
+		$html = str_replace ( '#user_center#', $user_center, $html );
+		$html = str_replace ( '#registration_wizard#', $registration_wizard, $html );
+		$html = str_replace ( '#fund#', $fund, $html );
+		$html = str_replace ( '#topup#', $topup, $html );
+		$html = str_replace ( '#withdraw#', $withdraw, $html );
+		$html = str_replace ( '#checkin#', $checkin, $html );
+		$html = str_replace ( '#checkin_status#', $checkin_status, $html );
+		$html = str_replace ( '#logout#', $logout, $html );
+		$html = str_replace ( '#receivable_amount#', $receivable_amount, $html );
+		$html = str_replace ( '#withdraw_ye#', $withdraw_ye, $html );
+		$html = str_replace ( '#points#', $points, $html );
+		$html = str_replace ( '#points_money#', $points_money, $html );
+		$result = array (
+				'#markup' => $html
 		);
 		return $result;
-	}else{
+	} else {
 		$html = <<<html
 <div class="login_block">
       <div class="login_background" style="opacity: 0.5;"></div>
@@ -91,13 +91,11 @@ html;
 </div>
 html;
 
-		$form = drupal_get_form("user_login");
-		$html = str_replace('#form#', render($form), $html);
-		$result = array(
-				'#markup' => $html,
+		$form = drupal_get_form ( "user_login" );
+		$html = str_replace ( '#form#', render ( $form ), $html );
+		$result = array (
+				'#markup' => $html
 		);
 		return $result;
 	}
-
-
 }
