@@ -194,8 +194,6 @@ function bank_card_cowpro_customer_profile_bank_card_form_submit($form, &$form_s
 	if ($form_state ['clicked_button'] ['#value'] === $form_state ['values'] ['operator']) {
 		custodian_bank_card_operator_submit($form_state ['values'] ['operator'], $profile);
 	}
-	$form_state['redirect'] = 'registration_wizard';
-
 }
 function bank_card_refresh_city_list($form, &$form_state) {
 	$province = $form_state ['input']['province'];
@@ -323,7 +321,7 @@ function bank_card_cowpro_customer_profile_type_info() {
 	$profile_types ['bank_card'] = array (
 			'type' => 'bank_card',
 			'name' => '银行卡绑定',
-			'description' => '用户绑定银行卡，用于将来的充值与提现操作。',
+			'description' => '用户绑定银行卡，用于将来的充值与提现操作',
 			'help' => '',
 			'weight' => 100,
 	);

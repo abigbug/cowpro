@@ -250,7 +250,7 @@ function real_name_certification_cowpro_customer_profile_type_info() {
 	$profile_types['real_name'] = array(
 			'type' => 'real_name',
 			'name' => '实名认证',
-			'description' => '此项为必要信用认证，上传齐全后将开始审核。必要认证缺失的用户，无法得到贷款。',
+			'description' => '此项为必要的身份认证，身份认证缺失的用户，无法操作账户',
 			'help' => '',
 			'weight' => 100,
 	);

@@ -60,7 +60,7 @@ function employment_certification_cowpro_customer_profile_type_info() {
 	 $profile_types['employment'] = array(
 	 'type' => 'employment',
 	 'name' => '工作认证',
-	 'description' => '您的工作状况是评估您信用状况的主要依据。请您填写真实可靠的工作信息。',
+	 'description' => '您的工作状况是评估您信用状况的主要依据，请您填写真实可靠的工作信息',
 	 'help' => '',
 			'weight' => 300,
 	 );
