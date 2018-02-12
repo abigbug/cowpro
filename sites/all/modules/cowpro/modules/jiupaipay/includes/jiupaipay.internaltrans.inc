@@ -10,7 +10,7 @@ include_once ("libs/Common.php");
  * $uid_from 转出的uid
  * $uid_to  转入的uid
  * $amount 转账金额
- * 
+ *
  */
 function jiupaipay_internal_trans($uid_from, $uid_to, $amount) {
 	 //请求报文头
@@ -37,8 +37,8 @@ function jiupaipay_internal_trans($uid_from, $uid_to, $amount) {
         $post_data['contractList'] = array();
         $post_data['objectId'] = "";
         $post_data['note'] = "";
-        
-       
+
+
         $post_data_tmp = $post_data;
         $oderNo = $post_data_tmp["accountList"][0]['oderNo'];
         unset($post_data_tmp["accountList"][0]['oderNo']);
@@ -50,7 +50,7 @@ function jiupaipay_internal_trans($uid_from, $uid_to, $amount) {
         unset($post_data_tmp['contractList']);
         ksort($post_data_tmp);
 
-        $signInfo = $header['signTime'];   
+        $signInfo = $header['signTime'];
         foreach( $post_data_tmp as $value ){
             $signInfo .= "|".$value;
         }
@@ -84,5 +84,6 @@ function jiupaipay_internal_trans($uid_from, $uid_to, $amount) {
         $result_jpp['data'] = $data;
         $result_jpp['message'] = $result['respHeader']['respMsg'];
         $result_jpp['result_code'] = $result['respHeader']['respCode'];
-        return $result_jpp;	 
+        $result_jpp['serial_number'] = $post_data['businessSeqNo'];
+        return $result_jpp;
 }

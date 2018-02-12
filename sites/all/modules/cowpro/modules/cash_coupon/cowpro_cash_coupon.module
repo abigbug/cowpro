@@ -28,17 +28,19 @@ function cowpro_cash_coupon_cowpro_issuing_bid_form($form, $form_state) {
 function cowpro_cash_coupon_cowpro_issuing_bid_form_validate($form, $form_state) {
 	if ($form_state ['values'] ['voucher'] != '0_0') {
 		$right_voucher = end ( explode ( '_', $form_state ['values'] ['voucher'] ) );
-		if ($form_state ['values'] ['amount'] <= 100) {
-			form_set_error ( 'bid', '投资金额大于10000才能使用代金券' );
-		}
-		if (($form_state ['values'] ['amount'] >= 100) && ($form_state ['values'] ['amount'] <= 300)) {
-			if ($right_voucher > 20) {
-				form_set_error ( 'bid', '投资金额大于10000且小于30000只能使用20元代金券' );
+		if ($form_state ['values'] ['amount'] < 10000) {
+			if ($right_voucher == 20) {
+				form_set_error ( 'bid', '投资金额大于10000才能使用20元代金券' );
 			}
 		}
-		if (($form_state ['values'] ['amount'] >= 300) && ($form_state ['values'] ['amount'] <= 500)) {
-			if ($right_voucher > 50) {
-				form_set_error ( 'bid', '投资金额大于30000且小于50000只能使用50元及小于50元的代金券' );
+		if (($form_state ['values'] ['amount'] < 30000)) {
+			if ($right_voucher == 30) {
+				form_set_error ( 'bid', '投资金额大于30000且小于50000才能使用30元代金券' );
+			}
+		}
+		if (($form_state ['values'] ['amount'] < 50000) ) {
+			if ($right_voucher == 50) {
+				form_set_error ( 'bid', '投资金额大于50000才能使用50元代金券' );
 			}
 		}
 	}
@@ -88,20 +90,20 @@ function cowpro_cash_coupon_cowpro_issuing_bid_form_submit($form, $form_state) {
 }
 
 /*
-function cowpro_cash_coupon_cowpro_issuing_bid_finished($success, $nid, $journal_id) {
-	ctools_include ( 'modal' );
-	ctools_include ( 'ajax' );
-	$commands = array ();
-	$url = $GLOBALS['base_url'] . '/cowpro/draw';
-	$delay = 0;
-	$options = array ();
-	$options ['query'] = array (
-			'success' => $success,
-			'nid' => $nid,
-			'journal_id' => $journal_id
-	);
-	$commands [] = ctools_ajax_command_redirect ( $url, $delay, $options );
-	print ajax_render ( $commands );
-	drupal_exit ();
-}
-*/
+ function cowpro_cash_coupon_cowpro_issuing_bid_finished($success, $nid, $journal_id) {
+ ctools_include ( 'modal' );
+ ctools_include ( 'ajax' );
+ $commands = array ();
+ $url = $GLOBALS['base_url'] . '/cowpro/draw';
+ $delay = 0;
+ $options = array ();
+ $options ['query'] = array (
+ 'success' => $success,
+ 'nid' => $nid,
+ 'journal_id' => $journal_id
+ );
+ $commands [] = ctools_ajax_command_redirect ( $url, $delay, $options );
+ print ajax_render ( $commands );
+ drupal_exit ();
+ }
+ */

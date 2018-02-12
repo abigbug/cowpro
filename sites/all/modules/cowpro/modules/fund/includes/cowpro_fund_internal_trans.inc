@@ -159,7 +159,7 @@ function cowpro_fund_internal_trans_do($form, &$form_state) {
 		drupal_set_message('转账成功');
 	} else {
 		drupal_set_message('转账失败，' . $result['message'], 'warning');
-		watchdog('internal_trans', $result['message']. '; code:' . $result['result_code']);
+		watchdog('internal_trans', $result['message']. '; code:' . $result['result_code'] . '; 流水号：' . $result['serial_number']);
 	}
 	return;
 }

@@ -1,5 +1,6 @@
 <?php
 define ( "TARE_MAX", "10000" );
+define ("MAX_ISSUING_AMOUNT","10000");
 function cowpro_draw_menu() {
 	$items = array ();
 	$items ['cowpro/draw'] = array (
@@ -188,3 +189,204 @@ function _cowpro_draw_get_rand($proArr) {
 	unset ( $proArr );
 	return $result;
 }
+
+function test(){
+    $array = array("666"=>20,"266"=>20,"366"=>20,"466"=>20,"166"=>20,);
+    $data_array = array("2018-02-15","2018-02-16","2018-02-17");
+    foreach( $data_array as $v ){
+        foreach( $array as $key=>$value ){
+             for( $i=1; $i<=$value; $i++ ){
+                    db_insert('cowpro_marketing')
+                 ->fields(array(
+                   'amount' => $key,
+                   'date'  => $v
+                 ))
+                 ->execute();
+             }
+        }
+    }
+}
+
+/**
+ * Implements hook_user_login().
+ */
+function cowpro_draw_user_login(){
+    // 判断是否在这三天之中
+    $data_array = array("2018-02-15","2018-02-16","2018-02-17");
+    if( !in_array(date("Y-m-d",time()), $data_array) ) {
+        return ;
+    }
+    global $user;
+    $uid = $user->uid;
+    $role = user_role_load_by_name('administrator');
+    if (user_has_role($role->rid, $user)) {
+            return;
+    }
+
+    $date = date("Y-m-d",time());
+    //判断cowpro_marketing表里是否有登陆之后发红包记录
+    $result = db_query("SELECT id FROM {cowpro_marketing} WHERE uid=".$uid." AND date='".$date."' AND status=1 AND type != 2")->fetchAll(PDO::FETCH_ASSOC);
+    $have_ponits = db_query("SELECT id FROM {cowpro_marketing} WHERE date='".$date."' AND status = 0 AND type = 0")->fetchAll(PDO::FETCH_ASSOC);
+
+    if( $result ) {
+        return;
+    }
+
+    if( empty($have_ponits) ) {
+        $v = 0;
+    }else{
+        $v = 50;
+    }
+
+    	$prize_arr = array (
+			'0' => array (
+					'id' => 1,
+					'prize' => '20积分',
+					'v' => $v,
+					"type" => "points",
+					"amount" => "20",
+			),
+			'1' => array (
+					'id' => 2,
+					'prize' => '20代金卷',
+					'v' => 30,
+					"type" => "voucher",
+					"amount" => "20",
+			),
+			'2' => array (
+					'id' => 3,
+					'prize' => '30代金卷',
+					'v' => 15,
+					"type" => "voucher",
+					"amount" => "30",
+			),
+                        '3' => array (
+					'id' => 4,
+					'prize' => '50代金卷',
+					'v' => 5,
+					"type" => "voucher",
+					"amount" => "50",
+			),
+
+	);
+	foreach ( $prize_arr as $key => $val ) {
+		$arr [$val ['id']] = $val ['v'];
+	}
+	$rid = _cowpro_draw_get_rand ( $arr ); // 根据概率获取奖项id
+
+	$res ['yes'] = $prize_arr [$rid - 1]; // 中奖项
+	unset ( $prize_arr [$rid - 1] ); // 将中奖项从数组中剔除，剩下未中奖项
+	shuffle ( $prize_arr ); // 打乱数组顺序
+	for($i = 0; $i < count ( $prize_arr ); $i ++) {
+		$pr [] = $prize_arr [$i];
+	}
+	$res ['no'] = $pr;
+
+        if ($res ['yes'] ['type'] == "voucher") {
+            // 获得代金卷之后向cowpro_marketing表里插入一条记录，type=1为代金卷。 为了判断每天用户只能获取一次代金卷，或者红包的机会
+             db_insert('cowpro_marketing')
+             ->fields(array(
+               'uid' => $uid,
+               'type' => 1,
+               'status' => 1,
+               'amount' => $res['yes']['amount'],
+               'created' => time(),
+               'date'  => date("Y-m-d",time()),
+             ))
+             ->execute();
+
+            $des = "元代金卷";
+            $term = current ( taxonomy_get_term_by_name ( '代金券' ) );
+            $params = array (
+                            'uid' => $uid,
+                            'points' => $res ['yes'] ['amount'],
+                            'description' => '过年登陆发代金卷',
+                            'display' => FALSE,
+                            'entity_type' => 'node',
+                            'entity_id' => "",
+                            'tid' => $term->tid,
+                            'reference' => "draw",
+            );
+        } else {
+            $des = "元红包";
+            $list = db_query("SELECT * FROM {cowpro_marketing} WHERE date='".$date."' AND status=0")->fetchAll(PDO::FETCH_ASSOC);
+
+            $rand_id = array_rand($list);
+            //获得红包之后更新cowpro_marketing表里对应的记录
+            db_update('cowpro_marketing')
+            ->fields(array('uid' => $uid,'status'=>1,"created"=>time()))
+            ->condition('id', $list[$rand_id]['id'])
+            ->execute();
+            $res['yes']['amount'] = $list[$rand_id]['amount'] / 100;
+            $term = current(taxonomy_get_term_by_name('奖金'));
+            $params = array (
+                        'uid' => $uid,
+                        'points' => $list[$rand_id]['amount'],
+                        'description' => '过年登陆发红包',
+                        'display' => FALSE,
+                        'entity_type' => 'node',
+                        'entity_id' => "",
+                        'tid' => $term->tid,
+                        'reference' => "draw",
+            );
+
+
+    }
+    userpoints_userpointsapi ( $params );
+
+    drupal_set_message("过年有惊喜，恭喜你获得".$res['yes']['amount'].$des);
+}
+
+function cowpro_draw_cowpro_issuing_bid_finished($success, $nid, $journal_id) {
+    $data_array = array("2018-02-15","2018-02-16","2018-02-17");
+    if( !in_array(date("Y-m-d",time()), $data_array) ) {
+        return ;
+    }
+    if( !$success ) return;
+     global $user;
+     $uid = $user->uid;
+
+     $user_amount = db_query("SELECT amount FROM {cowpro_fund_journal} WHERE issuing_id=".$nid." AND uid=".$uid." AND type='BID' AND journal_id=".$journal_id)->fetchAll(PDO::FETCH_ASSOC);
+
+    //投资小于10000 不发红包
+    if( $user_amount[0]['amount'] < MAX_ISSUING_AMOUNT ) {
+        return;
+    }
+    $date = date("Y-m-d",time());
+    //判断cowpro_marketing 表里是否有投标之后发的红包记录， type=2为投资之后发红包
+     $list = db_query("SELECT * FROM {cowpro_marketing} WHERE date='".$date."' AND status=1 AND type=2 AND uid=".$uid )->fetchAll(PDO::FETCH_ASSOC);
+     if( !empty($list) ) {
+         return;
+     }else{
+        $num = randomFloat(0.88,2.88);
+        $amount  = round($num,2);
+
+        $term = current(taxonomy_get_term_by_name('奖金'));
+        $params = array (
+                      'uid' => $uid,
+                      'points' => intval($amount*100),
+                      'description' => '过年投标发红包',
+                      'display' => FALSE,
+                      'entity_type' => 'node',
+                      'entity_id' => "",
+                      'tid' => $term->tid,
+                      'reference' => "draw",
+          );
+            db_insert('cowpro_marketing')
+            ->fields(array(
+              'uid' => $uid,
+              'type' => 2,
+              'status' => 1,
+              'amount' => $amount,
+              'created' => time(),
+              'date'  => date("Y-m-d",time()),
+            ))
+            ->execute();
+        userpoints_userpointsapi ( $params );
+        drupal_set_message("过年有惊喜，恭喜你投资成功之后获得".$amount."元红包");
+     }
+}
+
+function randomFloat($min, $max) {
+        return $min + mt_rand() / mt_getrandmax() * ($max - $min);
+    }
