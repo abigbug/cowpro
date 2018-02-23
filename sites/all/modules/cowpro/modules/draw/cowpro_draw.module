@@ -192,7 +192,7 @@ function _cowpro_draw_get_rand($proArr) {
 
 function test(){
     $array = array("666"=>20,"266"=>20,"366"=>20,"466"=>20,"166"=>20,);
-    $data_array = array("2018-02-15","2018-02-16","2018-02-17");
+    $data_array = array("2018-02-16","2018-02-17");
     foreach( $data_array as $v ){
         foreach( $array as $key=>$value ){
              for( $i=1; $i<=$value; $i++ ){
@@ -248,21 +248,21 @@ function cowpro_draw_user_login(){
 			),
 			'1' => array (
 					'id' => 2,
-					'prize' => '20代金卷',
+					'prize' => '20代金券',
 					'v' => 30,
 					"type" => "voucher",
 					"amount" => "20",
 			),
 			'2' => array (
 					'id' => 3,
-					'prize' => '30代金卷',
+					'prize' => '30代金券',
 					'v' => 15,
 					"type" => "voucher",
 					"amount" => "30",
 			),
                         '3' => array (
 					'id' => 4,
-					'prize' => '50代金卷',
+					'prize' => '50代金券',
 					'v' => 5,
 					"type" => "voucher",
 					"amount" => "50",
@@ -283,7 +283,7 @@ function cowpro_draw_user_login(){
 	$res ['no'] = $pr;
 
         if ($res ['yes'] ['type'] == "voucher") {
-            // 获得代金卷之后向cowpro_marketing表里插入一条记录，type=1为代金卷。 为了判断每天用户只能获取一次代金卷，或者红包的机会
+            // 获得代金券之后向cowpro_marketing表里插入一条记录，type=1为代金券。 为了判断每天用户只能获取一次代金券，或者红包的机会
              db_insert('cowpro_marketing')
              ->fields(array(
                'uid' => $uid,
@@ -295,12 +295,12 @@ function cowpro_draw_user_login(){
              ))
              ->execute();
 
-            $des = "元代金卷";
+            $des = "元代金券";
             $term = current ( taxonomy_get_term_by_name ( '代金券' ) );
             $params = array (
                             'uid' => $uid,
                             'points' => $res ['yes'] ['amount'],
-                            'description' => '过年登陆发代金卷',
+                            'description' => '过年登陆发代金券',
                             'display' => FALSE,
                             'entity_type' => 'node',
                             'entity_id' => "",

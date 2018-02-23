@@ -106,7 +106,7 @@ function cowpro_rewards_check_in() {
 	$uid = $GLOBALS ['user']->uid;
 	if (cowpro_rewards_have_checked_in()) {
 		drupal_set_message('您已经签过到了！', 'warning');
-		drupal_goto();
+		drupal_goto ( $GLOBALS ['base_url'] );
 		return;
 	}
 
@@ -129,7 +129,8 @@ function cowpro_rewards_check_in() {
 	userpoints_userpointsapi($params);
 
 	drupal_set_message('签到奖励积分1个！');
-	drupal_goto();
+	drupal_goto ( $GLOBALS ['base_url'] );
+	return ;
 	//return '欢迎签到';
 }
 

@@ -8,7 +8,7 @@ function cowpro_draw_schema() {
 	$schema = array ();
 
 	$schema ['cowpro_draw'] = array (
-			'description' => '代金卷抽奖',
+			'description' => '代金券抽奖',
 			'fields' => array (
 					'draw_id' => array (
 							'description' => '序号.',
@@ -35,7 +35,7 @@ function cowpro_draw_schema() {
 							'default' => 0
 					),
 					'type' => array (
-							'description' => '中奖类型，0 积分  1代金卷',
+							'description' => '中奖类型，0 积分  1代金券',
 							'type' => 'varchar',
 							'length' => 50,
 							'not null' => TRUE,

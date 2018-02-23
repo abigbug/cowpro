@@ -319,20 +319,32 @@ function cowpro_customer_customer_profile_show_form($form, &$form_state, $profil
 	$type = $profile->type;
 	$uid = $profile->uid;
 	$verified = $profile->verified;
-	if ($verified == "1") {
+	if ($verified) {
 		$verified_class = 'verified';
-		$verified_text = "已认证";
+		$markup = "已认证";
 		$link_type = "修改设置";
 	} else {
 		$verified_class = 'unverified';
-		$verified_text = "未认证";
+		$markup = "未认证";
 		$link_type = "立即设置";
 	}
+
+	$callback = $type . '_user_view_detail';
+	if (function_exists ( $callback )) {
+		$markup = $callback($profile);
+	} else {
+		if ($verified) {
+			$markup = '已认证';
+		} else {
+			$markup = '末认证';
+		}
+	}
+
 	$order_name = $form_state ['form_info'] ['order'] [$type];
 	global $base_url;
 	$form = array ();
 	$form ['show_list'] = array (
-			'#markup' => '<div class="m_r"><div class="mr_t"><div class="phone2"> <p><span>' . $order_name . '</span><i>' . $description . '</i><b class="' . $verified_class . '">' . $verified_text . '</b><strong class="fundCustodian" style="cursor:pointer"><a href="' . $base_url . '/user/' . $uid . '/customer-profiles/' . $type . '" title="">' . $link_type . '</a></strong></p></div></div></div>'
+			'#markup' => '<div class="m_r"><div class="mr_t"><div class="phone2"> <p><span>' . $order_name . '</span><i>' . $description . '</i><b class="' . $verified_class . '">' . $markup . '</b><strong class="fundCustodian" style="cursor:pointer"><a href="' . $base_url . '/user/' . $uid . '/customer-profiles/' . $type . '" title="">' . $link_type . '</a></strong></p></div></div></div>'
 	);
 	return $form;
 }

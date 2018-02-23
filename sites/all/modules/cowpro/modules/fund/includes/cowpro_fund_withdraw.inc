@@ -56,7 +56,7 @@ function cowpro_fund_withdraw_submit($form, &$form_state) {
 		$card = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'bank_card' );
 		$entity_value = array(
 				'uid' => $uid,
-				'status' => FALSE,
+				'status' => 2,
 				'type' => 'WITHDRAW',
 				'amount' => $amount,
 		);
@@ -114,6 +114,15 @@ function _cowpro_fund_withdraw_callback($success, $journal_id, $external_referen
 	if ($success) {
 		$entity = entity_load_single('cowpro_fund_journal', $journal_id);
 		$entity->status = TRUE;
+		$entity->external_reference_id = $external_reference_id;
+		$data = array();
+		$data['interface_module'] = $interface_module;
+		$data['result'] = $result;
+		$entity->data = $data;
+		entity_get_controller('cowpro_fund_journal')->save($entity);
+	} else {
+		$entity = entity_load_single('cowpro_fund_journal', $journal_id);
+		$entity->status = FALSE;
 		$entity->external_reference_id = $external_reference_id;
 		$data = array();
 		$data['interface_module'] = $interface_module;
