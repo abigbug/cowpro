@@ -81,13 +81,15 @@ function jiupaipay_menu() {
 			'title' => '平台营销账号充值',
 			'description' => '平台营销账号充值',
 			'page callback' => 'drupal_get_form',
-			'page arguments' => array("topupp_marketing_form"),
+			'page arguments' => array (
+					"topupp_marketing_form"
+			),
 			'access arguments' => array (
 					'configure p2p'
 			),
 			'menu_name' => 'navigation',
 			'type' => MENU_NORMAL_ITEM,
-			'file' => 'includes/jiupaipay.topup.inc',
+			'file' => 'includes/jiupaipay.topup.inc'
 	);
 
 	$items ['cowpro/jiupaipay/ledger_account'] = array (
@@ -100,64 +102,58 @@ function jiupaipay_menu() {
 			),
 			'menu_name' => 'navigation',
 			'type' => MENU_NORMAL_ITEM,
-			'file' => 'includes/jiupaipay.ledger_account.inc',
+			'file' => 'includes/jiupaipay.ledger_account.inc'
 	);
 	return $items;
 }
-
-function topupp_marketing_form($form,&$form_state){
-	$form = array();
+function topupp_marketing_form($form, &$form_state) {
+	$form = array ();
 	$form ['amount'] = array (
 			'#type' => 'numberfield',
 			'#title' => '充值金额',
 			'#min' => 0,
 			'#max' => 999999,
 			'#required' => TRUE,
-			'#input' => TRUE,
+			'#input' => TRUE
 	);
-	$form['method'] = array(
+	$form ['method'] = array (
 			'#type' => 'hidden',
-			'#value' => "3",
+			'#value' => "3"
 	);
-	$form['topup_marketing'] = array(
+	$form ['topup_marketing'] = array (
 			'#type' => 'submit',
-			'#value' => '充值',
+			'#value' => '充值'
 	);
 	return $form;
 }
-
-function topupp_marketing_form_submit($form,&$form_state){
-
-	$data['amount'] = $form_state['input']['amount'];
-	$data['method'] = $form_state['input']['method'];
-	$role = user_role_load_by_name('administrator');
+function topupp_marketing_form_submit($form, &$form_state) {
+	$data ['amount'] = $form_state ['input'] ['amount'];
+	$data ['method'] = $form_state ['input'] ['method'];
+	$role = user_role_load_by_name ( 'administrator' );
 	$uid = $role->rid;
 
-	$entity_value = array(
+	$entity_value = array (
 			'uid' => $uid,
 			'status' => FALSE,
 			'type' => 'TOPUP',
-			'amount' => $data['amount'],
+			'amount' => $data ['amount']
 	);
-	$entity = entity_create('cowpro_fund_journal', $entity_value);
-	$entity = entity_get_controller('cowpro_fund_journal')->save($entity);
+	$entity = entity_create ( 'cowpro_fund_journal', $entity_value );
+	$entity = entity_get_controller ( 'cowpro_fund_journal' )->save ( $entity );
 	$journal_id = $entity->journal_id;
-	$data['journal_id'] = $journal_id;
-	$sql_data['data'] = serialize($data);
-	$sql_data['businessSeqNo'] = "jbz".date("Ymd",time()).time();;
-	$sql_data['uid'] = $uid;
-	db_insert('jiupaipay_data_tmp')
-	->fields(array(
-			'data' => $sql_data['data'],
-			'businessSeqNo' => $sql_data['businessSeqNo'],
-			'uid' => $uid,
-	))
-	->execute();
+	$data ['journal_id'] = $journal_id;
+	$sql_data ['data'] = serialize ( $data );
+	$sql_data ['businessSeqNo'] = "jbz" . date ( "Ymd", time () ) . time ();
+	;
+	$sql_data ['uid'] = $uid;
+	db_insert ( 'jiupaipay_data_tmp' )->fields ( array (
+			'data' => $sql_data ['data'],
+			'businessSeqNo' => $sql_data ['businessSeqNo'],
+			'uid' => $uid
+	) )->execute ();
 
-	jiupaipay_topup($uid, $data['amount'], $data['method'], $journal_id,$sql_data['businessSeqNo']);
-
+	jiupaipay_topup ( $uid, $data ['amount'], $data ['method'], $journal_id, $sql_data ['businessSeqNo'] );
 }
-
 function jiupaipay_permission() {
 	$permissions = array (
 			'jiupaipay get files list' => array (
@@ -182,17 +178,17 @@ function jiupaipay_cowpro_customer_profile_jiupaipay_create($values) {
 	$values += array (
 			'jpp_account_number' => '', // 九派虚拟账号
 			'jpp_id' => '', // 九派二类户账号
-			// 'mmm_auth_state' => '',//实名认证状态(1.未实名认证,2.快捷支付认证,3.其他认证)
+			                // 'mmm_auth_state' => '',//实名认证状态(1.未实名认证,2.快捷支付认证,3.其他认证)
 			'jpp_result_code' => '', // 返回码(88表示成功,其它代码参考《乾多多自主清算系统接口参数说明.doc》)
 			'jpp_result_message' => '', // 返回信息(与result_code对应的文字信息)
 			'jpp_authorize' => FALSE, // 用户授权
 			'jpp_password' => FALSE, // 用户交易密码
 			'jpp_bank_card' => FALSE
-	) // 用户是否绑定银行卡
-	// 'mmm_authorize_type_1' => FALSE,//用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)
-	// 'mmm_authorize_type_2' => FALSE,//用户授权P2P平台可以对资金进行“还款”操作
-	// 'mmm_authorize_type_3' => FALSE,//用户授权P2P平台可以对资金进行“二次分配审核”操作
-	;
+	); // 用户是否绑定银行卡
+	  // 'mmm_authorize_type_1' => FALSE,//用户授权P2P平台可以对资金进行“投标”操作(参考《乾多多自主清算系统接口参数说明.doc》授权接口)
+	  // 'mmm_authorize_type_2' => FALSE,//用户授权P2P平台可以对资金进行“还款”操作
+	  // 'mmm_authorize_type_3' => FALSE,//用户授权P2P平台可以对资金进行“二次分配审核”操作
+
 	return $values;
 }
 function jiupaipay_cowpro_customer_profile_jiupaipay_save($profile) {
@@ -265,7 +261,7 @@ function jiupaipay_cowpro_customer_profile_jiupaipay_form_alter($form, &$form_st
 	if (! $profile->verified) {
 		$form ['actions'] ['submit'] ['#value'] = JPP_OP_BIND_ACCOUNT;
 		$form ['profile'] ['actions'] = $form ['actions'];
-	} else if ( ! $profile->jpp_authorize && $profile->jpp_password) {
+	} else if (! $profile->jpp_authorize && $profile->jpp_password) {
 		$form ['actions'] ['submit'] ['#value'] = JPP_OP_AUTHORIZE;
 		$form ['profile'] ['actions'] = $form ['actions'];
 	} else {
@@ -303,24 +299,24 @@ function jiupaipay_cowpro_customer_profile_jiupaipay_form_submit($form, &$form_s
 		$profile_mobile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'mobile' );
 
 		if (is_null ( $profile_mobile ) || (! property_exists ( $profile_mobile, 'mobile_number' ))) {
-			drupal_set_message ( '末进行手机认证', 'error' );
+			drupal_set_message ( '未进行手机认证', 'error' );
 			return;
 		}
 		if (is_null ( $profile_real_name ) || (! property_exists ( $profile_real_name, 'name' ))) {
-			drupal_set_message ( '末进行实名认证', 'error' );
+			drupal_set_message ( '未进行实名认证', 'error' );
 			return;
 		}
 		if (is_null ( $profile_real_name ) || (! property_exists ( $profile_real_name, 'id_no' ))) {
-			drupal_set_message ( '末进行实名认证', 'error' );
+			drupal_set_message ( '未进行实名认证', 'error' );
 			return;
 		}
 		/*
 		 * if (is_null($profile_real_name) || (!property_exists($profile_real_name, 'idvalidDate' ))) {
-		 * drupal_set_message('末进行实名认证', 'error');
+		 * drupal_set_message('未进行实名认证', 'error');
 		 * return;
 		 * }
 		 * if (is_null($profile_real_name) || (!property_exists($profile_real_name, 'idexpiryDate' ))) {
-		 * drupal_set_message('末进行实名认证', 'error');
+		 * drupal_set_message('未进行实名认证', 'error');
 		 * return;
 		 * }
 		 */
@@ -640,7 +636,7 @@ function jiupaipay_get_bank_account_operator() {
 	if (! $profile->jpp_password && $profile->jpp_account_number) {
 		$result [] = '设置宜商行交易密码';
 	}
-	if( $profile->jpp_password ) {
+	if ($profile->jpp_password) {
 		$result [] = '修改宜商行交易密码';
 		$result [] = '重置宜商行交易密码';
 	}
@@ -776,8 +772,8 @@ function jiupaipay_result_parser($fund_type, $result) {
 	$msg = '';
 	$data = $result;
 	switch ($fund_type) {
-		case 'TOPUP':
-			$msg = $data['result']['inBody']['respMsg'] . '-' . $data['result']['inBody']['respCode'];
+		case 'TOPUP' :
+			$msg = $data ['result'] ['inBody'] ['respMsg'] . '-' . $data ['result'] ['inBody'] ['respCode'];
 			break;
 	}
 	return $msg;
@@ -786,11 +782,47 @@ function jiupaipay_result_parser($fund_type, $result) {
 /**
  * Implements hook_views_api().
  */
-function jiupaipay_views_api()
-{
-	return array(
+function jiupaipay_views_api() {
+	return array (
 			'api' => 3,
-			'path' => drupal_get_path('module', 'jiupaipay') . '/includes/views',
+			'path' => drupal_get_path ( 'module', 'jiupaipay' ) . '/includes/views'
 	);
 }
+function jiupaipay_user_view_detail($profile) {
+	$result = array ();
+	// var_dump($profile);
+	$message = "";
+	global $user;
+	$verified = TRUE;
+	$markup = '已设置';
+	if ($profile) {
+		$goto_url = $GLOBALS['base_url'] . "/user/" . $user->uid . "/customer-profiles/" . $profile->type;
+		if (! $profile->verified) {
+			$verified = FALSE;
+			$markup = '未关联';
+			$message = "还未关联宜宾商行，请先关联！<a href='" . $goto_url . "' class='gotourl'>去关联</a>";
+		} else {
+			if ($profile->jpp_password) {
+				if (! $profile->jpp_authorize) {
+					$verified = FALSE;
+					$markup = '未授权';
+					$message = "还未授权宜宾商行，请先授权！<a href='" . $goto_url . "' class='gotourl'>去授权</a>";
+				}
+			} else {
+				$verified = FALSE;
+				$markup = '未设置';
+				$message = "还未设置交易密码，请先设置！<a href='" . $goto_url . "' class='gotourl'>去设置</a>";
+			}
+		}
+	} else {
+		$goto_url = $GLOBALS['base_url'] . "/user/" . $user->uid . "/customer-profiles/jiupaipay";
+		$verified = FALSE;
+		$markup = '未关联';
+		$message = "还未关联宜宾商行，请先关联！<a href='" . $goto_url . "' class='gotourl'>去关联</a>";
+	}
 
+	$result ['verified'] = $verified;
+	$result ['markup'] = $markup;
+	$result ['message'] = $message;
+	return $result;
+}

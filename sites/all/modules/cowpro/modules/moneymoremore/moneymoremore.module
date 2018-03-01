@@ -361,12 +361,18 @@ function moneymoremore_cowpro_fund_buy_creditor_assignment($amount, $issuing_id,
 }
 
 function moneymoremore_user_view_detail($profile){
+    $result = array();
 	if ((!$profile) || (! $profile->verified)) {
+            $verified = FALSE;
 		$markup = '未认证';
 	} else if ((!$profile->mmm_authorize_type_1) || (!$profile->mmm_authorize_type_2) || (!$profile->mmm_authorize_type_1)) {
+            $verified = FALSE;
 		$markup = '已认证、未关联、未授权';
 	} else {
+            $verified = TRUE;
 		$markup = '已关联、已授权';
 	}
-	return $markup;
+        $result['verified'] = $verified;
+        $result['markup'] = $markup;
+	return $result;
 }

@@ -18,6 +18,8 @@ function _cowpro_customer_user_view($account, $view_mode) {
 function _cowpro_customer_user_view_detail($account, $profile_type) {
 	$type = $profile_type['type'];
 	$name = $profile_type['name'];
+        $message="";
+        $result = array();
 	$weight = $profile_type['weight'];
 	$verified = FALSE;
 	$profile = cowpro_customer_profile_load_one_row_with_conditions($account->uid, $type);
@@ -30,12 +32,15 @@ function _cowpro_customer_user_view_detail($account, $profile_type) {
 
 	$callback = $type . '_user_view_detail';
 	if (function_exists ( $callback )) {
-		$markup = $callback($profile);
+		$result = $callback($profile);
+                $markup = $result['markup'];
+                $verified = $result['verified'];
+                $message= $result['message'];
 	} else {
 		if ($verified) {
 			$markup = '已认证';
 		} else {
-			$markup = '末认证';
+			$markup = '未认证';
 		}
 	}
 	$markup = "<a href=$href>$markup</a>";

@@ -4,8 +4,8 @@ jQuery(document).ready(function($) {
         var btn = $('.cndns-right .jisuanqi');
         var jisuanqiEl = $('#jisuanqi');
         var jisuanBtn = jisuanqiEl.find('.jisuanqi-btn');
-        var nhll = 0.096; // 默认年化利率
-        var qixian = 3; // 默认期限
+        var nhll = 0.066; // 默认年化利率
+        var qixian = 1; // 默认期限
 
         // console.log(btn.length);
         if(btn.length > 0 && jisuanqiEl.length > 0){
@@ -25,18 +25,22 @@ jQuery(document).ready(function($) {
         // 预计年化利率
         jisuanqiEl.find('select[name="jisuanqi-qixian"]').change(function(){
             var sec = $(this).val();
-            switch (sec) {
+            switch (sec) {                
+                case '1':
+                    qixian = 1;
+                    nhll = 0.066;
+                    break;
                 case '3':
                     qixian = 3;
-                    nhll = 0.096;
+                    nhll = 0.090;
                     break;
                 case '6':
                     qixian = 6;
-                    nhll = 0.108;
+                    nhll = 0.096;
                     break;
                 case '12':
                     qixian = 12;
-                    nhll = 0.114;
+                    nhll = 0.108;
                     break;
                 default:
                     // ...

@@ -56,7 +56,7 @@ function cowpro_fund_withdraw_submit($form, &$form_state) {
 		$card = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'bank_card' );
 		$entity_value = array(
 				'uid' => $uid,
-				'status' => 2,
+				'status' => 99,
 				'type' => 'WITHDRAW',
 				'amount' => $amount,
 		);

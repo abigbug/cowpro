@@ -15,128 +15,123 @@ function real_name_certification_menu() {
 			'access arguments' => array (
 					'configure p2p'
 			),
-			'type' => MENU_NORMAL_ITEM,
+			'type' => MENU_NORMAL_ITEM
 	);
 
 	return $items;
 }
-
 function real_name_certification_settings_form($form, &$form_state) {
-	$form = array();
-	$form['cowpro_real_name_certification_need_scanning_copy_id_card'] = array(
+	$form = array ();
+	$form ['cowpro_real_name_certification_need_scanning_copy_id_card'] = array (
 			'#title' => '用户需要提交身份证照片',
 			'#type' => 'checkbox',
-			'#default_value' => variable_get('cowpro_real_name_certification_need_scanning_copy_id_card', FALSE),
+			'#default_value' => variable_get ( 'cowpro_real_name_certification_need_scanning_copy_id_card', FALSE )
 	);
 	/*
-	$form['actions']['submit'] = array(
-			'#type' => 'submit',
-			'#value' => t("Save"),
-			'#weight' => 10,
-	);
-	*/
-	return system_settings_form($form);
+	 * $form['actions']['submit'] = array(
+	 * '#type' => 'submit',
+	 * '#value' => t("Save"),
+	 * '#weight' => 10,
+	 * );
+	 */
+	return system_settings_form ( $form );
 }
 
 /**
  * Implements hook_views_api().
  */
 function real_name_certification_views_api() {
-  return array(
-    'api' => 3,
-    'path' => drupal_get_path('module', 'real_name_certification') . '/includes/views',
-  );
-}
-
-function real_name_certification_cowpro_customer_profile_real_name_create($values) {
-	$values += array(
-			'name' => '',//姓名
-			'id_no' => '',//身份证号码
-			'scanning_copy_1' => '',//身份证扫描件，正面
-			'scanning_copy_2' => '',//身份证扫描件，反面
+	return array (
+			'api' => 3,
+			'path' => drupal_get_path ( 'module', 'real_name_certification' ) . '/includes/views'
 	);
+}
+function real_name_certification_cowpro_customer_profile_real_name_create($values) {
+	$values += array (
+			'name' => '', // 姓名
+			'id_no' => '', // 身份证号码
+			'scanning_copy_1' => '', // 身份证扫描件，正面
+			'scanning_copy_2' => ''
+	) // 身份证扫描件，反面
+;
 	return $values;
 }
-
 function real_name_certification_cowpro_customer_profile_real_name_save($profile) {
-	$data = array();
-	$data['name'] = $profile->name;
-	$data['id_no'] = strtoupper($profile->id_no);//按人民银行要求，身份证最后一位可能的“X”，需要是大写
-	$data['scanning_copy_1'] = $profile->scanning_copy_1;
-	$data['scanning_copy_2'] = $profile->scanning_copy_2;
+	$data = array ();
+	$data ['name'] = $profile->name;
+	$data ['id_no'] = strtoupper ( $profile->id_no ); // 按人民银行要求，身份证最后一位可能的“X”，需要是大写
+	$data ['scanning_copy_1'] = $profile->scanning_copy_1;
+	$data ['scanning_copy_2'] = $profile->scanning_copy_2;
 	$profile->data = $data;
 	$profile->search_field = $profile->name . ';' . $profile->id_no;
-	$profile->verified = TRUE;//默认已通过认证
+	$profile->verified = TRUE; // 默认已通过认证
 	return $profile;
 }
-
 function real_name_certification_cowpro_customer_profile_real_name_load($profile) {
-	$profile->name = $profile->data['name'];
-	$profile->id_no = strtoupper($profile->data['id_no']);//按人民银行要求，身份证最后一位可能的“X”，需要是大写
-	$profile->scanning_copy_1 = $profile->data['scanning_copy_1'];
-	$profile->scanning_copy_2 = $profile->data['scanning_copy_2'];
+	$profile->name = $profile->data ['name'];
+	$profile->id_no = strtoupper ( $profile->data ['id_no'] ); // 按人民银行要求，身份证最后一位可能的“X”，需要是大写
+	$profile->scanning_copy_1 = $profile->data ['scanning_copy_1'];
+	$profile->scanning_copy_2 = $profile->data ['scanning_copy_2'];
 	return $profile;
 }
-
 function real_name_certification_cowpro_customer_profile_real_name_form($form, &$form_state, $profile) {
-	$form['name'] = array(
+	$form ['name'] = array (
 			'#type' => 'textfield',
 			'#title' => '姓名',
 			'#description' => '',
 			'#default_value' => $profile->name,
 			'#maxlength' => 20,
 			'#required' => TRUE,
-			'#weight' => -10,
+			'#weight' => - 10
 	);
 
-	$default_id_no = preg_replace('/(.)/', '*', $profile->id_no);
-	$form['id_no'] = array(
+	$default_id_no = preg_replace ( '/(.)/', '*', $profile->id_no );
+	$form ['id_no'] = array (
 			'#type' => 'textfield',
 			'#title' => '身份证号码',
 			'#default_value' => $default_id_no,
 			'#maxlength' => 18,
 			'#required' => TRUE,
-			'#weight' => -5,
+			'#weight' => - 5
 	);
-	$form['id_no_hidden'] = array(
+	$form ['id_no_hidden'] = array (
 			'#type' => 'hidden',
-			'#value' => $profile->id_no,
+			'#value' => $profile->id_no
 	);
 
-	$need_scanning = variable_get('cowpro_real_name_certification_need_scanning_copy_id_card', FALSE);
+	$need_scanning = variable_get ( 'cowpro_real_name_certification_need_scanning_copy_id_card', FALSE );
 	if ($need_scanning) {
 		if ($profile->scanning_copy_1 != '') {
-			$form['scanning_copy_uri_1'] = array(
+			$form ['scanning_copy_uri_1'] = array (
 					'#type' => 'item',
-					'#markup' => '<img src=' . file_create_url($profile->scanning_copy_1) . '>',
+					'#markup' => '<img src=' . file_create_url ( $profile->scanning_copy_1 ) . '>'
 			);
 		}
 
 		if ($profile->scanning_copy_2 != '') {
-			$form['scanning_copy_uri_2'] = array(
+			$form ['scanning_copy_uri_2'] = array (
 					'#type' => 'item',
-					'#markup' => '<img src=' . file_create_url($profile->scanning_copy_2) . '>',
+					'#markup' => '<img src=' . file_create_url ( $profile->scanning_copy_2 ) . '>'
 			);
 		}
 
-		$form['scanning_copy_1'] = array(
+		$form ['scanning_copy_1'] = array (
 				'#type' => 'file',
 				'#title' => '身份证扫描件，正面',
-				'#description' => '上传图片文件，可接受的文件格式为: jpg, jpeg, png, gif',
+				'#description' => '上传图片文件，可接受的文件格式为: jpg, jpeg, png, gif'
 		);
 
-		$form['scanning_copy_2'] = array(
+		$form ['scanning_copy_2'] = array (
 				'#type' => 'file',
 				'#title' => '身份证扫描件，背面',
-				'#description' => '上传图片文件，可接受的文件格式为: jpg, jpeg, png, gif',
+				'#description' => '上传图片文件，可接受的文件格式为: jpg, jpeg, png, gif'
 		);
 	}
 
 	return $form;
 }
-
 function real_name_certification_cowpro_customer_profile_real_name_form_validate($form, &$form_state, $profile) {
-	$need_scanning = variable_get('cowpro_real_name_certification_need_scanning_copy_id_card', FALSE);
+	$need_scanning = variable_get ( 'cowpro_real_name_certification_need_scanning_copy_id_card', FALSE );
 	if ($need_scanning) {
 		$isRequired1 = true;
 		$isRequired2 = true;
@@ -146,96 +141,93 @@ function real_name_certification_cowpro_customer_profile_real_name_form_validate
 		if ($profile->scanning_copy_2 != '') {
 			$isRequired2 = false;
 		}
-		_real_name_certification_upload('scanning_copy_1', $form, $form_state, $isRequired1);
-		_real_name_certification_upload('scanning_copy_2', $form, $form_state, $isRequired2);
+		_real_name_certification_upload ( 'scanning_copy_1', $form, $form_state, $isRequired1 );
+		_real_name_certification_upload ( 'scanning_copy_2', $form, $form_state, $isRequired2 );
 	}
 }
-
 function _real_name_certification_upload($form_field_name, $form, &$form_state, $isRequired) {
-	$file = file_save_upload($form_field_name, array(
+	$file = file_save_upload ( $form_field_name, array (
 			// Validates file is really an image.
-			'file_validate_is_image' => array(),
+			'file_validate_is_image' => array (),
 			// Validate extensions.
-			'file_validate_extensions' => array('png gif jpg jpeg'),
-	));
+			'file_validate_extensions' => array (
+					'png gif jpg jpeg'
+			)
+	) );
 	// If the file passed validation:
 	if ($file) {
 		// Move the file into the Drupal file system.
-		if ($file = file_move($file, 'public://')) {
+		if ($file = file_move ( $file, 'public://' )) {
 			// Save the file for use in the submit handler.
-			$form_state['storage'][$form_field_name] = $file;
+			$form_state ['storage'] [$form_field_name] = $file;
+		} else {
+			form_set_error ( $form_field_name, t ( "Failed to write the uploaded file to the site's file folder." ) );
 		}
-		else {
-			form_set_error($form_field_name, t("Failed to write the uploaded file to the site's file folder."));
-		}
-	}
-	else if ($isRequired) {
-		form_set_error($form_field_name, '没有提交身份证扫描件.');
+	} else if ($isRequired) {
+		form_set_error ( $form_field_name, '没有提交身份证扫描件.' );
 	}
 }
-
 function real_name_certification_cowpro_customer_profile_real_name_form_submit($form, &$form_state, &$profile) {
-	$profile->name = $form_state['values']['name'];
-	$id_no = str_replace('*', '', $form_state['values']['id_no']);
+	$profile->name = $form_state ['values'] ['name'];
+	$id_no = str_replace ( '*', '', $form_state ['values'] ['id_no'] );
 	if ($id_no === '') {
-		$profile->id_no = $form_state['values']['id_no_hidden'];
+		$profile->id_no = $form_state ['values'] ['id_no_hidden'];
 	} else {
 		$profile->id_no = $id_no;
 	}
-	if (array_key_exists('storage', $form_state) && array_key_exists('scanning_copy_1', $form_state['storage']) && (!is_null($form_state['storage']['scanning_copy_1']))) {
-		$profile->scanning_copy_1 = $form_state['storage']['scanning_copy_1']->uri;
+	if (array_key_exists ( 'storage', $form_state ) && array_key_exists ( 'scanning_copy_1', $form_state ['storage'] ) && (! is_null ( $form_state ['storage'] ['scanning_copy_1'] ))) {
+		$profile->scanning_copy_1 = $form_state ['storage'] ['scanning_copy_1']->uri;
 	}
-	if (array_key_exists('storage', $form_state) && array_key_exists('scanning_copy_2', $form_state['storage']) && (!is_null($form_state['storage']['scanning_copy_2']))) {
-		$profile->scanning_copy_2 = $form_state['storage']['scanning_copy_2']->uri;
+	if (array_key_exists ( 'storage', $form_state ) && array_key_exists ( 'scanning_copy_2', $form_state ['storage'] ) && (! is_null ( $form_state ['storage'] ['scanning_copy_2'] ))) {
+		$profile->scanning_copy_2 = $form_state ['storage'] ['scanning_copy_2']->uri;
 	}
 }
-
 function real_name_certification_cowpro_customer_profile_real_name_extra_fields() {
-	$result = array(
-			'form' => array(
-					'name' => array(
+	$result = array (
+			'form' => array (
+					'name' => array (
 							'label' => '姓名',
 							'description' => '身份证上的姓名',
-							'weight' => -9,
+							'weight' => - 9
 					),
-					'id_no' => array(
+					'id_no' => array (
 							'label' => '身份证号码',
 							'description' => '二代身份证的号码，长度为十八位',
-							'weight' => -8,
+							'weight' => - 8
 					),
-					'scanning_copy_1' => array(
+					'scanning_copy_1' => array (
 							'label' => '身份证扫描件，正面',
 							'description' => '身份证扫描件，正面',
-							'weight' => -7,
+							'weight' => - 7
 					),
-					'scanning_copy_2' => array(
+					'scanning_copy_2' => array (
 							'label' => '身份证扫描件，反面',
 							'description' => '身份证扫描件，反面',
-							'weight' => -6,
-					),
+							'weight' => - 6
+					)
 			),
-			'display' => array(
-					'name' => array(
+			'display' => array (
+					'name' => array (
 							'label' => '姓名',
 							'description' => '身份证上的姓名',
-							'weight' => -9,
+							'weight' => - 9
 					),
-					'id_no' => array(
+					'id_no' => array (
 							'label' => '身份证号码',
 							'description' => '二代身份证的号码，长度为十八位',
-							'weight' => -8,
+							'weight' => - 8
 					),
-					'scanning_copy_1' => array(
+					'scanning_copy_1' => array (
 							'label' => '身份证扫描件，正面',
 							'description' => '身份证扫描件，正面',
-							'weight' => -7,
+							'weight' => - 7
 					),
-					'scanning_copy_2' => array(
+					'scanning_copy_2' => array (
 							'label' => '身份证扫描件，反面',
 							'description' => '身份证扫描件，反面',
-							'weight' => -6,
-					),
-				)
+							'weight' => - 6
+					)
+			)
 	);
 
 	return $result;
@@ -245,46 +237,71 @@ function real_name_certification_cowpro_customer_profile_real_name_extra_fields(
  * Implements hook_cowpro_customer_profile_type_info().
  */
 function real_name_certification_cowpro_customer_profile_type_info() {
-	$profile_types = array();
+	$profile_types = array ();
 
-	$profile_types['real_name'] = array(
+	$profile_types ['real_name'] = array (
 			'type' => 'real_name',
 			'name' => '实名认证',
 			'description' => '此项为必要的身份认证，身份认证缺失的用户，无法操作账户',
 			'help' => '',
-			'weight' => 100,
+			'weight' => 100
 	);
 	/*
-	 $profile_types['credit_report'] = array(
-	 'type' => 'credit_report',
-	 'name' => '信用报告',
-	 'description' => '个人信用报告是由中国人民银行出具，全面记录个人信用活动，反映个人信用基本状况的文件。本报告是p2p信贷了解您信用状况的一个重要参考资料。 您信用报告内体现的信用记录，和信用卡额度等数据，将在您发布借款时经网站工作人员整理，在充分保护您隐私的前提下披露给借出者，作为借出者投标的依据。',
-	 'help' => '',
-	 );
-	 $profile_types['income'] = array(
-	 'type' => 'income',
-	 'name' => '收入认证',
-	 'description' => '您的银行流水单以及完税证明，是证明您收入情况的主要文件，也是评估您还款能力的主要依据之一。',
-	 'help' => '',
-	 );
+	 * $profile_types['credit_report'] = array(
+	 * 'type' => 'credit_report',
+	 * 'name' => '信用报告',
+	 * 'description' => '个人信用报告是由中国人民银行出具，全面记录个人信用活动，反映个人信用基本状况的文件。本报告是p2p信贷了解您信用状况的一个重要参考资料。 您信用报告内体现的信用记录，和信用卡额度等数据，将在您发布借款时经网站工作人员整理，在充分保护您隐私的前提下披露给借出者，作为借出者投标的依据。',
+	 * 'help' => '',
+	 * );
+	 * $profile_types['income'] = array(
+	 * 'type' => 'income',
+	 * 'name' => '收入认证',
+	 * 'description' => '您的银行流水单以及完税证明，是证明您收入情况的主要文件，也是评估您还款能力的主要依据之一。',
+	 * 'help' => '',
+	 * );
 	 */
 	/*
-	 $profile_types[''] = array(
-	 'type' => '',
-	 'name' => '',
-	 'description' => '',
-	 'help' => '',
-	 );
-	 电子印章
-	 房产认证
-	 购车认证
-	 学历认证
-	 技术职称认证
-	 视频认证
-	 手机实名认证
-	 居住地认证
-	 结婚认证
+	 * $profile_types[''] = array(
+	 * 'type' => '',
+	 * 'name' => '',
+	 * 'description' => '',
+	 * 'help' => '',
+	 * );
+	 * 电子印章
+	 * 房产认证
+	 * 购车认证
+	 * 学历认证
+	 * 技术职称认证
+	 * 视频认证
+	 * 手机实名认证
+	 * 居住地认证
+	 * 结婚认证
 	 */
 
 	return $profile_types;
+}
+function real_name_user_view_detail($profile) {
+	$result = array ();
+	$message = "";
+	global $user;
+	if ($profile) {
+		$goto_url = $GLOBALS['base_url'] . "/user/" . $user->uid . "/customer-profiles/" . $profile->type;
+		if (! $profile->verified) {
+			$verified = FALSE;
+			$markup = '未认证';
+			$message = "还未进行实名认证，请先认证！<a href='" . $goto_url . "' class='gotourl'>去认证</a>";
+		} else {
+			$verified = TRUE;
+			$markup = '已认证';
+		}
+	} else {
+		$goto_url = $GLOBALS['base_url'] . "/user/" . $user->uid . "/customer-profiles/real_name";
+		$verified = FALSE;
+		$markup = '未认证';
+		$message = "还未进行实名认证，请先认证！<a href='" . $goto_url . "' class='gotourl'>去认证</a>";
+	}
+	$result ['verified'] = $verified;
+	$result ['markup'] = $markup;
+	$result ['message'] = $message;
+	return $result;
 }

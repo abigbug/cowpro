@@ -7,12 +7,14 @@ include_once 'jiupaipay.issuing_publish.inc';
  *        	标的的 node id
  */
 function jiupaipay_make_loans_to($nid) {
-    
+
         //标的信息同步
         $issuing_publish = jiupaipay_issuing_publish($nid,"P04","02");
+        //$message = implode('|', $issuing_publish);
+        //watchdog('_cowpro_issuing_make_loans_to_form_submit', $message);
 
         if( $issuing_publish['success']) {
-            
+
             //请求报文头
             $header = jiupaipay_header("T00004");
 
@@ -67,7 +69,7 @@ function jiupaipay_make_loans_to($nid) {
             unset($post_data_tmp['contractList']);
             ksort($post_data_tmp);
 
-            $signInfo = $header['signTime'];   
+            $signInfo = $header['signTime'];
             foreach( $post_data_tmp as $value ){
                 $signInfo .= "|".$value;
             }
@@ -104,10 +106,10 @@ function jiupaipay_make_loans_to($nid) {
             $result_jpp['data'] = $data;
             $result_jpp['message'] = $result['respHeader']['respMsg'];
             $result_jpp['result_code'] = $result['respHeader']['respCode'];
-            return $result_jpp;	 
+            return $result_jpp;
         }else{
-            echo $issuing_publish['message'];
+            return $issuing_publish['message'];
         }
-        
+
 }
 

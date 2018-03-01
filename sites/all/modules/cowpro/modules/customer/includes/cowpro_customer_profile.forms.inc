@@ -316,6 +316,7 @@ function cowpro_customer_ui_customer_profile_edit_list_show_form($form, &$form_s
 function cowpro_customer_customer_profile_show_form($form, &$form_state, $profile, $description) {
 	unset ( $form ['ctools_trail'] );
 	unset ( $form ['buttons'] );
+        $message="";
 	$type = $profile->type;
 	$uid = $profile->uid;
 	$verified = $profile->verified;
@@ -331,12 +332,15 @@ function cowpro_customer_customer_profile_show_form($form, &$form_state, $profil
 
 	$callback = $type . '_user_view_detail';
 	if (function_exists ( $callback )) {
-		$markup = $callback($profile);
+		$result = $callback($profile);
+                $markup = $result['markup'];
+                $verified = $result['verified'];
+                $message= $result['message'];
 	} else {
 		if ($verified) {
 			$markup = '已认证';
 		} else {
-			$markup = '末认证';
+			$markup = '未认证';
 		}
 	}
 
@@ -345,6 +349,10 @@ function cowpro_customer_customer_profile_show_form($form, &$form_state, $profil
 	$form = array ();
 	$form ['show_list'] = array (
 			'#markup' => '<div class="m_r"><div class="mr_t"><div class="phone2"> <p><span>' . $order_name . '</span><i>' . $description . '</i><b class="' . $verified_class . '">' . $markup . '</b><strong class="fundCustodian" style="cursor:pointer"><a href="' . $base_url . '/user/' . $uid . '/customer-profiles/' . $type . '" title="">' . $link_type . '</a></strong></p></div></div></div>'
+	);
+        $form ['message'] = array (
+			'#type' => 'hidden',
+			'#default_value' => $message,
 	);
 	return $form;
 }

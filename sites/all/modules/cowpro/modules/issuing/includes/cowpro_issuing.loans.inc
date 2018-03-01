@@ -43,6 +43,8 @@ function _cowpro_issuing_make_loans_to_form_submit(&$form, &$form_state) {
 		node_save($node);
 
 		$result = custodian_cowpro_fund_make_loans_to($nid);
+		//$message = implode('|', $result);
+		//watchdog('_cowpro_issuing_make_loans_to_form_submit', $message);
 		_cowpro_issuing_loans_finished($result['success'], $nid);
 		if ($result['success']) {
 			$message = '放款成功';
