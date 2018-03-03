@@ -87,6 +87,7 @@ function cowpro_shop_redemption_done($form, &$form_state) {
 		exit ();
 	}
 }
+/*
 function _cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, $interface_module, $result) {
 	if ($success) {
 		$entity = entity_load_single('cowpro_fund_journal', $journal_id);
@@ -110,3 +111,4 @@ function _cowpro_fund_withdraw_callback($success, $journal_id, $external_referen
 		}
 	}
 }
+*/
