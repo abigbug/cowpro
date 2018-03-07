@@ -8,7 +8,7 @@
 /**
  * Implements hook_rules_action_info().
  */
-function rewards_rules_action_info() {
+function cowpro_rewards_rules_action_info() {
   return array(
   		'cowpro_reward_make_loans_to_finished' => array(
   				'label' => '满标放款以后，发放积分奖励',

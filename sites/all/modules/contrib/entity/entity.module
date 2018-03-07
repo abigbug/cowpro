@@ -877,6 +877,17 @@ function _entity_defaults_rebuild($entity_type) {
     $entities = array();
     foreach (module_implements($hook) as $module) {
       foreach ((array) module_invoke($module, $hook) as $name => $entity) {
+        if (empty($entity) || !is_object($entity)) {
+          if (variable_get('entity_log_invalid_default_entities', TRUE)) {
+            $msg = 'An invalid default entity (name: @name, type: @type) was returned (by module: @module, hook: @hook) '
+                  .'and has been ignored.  This warning can be hidden by setting configuration variable '
+                  .'"entity_log_invalid_default_entities" to FALSE.';
+            $msg_params = array('@name' => $name, '@type' => $entity_type, '@module' => $module, '@hook' => $hook);
+            watchdog('entity', $msg, $msg_params, WATCHDOG_WARNING);
+          }
+          continue; // Not a valid default entity; don't try to use it.
+        }
+
         $entity->{$keys['name']} = $name;
         $entity->{$keys['module']} = $module;
         $entities[$name] = $entity;
@@ -1088,9 +1099,10 @@ function entity_flush_caches() {
   // Care about entitycache tables.
   if (module_exists('entitycache')) {
     $tables = array();
-    foreach (entity_crud_get_info() as $entity_type => $entity_info) {
-      if (isset($entity_info['module']) && !empty($entity_info['entity cache'])) {
-        $tables[] = 'cache_entity_' . $entity_type;
+    $tables_created = variable_get('entity_cache_tables_created');
+    if (is_array($tables_created)) {
+      foreach ($tables_created as $module => $entity_cache_tables) {
+        $tables = array_merge($tables, $entity_cache_tables);
       }
     }
     return $tables;

@@ -883,6 +883,11 @@ function cowpro_issuing_cron() {
 	$need_clear_cache = $need_clear_cache || $updated;
 
 	// 将 'COWPRO_ISSUING_STATUS_INVITE_BIDS_START 正在投标' 的状态更新为 'COWPRO_ISSUING_STATUS_INVITE_BIDS_FAILED 流标'
+	/*
+	 * 暂时取消“超时自动流标”的功能
+	 * 将来如果打开该功能，还要注意，重新发布以后，标的不能再重新同步到宜宾商业银行
+	 * （因为之前发布的时候，已经向宜宾商业银行进行了同步操作）
+	 * 也就是说，重新发布的时候，标的的状态存在问题，需要改进代码，避免出现重得向宜宾商业银行同步时，宜宾商业银行提示“标的重复”
 	$db_and = db_and ()->condition ( 'field_issuing_status', COWPRO_ISSUING_STATUS_INVITE_BIDS_START, '=' );
 	$updated = db_update ( 'field_data_field_issuing' )->fields ( array (
 			'field_issuing_status' => COWPRO_ISSUING_STATUS_INVITE_BIDS_FAILED
@@ -893,6 +898,7 @@ function cowpro_issuing_cron() {
 		), WATCHDOG_NOTICE );
 	}
 	$need_clear_cache = $need_clear_cache || $updated;
+	*/
 
 	if ($need_clear_cache) {
 		// 更新缓存
@@ -1501,13 +1507,13 @@ function cowpro_issuing_field_attach_form($entity_type, $entity, &$form, &$form_
 		// $form ['field_issuing'] [LANGUAGE_NONE] [0] ['issuing_review'] ['deadline'] ['#disabled'] = $audited;
 		// $form ['field_issuing'] [LANGUAGE_NONE] [0] ['issuing_review'] ['start_time_element'] ['#disabled'] = $audited;
 		$form ['field_issuing'] [LANGUAGE_NONE] [0] ['issuing_settings'] ['#disabled'] = $audited;
-		$form ['body'] ['#disabled'] = $audited;
+		//$form ['body'] ['#disabled'] = $audited;
 		$form ['field_applicant'] ['#disabled'] = $audited;
 		$form ['field_category'] ['#disabled'] = $audited;
 		$form ['field_contract_credit_assignment'] ['#disabled'] = $audited;
 		$form ['field_contract_loan'] ['#disabled'] = $audited;
 		$form ['field_image'] ['#disabled'] = $audited;
-		$form ['field_risk_management'] ['#disabled'] = $audited;
+		//$form ['field_risk_management'] ['#disabled'] = $audited;
 
 		$access = user_access ( 'review issuing' );
 		$form ['field_issuing'] [LANGUAGE_NONE] [0] ['issuing_review'] ['audited'] ['#access'] = $access;

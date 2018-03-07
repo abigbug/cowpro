@@ -310,8 +310,9 @@ function _cowpro_shop_buy_item($nid, $vid, $title, $price, $qty, $mbl = NULL) {
 
 
 	if ($result['status']) {
+		$txn_id = $result['transaction']['txn_id'];
 		$entity_value = array(
-				'txn_id' => $params['txn_id'],
+				'txn_id' => $txn_id,
 		);
 		$entity = entity_create('cowpro_shop_deliver', $entity_value);
 		entity_get_controller('cowpro_shop_deliver')->save($entity);

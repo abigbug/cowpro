@@ -148,6 +148,11 @@ function _cowpro_issuing_get_review_form($issuing) {
 			'#default_value' => isset ( $issuing ['status'] ) ? $issuing ['status'] : COWPRO_ISSUING_STATUS_UNAUDITED
 	);
 
+	$element['make_loans_time'] = array(
+			'#type' => 'hidden',
+			'#value' => $issuing ['make_loans_time'],
+	);
+
 	$audited = FALSE;
 	if (isset ( $issuing ['status'] ) && ($issuing ['status'] != COWPRO_ISSUING_STATUS_UNAUDITED)) {
 		$audited = TRUE;
@@ -156,7 +161,7 @@ function _cowpro_issuing_get_review_form($issuing) {
 			'#title' => '已审核',
 			'#type' => 'checkbox',
 			'#default_value' => $audited,
-			'#weight' => 30
+			'#weight' => 30,
 	);
 	return $element;
 }

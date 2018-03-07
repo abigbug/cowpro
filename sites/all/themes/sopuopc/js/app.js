@@ -47,7 +47,7 @@ jQuery(document).ready(function($) {
                     break;
             }
             var lltxt = nhll*100;
-            jisuanqiEl.find('.shouyilv').html(lltxt+'%');
+            jisuanqiEl.find('.shouyilv').html(lltxt.toFixed(2)+'%');
         });
         // 计算收益
         if(jisuanBtn.length > 0){
