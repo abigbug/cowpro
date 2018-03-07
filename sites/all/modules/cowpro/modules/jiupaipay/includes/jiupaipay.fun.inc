@@ -10,7 +10,7 @@ function jiupaipay_callback($action) {
 		} else {
 			$action_helper = '';
 		}
-		$msg = print_r ( $_REQUEST, true );
+		$msg = print_r ( $data, true );
 		$businessSeqNo = $data ['businessSeqNo'];
 		watchdog('YBCCB', "callback $action $action_helper; businessSeqNo $businessSeqNo; $msg", NULL, WATCHDOG_DEBUG);//YBCCB 意指“宜宾市商业银行”
 	}
