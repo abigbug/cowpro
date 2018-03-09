@@ -129,8 +129,8 @@ function jiupaipay_topup_marketing_form($form, &$form_state) {
 function jiupaipay_topup_marketing_form_submit($form, &$form_state) {
 	$data ['amount'] = $form_state ['input'] ['amount'];
 	$data ['method'] = $form_state ['input'] ['method'];
-	$role = user_role_load_by_name ( 'administrator' );
-	$uid = $role->rid;
+	global $user;
+	$uid = $user->uid;
 
 	$entity_value = array (
 			'uid' => $uid,
@@ -510,12 +510,6 @@ function jiupaipay_cowpro_fund_bid($uid, $amount, $nid, $journal_id) {
 function jiupaipay_cowpro_fund_repayment($repayment_schedules) {
 	include_once 'includes/jiupaipay.repayment.inc';
 	return jiupaipay_repayment ( $repayment_schedules );
-}
-
-// 出款
-function jiupaipay_cowpro_fund_out_money($repayment_schedules) {
-	include_once 'includes/jiupaipay.outMoney.inc';
-	return jiupaipay_outMoney ( $repayment_schedules );
 }
 
 // 内部转账
