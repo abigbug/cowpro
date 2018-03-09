@@ -90,11 +90,15 @@ function jiupaipay_bank_card_unbundling($userId, $businessSeqNo) {
 	// var_dump($result);
 	if ($result ['respHeader'] ['respCode'] == 'P2P0000') {
 		$profile = cowpro_customer_profile_load_one_row_with_conditions ( $userId, 'jiupaipay' );
+		$profile_bank_card = cowpro_customer_profile_load_one_row_with_conditions ( $userId, 'bank_card' );
 		if ($profile == NULL) {
 			$profile = cowpro_customer_profile_new ( 'jiupaipay', $userId );
 		}
 		$profile->jpp_bank_card = FALSE; // 九派支付台账账号
 		cowpro_customer_profile_save ( $profile );
+                
+		$profile_bank_card->verified = FALSE;
+		cowpro_customer_profile_save ( $profile_bank_card );
 
 		drupal_set_message ( "解绑银行卡成功" );
 		global $base_url;
