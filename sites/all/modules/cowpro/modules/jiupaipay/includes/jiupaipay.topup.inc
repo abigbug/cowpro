@@ -20,17 +20,29 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id, $businessSeq
 	$post_data ['businessSeqNo'] = $businessSeqNo;
 	$post_data ['businessOrderNo'] = "jbz" . sprintf ( "%'.08d-%d", $journal_id, _jiupaipay_get_microtime () );
 
-	if ($rechargeType == 1) {
-		$post_data ['rType'] = 'R02';
-	} else if ($rechargeType == 2) {
-		$post_data ['rType'] = "R01";
-	}
-	$profile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'jiupaipay' );
-	$profile_bank_card = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'bank_card' );
-	$profile->jpp_authorize ? $post_data ['entrustflag'] = '01' : $post_data ['entrustflag'] = "00";
+	if( $rechargeType == 1 ) {
+      $post_data['rType'] = 'R02';
+    }else if( $rechargeType == 2 ){
+      $post_data['rType'] = "R01";
+    }else if( $rechargeType == 3 ){
+      $post_data['rType'] = "R03";
+    }
+
+  	 if( $post_data['rType'] != "R03" ) {
+       $profile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'jiupaipay' );
+       $profile_bank_card = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'bank_card' );
+       $profile->jpp_authorize ? $post_data['entrustflag'] = '01' : $post_data['entrustflag'] = "00";
+       $cebitAccountNo = $profile->jpp_account_number;
+       $card_number = $profile_bank_card->card_no;
+     }else{
+       $cebitAccountNo = JBZ_PM;
+       $post_data['entrustflag'] = "01";
+       $card_number = JBZ_BANK_CARD;
+     }
+
 	$accountList = array (
 			"oderNo" => 11,
-			"cebitAccountNo" => $profile->jpp_account_number,
+			"cebitAccountNo" => $cebitAccountNo,
 			"debitAccountNo" => "",
 			"currency" => "CNY",
 			"amount" => $amount,
@@ -41,7 +53,7 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id, $businessSeq
 	$post_data ['deductType'] = "";
 	$post_data ['busiBranchNo'] = "";
 	$post_data ['payType'] = "00";
-	$post_data ['bankAccountNo'] = $profile_bank_card->card_no;
+	$post_data ['bankAccountNo'] = $card_number;
 	$post_data ['secBankaccNo'] = "";
 	$post_data ['note'] = "";
 	$post_data ['platformAccountNo'] = "";
@@ -61,10 +73,14 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id, $businessSeq
 	foreach ( $post_data_tmp as $value ) {
 		$signInfo .= "|" . $value;
 	}
-	// var_dump($post_data);
-	// file_put_contents("/var/www/test.jinbeizeng.net/sites/all/modules/cowpro/modules/jiupaipay/includes/test.txt",$post_data['businessSeqNo'],FILE_APPEND);
+
 	$post_data ['bankAccountNo'] = $aes->encrypt ( $post_data ['bankAccountNo'] );
-	$post_data ["accountList"] [0] ['cebitAccountNo'] = $aes->encrypt ( $accountList ['cebitAccountNo'] );
+    if( !empty( $accountList['cebitAccountNo'] ) ) {
+      $post_data["accountList"][0]['cebitAccountNo'] = $aes->encrypt($accountList['cebitAccountNo']);
+    }
+    if( !empty( $post_data['secBankaccNo'] ) ) {
+      $post_data['secBankaccNo'] = $aes->encrypt($post_data['secBankaccNo']);
+    }
 
 	$rsa_private_key = variable_get ( PRIVATE_KEY_ON_JIUPAIPAY );
 	$rsa_public_key = variable_get ( PUBLIC_KEY_ON_JIUPAIPAY );
@@ -77,13 +93,13 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id, $businessSeq
 
 	$result = jiupaipay_curl_api ( $curl_post_data );
 	$result = json_decode ( $result, true );
-	// var_dump($result);
+	//var_dump($result);die();
 	if ($result ['respHeader'] ['respCode'] == 'P2PS000') {
 		$success = TRUE;
 	}
 
 	$external_reference_id = $result ['respHeader'] ['serviceSn'];
-	if ($post_data ['rType'] == "R01") {
+	if ($post_data ['rType'] != "R02") {
 		// custodian_cowpro_fund_topup_callback($success, $journal_id, $external_reference_id, 'jiupaipay', $result);
 		if ($success) {
 			drupal_set_message ( "已受理" );
@@ -108,7 +124,7 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id, $businessSeq
 		$data_pay ['ACCT_NO'] = "123123213";
 		$data_pay ['ACCT_NAME'] = "123123";
 		$data_pay ['B_ACCT_NO'] = "01573201000000528";
-		$data_pay ['B_ACCT_NAME'] = "天风天财（武汉）金融信息服务有限公司（资金存管户）";
+		$data_pay ['B_ACCT_NAME'] = "湖北余钱宝互联网科技有限公司";
 		$data_pay ['SUB_SOURCE_TYPE'] = "jbz";
 		$data_pay ['PAY_AMT'] = $amount;
 		$data_pay ['GOODS_NAME'] = "充值";
@@ -171,10 +187,9 @@ function jiupaipay_topup_bank_return($data) {
 
 // 充值银行异步回调
 function jiupaipay_topup_bank_notify($data) {
-	$result_string = file_get_contents ( "php://input" );
+	$result_string = $data;
 	if (! empty ( $result_string )) {
 		$result = json_decode ( $result_string, true );
-
 		$success = false;
 
 		if ($result ['inBody'] ['respCode'] == "P2P0000") {

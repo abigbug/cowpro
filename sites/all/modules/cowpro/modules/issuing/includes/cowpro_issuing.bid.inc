@@ -126,7 +126,13 @@ function _cowpro_issuing_bid_form_validate($form, &$form_state) {
 			form_set_error ( 'bid', '投资金额的最小单位是“元”' );
 		}
 		if ($form_state ['values']['amount'] < 100) {
-			form_set_error ( 'bid', '投资金额必需大于等于100元' );
+			if ($bid_avail >= 100) {
+				//在可投标余额大于100的时候，投资金额必需大于等于100元
+				form_set_error ( 'bid', '投资金额必需大于等于100元' );
+			} else if ($form_state ['values']['amount'] != $bid_avail) {
+				//如果可投标余额小于100，就没有这个限制
+				form_set_error ( 'bid', "投资金额必需是 $bid_avail 元" );
+			}
 		}
 		if ($form_state ['values']['amount'] > 200000) {
 			form_set_error ( 'bid', '当投资金额大于二十万元的时候，请拆分成多笔资金分别投资' );

@@ -36,7 +36,7 @@ jQuery(document).ready(function($) {
                     break;
                 case '6':
                     qixian = 6;
-                    nhll = 0.096;
+                    nhll = 0.102;
                     break;
                 case '12':
                     qixian = 12;

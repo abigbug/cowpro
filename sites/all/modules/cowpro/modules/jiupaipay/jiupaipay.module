@@ -527,8 +527,8 @@ function jiupaipay_cowpro_fund_buy_creditor_assignment($amount, $issuing_id, $se
 // 返回充值方式
 function jiupaipay_get_topup_method() {
 	return $result = array (
-			1 => "网银充值",
 			2 => "快捷充值",
+			1 => "网银充值",
 	);
 }
 

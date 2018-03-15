@@ -37,16 +37,18 @@
       <tr><td>3、点击开始抽奖，消耗相应积分，抽奖结果以弹出提示及最终红框选中为准；</td></tr>
       <tr><td>4、中奖奖品将自动存至抽奖账户，抽奖记录可前往<a href="<?php echo $GLOBALS['base_url'] . '/myuserpoints'; ?>" target="_blank"><font color="#FF0308">个人积分交易</font></a>进行查询；</td></tr>
       <tr><td><br></td></tr>
+	  <!--
       <tr><td><font color="#FF0308">奖品使用条件：</font></td></tr>
       <tr><td>1、中奖积分将存入积分总数，可用作商城兑换商品或积分抽奖；</td></tr>
       <tr><td>2、10元投资抵用券，7天有效期，单笔投资满10000可使用；</td></tr>
       <tr><td>3、30元投资抵用券，7天有效期，单笔投资满20000可使用；</td></tr>
       <tr><td>4、50元投资抵用券，7天有效期，单笔投资满30000可使用；</td></tr>
       <tr><td>5、100元投资抵用券，7天有效期，单笔投资满50000可使用；</td></tr>
+	  -->
       <tr><td><br></td></tr>
       <tr><td><font color="#FF0308">关于解释权：</font></td></tr>
       <tr><td>本免责声明以及其修改权、更新权及最终解释权均属金贝增。</td></tr>
-
+		
     </table>  
   </div>
   <script type="text/javascript">

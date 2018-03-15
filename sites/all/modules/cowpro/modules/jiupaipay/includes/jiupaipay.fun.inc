@@ -3,17 +3,6 @@ const JPP_DEBUG = TRUE;
 
 function jiupaipay_callback($action) {
 	$data = $_REQUEST;
-	if (JPP_DEBUG) {
-		include 'jiupaipay.const.code.inc';
-		if (array_key_exists($action, $YBCCB_CALLBACK_ACTION)) {
-			$action_helper = '(' . $YBCCB_CALLBACK_ACTION[$action] . ')';
-		} else {
-			$action_helper = '';
-		}
-		$msg = print_r ( $data, true );
-		$businessSeqNo = $data ['businessSeqNo'];
-		watchdog('YBCCB', "callback $action $action_helper; businessSeqNo $businessSeqNo; $msg", NULL, WATCHDOG_DEBUG);//YBCCB 意指“宜宾市商业银行”
-	}
 
 	$result = TRUE;
 	switch ($action) {
@@ -55,12 +44,44 @@ function jiupaipay_callback($action) {
 			break;
 		case 'jiupaipay_bank_notify' : // 银行充值回调同步
 			include_once 'jiupaipay.topup.inc';
+			//此处回调较特殊，其它回调，宜商行是以 HTTP POST 的方式传数据
+			//这里，宜商行是用 raw POST data 的方式传数据，
+			//所以要用 file_get_contents ( "php://input" ) 把数据读出来
+			$data = file_get_contents ( "php://input" );
 			$result = jiupaipay_topup_bank_notify ( $data );
 			break;
 		case 'jiupaipay_step_7' : // 提现校验密码回调
 			include_once 'jiupaipay.withdraw.inc';
 			$result = jiupaipay_withdraw_callback ( $data );
 			break;
+	}
+
+	if (JPP_DEBUG) {
+		include 'jiupaipay.const.code.inc';
+		if (array_key_exists($action, $YBCCB_CALLBACK_ACTION)) {
+			$action_helper = '(' . $YBCCB_CALLBACK_ACTION[$action] . ')';
+		} else {
+			$action_helper = '';
+		}
+		if (($action == 'jiupaipay_bank_notify') || ($action == 'jiupaipay_bank_return')) {
+			if (! empty ( $data )) {
+				$debug_data = json_decode ( $data, true );
+			} else {
+				$debug_data = '';
+			}
+		} else {
+			$debug_data = $data;
+		}
+		$msg = print_r ( $debug_data, true );
+		$businessSeqNo = '';
+		if (array_key_exists('businessSeqNo', $debug_data)) {
+			$businessSeqNo = $debug_data['businessSeqNo'] . '; ';
+		} else if (array_key_exists('inBody', $debug_data) && array_key_exists('businessSeqNo', $debug_data['inBody'])) {
+			//在以下两种情况下：(($action == 'jiupaipay_bank_notify') || ($action == 'jiupaipay_bank_return'))
+			//宜商行回传的数据包括 ['inBody'] 和 ['reqHeader']
+			$businessSeqNo = $debug_data['inBody']['businessSeqNo'] . '; ';
+		}
+		watchdog('YBCCB', "callback $action $action_helper; businessSeqNo $businessSeqNo; $msg", NULL, WATCHDOG_DEBUG);//YBCCB 意指“宜宾市商业银行”
 	}
 
 	if ($result) {
@@ -186,7 +207,12 @@ function jiupaipay_curl_api($data) {
 		if (array_key_exists($txn, $YBCCB_TXN_TYPE)) {
 			$txnType = $YBCCB_TXN_TYPE[$txn] . ' ' . $txnType;
 		}
-		$businessSeqNo = 'businessSeqNo:' . $data ['inBody']['businessSeqNo'] . '; ';
+		if (array_key_exists('businessSeqNo', $data ['inBody'])) {
+			$businessSeqNo = 'businessSeqNo:' . $data ['inBody']['businessSeqNo'] . '; ';
+		}else{
+			$businessSeqNo = '';
+		}
+
 		if (array_key_exists('businessOrderNo', $data ['inBody'])) {
 			$businessOrderNo = 'businessOrderNo:' . $data ['inBody']['businessOrderNo'] . '; ';
 		} else {

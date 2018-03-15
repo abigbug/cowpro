@@ -1775,14 +1775,15 @@ position:absolute;
 width: 100%;
 left:0px;
 bottom:50px;
-max-height: 400px;
-min-height: 180px;
+max-height: 200px;
+min-height: 80px;
 z-index:9999999;
 display:none;
 background-color: #FFF;
 border-top: 1px solid #e0e0e0;
 font-family: Microsoft Yahei;
 }
+
 #col-center-close{
     width:100%;
     height: 40px;
@@ -1804,31 +1805,68 @@ font-family: Microsoft Yahei;
     font-size: 18px;
     text-align: right;
 }
+
 #col-center-list{
     width:100%;
-    height: 70px;
-    line-height: 70px;
-    border-bottom: 1px solid #e0e0e0;
+    height: 150px;
+    line-height: 50px;
+    background-color: #ffffff;
+    border-top-width: 1px;
+    border-left-width: 1px;
+    border-top-style: solid;
+    border-left-style: solid;
+    border-top-color: #e0e0e0;
+    border-left-color: #e0e0e0;
+    margin: 0px;
+    padding: 0px;
+}
+#col-center-list ul{
+    height: 150px;
+    line-height: 50px;
+    margin:0px; 
+    padding:0px;
+    float: none;
+    background-color: #ffffff;
+    clear: left;
+}
+#col-center-list ul li{
+    width: 33%;
+    height: 50px;
+    line-height: 50px;
+    color: #999;
+    font-size: 12px;
+    text-align: center;
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+    float: left;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-right-style: solid;
+    border-bottom-style: solid;
+    border-right-color: #e0e0e0;
+    border-bottom-color: #e0e0e0;
+}
+#col-center-close2{
+    width:100%;
+    height: 80px;
+    line-height:80px;
     margin: 0px auto;
+    border-bottom: 1px solid #e0e0e0;
 }
-#col-center-td{
-    width:33%;
-    height: 70px;
-    line-height: 70px;
+#col-center-close2 #close_left2{
+    width: 75%;
+    float:left;
+    padding-left: 5%;
     font-size: 14px;
-    color: #333333;
-    text-align: center;
-    border-right: 1px solid #e0e0e0;
-    float:left; 
 }
-#col-center-td2{
-    width:33%;
-    height: 70px;
-    line-height: 70px;
-    font-size: 14px;
-    color: #333333;
-    text-align: center;
-    float:left; 
+#col-center-close2 #close_right2{
+    width: 15%;
+    padding-right:5%;
+    float:right;
+    color:#FF0000;
+    font-size: 18px;
+    text-align: right;
 }
 
 #modalBackdrop{ background: rgb(0, 0, 0) !important;opacity: 0.65 !important; }
