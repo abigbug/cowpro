@@ -272,3 +272,48 @@ function _jiupaipay_verify_api($data, $sign, $signtime) {
 	$verify = $rsa->verify ( $dataStr, $sign );
 	return $verify;
 }
+
+//记录执行 jiupaipay_repayment() 方法之后，宜商行服务器返回给我们的错误信息
+function _jiupaipay_repayment_debug($repayment_schedules, $execute_result) {
+	if (! JPP_DEBUG) {
+		return;
+	}
+
+	$values = array_values ( $repayment_schedules );
+	$repayment = array_shift ( $values );
+	$nid = '标的编号:' . $repayment->issuing_id;
+
+	$result_from_jpp = $execute_result['data']['value'];
+
+
+	$data ['interface_module'] = 'jiupaipay';
+	$data ['value'] = $result;
+
+	$result_jpp ['external_reference_id'] = $result ['respHeader'] ['serviceSn'];
+	$result_jpp ['data'] = $data;
+	$result_jpp ['message'] = $result ['respHeader'] ['respMsg'];
+	$result_jpp ['result_code'] = $result ['respHeader'] ['respCode'];
+
+
+	$msg = print_r ( $result_from_jpp, true );
+	$clientSn = 'clientSn:' . $result_from_jpp['reqHeader']['clientSn'] . '; ';
+
+	include 'jiupaipay.const.code.inc';
+	$txn = $result_from_jpp['reqHeader']['txnType'];
+	$txnType = 'txnType:' . $txn . '; ';
+	if (array_key_exists($txn, $YBCCB_TXN_TYPE)) {
+		$txnType = $YBCCB_TXN_TYPE[$txn] . ' ' . $txnType;
+	}
+	if (array_key_exists('businessSeqNo', $result_from_jpp ['inBody'])) {
+		$businessSeqNo = 'businessSeqNo:' . $result_from_jpp ['inBody']['businessSeqNo'] . '; ';
+	}else{
+		$businessSeqNo = '';
+	}
+
+	if ($execute_result ['success']) {
+		$watches_conditions = WATCHDOG_DEBUG;
+	} else {
+		$watches_conditions = WATCHDOG_ERROR;
+	}
+	watchdog('YBCCB', "$nid $txnType $clientSn $businessSeqNo $msg", NULL, $watches_conditions);//YBCCB 意指“宜宾市商业银行”
+}

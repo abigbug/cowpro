@@ -153,3 +153,35 @@ function cowpro_rewards_have_checked_in() {
 		return FALSE;
 	}
 }
+
+/*
+ 仅用于测试，当用户登录的时候，触发cowpro_fund_bid_finished event
+ */
+/*
+function cowpro_rewards_user_login(&$edit, $account) {
+	$uid = $GLOBALS ['user']->uid;
+	if ($uid != 70041) {//只有用户 bigbug 登录的时候，才触发后面的逻辑
+		return;
+	}
+
+	$issuing_id = 2500;
+	$period = 1;
+	$node = node_load($issuing_id);
+
+	$repayment_schedules = array();
+	$conditions = array (
+			'issuing_id' => $issuing_id,
+			'period' => $period,
+			//'status' => 'WAITING_FOR',
+	);
+	$reset = FALSE;
+	$schedules = entity_load ( 'cowpro_repayment_schedule', FALSE, $conditions, $reset );
+	foreach ($schedules as $schedule) {
+		if ($schedule->receiver_uid != -1) {
+			$repayment_schedules[] = $schedule;
+		}
+	}
+
+	rules_invoke_event('cowpro_fund_repayment_finished', TRUE, $node, $repayment_schedules);
+ }
+*/

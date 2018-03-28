@@ -509,7 +509,10 @@ function jiupaipay_cowpro_fund_bid($uid, $amount, $nid, $journal_id) {
 // 到期还款
 function jiupaipay_cowpro_fund_repayment($repayment_schedules) {
 	include_once 'includes/jiupaipay.repayment.inc';
-	return jiupaipay_repayment ( $repayment_schedules );
+	$result = jiupaipay_repayment ( $repayment_schedules );
+	include_once 'includes/jiupaipay.fun.inc';
+	_jiupaipay_repayment_debug($repayment_schedules, $result);
+	return $result;
 }
 
 // 内部转账

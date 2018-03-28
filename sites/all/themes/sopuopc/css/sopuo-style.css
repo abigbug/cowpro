@@ -942,24 +942,18 @@ body{background-color: #f5f5f5;overflow-x: hidden;overflow-y: auto;}
 .verified{
     color: #53aa1b;
 }
-
-@media screen and (min-width: 1400px) { 
 .login_block {
     position: absolute;
     z-index: 2;
     right: 0;
     float: right;
     overflow: hidden;
-    height: 20em;
     top: 119px;
-    width: 350px;
  }
 .login_block .login_background {
     position: absolute;
     top: 0px;
     right: 0;
-    width: 350px;
-    height: 20em;
     background: #000;
     z-index: 2;
     filter: alpha(opacity=50);
@@ -971,224 +965,154 @@ body{background-color: #f5f5f5;overflow-x: hidden;overflow-y: auto;}
     border-radius: 5px;
  }
 .login_block .after_login {
-    height: 20em;
+    overflow: hidden;
+    position: absolute;
+    top: 0px;
+    z-index: 3;
+    float: right;
+ }
+.after_login .user_info .user_img {
+    background: url(../images/noavatar_big.gif) no-repeat;
+    background-size: 97px 96px;
+    width: 97px;
+    height: 96px;
+    padding: 2px;
+    overflow: hidden;
+    float: left;
+    margin-left: 0px;
+ }
+.after_login .user_info .user_info_d {
+    float: left;
+    margin-left: 10px;
+ }
+.after_login .user_money {
+    overflow: hidden;
+    width: 120%;
+    padding-top: 10px;
+ }
+.after_login .user_name {
+    width: 82%;
+ }
+.after_login .user_name a {
+    display: block;
+    float: right;
+    width: 66px;
+    height: 26px;
+    border-radius: 3px;
+    background: #bfebfa;
+    text-align: center;
+    line-height: 26px;
+    margin-right: 13px;
+    font-size: 12px;
+ }
+.after_login .user_name a:hover {
+    background: #39A1EA;
+    color: #fff;
+ }
+.after_login .user_info .user_info_d div{
+    height: 25px;
+    line-height: 25px;
+    color: #FFF;
+ }
+ 
+/* css注释：设置了浏览器宽度大于1600px时登录框显示高度20em */ 
+@media screen and (min-width: 1600px) { 
+.login_block {
+    width: 400px;
+    height: 26.9em;
+ }
+.login_block .login_background {
+    width: 400px;
+    height: 26.9em;
+ }
+.login_block .after_login {
+    width: 400px;
+    height: 26.9em;
+    padding: 40px 36px;
+ }
+ .login_block .after_login .form-group {
+    margin-bottom: 25px;
+ }
+  .login_block .after_login .form-group .form-control {
+    height: 42px;
+ }
+ .login_block .fast_login {
+    padding-top: 20px;
+    padding-bottom: 8px;
+ }
+ .after_login .user_info .user_info_d {
+    margin-left: 20px;
+ }
+ .after_login .user_money {
+    padding-top: 20px;
+ }
+ .after_login .user_money a {
+    width: 78px;
+    height: 26px;
+    line-height: 26px;
+}
+} 
+
+/* 设置了浏览器宽度小于1600px时登录框显示高度 */ 
+@media screen and (max-width: 1600px) { 
+.login_block {
     width: 350px;
+    height: 22.3em;
+ }
+.login_block .login_background {
+    width: 350px;
+    height: 22.3em;
+ }
+.login_block .after_login {
+    width: 350px;
+    height: 22.3em;
     padding: 26px 36px;
-    overflow: hidden;
-    position: absolute;
-    top: 0px;
-    z-index: 3;
-    float: right;
- }
-.after_login .user_info .user_img {
-    background: url(../images/noavatar_big.gif) no-repeat;
-    background-size: 97px 96px;
-    width: 97px;
-    height: 96px;
-    padding: 2px;
-    overflow: hidden;
-    float: left;
-    margin-left: 0px;
- }
-.after_login .user_info .user_info_d {
-    float: left;
-    margin-left: 10px;
- }
-.after_login .user_money {
-    overflow: hidden;
-    width: 120%;
-    padding-top: 10px;
- }
-.after_login .user_name {
-    width: 76%;
- }
-.after_login .user_name a {
-    display: block;
-    float: right;
-    width: 66px;
-    height: 21px;
-    border-radius: 3px;
-    background: #bfebfa;
-    text-align: center;
-    line-height: 21px;
-    margin-right: 13px;
-    font-size: 12px;
- }
-.after_login .user_name a:hover {
-    background: #39A1EA;
-    color: #fff;
- }
-.after_login .user_info .user_info_d div{
-    height: 25px;
-    line-height: 25px;
-    color: #FFF;
- }
-}
-
-@media screen and (max-width: 1400px) { 
-.login_block {
-    position: absolute;
-    z-index: 2;
-    right: 0;
-    float: right;
-    overflow: hidden;
-    height: 17em;
-    top: 119px;
-    width: 350px;
- }
-.login_block .login_background {
-    position: absolute;
-    top: 0px;
-    right: 0;
-    width: 350px;
-    height: 17em;
-    background: #000;
-    z-index: 2;
-    filter: alpha(opacity=50);
-    -moz-opacity: 0.5;
-    -khtml-opacity: 0.5;
-    opacity: 0.5;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    border-radius: 5px;
- }
-.login_block .after_login {
-    height: 17em;
-    width: 350px;
-    padding: 12px 36px;
-    overflow: hidden;
-    position: absolute;
-    top: 0px;
-    z-index: 3;
-    float: right;
- }
-.after_login .user_info .user_img {
-    background: url(../images/noavatar_big.gif) no-repeat;
-    background-size: 97px 96px;
-    width: 97px;
-    height: 96px;
-    padding: 2px;
-    overflow: hidden;
-    float: left;
-    margin-left: 0px;
- }
-.after_login .user_info .user_info_d {
-    float: left;
-    margin-left: 10px;
- }
-.after_login .user_money {
-    overflow: hidden;
-    width: 120%;
-    padding-top: 10px;
- }
-.after_login .user_name {
-    width: 76%;
-    padding: 5px 0px;
- }
-.after_login .user_name a {
-    display: block;
-    float: right;
-    width: 66px;
-    height: 21px;
-    border-radius: 3px;
-    background: #bfebfa;
-    text-align: center;
-    line-height: 21px;
-    margin-right: 13px;
-    font-size: 12px;
- }
-.after_login .user_name a:hover {
-    background: #39A1EA;
-    color: #fff;
- }
-.after_login .user_info .user_info_d div{
-    height: 25px;
-    line-height: 25px;
-    color: #FFF;
- }
-}
-@media screen and (max-width: 1200px) { 
-.login_block {
-    position: absolute;
-    z-index: 2;
-    right: 0;
-    float: right;
-    overflow: hidden;
-    height: 16em;
-    top: 119px;
-    width: 350px;
- }
-.login_block .login_background {
-    position: absolute;
-    top: 0px;
-    right: 0;
-    width: 350px;
-    height: 16em;
-    background: #000;
-    z-index: 2;
-    filter: alpha(opacity=50);
-    -moz-opacity: 0.5;
-    -khtml-opacity: 0.5;
-    opacity: 0.5;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    border-radius: 5px;
- }
-.login_block .after_login {
-    height: 16em;
-    width: 350px;
-    padding: 12px 36px;
-    overflow: hidden;
-    position: absolute;
-    top: 0px;
-    z-index: 3;
-    float: right;
- }
-.after_login .user_info .user_img {
-    background: url(../images/noavatar_big.gif) no-repeat;
-    background-size: 97px 96px;
-    width: 97px;
-    height: 96px;
-    padding: 2px;
-    overflow: hidden;
-    float: left;
-    margin-left: 0px;
- }
-.after_login .user_info .user_info_d {
-    float: left;
-    margin-left: 10px;
- }
-.after_login .user_money {
-    overflow: hidden;
-    width: 120%;
-    padding-top: 10px;
- }
-.after_login .user_name {
-    width: 76%;
-    padding: 5px 0px;
- }
-.after_login .user_name a {
-    display: block;
-    float: right;
-    width: 66px;
-    height: 21px;
-    border-radius: 3px;
-    background: #bfebfa;
-    text-align: center;
-    line-height: 21px;
-    margin-right: 13px;
-    font-size: 12px;
- }
-.after_login .user_name a:hover {
-    background: #39A1EA;
-    color: #fff;
- }
-.after_login .user_info .user_info_d div{
-    height: 25px;
-    line-height: 25px;
-    color: #FFF;
+ } 
+ .login_block .fast_login {
+    padding-top: 20px;
  }
 } 
+
+/* 设置了浏览器宽度小于1440px时登录框显示高度 */ 
+@media screen and (max-width: 1440px) { 
+.login_block {
+    width: 350px;
+    height: 20em;
+ }
+.login_block .login_background {
+    width: 350px;
+    height: 20em;
+ }
+.login_block .after_login {
+    width: 350px;
+    height: 20em;
+    padding: 20px 36px;
+ } 
+ .login_block .fast_login {
+    padding-top: 16px;
+ }
+} 
+
+/* 设置了浏览器宽度小于1280px时登录框显示高度 */ 
+@media screen and (max-width: 1280px) { 
+.login_block {
+    width: 350px;
+    height: 17.8em;
+ }
+.login_block .login_background {
+    width: 350px;
+    height: 17.8em;
+ }
+.login_block .after_login {
+    width: 350px;
+    height: 17.8em;
+    padding: 6px 36px;
+ }
+ .login_block .fast_login {
+    padding-top: 16px;
+ }
+} 
+
 .table-responsive table tr td img{
     width: 200px;
 }

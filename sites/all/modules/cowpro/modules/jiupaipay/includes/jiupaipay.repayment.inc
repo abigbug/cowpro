@@ -82,6 +82,7 @@ function jiupaipay_repayment($repayment_schedules) {
 		$result_jpp ['success'] = FALSE;
 	}
 
+	$data = array();
 	$data ['interface_module'] = 'jiupaipay';
 	$data ['value'] = $result;
 
@@ -175,11 +176,16 @@ function jiupaipay_repayment_pay_for($repayment_schedules, $result_repayment) {
 		} else {
 			$result_jpp ['success'] = FALSE;
 		}
+		$data = array();
+		$data ['interface_module'] = 'jiupaipay';
+		$data ['value'] = $result;
+		$result_jpp ['external_reference_id'] = $result ['respHeader'] ['serviceSn'];
+		$result_jpp ['data'] = $data;
 		$result_jpp ['message'] = $result ['respHeader'] ['respMsg'];
 		$result_jpp ['result_code'] = $result ['respHeader'] ['respCode'];
 		// var_dump($result_jpp);
 		return $result_jpp;
 	} else {
-		echo $result_repayment ['message'];
+		return $result_repayment;
 	}
 }

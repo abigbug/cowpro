@@ -81,6 +81,8 @@ function jiupaipay_withdraw($uid, $amount, $card, $journal_id, $businessSeqNo) {
 		drupal_set_message ( "受理成功" );
 		drupal_goto ( $base_url . "/user" );
 	} else {
+                $success = false;
+                custodian_cowpro_fund_withdraw_callback ( $success, $journal_id, $external_reference_id, 'jiupaipay', $result );
 		drupal_set_message ( $result ['respHeader'] ['respMsg'], "error" );
 		drupal_goto ( $base_url . "/user" );
 	}

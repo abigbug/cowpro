@@ -666,8 +666,11 @@ article, figure {
 }
 .rt-content-process ul li, .rt-content-service ul li {
   float: left;
-  width: 68px;
+  width: 80px;
   *display: inline;
+}
+.rt-content-process ul li, .rt-content-service ul li a {
+  text-decoration:none;
 }
 .rt-content-process ul li {
   _position: relative;
@@ -724,15 +727,15 @@ article, figure {
 }
 /*service*/
 .rt-content-service ul {
-  margin-left: -75px;
+  margin-left: -80px;
   *margin-left: -70px;
   *position: relative;
   *zoom: 1;
-  _margin-left: -58px;
+  _margin-left: - 80px;
 }
 .rt-content-service ul li {
-  margin-left: 69px;
-  _margin-left: 58px;
+  margin-left: 80px;
+  _margin-left: 80px;
 }
 .rt-wrapper .rt-content-service a {
   cursor: pointer;
@@ -760,19 +763,17 @@ article, figure {
   width: 63px;
   height: 63px;
 }
-.rt-findPayPwd span {
-  background-position: 0 -248px;
-  width: 63px;
-  height: 63px;
-}
-.rt-modifyMail span {
-  background-position: 0 -186px;
+.rt-withdraw span {
+  background-position: 0 -62px;
 }
 .rt-modifyTel span {
   background-position: 0 -124px;
 }
-.rt-modifyLoginPwd span {
-  background-position: 0 -62px;
+.rt-bankcard span {
+  background-position: 0 -186px;
+}
+.rt-topup span {
+  background-position: 0 -248px;
 }
 /*faq and new function*/
 .rt-content-newFun, .rt-content-faq {

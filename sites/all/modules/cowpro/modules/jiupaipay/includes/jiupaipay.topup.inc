@@ -96,17 +96,21 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id, $businessSeq
 	//var_dump($result);die();
 	if ($result ['respHeader'] ['respCode'] == 'P2PS000') {
 		$success = TRUE;
-	}
+        }else{
+            $success = FALSE;
+        }
 
 	$external_reference_id = $result ['respHeader'] ['serviceSn'];
 	if ($post_data ['rType'] != "R02") {
+		global $base_url;
 		// custodian_cowpro_fund_topup_callback($success, $journal_id, $external_reference_id, 'jiupaipay', $result);
 		if ($success) {
 			drupal_set_message ( "已受理" );
-			global $base_url;
 			drupal_goto ( $base_url . "/user" );
 		} else {
-			echo $result ['respHeader'] ['respMsg'];
+                        custodian_cowpro_fund_topup_callback ( $success, $journal_id, $external_reference_id, 'jiupaipay', $result );
+                        drupal_set_message ( $result ['respHeader'] ['respMsg'], "error" );
+                        drupal_goto ( $base_url . "/user" );
 		}
 	}
 	if ($result ['respHeader'] ['respCode'] == 'P2PS000' && $post_data ['rType'] == "R02") {

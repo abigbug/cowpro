@@ -62,7 +62,7 @@ if ( $user->uid ) :
                     <li>
                         <a href="javascript:;" class="rt-process-logo rt-ral">
                             <span></span>
-                            <p>注册</p>
+                            <p>注册并登录</p>
                         </a>
                     </li>
                     <li><span class="rt-arrow"></span></li>
@@ -106,41 +106,77 @@ if ( $user->uid ) :
             <div class="rt-content-service">
                 <ul>
                     <li>
-                        <a target="_blank" href="/index.php?ctl=user&amp;act=getpassword" class="rt-service-logo rt-findLoginPwd">
+                        <a target="_blank" href="/user/password_by_sms" class="rt-service-logo rt-findLoginPwd">
                             <span></span>
-                            <p>找回登录密码</p>
+                            <p>登录密码</p>
+                        </a>
+                    </li>
+                    <?php
+                      if ( $user->uid ) :
+                    ?>                    
+                    <li>
+                        <a target="_blank" href="/user/<?php print $user->uid; ?>/customer-profiles/mobile" class="rt-service-logo rt-findPayPwd">
+                            <span></span>
+                            <p>投标密码</p>
+                        </a>
+                    </li>  
+                    <li>
+                        <a target="_blank" href="/user/<?php print $user->uid; ?>/customer-profiles/mobile" class="rt-service-logo rt-modifyTel">
+                            <span></span>
+                            <p>修改手机号</p>
                         </a>
                     </li>
                     <li>
-                        <a target="_blank" href="/member.php?ctl=uc_account&amp;act=security" class="rt-service-logo rt-findPayPwd">
+                        <a target="_blank" href="/user/<?php print $user->uid; ?>/customer-profiles/bank_card" class="rt-service-logo rt-bankcard">
                             <span></span>
-                            <p>找回支付密码</p>
+                            <p>绑定银行卡</p>
                         </a>
                     </li>
                     <li>
-                        <a target="_blank" href="/member.php?ctl=uc_account&amp;act=security" class="rt-service-logo rt-modifyMail">
+                        <a target="_blank" href="/cowpro/fund/topup" class="rt-service-logo rt-topup">
                             <span></span>
-                            <p>修改邮箱</p>
+                            <p>充值</p>
                         </a>
                     </li>
                     <li>
-                        <a target="_blank" href="/member.php?ctl=uc_account&amp;act=security" class="rt-service-logo rt-modifyTel">
+                        <a target="_blank" href="/cowpro/fund/withdraw" class="rt-service-logo rt-withdraw">
                             <span></span>
-                            <p>修改手机</p>
+                            <p>提现</p>
                         </a>
-                    </li>
+                    </li> 
+                    <?php else :?>
                     <li>
-                        <a target="_blank" href="/member.php?ctl=uc_account&amp;act=security" class="rt-service-logo rt-modifyLoginPwd">
+                        <a target="_blank" href="/user/login" class="rt-service-logo rt-findPayPwd">
                             <span></span>
-                            <p>修改登录密码</p>
+                            <p>投标密码</p>
                         </a>
-                    </li>
+                    </li> 
                     <li>
-                        <a target="_blank" href="/member.php?ctl=uc_account&amp;act=security" class="rt-service-logo rt-modifyPayPwd">
+                        <a target="_blank" href="/user/login" class="rt-service-logo rt-modifyTel">
                             <span></span>
-                            <p>修改支付密码</p>
+                            <p>修改手机号</p>
                         </a>
-                    </li>
+                    </li> 
+                    <li>
+                        <a target="_blank" href="/user/login" class="rt-service-logo rt-bankcard">
+                            <span></span>
+                            <p>绑定银行卡</p>
+                        </a>
+                    </li> 
+                    <li>
+                        <a target="_blank" href="/user/login" class="rt-service-logo rt-topup">
+                            <span></span>
+                            <p>充值</p>
+                        </a>
+                    </li> 
+                    <li>
+                        <a target="_blank" href="/user/login" class="rt-service-logo rt-withdraw">
+                            <span></span>
+                            <p>提现</p>
+                        </a>
+                    </li> 
+                    <?php endif; ?>
+
                 </ul>
             </div>
         </div>

@@ -91,7 +91,12 @@ html;
 </div>
 html;
 
-		$form = drupal_get_form ( "user_login" );
+		//在 drupal_get_form ( 'user_login' ); 的时候，系统是从缓存中读取
+		//但有可能缓存中保存的 user login form 里面的 action 属性但有query选项，如下代码所示：
+		//$form['#action'] = url(current_path(), array('query' => drupal_get_destination(), 'external' => FALSE));
+		//这是我们不希望的，所以这里先把 user login form 的缓存清理掉，重新构造一个
+		cache_clear_all('user_login', 'cache_form');
+		$form = drupal_get_form ( 'user_login' );
 		$html = str_replace ( '#form#', render ( $form ), $html );
 		$result = array (
 				'#markup' => $html
