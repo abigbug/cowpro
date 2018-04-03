@@ -806,3 +806,22 @@ function jiupaipay_user_view_detail($profile) {
 	$result ['message'] = $message;
 	return $result;
 }
+
+/**
+ * Implements hook_result_parser().
+ * cowpro_fund_journal_handler_field_status.inc 会调用该方法对 journal data 数据进行解析
+ * $type 的类型参考 cowpro_fund_type.inc
+ * $data 的结构参考 custodian_cowpro_fund_internal_trans 方法里面拼装的$data
+ */
+/*
+function jiupaipay_result_parser($type, $data) {
+	$msg = NULL;
+	switch ($type) {
+		case 'INTERNAL_TRANS':
+			break;
+		default:
+			break;
+	}
+	return $msg;
+}
+*/

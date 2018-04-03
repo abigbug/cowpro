@@ -32,6 +32,9 @@ function _cowpro_fund_get_readable_status($status) {
 		case COWPRO_FUND_TYPE_REPAYMENT_PAYMENTS :
 			$result = '按期还款，付款方';
 			break;
+		case COWPRO_FUND_TYPE_INTERNAL_TRANS :
+			$result = '内部转账';
+			break;
 		default :
 			throw new PDOException ( '无效的《资金明细账》状态: ' . $status );
 	}

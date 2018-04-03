@@ -287,12 +287,12 @@ function _jiupaipay_repayment_debug($repayment_schedules, $execute_result) {
 
 
 	$data ['interface_module'] = 'jiupaipay';
-	$data ['value'] = $result;
+	$data ['value'] = $execute_result;
 
-	$result_jpp ['external_reference_id'] = $result ['respHeader'] ['serviceSn'];
+	$result_jpp ['external_reference_id'] = $execute_result ['respHeader'] ['serviceSn'];
 	$result_jpp ['data'] = $data;
-	$result_jpp ['message'] = $result ['respHeader'] ['respMsg'];
-	$result_jpp ['result_code'] = $result ['respHeader'] ['respCode'];
+	$result_jpp ['message'] = $execute_result ['respHeader'] ['respMsg'];
+	$result_jpp ['result_code'] = $execute_result ['respHeader'] ['respCode'];
 
 
 	$msg = print_r ( $result_from_jpp, true );

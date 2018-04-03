@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of cowpro_fund_journal_handler_field_status.
+ * Definition of cowpro_shop_deliver_handler_field_status.
  */
 
 /**
