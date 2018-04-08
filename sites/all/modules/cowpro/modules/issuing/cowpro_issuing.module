@@ -1532,16 +1532,21 @@ function cowpro_issuing_bid_list($nid) {
 
 function cowpro_issuing_test_form($form, &$form_state) {
 	// 生成还款计划表
-	$nid = 2048;
+	$nid = 2514;
 	$node = node_load ( $nid );
 	$issuing = $node->field_issuing [LANGUAGE_NONE] [0];
 
 	require_once 'includes/cowpro_issuing.repayment_schedule.fun.inc';
-	$schedule_list = _cowpro_issuing_build_repayment_schedule ( $issuing ['loan_amounts'], $issuing ['annual_rate'], $issuing ['loan_term'], $issuing ['method_repayment'], $issuing['make_loans_time'] );
-	$total = 0;
+	$schedule_list = _cowpro_issuing_build_repayment_schedule_for_issuing ( $nid, $node->field_applicant [LANGUAGE_NONE] [0], $issuing);
+	$interest_total = 0;
 	foreach ( $schedule_list as $key => $value ) {
-		$total += $value ['capital'] + $value ['interest'];
+		//$msg = serialize($value);
+		//echo $msg . '<br/>';
+		if ($value['receiver_uid'] == -1) {
+			$interest_total += $value ['interest'];
+		}
 		$content = '<ul>';
+		/*
 		foreach ( $value as $k => $v ) {
 			if ($k=='deadline') {
 				$deadline = gmdate ( "Y年m月d日 H:i:s", $v) . '===' . gmdate ( "Y-m-d H:i:s", $v);
@@ -1549,13 +1554,16 @@ function cowpro_issuing_test_form($form, &$form_state) {
 			} else {
 				$content .= "<li>$k => $v</li>";
 			}
-		}
+		}*/
+		$content .= "<li>term_no => " . $value['term_no'] . "</li>";
+		$content .= "<li>capital => " . $value['capital'] . "</li>";
+		$content .= "<li>interest => " . $value['interest'] . "</li>";
+		$content .= "<li>receiver_uid => " . $value['receiver_uid'] . "</li>";
 		$content .= '</ul>';
 		echo "$key => $content<br/>";
 	}
-	$interest = $total - $issuing ['loan_amounts'];
 
-	echo '利息：' . $interest . '<br/>';
+	echo '利息：' . $interest_total . '<br/>';
 	echo 'loan_amount:' . $issuing ['loan_amounts'] . '<br/>';
 	echo 'annual_rate:' . $issuing ['annual_rate'] . '<br/>';
 	echo 'loan_term:' . $issuing ['loan_term'] . '<br/>';

@@ -131,7 +131,8 @@ function _cowpro_reward_repayment_finished_grant_points($success, $node, $repaym
 				$relationship = array_shift($relationships);
 				if ($relationship) {
 					$uid_referree = $relationship->requestee_id;
-					if (!user_has_role($role->rid, $uid_referree)) {
+					$user_referree = user_load($uid_referree);
+					if (!user_has_role($role->rid, $user_referree)) {
 						$desc = '推荐他人投资奖励（一级）,用户：' . $user->name . ',贷款：' . $node->title . ',' . $period_remark;
 						$params = array (
 								'uid' => $uid_referree,
@@ -159,7 +160,8 @@ function _cowpro_reward_repayment_finished_grant_points($success, $node, $repaym
 				$relationship = array_shift($relationships);
 				if ($relationship) {
 					$uid_referree = $relationship->requestee_id;
-					if (!user_has_role($role->rid, $uid_referree)) {
+					$user_referree = user_load($uid_referree);
+					if (!user_has_role($role->rid, $user_referree)) {
 						$desc = '推荐他人投资奖励（二级）,用户：' . $user->name . ',贷款：' . $node->title . ',' . $period_remark;
 						$params = array (
 							'uid' => $uid_referree,

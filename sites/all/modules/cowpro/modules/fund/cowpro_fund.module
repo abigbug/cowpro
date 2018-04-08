@@ -47,7 +47,7 @@ function cowpro_fund_menu() {
 			'page callback' => 'drupal_get_form',
 			'page arguments' => array('cowpro_fund_internal_trans'),
 			'access arguments' => array('cowpro fund internal trans'),
-			'menu_name' => 'navigation',
+			//'menu_name' => 'navigation',
 			'type' => MENU_NORMAL_ITEM,
 			'file' => 'includes/cowpro_fund_internal_trans.inc',
 			'weight' => 30

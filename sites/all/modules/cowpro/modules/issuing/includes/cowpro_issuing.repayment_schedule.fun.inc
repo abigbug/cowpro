@@ -304,13 +304,7 @@ function _cowpro_issuing_build_repayment_schedule($loan_amounts, $annual_rate, $
 	return $schedule;
 }
 
-/**
- *
- * @param 贷款申请表的nid $nid
- * @param 贷款申请人的uid $applicant
- * @param 贷款申请表，数组结构 $issuing
- */
-function _cowpro_issuing_save_repayment_schedule($nid, $applicant, $issuing) {
+function _cowpro_issuing_build_repayment_schedule_for_issuing($nid, $applicant, $issuing) {
 	//根据还款方式计算每一期的还款额
 	$journal_list = cowpro_issuing_bid_list($nid);
 
@@ -341,28 +335,37 @@ function _cowpro_issuing_save_repayment_schedule($nid, $applicant, $issuing) {
 		}
 	}
 
-	//将“还款计划表”保存到数据库中
 	$period_total = count($repayment_schedule) / count($journal_list);
 
 	//每一个还款期，针对各个出借人计算的还款情况的合计与按贷款人计算的还款情况相比，可能会因为四舍五入而产生差异
 	//这里，将按各个出借人计算的还款情况相加，做为贷款人的应还款情况
 	for ($i=1; $i<=$period_total; $i++) {
-		$capital = 0;
 		$interest = 0;
 		foreach($repayment_schedule as $schedule) {
 			if (($schedule['receiver_uid'] != -1) && ($schedule['term_no'] == $i)) {
-				$capital = $capital + $schedule['capital'];
 				$interest = $interest + $schedule['interest'];
 			}
 		}
-		foreach($repayment_schedule as $schedule) {
+		foreach($repayment_schedule as $k => $schedule) {
 			if (($schedule['receiver_uid'] == -1) && ($schedule['term_no'] == $i)) {
-				$schedule['capital'] = $capital;
-				$schedule['interest'] = $interest;
+				$repayment_schedule[$k]['interest'] = $interest;
 			}
 		}
 	}
 
+	return $repayment_schedule;
+}
+
+/**
+ *
+ * @param 贷款申请表的nid $nid
+ * @param 贷款申请人的uid $applicant
+ * @param 贷款申请表，数组结构 $issuing
+ */
+function _cowpro_issuing_save_repayment_schedule($nid, $applicant, $issuing) {
+	$repayment_schedule = _cowpro_issuing_build_repayment_schedule_for_issuing($nid, $applicant, $issuing);
+
+	//将“还款计划表”保存到数据库中
 	foreach($repayment_schedule as $schedule) {
 		$entity_value = array(
 				'issuing_id' => $nid,//对应的原始贷款申请表编号(nid)

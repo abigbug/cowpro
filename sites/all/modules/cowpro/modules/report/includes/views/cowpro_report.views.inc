@@ -121,6 +121,9 @@ function cowpro_report_views_data() {
 			'field' => array(
 					'handler' => 'cowpro_users_handler_field_real_name',
 			),
+			'filter' => array(
+					'handler' => 'cowpro_users_handler_filter_real_name',
+			),
 	);
 	$data['users']['mmm'] = array(
 			'title' => '乾多多注册',
@@ -152,6 +155,25 @@ function cowpro_report_views_data() {
 			'real field' => 'uid',
 			'field' => array(
 					'handler' => 'cowpro_users_handler_field_bankcard_no',
+			),
+	);
+	$data['users']['idcard_yob'] = array(
+			'title' => '生年',
+			'help' => '出生年份',
+			'real field' => 'uid',
+			'field' => array(
+					'handler' => 'cowpro_users_handler_field_idcard_yob',
+			),
+			'filter' => array(
+					'handler' => 'views_handler_filter_numeric',
+			),
+	);
+	$data['users']['idcard_gender'] = array(
+			'title' => '性别',
+			'help' => '性别',
+			'real field' => 'uid',
+			'field' => array(
+					'handler' => 'cowpro_users_handler_field_idcard_gender',
 			),
 	);
 	$data['users']['ybccb'] = array(
