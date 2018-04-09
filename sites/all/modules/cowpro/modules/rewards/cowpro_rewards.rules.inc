@@ -132,7 +132,7 @@ function _cowpro_reward_repayment_finished_grant_points($success, $node, $repaym
 				if ($relationship) {
 					$uid_referree = $relationship->requestee_id;
 					$user_referree = user_load($uid_referree);
-					if (!user_has_role($role->rid, $user_referree)) {
+					//if (!user_has_role($role->rid, $user_referree)) {
 						$desc = '推荐他人投资奖励（一级）,用户：' . $user->name . ',贷款：' . $node->title . ',' . $period_remark;
 						$params = array (
 								'uid' => $uid_referree,
@@ -145,7 +145,7 @@ function _cowpro_reward_repayment_finished_grant_points($success, $node, $repaym
 						);
 						userpoints_userpointsapi($params);
 						watchdog('COWPRO_REWARDS', "uid:$uid_referree;$desc;奖金:$bonus1(以人民币“分”为单位)", NULL, WATCHDOG_DEBUG);
-					}
+					//}
 				}
 			}
 
@@ -161,7 +161,7 @@ function _cowpro_reward_repayment_finished_grant_points($success, $node, $repaym
 				if ($relationship) {
 					$uid_referree = $relationship->requestee_id;
 					$user_referree = user_load($uid_referree);
-					if (!user_has_role($role->rid, $user_referree)) {
+					//if (!user_has_role($role->rid, $user_referree)) {
 						$desc = '推荐他人投资奖励（二级）,用户：' . $user->name . ',贷款：' . $node->title . ',' . $period_remark;
 						$params = array (
 							'uid' => $uid_referree,
@@ -174,7 +174,7 @@ function _cowpro_reward_repayment_finished_grant_points($success, $node, $repaym
 						);
 						userpoints_userpointsapi($params);
 						watchdog('COWPRO_REWARDS', "uid:$uid_referree;$desc;奖金:$bonus2(以人民币“分”为单位)", NULL, WATCHDOG_DEBUG);
-					}
+					//}
 				}
 			}
 
