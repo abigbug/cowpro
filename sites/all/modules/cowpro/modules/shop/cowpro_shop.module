@@ -1,6 +1,6 @@
 <?php
 
-define('COMMERCE_SERVICE_URL', 'http://shop.jinbeizeng.com/service/');
+define('COMMERCE_SERVICE_URL', 'https://shop.jinbeizeng.com/service/');
 define('TOTAL_PAGE', '2');
 
 /**
