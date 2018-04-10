@@ -3,7 +3,7 @@
 function cowpro_fund_topup($form, &$form_state) {
 	$form = array();
 	$form['topup_information'] = array(
-			'#markup' => '<ul><li>即时充值所产生的转账费用，由第三方平台收取，充值费用视平台而定。</li><li>请注意您的银行卡充值限制，以免造成不便。</li><li><a href=http://v1.jinbeizeng.com/node/749>快捷支付限额表</a></li><li><a href=http://v1.jinbeizeng.com/node/748>个人网银限额表</a></li><li>如果充值金额没有及时到账，请和客服联系。</li><li>充值必须大于1元</li></ul>',
+			'#markup' => '<ul><li>即时充值所产生的转账费用，由第三方平台收取，充值费用视平台而定。</li><li>请注意您的银行卡充值限制，以免造成不便。</li><li><a href=http://www.jinbeizeng.com/node/749>快捷支付限额表</a></li><li><a href=http://www.jinbeizeng.com/node/748>个人网银限额表</a></li><li>如果充值金额没有及时到账，请和客服联系。</li><li>充值必须大于1元</li></ul>',
 	);
 
 	$custodian_key = custodian_default_provider_key();
