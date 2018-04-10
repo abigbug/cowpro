@@ -2,6 +2,10 @@
 function cowpro_fund_withdraw($form, &$form_state) {
 	$form = array ();
 
+	$form['withdraw_information'] = array(
+			'#markup' => '<ul><li>提现金额小于￥100元时，系统将收到提现手续费￥1元。</li></ul>',
+	);
+
 	$custodian_key = custodian_default_provider_key();
 	$custodian_title = custodian_readable_provider_title($custodian_key);
 	$interface = array($custodian_key => $custodian_title);
@@ -64,7 +68,13 @@ function cowpro_fund_withdraw_submit($form, &$form_state) {
 		$entity = entity_get_controller('cowpro_fund_journal')->save($entity);
 		$journal_id = $entity->journal_id;
 
-		$result = custodian_cowpro_fund_withdraw($uid, $amount,	$card, $journal_id);
+		//提现金额小于￥100元时，系统将收到提现手续费￥1元
+		$fee = 0;
+		if ($amount < 100) {
+			$fee = 1;
+			$amount = $amount - 1;
+		}
+		$result = custodian_cowpro_fund_withdraw($uid, $amount,	$fee, $card, $journal_id);
 		if (! $result['success']) {
 			drupal_set_message($result ['message'], 'error');
 		}

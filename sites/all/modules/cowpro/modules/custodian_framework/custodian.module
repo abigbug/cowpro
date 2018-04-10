@@ -158,15 +158,16 @@ function custodian_cowpro_fund_topup_callback($success, $journal_id, $external_r
  * 提现
  * @param $uid 提现用户的uid
  * @param $amount 提现金额
+ * @param $fee 提现手续费
  * @param $bankcard 提现银行卡号码
  * @param $journal_id 日记账编号
  * @return unknown
  */
-function custodian_cowpro_fund_withdraw($uid, $amount, $bankcard, $journal_id) {
+function custodian_cowpro_fund_withdraw($uid, $amount, $fee, $bankcard, $journal_id) {
 	$module = custodian_default_provider_key();
 	$function = $module . '_cowpro_fund_withdraw';
 	if (function_exists($function)) {
-		$result = $function($uid, $amount, $bankcard, $journal_id);
+		$result = $function($uid, $amount, $fee, $bankcard, $journal_id);
 		return $result;
 	} else {
 		$msg = array(
