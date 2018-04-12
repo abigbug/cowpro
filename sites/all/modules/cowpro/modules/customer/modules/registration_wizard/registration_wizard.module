@@ -97,10 +97,18 @@ function registration_wizard_form($step = NULL) {
 	$profile_types = registration_wizard_get_available_profile_types ();
 	foreach ( $profile_types as $value ) {
 		if ($value ['included']) {
+            global $user;
 			if ($value ['type'] == 'credentials') {
 				// 只有'debtor'(融资人)这个角色需要证明文件
-				global $user;
 				$role = user_role_load_by_name ( 'debtor' );
+				if (! user_has_role ( $role->rid, $user )) {
+					continue;
+				}
+			}
+
+			if ($value ['type'] == 'company') {
+				// 只有'企业'这个角色需要企业认证
+				$role = user_role_load_by_name ( '企业' );
 				if (! user_has_role ( $role->rid, $user )) {
 					continue;
 				}
@@ -413,18 +421,19 @@ function registration_wizard_user_login(&$edit, $account) {
 function _registration_wizard_form_list_show($form, &$form_state) {
 	$form_info = $form_state ['form_info'];
 	$forms = $form_info ['forms'];
+
 	global $user;
         $result=array ();
 	foreach ( $forms as $value ) {
           $type = $value ['type'];
 	  $description = $value ['description'];
-	  $result [] = cowpro_customer_ui_customer_profile_edit_list_show_form_public ( $form, $form_state, $user->uid, $type, $description );   
+	  $result [] = cowpro_customer_ui_customer_profile_edit_list_show_form_public ( $form, $form_state, $user->uid, $type, $description );
 	}
-        
+
         foreach($result as $item) {
             $message=$item['message']['#default_value'];
             if($message){
-              drupal_set_message($message);  
+              drupal_set_message($message);
               break;
             }
         }

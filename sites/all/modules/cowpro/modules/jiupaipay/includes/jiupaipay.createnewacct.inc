@@ -10,21 +10,36 @@ include_once ("libs/Common.php");
  *
  * @param array $user
  */
-function jiupaipay_create_new_acct($user) {
-	// 请求报文头
-	$header = jiupaipay_header ( "U00001" );
+function jiupaipay_create_new_acct($uid) {
+        //判断个人用户还是企业用户
+        global $user;
+        $role = user_role_load_by_name ( 'lender' );
+	if (user_has_role ( $role->rid, $user )) {
+          return jiupaipay_lender_curl_post_data($uid); 
+        }else{
+          return jiupaipay_company_curl_post_data($uid); 
+        }
+}
 
-	$aes = new AES ( JPP_AES_KEY, JPP_AES_IV );
+function jiupaipay_lender_curl_post_data($uid) {
+    	// 请求报文头
+        $header = jiupaipay_header ( "U00001" );
+        $aes = new AES ( JPP_AES_KEY, JPP_AES_IV );
+	$profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'real_name' );
+	$profile_mobile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'mobile' );
+        $real_name = $profile_real_name->name;
+        $id_no=$profile_real_name->id_no;
+        $mobile=$profile_mobile->mobile_number;
 	$post_data = array ();
-	$post_data ['customerId'] = $user ['uid'];
+	$post_data ['customerId'] = $uid;
 	$post_data ['businessSeqNo'] = "jbz" . date ( "Ymd", time () ) . time ();
 	$post_data ['busiTradeType'] = 'U01';
 	$post_data ['ctype'] = "00";
 	$post_data ['crole'] = '09';
 	$post_data ['companyName'] = "";
-	$post_data ['username'] = $user ['name'];
+	$post_data ['username'] = $real_name;
 	$post_data ['certType'] = "00";
-	$post_data ['certNo'] = $user ['id_no'];
+	$post_data ['certNo'] = $id_no;
 	$post_data ['certFImage'] = "";
 	$post_data ['certBImage'] = "";
 	$post_data ['certInfo'] = "";
@@ -52,19 +67,19 @@ function jiupaipay_create_new_acct($user) {
 	$post_data ['bankAccountNo'] = "";
 	$post_data ['bankAccountName'] = "";
 	$post_data ['bankAccountTelNo'] = "";
-	$post_data ['phoneNo'] = $user ['mobile_number'];
+	$post_data ['phoneNo'] = $mobile;
 	$post_data ['note'] = "";
-	// var_dump($post_data);
+	//var_dump($post_data);die();
 	ksort ( $post_data );
 	$signInfo = $header ['signTime'];
 	foreach ( $post_data as $value ) {
 		$signInfo .= "|" . $value;
 	}
-	$post_data ['customerId'] = $aes->encrypt ( $user ['uid'] );
-	$post_data ['username'] = $aes->encrypt ( $user ['name'] );
-	$post_data ['certNo'] = $aes->encrypt ( $user ['id_no'] );
+	$post_data ['customerId'] = $aes->encrypt ( $uid );
+	$post_data ['username'] = $aes->encrypt ( $real_name );
+	$post_data ['certNo'] = $aes->encrypt ( $id_no );
 	$post_data ['address'] = $aes->encrypt ( "襄阳市XXXXX" );
-	$post_data ['phoneNo'] = $aes->encrypt ( $user ['mobile_number'] );
+	$post_data ['phoneNo'] = $aes->encrypt ( $mobile );
 
 	$rsa_private_key = variable_get ( PRIVATE_KEY_ON_JIUPAIPAY );
 	$rsa_public_key = variable_get ( PUBLIC_KEY_ON_JIUPAIPAY );
@@ -79,17 +94,18 @@ function jiupaipay_create_new_acct($user) {
 	$result = json_decode ( $result, true );
 
 	$result ['outBody'] ['accNo'] = $aes->decrypt ( $result ['outBody'] ['accNo'] );
+        
 	if ($result ['respHeader'] ['respCode'] == 'P2P0000' && _jiupaipay_verify_api ( $result ['outBody'], $result ['respHeader'] ['signature'], $result ['respHeader'] ['signTime'] )) {
 		$account = $result ['outBody'] ['accNo'];
-		$profile = cowpro_customer_profile_load_one_row_with_conditions ( $user ['uid'], 'jiupaipay' );
+		$profile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'jiupaipay' );
 		if ($profile == NULL) {
-			$profile = cowpro_customer_profile_new ( 'jiupaipay', $user ['uid'] );
+			$profile = cowpro_customer_profile_new ( 'jiupaipay', $uid );
 		}
 		$profile->jpp_account_number = $account; // 九派支付台账账号
 		$profile->jpp_result_code = $result ['respHeader'] ['respCode']; // 返回码(p2p0000表示成功,)
 		$profile->jpp_result_message = $result ['respHeader'] ['respMsg']; // 返回信息(与respCode对应的文字信息)
 		$profile->verified = 1;
-		$profile->uid = $user ['uid'];
+		$profile->uid = $uid;
 		cowpro_customer_profile_save ( $profile );
 		// echo "关联九派支付成功";
 
@@ -97,7 +113,7 @@ function jiupaipay_create_new_acct($user) {
 		global $base_url;
 		// $backUrl = urlencode('https://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
 		$register_password_data ['systemCode'] = "jbz";
-		$register_password_data ['userId'] = $user ['uid'];
+		$register_password_data ['userId'] = $uid;
 
 		$register_password_data ['backURL'] = $base_url . "/cowpro/jiupaipay/callback/register_password";
 		$register_password_data ['signTime'] = round ( microtime ( true ) * 1000 );
@@ -129,6 +145,114 @@ function jiupaipay_create_new_acct($user) {
 	}
 }
 
+function jiupaipay_company_curl_post_data($uid) {
+	// 请求报文头
+        $header = jiupaipay_header ( "U00001" );
+        $aes = new AES ( JPP_AES_KEY, JPP_AES_IV );
+	$profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'real_name' );
+	$profile_mobile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'mobile' );
+	$profile_company = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'company' );
+        $real_name = $profile_real_name->name;
+        $id_no=$profile_real_name->id_no;
+        
+        $mobile=$profile_mobile->mobile_number;
+        
+        $companyName=$profile_company->companyName;
+        $uniSocCreCode=$profile_company->uniSocCreCode;
+        $bizLicDomicile=$profile_company->bizLicDomicile;
+        $entType=$profile_company->entType;
+        $dateOfEst=$profile_company->dateOfEst;
+        $corpAcc=$profile_company->corpAcc;
+        $corpAccBankNo=$profile_company->corpAccBankNo;
+        $corpAccBankNm=$profile_company->corpAccBankNm;
+
+        $post_data = array ();
+        $post_data ['customerId'] = $uid;
+        $post_data ['businessSeqNo'] = "jbz" . date ( "Ymd", time () ) . time ();
+        $post_data ['busiTradeType'] = 'U04';
+        $post_data ['ctype'] = "01";
+        $post_data ['crole'] = '09';
+        $post_data ['companyName'] = $companyName;
+        $post_data ['username'] = $real_name;
+        $post_data ['certType'] = "00";
+        $post_data ['certNo'] = $id_no;
+        $post_data ['certFImage'] = "";
+        $post_data ['certBImage'] = "";
+        $post_data ['certInfo'] = "";
+        $post_data ['idvalidDate'] = "";
+        $post_data ['idexpiryDate'] = "";
+        $post_data ['jobType'] = "0";
+        $post_data ['job'] = "";
+        $post_data ['postcode'] = "441000";
+        $post_data ['address'] = "";
+        $post_data ['national'] = "10";
+        $post_data ['completeFlag'] = "0";
+        $post_data ['phoneNo'] = $mobile;
+        $post_data ['uniSocCreCode'] = $uniSocCreCode;
+        $post_data ['uniSocCreDir'] = "";
+        $post_data ['bizLicDomicile'] = $bizLicDomicile;
+        $post_data ['entType'] = $entType;
+        $post_data ['dateOfEst'] = $dateOfEst;
+        $post_data ['corpacc'] = $corpAcc;
+        $post_data ['corpAccBankNo'] = $corpAccBankNo;
+        $post_data ['corpAccBankNm'] = $corpAccBankNm;
+        $post_data ['bindFlag'] = "00";
+        $post_data ['bindType'] = "";
+        $post_data ['acctype'] = "0";
+        $post_data ['oldbankAccountNo'] = "";
+        $post_data ['bankAccountNo'] = "";
+        $post_data ['bankAccountName'] = "";
+        $post_data ['bankAccountTelNo'] = "";
+        $post_data ['note'] = "";
+        // var_dump($post_data);
+        ksort ( $post_data );
+        $signInfo = $header ['signTime'];
+        foreach ( $post_data as $value ) {
+          $signInfo .= "|" . $value;
+        }
+        $post_data ['customerId'] = $aes->encrypt ( $uid );
+	    $post_data ['username'] = $aes->encrypt ( $real_name );
+	    $post_data ['certNo'] = $aes->encrypt ( $id_no );
+        $post_data ['phoneNo'] = $aes->encrypt ( $mobile );
+        $post_data ['uniSocCreCode'] = $aes->encrypt ( $uniSocCreCode );
+        $post_data ['bizLicDomicile'] = $aes->encrypt ( $bizLicDomicile );
+        $post_data ['corpacc'] = $aes->encrypt ( $corpAcc );
+
+        $rsa_private_key = variable_get(PRIVATE_KEY_ON_JIUPAIPAY);
+	$rsa_public_key = variable_get(PUBLIC_KEY_ON_JIUPAIPAY);
+	$rsa = new RSA ($rsa_private_key, $rsa_public_key);
+	$signData = $rsa->sign ( $signInfo );
+
+        $header['signature'] = $signData;
+        $curl_post_data['reqHeader'] = $header;
+        $curl_post_data['inBody'] = $post_data;
+
+        $result = jiupaipay_curl_api($curl_post_data);
+        $result = json_decode($result,true);
+        $result['outBody']['accNo'] = $aes->decrypt($result['outBody']['accNo']);
+        
+        if( $result['respHeader']['respCode'] == 'P2P0000' && _jiupaipay_verify_api($result['outBody'],$result['respHeader']['signature'],$result['respHeader']['signTime']) ) {
+            $account = $result['outBody']['accNo'];
+            $profile = cowpro_customer_profile_load_one_row_with_conditions($uid, 'jiupaipay');
+            if ($profile == NULL) {
+                    $profile = cowpro_customer_profile_new('jiupaipay', $uid);
+            }
+            $profile->jpp_account_number = $account;//九派支付台账账号
+            $profile->jpp_result_code = $result['respHeader']['respCode'];//返回码(p2p0000表示成功,)
+            $profile->jpp_result_message = $result['respHeader']['respMsg'];//返回信息(与respCode对应的文字信息)
+            $profile->verified = 1;
+            $profile->uid = $uid;
+            cowpro_customer_profile_save($profile);
+            //echo "关联九派支付成功";
+
+	        drupal_set_message ( "宜商行审核企业信息，审核通过之后再进行其他操作" );
+	        global $base_url;
+	        drupal_goto ( $base_url . "/registration_wizard" );
+        }else{
+            drupal_set_message($result['respHeader']['respMsg']);
+        }
+}
+
 // 设置交易密码回调
 function jiupaipay_register_password_callback($data) {
 	global $user;
@@ -146,5 +270,4 @@ function jiupaipay_register_password_callback($data) {
 		drupal_goto ( $base_url . "/registration_wizard/jiupaipay" );
 	}
 }
-
 ?>

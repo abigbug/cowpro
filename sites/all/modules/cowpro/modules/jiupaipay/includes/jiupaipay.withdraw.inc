@@ -14,24 +14,36 @@ include_once ("libs/Common.php");
  * bankcard_id,uid,type,card_no,cardholder,bank_name,bank_branch,province,city,
  * 详细信息可参考源代码文件cowpro_fund_bankcard.controller.inc
  */
-function jiupaipay_withdraw($uid, $amount, $card, $journal_id, $businessSeqNo) {
+function jiupaipay_withdraw($uid, $amount, $fee, $card, $journal_id, $businessSeqNo) {
 	$header = jiupaipay_header ( "T00001" );
 
 	$aes = new AES ( JPP_AES_KEY, JPP_AES_IV );
 	$post_data = array ();
 	$post_data ['businessSeqNo'] = $businessSeqNo;
 	$post_data ['businessOrderNo'] = "jbz" . sprintf ( "%'.08d-%d", $journal_id, _jiupaipay_get_microtime () );
-	$post_data ['rType'] = "W01";
+         //判断个人用户还是企业用户
+        global $user;
+        $role = user_role_load_by_name ( 'lender' );
+	if (user_has_role ( $role->rid, $user )) {
+          $post_data ['rType'] = "W01";
+        }else{
+          $post_data ['rType'] = "W06"; 
+        }
 	$profile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'jiupaipay' );
 	$profile->jpp_authorize ? $post_data ['entrustflag'] = '01' : $post_data ['entrustflag'] = "00";
+    //提现金额小于等于100 收取1元提现收取费
+    $otherAmounttype = "01"; // 其他金额类型，默认01费用，03提现手续费
+    if( $amount < 100  ) {
+      $otherAmounttype = "03";
+    }
 	$accountList = array (
 			"oderNo" => 11,
 			"cebitAccountNo" => "",
 			"debitAccountNo" => $profile->jpp_account_number,
 			"currency" => "CNY",
-			"amount" => $amount,
-			"otherAmounttype" => "01",
-			"otherAmount" => "",
+			"amount" => $amount+$fee,
+			"otherAmounttype" => $otherAmounttype,
+			"otherAmount" => $fee,
 	);
 
 	$post_data ['deductType'] = "";
@@ -97,6 +109,6 @@ function jiupaipay_withdraw_callback($data) {
 				":businessSeqNo" => $data ['businessSeqNo']
 		) )->fetchField ();
 		$result = unserialize ( $result );
-		jiupaipay_withdraw ( $data ['userId'], $result ['amount'], $result ['card'], $result ['journal_id'], $data ['businessSeqNo'] );
+		jiupaipay_withdraw ( $data ['userId'], $result ['amount'],$result ['fee'], $result ['card'], $result ['journal_id'], $data ['businessSeqNo'] );
 	}
 }

@@ -278,21 +278,35 @@ function jiupaipay_cowpro_customer_profile_jiupaipay_form_submit($form, &$form_s
 	if (isset ( $form_state ['values'] ['op'] ) && ($form_state ['values'] ['op'] === JPP_OP_BIND_ACCOUNT)) {
 		include_once 'includes/jiupaipay.createnewacct.inc';
 		$uid = $profile->uid;
-		$profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'real_name' );
 		$profile_mobile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'mobile' );
 
 		if (is_null ( $profile_mobile ) || (! property_exists ( $profile_mobile, 'mobile_number' ))) {
 			drupal_set_message ( '未进行手机认证', 'error' );
 			return;
-		}
-		if (is_null ( $profile_real_name ) || (! property_exists ( $profile_real_name, 'name' ))) {
+		}                
+                global $user;
+                $role = user_role_load_by_name ( 'lender' );
+		if (user_has_role ( $role->rid, $user )) {
+		  $profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'real_name' );
+		  if (is_null ( $profile_real_name ) || (! property_exists ( $profile_real_name, 'name' ))) {
 			drupal_set_message ( '未进行实名认证', 'error' );
 			return;
-		}
-		if (is_null ( $profile_real_name ) || (! property_exists ( $profile_real_name, 'id_no' ))) {
+		  }
+		  if (is_null ( $profile_real_name ) || (! property_exists ( $profile_real_name, 'id_no' ))) {
 			drupal_set_message ( '未进行实名认证', 'error' );
 			return;
-		}
+		  }
+                }else{
+		  $profile_company = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'company' );
+		  if (is_null ( $profile_company ) || (! property_exists ( $profile_company, 'companyName' ))) {
+			drupal_set_message ( '未进行企业信息认证', 'error' );
+			return;
+		  }  
+		  if (is_null ( $profile_company ) || (! property_exists ( $profile_company, 'uniSocCreCode' ))) {
+			drupal_set_message ( '未进行企业信息认证', 'error' );
+			return;
+		  }
+                }
 		/*
 		 * if (is_null($profile_real_name) || (!property_exists($profile_real_name, 'idvalidDate' ))) {
 		 * drupal_set_message('未进行实名认证', 'error');
@@ -304,14 +318,14 @@ function jiupaipay_cowpro_customer_profile_jiupaipay_form_submit($form, &$form_s
 		 * }
 		 */
 
-		$u = array ();
-		$u ['uid'] = $uid;
-		$u ['mobile_number'] = $profile_mobile->mobile_number;
-		$u ['name'] = $profile_real_name->name;
-		$u ['id_no'] = $profile_real_name->id_no;
+		//$u = array ();
+		//$u ['uid'] = $uid;
+		//$u ['mobile_number'] = $profile_mobile->mobile_number;
+		//$u ['name'] = $profile_real_name->name;
+		//$u ['id_no'] = $profile_real_name->id_no;
 		// $u['idvalidDate'] = $profile_real_name->idvalidDate;
 		// $u['idexpiryDate'] = $profile_real_name->idexpiryDate;
-		jiupaipay_create_new_acct ( $u );
+		jiupaipay_create_new_acct ( $uid );
 	} else if (isset ( $form_state ['values'] ['op'] ) && ($form_state ['values'] ['op'] === JPP_OP_AUTHORIZE)) {
 		include_once 'includes/jiupaipay.authorize.inc';
 		$uid = $profile->uid;
@@ -560,7 +574,7 @@ function jiupaipay_cowpro_fund_topup($uid, $amount, $method, $journal_id) {
 }
 
 // 提现
-function jiupaipay_cowpro_fund_withdraw($uid, $amount, $card, $journal_id) {
+function jiupaipay_cowpro_fund_withdraw($uid, $amount, $fee, $card, $journal_id) {
 	$profile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'jiupaipay' );
 	if (! $profile) {
 		$result ['success'] = false;
@@ -577,6 +591,7 @@ function jiupaipay_cowpro_fund_withdraw($uid, $amount, $card, $journal_id) {
 	include_once 'includes/jiupaipay.fun.inc';
 	global $user;
 	$data ['amount'] = $amount;
+	$data ['fee'] = $fee;
 	$data ['card'] = $card;
 	$data ['journal_id'] = $journal_id;
 

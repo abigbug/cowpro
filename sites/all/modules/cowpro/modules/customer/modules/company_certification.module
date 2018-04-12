@@ -1,0 +1,330 @@
+<?php
+/**
+ * Implements hook_menu().
+ */
+function company_certification_menu() {
+	$items = array ();
+
+	$items ['admin/cowpro/config_company_certification'] = array (
+			'title' => '企业信息认证设置',
+			'description' => '设置企业信息认证所需要的材料',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'company_certification_settings_form',
+			),
+			'access arguments' => array (
+					'configure p2p',
+			),
+			'type' => MENU_NORMAL_ITEM,
+	);
+
+	return $items;
+}
+function company_certification_settings_form($form, &$form_state) {
+	$form = array ();
+
+	return system_settings_form ( $form );
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function company_certification_views_api() {
+	return array (
+			'api' => 3,
+			'path' => drupal_get_path ( 'module', 'company_certification' ) . '/includes/views'
+	);
+}
+function company_certification_cowpro_customer_profile_company_create($values) {
+	$values += array (
+			'companyName' => '',
+			'uniSocCreCode' => '',
+			'bizLicDomicile' => '', 
+			'entType' => '',
+			'dateOfEst' => '',
+			'corpAcc' => '',
+			'corpAccBankNo' => '',
+			'corpAccBankNm' => '',
+	)
+;
+	return $values;
+}
+function company_certification_cowpro_customer_profile_company_save($profile) {
+	$data = array ();
+	$data ['companyName'] = $profile->companyName;            //企业名称
+	$data ['uniSocCreCode'] = $profile->uniSocCreCode;        //统一社会信用代码
+	$data ['bizLicDomicile'] = $profile->bizLicDomicile;      //营业执照住所
+	$data ['entType'] = $profile->entType;                    //主体类型
+	$data ['dateOfEst'] = $profile->dateOfEst;                //成立日期
+	$data ['corpAcc'] = $profile->corpAcc;                    //对公户账号
+	$data ['corpAccBankNo'] = $profile->corpAccBankNo;        //对公户开户行行号
+	$data ['corpAccBankNm'] = $profile->corpAccBankNm;        //对公户开户行名称
+	$profile->data = $data;
+	$profile->search_field = $profile->companyName . ';' . $profile->uniSocCreCode. ';' . $profile->bizLicDomicile. ';' . $profile->entType. ';' . $profile->dateOfEst. ';' . $profile->corpAcc. ';' . $profile->corpAccBankNo. ';' . $profile->corpAccBankNm;
+	$profile->verified = TRUE; // 默认已通过认证
+	return $profile;
+}
+function company_certification_cowpro_customer_profile_company_load($profile) {
+	$profile->companyName = $profile->data ['companyName'];
+	$profile->uniSocCreCode = $profile->data ['uniSocCreCode'];
+	$profile->bizLicDomicile = $profile->data ['bizLicDomicile'];
+	$profile->entType = $profile->data ['entType'];
+	$profile->dateOfEst = $profile->data ['dateOfEst'];
+	$profile->corpAcc = $profile->data ['corpAcc'];
+	$profile->corpAccBankNo = $profile->data ['corpAccBankNo'];
+	$profile->corpAccBankNm = $profile->data ['corpAccBankNm'];
+	return $profile;
+}
+function company_certification_cowpro_customer_profile_company_form($form, &$form_state, $profile) {
+	$form ['companyName'] = array (
+			'#type' => 'textfield',
+			'#title' => '企业名称',
+			'#description' => '',
+			'#default_value' => $profile->companyName,
+			'#maxlength' => 150,
+			'#required' => TRUE,
+			'#weight' => - 10
+	);
+	$form ['uniSocCreCode'] = array (
+			'#type' => 'textfield',
+			'#title' => '统一社会信用代码',
+			'#default_value' => $profile->uniSocCreCode,
+			'#maxlength' => 30,
+			'#required' => TRUE,
+			'#weight' => - 10
+	);
+	$form ['bizLicDomicile'] = array (
+			'#type' => 'textfield',
+			'#title' => '营业执照住所',
+			'#description' => '',
+			'#default_value' => $profile->bizLicDomicile,
+			'#maxlength' => 256,
+			'#required' => TRUE,
+			'#weight' => - 10
+	);
+	$form ['entType'] = array (
+			'#type' => 'textfield',
+			'#title' => '主体类型',
+			'#description' => '',
+			'#default_value' => $profile->entType,
+			'#maxlength' => 60,
+			'#required' => TRUE,
+			'#weight' => - 10
+	);
+	$form ['dateOfEst'] = array (
+			'#type' => 'textfield',
+			'#title' => '成立日期（格式：19960130）',
+			'#description' => '',
+			'#default_value' => $profile->dateOfEst,
+			'#maxlength' => 8,
+			'#required' => TRUE,
+			'#weight' => - 10
+	);
+	$form ['corpAcc'] = array (
+			'#type' => 'textfield',
+			'#title' => '对公户账号',
+			'#description' => '',
+			'#default_value' => $profile->corpAcc,
+			'#maxlength' => 150,
+			'#required' => TRUE,
+			'#weight' => - 10
+	); 
+	$form ['corpAccBankNo'] = array (
+			'#type' => 'textfield',
+			'#title' => '对公户开户行行号',
+			'#description' => '',
+			'#default_value' => $profile->corpAccBankNo,
+			'#maxlength' => 20,
+			'#required' => TRUE,
+			'#weight' => - 10
+	); 
+	$form ['corpAccBankNm'] = array (
+			'#type' => 'textfield',
+			'#title' => '对公户开户行名称',
+			'#description' => '',
+			'#default_value' => $profile->corpAccBankNm,
+			'#maxlength' => 150,
+			'#required' => TRUE,
+			'#weight' => - 10
+	); 
+	return $form;
+}
+
+function company_certification_cowpro_customer_profile_company_form_validate($form, &$form_state) {
+	$matches = array();
+	$regex = '/^\d+$/';
+	if (isset($form_state ['values']['dateOfEst'])) {
+		if(!preg_match($regex, trim($form_state ['values']['dateOfEst']), $matches)){
+			form_set_error ( '成立日期', '企业成立日期格式错误，必须为数字（例如：20150201）' );
+		}
+	}
+}
+
+function company_certification_cowpro_customer_profile_company_form_submit($form, &$form_state, &$profile) {
+	$profile->companyName = $form_state ['values'] ['companyName'];
+	$profile->uniSocCreCode = $form_state ['values'] ['uniSocCreCode'];
+	$profile->bizLicDomicile = $form_state ['values'] ['bizLicDomicile'];
+	$profile->entType = $form_state ['values'] ['entType'];
+	$profile->dateOfEst = $form_state ['values'] ['dateOfEst'];
+	$profile->corpAcc = $form_state ['values'] ['corpAcc'];
+	$profile->corpAccBankNo = $form_state ['values'] ['corpAccBankNo'];
+	$profile->corpAccBankNm = $form_state ['values'] ['corpAccBankNm'];
+  
+    //企业注册提交信息默认保存银行卡信息
+    $uid = $profile->uid;
+    $profile_bank_card = cowpro_customer_profile_load_one_row_with_conditions ( intval ( $uid ), 'bank_card' );
+    $profile_jiupaipay = cowpro_customer_profile_load_one_row_with_conditions ( intval ( $uid ), 'jiupaipay' );
+	if ($profile_bank_card == NULL) {
+	  $profile_bank_card = cowpro_customer_profile_new ( 'bank_card', intval ( $uid ) );
+	}
+        
+	$profile_mobile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'mobile' );
+    $mobile=$profile_mobile->mobile_number;
+  
+	$data = array ();
+	$data ['cardholder'] =  $form_state ['values'] ['companyName'];
+	$data ['card_no'] = $form_state ['values'] ['corpAcc'];                   //对公户账号
+	$data ['bank_name'] = $form_state ['values'] ['corpAccBankNm'];        //对公户开户行名称
+	$data ['mobile'] = $mobile;
+	$profile_bank_card->data = $data;
+    $profile_bank_card->card_no = $form_state ['values'] ['corpAcc'];
+    $profile_bank_card->cardholder = $form_state ['values'] ['companyName'];
+    $profile_bank_card->bank_name = $form_state ['values'] ['corpAccBankNm'];
+    $profile_bank_card->mobile = $mobile;
+	$profile_bank_card->search_field =  $form_state ['values'] ['companyName'] . '@' . $form_state ['values'] ['corpAcc'];
+	$profile_bank_card->verified = 1; // 默认已通过认证
+    $profile_bank_card->uid = $uid;
+  	$profile_jiupaipay->jpp_bank_card = 1;
+	cowpro_customer_profile_save ( $profile_bank_card );
+  	cowpro_customer_profile_save ( $profile_jiupaipay );
+}
+function company_certification_cowpro_customer_profile_company_extra_fields() {
+	$result = array (
+			'form' => array (
+					'companyName' => array (
+							'label' => '企业名称',
+							'description' => '营业执照上的企业全称',
+							'weight' => - 9
+					),
+					'uniSocCreCode' => array (
+							'label' => '统一社会信用代码',
+							'description' => '营业执照上的统一社会信用代码',
+							'weight' => - 8
+					),
+					'bizLicDomicile' => array (
+							'label' => '营业执照住所',
+							'description' => '营业执照上的公司住所',
+							'weight' => - 7
+					),
+					'entType' => array (
+							'label' => '主体类型',
+							'description' => '营业执照上的主体类型',
+							'weight' => - 6
+					),
+					'dateOfEst' => array (
+							'label' => '成立日期',
+							'description' => '营业执照上的企业成立日期',
+							'weight' => - 6
+					),
+					'corpAcc' => array (
+							'label' => '对公户账号',
+							'description' => '企业对公户账号',
+							'weight' => - 6
+					),
+					'corpAccBankNo' => array (
+							'label' => '对公户开户行行号',
+							'description' => '企业对公户开户行行号',
+							'weight' => - 6
+					),
+					'corpAccBankNm' => array (
+							'label' => '对公户开户行名称',
+							'description' => '企业对公户开户行名称',
+							'weight' => - 6
+					)
+			),
+			'display' => array (
+					'companyName' => array (
+							'label' => '企业名称',
+							'description' => '营业执照上的企业全称',
+							'weight' => - 9
+					),
+					'uniSocCreCode' => array (
+							'label' => '统一社会信用代码',
+							'description' => '营业执照上的统一社会信用代码',
+							'weight' => - 8
+					),
+					'bizLicDomicile' => array (
+							'label' => '营业执照住所',
+							'description' => '营业执照上的公司住所',
+							'weight' => - 7
+					),
+					'entType' => array (
+							'label' => '主体类型',
+							'description' => '营业执照上的主体类型',
+							'weight' => - 6
+					),
+					'dateOfEst' => array (
+							'label' => '成立日期',
+							'description' => '营业执照上的企业成立日期',
+							'weight' => - 6
+					),
+					'corpAcc' => array (
+							'label' => '对公户账号',
+							'description' => '企业对公户账号',
+							'weight' => - 6
+					),
+					'corpAccBankNo' => array (
+							'label' => '对公户开户行行号',
+							'description' => '企业对公户开户行行号',
+							'weight' => - 6
+					),
+					'corpAccBankNm' => array (
+							'label' => '对公户开户行名称',
+							'description' => '企业对公户开户行名称',
+							'weight' => - 6
+					)
+			)
+	);
+	return $result;
+}
+
+/**
+ * Implements hook_cowpro_customer_profile_type_info().
+ */
+function company_certification_cowpro_customer_profile_type_info() {
+	$profile_types = array ();
+	$profile_types ['company'] = array (
+			'type' => 'company',
+			'name' => '企业认证',
+			'description' => '此项是宜商行企业开户的必要信息',
+			'help' => '',
+			'weight' => 100
+	);
+	return $profile_types;
+}
+
+function company_user_view_detail($profile) {
+	$result = array ();
+	$message = "";
+	global $user;
+	if ($profile) {
+		$goto_url = $GLOBALS['base_url'] . "/user/" . $user->uid . "/customer-profiles/" . $profile->type;
+		if (! $profile->verified) {
+			$verified = FALSE;
+			$markup = '未认证';
+			$message = "还未进行企业信息认证，请先认证！<a href='" . $goto_url . "' class='gotourl'>去认证</a>";
+		} else {
+			$verified = TRUE;
+			$markup = '已认证';
+		}
+	} else {
+		$goto_url = $GLOBALS['base_url'] . "/user/" . $user->uid . "/customer-profiles/company";
+		$verified = FALSE;
+		$markup = '未认证';
+		$message = "还未进行企业信息认证，请先认证！<a href='" . $goto_url . "' class='gotourl'>去认证</a>";
+	}
+	$result ['verified'] = $verified;
+	$result ['markup'] = $markup;
+	$result ['message'] = $message;
+	return $result;
+}
