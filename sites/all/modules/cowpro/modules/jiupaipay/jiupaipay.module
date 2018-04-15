@@ -104,6 +104,21 @@ function jiupaipay_menu() {
 			'type' => MENU_NORMAL_ITEM,
 			'file' => 'includes/jiupaipay.ledger_account.inc'
 	);
+	$items ['cowpro/jiupaipay/topup_feedback'] = array (
+			'title' => '充值结果查询',
+			'page callback' => "drupal_get_form",
+			'page arguments' => array (
+					'jiupaipay_topup_feedback_form',
+			),
+			'access callback' => TRUE,
+			'description' => '',
+			'type' => MENU_CALLBACK,
+	);
+    $items ['cowpro/jiupaipay/topup_feedback_ajax'] = array (
+           'page callback' => 'jiupaipay_topup_feedback_ajax',
+           'access callback' => TRUE,
+           'type' => MENU_CALLBACK,
+    ); 
 	return $items;
 }
 function jiupaipay_topup_marketing_form($form, &$form_state) {
@@ -820,6 +835,43 @@ function jiupaipay_user_view_detail($profile) {
 	$result ['markup'] = $markup;
 	$result ['message'] = $message;
 	return $result;
+}
+
+// 充值结果查询
+function jiupaipay_topup_feedback_form($form, &$form_state) {
+    $journal_id = $form_state["build_info"]["args"][0];
+    drupal_add_js(drupal_get_path ( 'module', 'jiupaipay') . '/jiupaipay_feedback.js');
+  
+    $form = array ();
+    $form ['journal_id'] = array (
+      '#type' => 'hidden',
+      '#value' => $journal_id,
+    );
+    $form['showdata'] = array (
+	'#markup' => '<div id=showdata style="width:100%;height:50px;line-height:50px;color:#F00;text-align:center;"></div>',
+	'#weight' => - 6,
+    );
+    $form ['loading'] = array (
+      '#markup' => '<div id="loading" style="width:100%;height:50px;line-height:50px;color:#F00;text-align:center;"><img src="/sites/all/themes/sopuopc/images/loading.gif"><br>请耐心等待银行返回信息...</div> ',
+    );	
+   return  $form;
+}
+
+function jiupaipay_topup_feedback_ajax(){
+    $journal_id = $_GET ['journal_id'];
+    $result = db_query("SELECT status,data FROM {cowpro_fund_journal} WHERE journal_id='".$journal_id."' and status<>99");
+    $journal_data = array ();
+    foreach ($result as $record) {
+      $journal_data=unserialize($record->data);
+      $respMsg=$journal_data['result']['inBody']['respMsg'];
+ 
+      if ($record->status == 1) {
+        $response=$respMsg;
+      }else if ($record->status == 0) {
+        $response=$respMsg;
+      }
+    }
+    drupal_json_output ( $response );
 }
 
 /**

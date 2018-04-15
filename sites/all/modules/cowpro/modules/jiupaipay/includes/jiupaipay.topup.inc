@@ -105,8 +105,9 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id, $businessSeq
 		global $base_url;
 		// custodian_cowpro_fund_topup_callback($success, $journal_id, $external_reference_id, 'jiupaipay', $result);
 		if ($success) {
-			drupal_set_message ( "已受理" );
-			drupal_goto ( $base_url . "/user" );
+			//drupal_set_message ( "已受理" );
+			//drupal_goto ( $base_url . "/user" );
+            drupal_goto( $base_url . "/cowpro/jiupaipay/topup_feedback/".$journal_id);
 		} else {
                         custodian_cowpro_fund_topup_callback ( $success, $journal_id, $external_reference_id, 'jiupaipay', $result );
                         drupal_set_message ( $result ['respHeader'] ['respMsg'], "error" );
