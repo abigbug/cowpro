@@ -367,6 +367,9 @@ function mobile_certification_form_user_register_form_alter(&$form, &$form_state
 					)
 			),
 			'#weight' => - 6,
+			//在部分android手机环境下，如果用户登录过网站，手机会记住用户登录名，并且在用户退出登录状态访问“新手注册”页面的时候
+			//系统会强制预置用户名，造成新用户无法注册，所以取消下面的AJAX功能，暂时解决这个问题
+			/*
 			'#ajax'  =>  array (
 					'callback' => 'mobile_validate_js',
 					'method' => 'html',
@@ -374,6 +377,7 @@ function mobile_certification_form_user_register_form_alter(&$form, &$form_state
 					'effect' => 'slide',
 					'event'=>'blur',
 			),
+			*/
 	);
 
 	$form['captcha'] = array(
@@ -428,6 +432,9 @@ function mobile_certification_form_user_register_form_alter(&$form, &$form_state
 	$form['account']['name']['#title'] = '昵称(不能全部是数字)';
 
 	$form['account']['name']['#value_callback'] = '该用户名已被使用';
+	//在部分android手机环境下，如果用户登录过网站，手机会记住用户登录名，并且在用户退出登录状态访问“新手注册”页面的时候
+	//系统会强制预置用户名，造成新用户无法注册，所以取消下面的AJAX功能，暂时解决这个问题
+	/*
 	$form['account']['name']['#ajax'] = array (
 			'callback' => 'user_validate_js',
 			'method' => 'html',
@@ -435,6 +442,7 @@ function mobile_certification_form_user_register_form_alter(&$form, &$form_state
 			'effect' => 'slide',
 			'event'=>'blur',
 	);
+	*/
 	//$form['account']['name']['#description'] = '手机号码，11位数字';
 	$form['#validate'][] = 'mobile_certification_cowpro_customer_profile_mobile_form_validate';
 	$form['#submit'][] = 'mobile_certification_register_form_submit';
