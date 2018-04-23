@@ -7,10 +7,18 @@ include_once ("libs/Common.php");
 
 /**
  * 标的信息同步
- * s
  *
  * @param int $nid
  *        	标的ID
+ *
+ * $projectStatus 标的状态:
+ * 01:发布
+ * 02:投资中
+ * 03:放款
+ * 04:流标
+ * 05:撤标
+ * 06:还款中
+ * 07:结束
  */
 function jiupaipay_issuing_publish($nid, $busiTradeType = "P01", $projectStatus = "01") {
 	// 请求报文头
