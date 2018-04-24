@@ -64,6 +64,15 @@ function jiupaipay_menu() {
 			'description' => '',
 			'type' => MENU_CALLBACK,
 	);
+	$items ['cowpro/jiupaipay/repaire'] = array (
+			'title' => '手动修复数据的错误',
+			'page callback' => 'jiupaipay_repaire',
+			'access arguments' => array (
+					'configure p2p',
+			),
+			'description' => '',
+			'type' => MENU_CALLBACK,
+	);
 	$items ['cowpro/jiupaipay/file'] = array (
 			'title' => '文件下载通知',
 			'page callback' => "drupal_get_form",
@@ -934,3 +943,8 @@ function jiupaipay_result_parser($type, $data) {
 	return $msg;
 }
 */
+
+function jiupaipay_repaire() {
+	include_once 'includes/jiupaipay.makeloans.inc';
+	return jiupaipay_make_loans_to ( 2489 );
+}
