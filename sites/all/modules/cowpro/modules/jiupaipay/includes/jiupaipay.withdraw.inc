@@ -22,13 +22,13 @@ function jiupaipay_withdraw($uid, $amount, $fee, $card, $journal_id, $businessSe
 	$post_data ['businessSeqNo'] = $businessSeqNo;
 	$post_data ['businessOrderNo'] = "jbz" . sprintf ( "%'.08d-%d", $journal_id, _jiupaipay_get_microtime () );
          //判断个人用户还是企业用户
-        global $user;
-        $role = user_role_load_by_name ( 'lender' );
-	if (user_has_role ( $role->rid, $user )) {
-          $post_data ['rType'] = "W01";
-        }else{
-          $post_data ['rType'] = "W06"; 
-        }
+       global $user;
+       $role = user_role_load_by_name ( '企业' );
+	   if (user_has_role ( $role->rid, $user )) {
+         $post_data ['rType'] = "W06";
+       }else{
+         $post_data ['rType'] = "W01";
+       }
 	$profile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'jiupaipay' );
 	$profile->jpp_authorize ? $post_data ['entrustflag'] = '01' : $post_data ['entrustflag'] = "00";
     //提现金额小于等于100 收取1元提现收取费
@@ -89,9 +89,8 @@ function jiupaipay_withdraw($uid, $amount, $fee, $card, $journal_id, $businessSe
 	global $base_url;
 	$external_reference_id = $result ['respHeader'] ['serviceSn'];
 	if ($result ['respHeader'] ['respCode'] == 'P2PS000') {
-		// custodian_cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, 'jiupaipay', $result);
-		drupal_set_message ( "受理成功" );
-		drupal_goto ( $base_url . "/user" );
+		// custodian_cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, 'jiupaipay', $result);	
+        drupal_goto( $base_url . "/cowpro/jiupaipay/topup_feedback/".$journal_id);
 	} else {
                 $success = false;
                 custodian_cowpro_fund_withdraw_callback ( $success, $journal_id, $external_reference_id, 'jiupaipay', $result );
