@@ -125,7 +125,7 @@ function jiupaipay_topup($uid, $amount, $rechargeType, $journal_id, $businessSeq
 		$data_pay ['USER_IP'] = ip_address ();
 		global $base_url;
 		$data_pay ['BACK_URL'] = $base_url . JPP_BANK_PAY_BACK_URL;
-		$data_pay ['FRONT_URL'] = $base_url . JPP_BANK_PAY_FRONT_URL;
+		$data_pay ['FRONT_URL'] = $base_url . JPP_BANK_PAY_FRONT_URL."?journal_id=".$journal_id;
 		$data_pay ['ACCT_NO'] = "123123213";
 		$data_pay ['ACCT_NAME'] = "123123";
 		$data_pay ['B_ACCT_NO'] = "01573201000000528";
@@ -186,8 +186,10 @@ function jiupaipay_topup_callback($data) {
 }
 // 充值银行同步回调
 function jiupaipay_topup_bank_return($data) {
+    $journal_id = $_GET ['journal_id'];
+    //var_dump($data);die();
 	global $base_url;
-	drupal_goto ( $base_url . "/user" );
+	drupal_goto( $base_url . "/cowpro/jiupaipay/topup_feedback/".$journal_id);
 }
 
 // 充值银行异步回调
