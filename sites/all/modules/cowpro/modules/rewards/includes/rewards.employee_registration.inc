@@ -54,7 +54,7 @@ function cowpro_rewards_employee_registration_go_batch($phone_list) {
 	$batch = array (
 		'operations' => $operations,
 		'finished' => 'cowpro_rewards_employee_registration_batch_finished',
-		'file' => drupal_get_path('module', 'rewards') . '/includes/rewards.employee_registration.inc',
+		'file' => drupal_get_path('module', 'cowpro_rewards') . '/includes/rewards.employee_registration.inc',
 	);
 	return $batch;
 }
