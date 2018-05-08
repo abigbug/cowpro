@@ -9,6 +9,20 @@ function _cowpro_customer_user_view($account, $view_mode) {
 		);
 		$profile_types = cowpro_customer_profile_types();
 		foreach($profile_types as $key => $value) {
+          if ($key == 'credentials') {
+            // 只有'debtor'这个角色需要做证明文件检查
+            $role = user_role_load_by_name ( 'debtor' );
+            if (! user_has_role ( $role->rid, $user )) {
+              continue;
+            }
+          }
+          if ($key == 'company') {
+            // 只有'企业'这个角色需要做企业认证检查
+            $role = user_role_load_by_name ( '企业' );
+            if (! user_has_role ( $role->rid, $user )) {
+              continue;
+            }
+          }
 			_cowpro_customer_user_view_detail($account, $value);
 		}
 
