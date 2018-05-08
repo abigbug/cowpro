@@ -356,3 +356,11 @@ function cowpro_fund_withdraw_callback($success, $journal_id, $external_referenc
 	include_once 'includes/cowpro_fund_withdraw.inc';
 	_cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, $interface_module, $result);
 }
+
+function cowpro_fund_get_balance($uid) {
+	return custodian_cowpro_fund_balance($uid);
+}
+
+function cowpro_fund_internal_trans_data($uid_from, $uid_to, $amount, $comment='') {
+	return custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comment='');
+}
