@@ -898,10 +898,10 @@ article, figure {
 #unique-wrapper .view-content .views-table tbody tr td,#unique-wrapper .view-content .views-table thead tr th{ width: 20% !important}
 #unique-wrapper .view-content .views-table tbody td,#unique-wrapper .view-content .views-table thead th{ width:25%}
 #unique-wrapper .horizontal-tabs-list{ border-bottom: 2px solid #CCC}
-#block-system-main .profile .the-list-block{ width: 22%;float: left;text-align: center;}
+#block-system-main .profile .the-list-block{padding-left: 10px;padding-right: 10px;float: left;text-align: center;}
 #block-system-main .profile dl{ overflow:scroll; margin-bottom: 0px; padding-top: 5px}
 #block-system-main .profile h3 { padding-bottom: 5px;color: #FFB226; font-size: 16px}
-#block-system-main .profile .the-list-block:nth-child(4){ width: 30%}
+//#block-system-main .profile .the-list-block:nth-child(4){ width: 30%}
 #block-system-main .profile dl:nth-of-type(4) .the-list-block,#block-system-main .cowpro_issuing_views .the-list-block {width: 100%;}
 #block-system-main .profile .the-list-block .view-content .views-table thead { background: #EFEFEF; font-size: 13px;border: 1px solid #DDDDDD; height: 30px; line-height: 30px}
 #block-system-main .profile .the-list-block .view-content .views-table tbody { border: 1px solid #DDDDDD;font-size: 12px }

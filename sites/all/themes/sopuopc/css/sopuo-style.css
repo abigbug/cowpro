@@ -1137,3 +1137,22 @@ body{background-color: #f5f5f5;overflow-x: hidden;overflow-y: auto;}
 .page-user-customer-profiles-payment-password #cowpro-customer-ui-customer-profile-edit-own-form #edit-profile{
     height: 300px;
 }
+
+#invite-form #edit-field-invite-user-relation-type .form-type-select select option:nth-child(2){
+    display:none;
+}
+
+.view-bid-list .view-content .table-responsive th, .view-bid-list .view-content .table-responsive td{ text-align: center}
+.view-bid-list .view-content .table-responsive tr{ height: 45px; line-height: 45px}
+.view-bid-list .view-content .table-responsive thead tr{ height: 40px; line-height: 40px}
+.view-bid-list .view-content .table-responsive thead tr th{ line-height: 40px;}
+.view-bid-list .view-content .table-responsive tbody tr td{ line-height: 35px;}
+.view-bid-list .view-content .table-responsive tbody{ color:#777777 }
+.view-bid-list .view-content .table-responsive tbody a:link{ color:#777777 }
+.view-bid-list .view-content .table-responsive tbody a:hover{ color: #337ab7;text-decoration: none; }
+
+.Zhang-Hu-list .Zhang-Hu--info .the-list-block:nth-child(1){padding-left:9%;float:left; text-align:center;}
+.Zhang-Hu-list .Zhang-Hu--info .the-list-block:nth-child(2){float:left;padding-left:10px; text-align:left;}
+#frame_content .right-block .Zhang-Hu-list .Zhang-Hu--info .the-list-block dt{ font-size:16px; font-weight:normal;}
+.Zhang-Hu-list .Zhang-Hu--info .the-list-block:nth-child(1) dd{color: #39A1EA;font-size: 28px; margin-top:10px;}
+.Zhang-Hu-list .Zhang-Hu--info .the-list-block:nth-child(2) dd{font-size:14px; font-weight:normal; text-align:left; margin-top: 38px;}
