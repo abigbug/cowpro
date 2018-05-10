@@ -469,11 +469,13 @@ function custodian_user_view_fund($account, $view_mode) {
 					'#title' => '账户余额',
 					'#markup' => $balance ['balance'],
 			);
-			$account->content['fund']['fund_2'] = array(
+            if($balance ['lock']>0){
+			  $account->content['fund']['fund_2'] = array(
 					'#type' => 'user_profile_item',
 					'#title' => ' ',
 					'#markup' => '(其中'.$balance ['lock'].'元下个工作日可提现)',
-			);
+			  );
+            }
 		} else {
 			$account->content['fund']['fund_1'] = array(
 					'#type' => 'user_profile_item',
