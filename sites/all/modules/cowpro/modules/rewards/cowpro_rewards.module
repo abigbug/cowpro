@@ -97,6 +97,19 @@ function cowpro_rewards_menu() {
                 ),
                 'type' => MENU_NORMAL_ITEM
 	);
+        $items ['cowpro/rewards/taiz_op'] = array (
+                'title' => '标的台账余额',
+                'description' => '',
+                'page callback' => 'drupal_get_form',
+                'page arguments' => array (
+					'cowpro_rewards_taiz_op_go_form'
+			),
+                'access arguments' => array (
+                                'configure p2p'
+                ),
+                'file' => 'includes/rewards.taiz_op.inc',
+                'type' => MENU_NORMAL_ITEM
+	);
 	return $items;
 }
 
@@ -203,7 +216,10 @@ function cowpro_rewards_check_in() {
 	) // 积分
 ;
 	userpoints_userpointsapi ( $params );
+        $block = block_load("cowpro_fund","cowpro_fund_user");
+        $cache_id = _block_get_cache_id($block);
 
+        cache_clear_all($cache_id,"cache_block");
 	drupal_set_message ( '签到奖励积分1个！' );
 	drupal_goto ();
 	// return '欢迎签到';
@@ -286,7 +302,12 @@ function cowpro_rewards_block_info() {
  */
 function cowpro_rewards_block_view($delta = '') {
 	$block = NULL;
-
+        $date_where = "DATE_FORMAT( CURDATE( ) , '%Y%m%d' )";
+        $date_show = date("Y-m-d",time());
+        if( isset($_SESSION['search_report_date']) ) {
+            $date_where  = "FROM_UNIXTIME( ".strtotime($_SESSION['search_report_date']).", '%Y%m%d' )";
+            $date_show = date("Y-m-d",strtotime($_SESSION['search_report_date']));
+        }
   switch ($delta) {
     case 'rewards_report':
             //平台借出总额
@@ -316,9 +337,9 @@ function cowpro_rewards_block_view($delta = '') {
            
            
             //今日到期本金
-           $data['day_capital_total'] = db_query("SELECT SUM(capital) FROM {cowpro_repayment_schedule} WHERE FROM_UNIXTIME( deadline, '%Y%m%d' ) = DATE_FORMAT( CURDATE( ) , '%Y%m%d' ) AND receiver_uid != -1")->fetchField();
+           $data['day_capital_total'] = db_query("SELECT SUM(capital) FROM {cowpro_repayment_schedule} WHERE FROM_UNIXTIME( deadline, '%Y%m%d' ) = ".$date_where." AND receiver_uid != -1")->fetchField();
            //今日到期利息
-           $data['day_revenus_total'] = db_query("SELECT SUM(interest) FROM {cowpro_repayment_schedule} WHERE FROM_UNIXTIME( deadline, '%Y%m%d' ) = DATE_FORMAT( CURDATE( ) , '%Y%m%d' ) AND receiver_uid != -1")->fetchField();
+           $data['day_revenus_total'] = db_query("SELECT SUM(interest) FROM {cowpro_repayment_schedule} WHERE FROM_UNIXTIME( deadline, '%Y%m%d' ) = ".$date_where." AND receiver_uid != -1")->fetchField();
            //今日到期总额
            $data['day_total'] = $data['day_capital_total'] + $data['day_revenus_total'];
            
@@ -327,29 +348,29 @@ function cowpro_rewards_block_view($delta = '') {
            
            //今日出借人充值成功总额
             $lender_uids = cowpro_rewords_get_role_uids('lender');
-            $data['lender_topup'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'TOPUP' AND FROM_UNIXTIME( created, '%Y%m%d' ) = DATE_FORMAT( CURDATE( ) , '%Y%m%d' ) AND status =1 AND uid in(".implode(",", $lender_uids).")")->fetchField();
+            $data['lender_topup'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'TOPUP' AND FROM_UNIXTIME( created, '%Y%m%d' ) = ".$date_where." AND status =1 AND uid in(".implode(",", $lender_uids).")")->fetchField();
 
             //今日借款人充值成功总额
             $debtor_uids = cowpro_rewords_get_role_uids('debtor');
-            $data['debtor_topup'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'TOPUP' AND FROM_UNIXTIME( created, '%Y%m%d' ) = DATE_FORMAT( CURDATE( ) , '%Y%m%d' ) AND status =1 AND uid in(".implode(",", $debtor_uids).")")->fetchField();
+            $data['debtor_topup'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'TOPUP' AND FROM_UNIXTIME( created, '%Y%m%d' ) = ".$date_where." AND status =1 AND uid in(".implode(",", $debtor_uids).")")->fetchField();
             
             //今日出借人提现成功总额
-            $data['lender_withdraw'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'WITHDRAW' AND FROM_UNIXTIME( created, '%Y%m%d' ) = DATE_FORMAT( CURDATE( ) , '%Y%m%d' ) AND status =1 AND uid in(".implode(",", $lender_uids).")")->fetchField();
+            $data['lender_withdraw'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'WITHDRAW' AND FROM_UNIXTIME( created, '%Y%m%d' ) = ".$date_where." AND status =1 AND uid in(".implode(",", $lender_uids).")")->fetchField();
             
             //今日借款人提现成功总额
-           $data['debtor_withdraw'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'WITHDRAW' AND FROM_UNIXTIME( created, '%Y%m%d' ) = DATE_FORMAT( CURDATE( ) , '%Y%m%d' ) AND status =1 AND uid in(".implode(",", $debtor_uids).")")->fetchField();
+           $data['debtor_withdraw'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'WITHDRAW' AND FROM_UNIXTIME( created, '%Y%m%d' ) = ".$date_where." AND status =1 AND uid in(".implode(",", $debtor_uids).")")->fetchField();
            
            //今日客户充值总额
-           $data['users_topup'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'TOPUP' AND FROM_UNIXTIME( created, '%Y%m%d' ) = DATE_FORMAT( CURDATE( ) , '%Y%m%d' ) AND status =1")->fetchField();
+           $data['users_topup'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'TOPUP' AND FROM_UNIXTIME( created, '%Y%m%d' ) = ".$date_where." AND status =1")->fetchField();
            
            //今日客户提现总额
-           $data['users_withdraw'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'WITHDRAW' AND FROM_UNIXTIME( created, '%Y%m%d' ) = DATE_FORMAT( CURDATE( ) , '%Y%m%d' ) AND status =1")->fetchField();
+           $data['users_withdraw'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'WITHDRAW' AND FROM_UNIXTIME( created, '%Y%m%d' ) = ".$date_where." AND status =1")->fetchField();
            
            //借款人总余额
            $data['debtor_total_balance'] = db_query("SELECT  SUM(balance) FROM {user_balance}")->fetchField();
            
            //今日投标总额
-            $day_bid_list = db_query("SELECT  f.amount,i.field_issuing_loan_term FROM {cowpro_fund_journal} as f LEFT JOIN {field_revision_field_issuing} as i ON f.issuing_id=i.entity_id WHERE f.type = 'BID' AND TO_DAYS(NOW()) = TO_DAYS(FROM_UNIXTIME(f.created)) AND f.status =1")->fetchAll();
+            $day_bid_list = db_query("SELECT  f.amount,i.field_issuing_loan_term FROM {cowpro_fund_journal} as f LEFT JOIN {field_revision_field_issuing} as i ON f.issuing_id=i.entity_id WHERE f.type = 'BID' AND FROM_UNIXTIME( f.created, '%Y%m%d' ) = ".$date_where." AND f.status =1")->fetchAll();
             $data['day_total_bid'] = 0;
             $data['day_total_bid_3'] = 0;
             $data['day_total_bid_6'] = 0;
@@ -374,12 +395,22 @@ function cowpro_rewards_block_view($delta = '') {
         
             //借款人余额列表
            $data['debtor_total_balance_list'] = db_query("SELECT  name,balance,nickname FROM {user_balance} WHERE balance > 0 order by balance desc")->fetchAll();
+           
+           $data['date_show'] = $date_show;
            $output = drupal_get_form("cowpro_rewards_get_balance_amount_go_form");
            $output = drupal_render($output);
+           
+           require_once 'includes/rewards.get_filter.inc';
+           $filter = drupal_get_form("cowpro_rewards_get_filter_form");
+           $filter = drupal_render($filter);
+           
            $data['output_html'] = $output;
+           $data['output_form'] = $filter;
 	   $block['subject'] = '';
 	   $block['content'] = $data;
-           
+           if( isset($_SESSION['search_report_date']) ) {
+               unset($_SESSION['search_report_date']);
+           }
 		break;
    	default:
    		break;

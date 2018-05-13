@@ -10,7 +10,7 @@
 }
 .gridtable_tit {
     float: left;
-    width: 30%;
+    width: 40%;
  }
 .gridtable_right {
     float: right;
@@ -41,6 +41,7 @@
 </style>
 
 <div class="gridtable" style="font-size:16px;"><b>平台整体运营数据</b></div>
+<div><?php echo $result['output_form'];?></div>
 <div class="gridtable">
     <div class="gridtable_tit">平台借出总额</div><div class="gridtable_right"><?php echo number_format($result['lend_total'],2);?></div>
 </div>
@@ -83,32 +84,32 @@
     <div class="gridtable_tit">本月到期总额</div><div class="gridtable_right"><?php echo $result['month_total'] ? number_format($result['month_total'],2) : 0;?></div>
 </div>
 <div class="gridtable">
-    <div class="gridtable_tit">今日到期本金</div><div class="gridtable_right"><?php echo $result['day_capital_total'] ? number_format($result['day_capital_total'],2) : 0;?></div>
+    <div class="gridtable_tit"><?php echo $result['date_show'];?>&nbsp;&nbsp;&nbsp;到期本金</div><div class="gridtable_right"><?php echo $result['day_capital_total'] ? number_format($result['day_capital_total'],2) : 0;?></div>
 </div>
 <div class="gridtable">
-    <div class="gridtable_tit">今日到期利息</div><div class="gridtable_right"><?php echo $result['day_revenus_total'] ? number_format($result['day_revenus_total'],2) : 0;?></div>
+    <div class="gridtable_tit"><?php echo $result['date_show'];?>&nbsp;&nbsp;&nbsp;到期利息</div><div class="gridtable_right"><?php echo $result['day_revenus_total'] ? number_format($result['day_revenus_total'],2) : 0;?></div>
 </div>
 <div class="gridtable">
-    <div class="gridtable_tit">今日到期总额</div><div class="gridtable_right"><?php echo $result['day_total'] ? number_format($result['day_total'],2) : 0;?></div>
+    <div class="gridtable_tit"><?php echo $result['date_show'];?>&nbsp;&nbsp;&nbsp;到期总额</div><div class="gridtable_right"><?php echo $result['day_total'] ? number_format($result['day_total'],2) : 0;?></div>
 </div>
 
 <div class="order_c"></div>
 
 <div class="gridtable" style="font-size:16px;"><b>今日投标数据</b></div>
 <div class="gridtable">
-    <div class="gridtable_tit">今日投标总额</div><div class="gridtable_right"><?php echo $result['day_total_bid'] ? number_format($result['day_total_bid'],2) : 0;?></div>
+    <div class="gridtable_tit"><?php echo $result['date_show'];?>&nbsp;&nbsp;&nbsp;投标总额</div><div class="gridtable_right"><?php echo $result['day_total_bid'] ? number_format($result['day_total_bid'],2) : 0;?></div>
 </div>
 
 <div class="gridtable">
-    <div class="gridtable_tit">今日3个月投标总额</div><div class="gridtable_right"><?php echo $result['day_total_bid_3'] ? number_format($result['day_total_bid_3'],2) : 0;?></div>
+    <div class="gridtable_tit"><?php echo $result['date_show'];?>&nbsp;&nbsp;&nbsp;3个月投标总额</div><div class="gridtable_right"><?php echo $result['day_total_bid_3'] ? number_format($result['day_total_bid_3'],2) : 0;?></div>
 </div>
 
 <div class="gridtable">
-    <div class="gridtable_tit">今日6个月投标总额</div><div class="gridtable_right"><?php echo $result['day_total_bid_6'] ? number_format($result['day_total_bid_6'],2) : 0;?></div>
+    <div class="gridtable_tit"><?php echo $result['date_show'];?>&nbsp;&nbsp;&nbsp;6个月投标总额</div><div class="gridtable_right"><?php echo $result['day_total_bid_6'] ? number_format($result['day_total_bid_6'],2) : 0;?></div>
 </div>
 
 <div class="gridtable">
-    <div class="gridtable_tit">今日12个月投标总额</div><div class="gridtable_right"><?php echo $result['day_total_bid_12'] ? number_format($result['day_total_bid_12'],2) : 0;?></div>
+    <div class="gridtable_tit"><?php echo $result['date_show'];?>&nbsp;&nbsp;&nbsp;12个月投标总额</div><div class="gridtable_right"><?php echo $result['day_total_bid_12'] ? number_format($result['day_total_bid_12'],2) : 0;?></div>
 </div>
 
 <div class="order_c"></div>
@@ -116,13 +117,13 @@
 <div class="gridtable" style="font-size:16px;"><b>平台充值数据</b></div>
 
 <div class="gridtable">
-    <div class="gridtable_tit">今日投资人充值</div><div class="gridtable_right"><?php echo $result['lender_topup'] ? number_format($result['lender_topup'],2) : 0;?></div>
+    <div class="gridtable_tit"><?php echo $result['date_show'];?>&nbsp;&nbsp;&nbsp;投资人充值</div><div class="gridtable_right"><?php echo $result['lender_topup'] ? number_format($result['lender_topup'],2) : 0;?></div>
 </div>
 <div class="gridtable">
-    <div class="gridtable_tit">今日融资人充值</div><div class="gridtable_right"><?php echo $result['debtor_topup'] ? number_format($result['debtor_topup'],2) : 0;?></div>
+    <div class="gridtable_tit"><?php echo $result['date_show'];?>&nbsp;&nbsp;&nbsp;融资人充值</div><div class="gridtable_right"><?php echo $result['debtor_topup'] ? number_format($result['debtor_topup'],2) : 0;?></div>
 </div>
 <div class="gridtable">
-    <div class="gridtable_tit">今日客户充值总额</div><div class="gridtable_right"><?php echo $result['users_topup'] ? number_format($result['users_topup'],2) : 0;?></div>
+    <div class="gridtable_tit"><?php echo $result['date_show'];?>&nbsp;&nbsp;&nbsp;客户充值总额</div><div class="gridtable_right"><?php echo $result['users_topup'] ? number_format($result['users_topup'],2) : 0;?></div>
 </div>
 
 
@@ -130,13 +131,13 @@
 
 <div class="gridtable" style="font-size:16px;"><b>平台提现数据</b></div>
 <div class="gridtable">
-    <div class="gridtable_tit">今日投资人提现</div><div class="gridtable_right"><?php echo $result['lender_withdraw'] ? number_format($result['lender_withdraw'],2) : 0;?></div>
+    <div class="gridtable_tit"><?php echo $result['date_show'];?>&nbsp;&nbsp;&nbsp;投资人提现</div><div class="gridtable_right"><?php echo $result['lender_withdraw'] ? number_format($result['lender_withdraw'],2) : 0;?></div>
 </div>
 <div class="gridtable">
-    <div class="gridtable_tit">今日融资人提现</div><div class="gridtable_right"><?php echo $result['debtor_withdraw'] ? number_format($result['debtor_withdraw'],2) : 0;?></div>
+    <div class="gridtable_tit"><?php echo $result['date_show'];?>&nbsp;&nbsp;&nbsp;融资人提现</div><div class="gridtable_right"><?php echo $result['debtor_withdraw'] ? number_format($result['debtor_withdraw'],2) : 0;?></div>
 </div>
 <div class="gridtable">
-    <div class="gridtable_tit">今日客户提现总额</div><div class="gridtable_right"><?php echo $result['users_withdraw'] ? number_format($result['users_withdraw'],2) : 0;?></div>
+    <div class="gridtable_tit"><?php echo $result['date_show'];?>&nbsp;&nbsp;&nbsp;客户提现总额</div><div class="gridtable_right"><?php echo $result['users_withdraw'] ? number_format($result['users_withdraw'],2) : 0;?></div>
 </div>
 
 <div class="order_c"></div>

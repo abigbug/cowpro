@@ -47,7 +47,7 @@ function cowpro_rewards_issuing_large_go_batch() {
 
 function cowpro_rewards_issuing_large_op_user($obj, $operation_details, &$context){
     sleep(1);
-        $result = cowpro_fund_internal_trans_data($uid_from,$obj->uid,$obj->amount);
+        $result = cowpro_fund_internal_trans_data($uid_from,$obj->uid,$obj->amount,"大额投标奖励");
         if( $result['success'] ) {
            db_update('cowpro_rewards_issuing_large')
 		->fields(array('status' => '1'))
