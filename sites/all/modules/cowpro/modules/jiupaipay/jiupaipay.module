@@ -64,9 +64,12 @@ function jiupaipay_menu() {
 			'description' => '',
 			'type' => MENU_CALLBACK,
 	);
-	$items ['cowpro/jiupaipay/repaire'] = array (
+	$items ['cowpro/jiupaipay/repaire/%/%'] = array (
 			'title' => '手动修复数据的错误',
-			'page callback' => 'jiupaipay_repaire',
+			'page callback' => 'jiupaipay_repaire_data',
+            'page arguments' => array (
+                          3,4,
+            ),
 			'access arguments' => array (
 					'configure p2p',
 			),
@@ -812,13 +815,27 @@ function jiupaipay_cowpro_fund_file_form_submit($form, &$form_state) {
  * $fund_type 类型参考 cowpro_fund_type.inc
  */
 function jiupaipay_result_parser($fund_type, $result) {
-	$msg = '';
-	$data = $result;
-	switch ($fund_type) {
-		case 'TOPUP' :
-			$msg = $data ['result'] ['inBody'] ['respMsg'] . '-' . $data ['result'] ['inBody'] ['respCode'];
-			break;
-	}
+	  $msg = '';
+	  $data = $result;
+        switch ($fund_type) {
+            case 'TOPUP' :
+            case 'WITHDRAW' :
+                    if( $data ['result'] ['inBody'] ['respCode'] == "P2P0000" ) {
+                        $msg = "-";
+                    }else{
+                        $msg = $data ['result'] ['inBody'] ['respMsg'] . '-' . $data ['result'] ['inBody'] ['respCode'];
+                    }
+
+                    break; 
+             case 'INTERNAL_TRANS' :
+                 if( $data ['result']['result_code'] == "P2P0000" ) {
+                     $msg = $data ['comment'];
+                 }else{
+                     $msg = $data ['result']['message'] . '-' . $data ['result']['result_code'];
+                 }
+                    break; 
+        }
+        
 	return $msg;
 }
 
@@ -922,7 +939,7 @@ function jiupaipay_query_by_account($nid) {
 
 	$result = _jiupaipay_cowpro_fund_query_by_account ( $issuing_accno);
 	echo $issuing_accno . '<br/>';
-	echo serialize($result);
+	var_dump($result);
 }
 
 /**
@@ -944,7 +961,7 @@ function jiupaipay_result_parser($type, $data) {
 }
 */
 
-function jiupaipay_repaire() {
-	include_once 'includes/jiupaipay.makeloans.inc';
-	return jiupaipay_make_loans_to ( 2489 );
+function jiupaipay_repaire_data($nid,$amount) {
+	include_once 'includes/jiupaipay.repaire.inc';
+	return jiupaipay_repaire ( $nid,$amount );
 }

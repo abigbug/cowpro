@@ -21,7 +21,7 @@ class cowpro_fund_journal_handler_field_status extends views_handler_field {
   	$msg = NULL;
     $value = $this->get_value($values);
     if ($value == 0) {
-    	$journal_id = $values->cowpro_fund_journal_journal_id;
+    	/*$journal_id = $values->cowpro_fund_journal_journal_id;
     	$entity = entity_load_single('cowpro_fund_journal', $journal_id);
     	$data = $entity->data;
     	if ($data && array_key_exists('interface_module', $data)) {
@@ -29,7 +29,7 @@ class cowpro_fund_journal_handler_field_status extends views_handler_field {
     		if (function_exists($function)) {
     			$msg = $function($values->cowpro_fund_journal_type, $data);
     		}
-    	}
+    	}*/
     }
 
     /*
@@ -37,7 +37,7 @@ class cowpro_fund_journal_handler_field_status extends views_handler_field {
      * 在定义 views 的时候，字段要包含“资金明细: 业务类型 (业务类型)”
      */
     $comment = '';
-    switch ($values->cowpro_fund_journal_type) {
+    /*switch ($values->cowpro_fund_journal_type) {
     	case 'INTERNAL_TRANS':
     		$journal_id = $values->cowpro_fund_journal_journal_id;
     		$entity = entity_load_single('cowpro_fund_journal', $journal_id);
@@ -48,7 +48,7 @@ class cowpro_fund_journal_handler_field_status extends views_handler_field {
     		break;
     	default:
     		break;
-    }
+    }*/
 
     if ($msg === NULL) {
     	$msg = '';
