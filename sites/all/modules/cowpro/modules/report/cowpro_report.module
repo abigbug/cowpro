@@ -9,3 +9,257 @@ function cowpro_report_views_api() {
 			'path' => drupal_get_path ( 'module', 'cowpro_report' ) . '/includes/views'
 	);
 }
+
+function cowpro_report_theme() {
+	return array (
+                        
+                        'cowpro_report_site' => array (
+					'variables' => array (
+							'result' => NULL,
+					),
+					'template' => 'cowpro-report-site'
+			)
+	);
+}
+
+
+/**
+ * Implementation of hook_menu()
+ */
+function cowpro_report_menu() { 
+    $items ['cowpro/report'] = array (
+			'title' => '平台运营统计报表',
+			'description' => '',
+			'page callback' => 'cowpro_report_operating_report',
+			'access arguments' => array (
+					'advanced report',
+			),
+			'type' => MENU_NORMAL_ITEM,
+	);
+        $items ['cowpro/report/get_balance_amount'] = array (
+			'title' => '生成借款人余额',
+			'description' => '',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'cowpro_report_get_balance_amount_go_form'
+			),
+			'access arguments' => array (
+					'advanced report'
+			),
+                        'file' => 'includes/report.get_balance.inc',
+			'type' => MENU_NORMAL_ITEM
+	);
+        $items ['cowpro/report/debto_paid_total_capital'] = array (
+                'title' => '融资人全部已还本金',
+                'description' => '',
+                'page callback' => 'cowpro_report_debto_paid',
+                'access arguments' => array (
+                                'advanced report'
+                ),
+                'type' => MENU_NORMAL_ITEM
+	);
+        $items ['cowpro/report/debto_nopaid_total_capital'] = array (
+                'title' => '融资人全部已还本金',
+                'description' => '',
+                'page callback' => 'cowpro_report_debto_nopaid',
+                'access arguments' => array (
+                                'advanced report'
+                ),
+                'type' => MENU_NORMAL_ITEM
+	);
+        return $items;
+}
+
+//平台运营统计报表
+function cowpro_report_operating_report(){
+    include 'includes/report.get_balance.inc';
+     $block = block_load('cowpro_report', 'site_report');
+     $block_content = _block_render_blocks(array($block));  
+     $build = _block_get_renderable_array($block_content);  
+     $result = $build['cowpro_report_site_report'];
+     $html = theme ( 'cowpro_report_site', array (
+			'result' => $result,
+     ) );
+    return $html;
+}
+
+function cowpro_report_block_info() {
+	$blocks = array();
+	$blocks['site_report'] = array(
+			'info' => '显示平台运营报表',
+	);
+
+	return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function cowpro_report_block_view($delta = '') {
+	$block = NULL;
+        $date_where = "DATE_FORMAT( CURDATE( ) , '%Y%m%d' )";
+        $date_show = date("Y-m-d",time());
+        if( isset($_SESSION['search_report_date']) ) {
+            $date_where  = "FROM_UNIXTIME( ".strtotime($_SESSION['search_report_date']).", '%Y%m%d' )";
+            $date_show = date("Y-m-d",strtotime($_SESSION['search_report_date']));
+        }
+  switch ($delta) {
+    case 'site_report':
+            //平台借出总额
+           $data['lend_total'] = db_query("SELECT SUM(field_issuing_loan_amounts) FROM {field_revision_field_issuing} WHERE field_issuing_status = 'REPAYMENT' or field_issuing_status='FINISHED'")->fetchField();
+            //已还利息总额
+            $data['interest_paid_total'] = db_query("SELECT SUM(interest) FROM {cowpro_repayment_schedule} WHERE status = 'COMPLETED' AND receiver_uid != -1")->fetchField();
+            //已还总额(本金加利息)
+            $data['paid_total'] = db_query("SELECT SUM(interest + capital) FROM {cowpro_repayment_schedule} WHERE status = 'COMPLETED' AND receiver_uid != -1")->fetchField();
+            //待还总额(本金加利息)
+            $data['wait_paid_total'] = db_query("SELECT SUM(interest + capital) FROM {cowpro_repayment_schedule} WHERE status = 'WAITING_FOR' AND receiver_uid != -1")->fetchField();
+            //会员总人数
+            $data['user_total'] = db_query("SELECT COUNT(*) FROM {users}")->fetchField();
+            //已投资会员数
+            $data['user_bid_total'] = db_query("SELECT COUNT(distinct(uid)) FROM {cowpro_fund_journal} WHERE type = 'BID'")->fetchField();
+            //在投用户数
+            $data['user_biding_total'] = db_query("SELECT  COUNT(distinct(receiver_uid)) FROM {cowpro_repayment_schedule} WHERE status = 'WAITING_FOR' AND receiver_uid != -1")->fetchField();
+           
+
+           
+           //本月到期本金
+           $data['month_capital_total'] = db_query("SELECT SUM(capital) FROM {cowpro_repayment_schedule} WHERE FROM_UNIXTIME( deadline, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' ) AND receiver_uid != -1")->fetchField();
+           //本月到期利息
+           $data['month_revenus_total'] = db_query("SELECT SUM(interest) FROM {cowpro_repayment_schedule} WHERE FROM_UNIXTIME( deadline, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' ) AND receiver_uid != -1")->fetchField();
+           //本月到期总额
+           $data['month_total'] = $data['month_capital_total'] + $data['month_revenus_total'];
+           
+           
+           
+            //今日到期本金
+           $data['day_capital_total'] = db_query("SELECT SUM(capital) FROM {cowpro_repayment_schedule} WHERE FROM_UNIXTIME( deadline, '%Y%m%d' ) = ".$date_where." AND receiver_uid != -1")->fetchField();
+           //今日到期利息
+           $data['day_revenus_total'] = db_query("SELECT SUM(interest) FROM {cowpro_repayment_schedule} WHERE FROM_UNIXTIME( deadline, '%Y%m%d' ) = ".$date_where." AND receiver_uid != -1")->fetchField();
+           //今日到期总额
+           $data['day_total'] = $data['day_capital_total'] + $data['day_revenus_total'];
+           
+           //借款人账户总余额
+
+           
+           //今日出借人充值成功总额
+            $lender_uids = cowpro_report_get_role_uids('lender');
+            $data['lender_topup'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'TOPUP' AND FROM_UNIXTIME( created, '%Y%m%d' ) = ".$date_where." AND status =1 AND uid in(".implode(",", $lender_uids).")")->fetchField();
+
+            //今日借款人充值成功总额
+            $debtor_uids = cowpro_report_get_role_uids('debtor');
+            $data['debtor_topup'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'TOPUP' AND FROM_UNIXTIME( created, '%Y%m%d' ) = ".$date_where." AND status =1 AND uid in(".implode(",", $debtor_uids).")")->fetchField();
+            
+            //今日出借人提现成功总额
+            $data['lender_withdraw'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'WITHDRAW' AND FROM_UNIXTIME( created, '%Y%m%d' ) = ".$date_where." AND status =1 AND uid in(".implode(",", $lender_uids).")")->fetchField();
+            
+            //今日借款人提现成功总额
+           $data['debtor_withdraw'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'WITHDRAW' AND FROM_UNIXTIME( created, '%Y%m%d' ) = ".$date_where." AND status =1 AND uid in(".implode(",", $debtor_uids).")")->fetchField();
+           
+           //今日客户充值总额
+           $data['users_topup'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'TOPUP' AND FROM_UNIXTIME( created, '%Y%m%d' ) = ".$date_where." AND status =1")->fetchField();
+           
+           //今日客户提现总额
+           $data['users_withdraw'] = db_query("SELECT  SUM(amount) FROM {cowpro_fund_journal} WHERE type = 'WITHDRAW' AND FROM_UNIXTIME( created, '%Y%m%d' ) = ".$date_where." AND status =1")->fetchField();
+           
+           //借款人总余额
+           $data['debtor_total_balance'] = db_query("SELECT  SUM(balance) FROM {user_balance}")->fetchField();
+           
+           //今日投标总额
+            $day_bid_list = db_query("SELECT  f.amount,i.field_issuing_loan_term FROM {cowpro_fund_journal} as f LEFT JOIN {field_revision_field_issuing} as i ON f.issuing_id=i.entity_id WHERE f.type = 'BID' AND FROM_UNIXTIME( f.created, '%Y%m%d' ) = ".$date_where." AND f.status =1")->fetchAll();
+            $data['day_total_bid'] = 0;
+            $data['day_total_bid_3'] = 0;
+            $data['day_total_bid_6'] = 0;
+            $data['day_total_bid_12'] = 0;
+
+            foreach( $day_bid_list as $v ){
+                $data['day_total_bid'] += $v->amount;
+                if( $v->field_issuing_loan_term == 90 ) {
+                    $data['day_total_bid_3'] += $v->amount;
+                }else if( $v->field_issuing_loan_term == 180 ){
+                    $data['day_total_bid_6'] += $v->amount;
+                }else if( $v->field_issuing_loan_term == 360 ){
+                    $data['day_total_bid_12'] += $v->amount;
+                }
+            }
+            
+            //所有待还本金
+            $data['all_total_capital'] = db_query("SELECT SUM(capital) FROM {cowpro_repayment_schedule} WHERE receiver_uid != -1 AND status = 'WAITING_FOR'")->fetchField();
+            
+            //所有待还利息
+            $data['all_total_interest'] = db_query("SELECT SUM(interest) FROM {cowpro_repayment_schedule} WHERE receiver_uid != -1 AND status = 'WAITING_FOR'")->fetchField();
+        
+            //借款人余额列表
+           $data['debtor_total_balance_list'] = db_query("SELECT  name,balance,nickname FROM {user_balance} WHERE balance > 0 order by balance desc")->fetchAll();
+           
+           $data['date_show'] = $date_show;
+           $output = drupal_get_form("cowpro_report_get_balance_amount_go_form");
+           $output = drupal_render($output);
+           
+           require_once 'includes/report.get_filter.inc';
+           $filter = drupal_get_form("cowpro_report_get_filter_form");
+           $filter = drupal_render($filter);
+
+           $data['output_html'] = $output;
+           $data['output_form'] = $filter;
+	   $block['subject'] = '';
+	   $block['content'] = $data;
+           if( isset($_SESSION['search_report_date']) ) {
+               unset($_SESSION['search_report_date']);
+           }
+		break;
+   	default:
+   		break;
+  }
+  if ($block) {
+  	return $block;
+  }
+}
+
+function cowpro_report_get_role_uids($role){
+        $uids = array();
+        $role_obj = user_role_load_by_name($role);
+        $result = db_select('users_roles', 'ur')
+          ->fields('ur')
+          ->condition('ur.rid', $role_obj->rid, '=')
+          ->execute();
+        foreach ($result as $record) {
+            if( $record->uid != 1 ) {
+                $uids[] = $record->uid;
+            }
+        }
+        return $uids;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function cowpro_report_permission() {
+  $permissions = array(
+    'advanced report' => array(
+      'title' => t('see Advanced report'),
+      'description' => '',
+      'restrict access' => TRUE,
+    ),
+  );
+
+  return $permissions;
+}
+
+function cowpro_report_debto_paid(){
+    $result = db_query("SELECT SUM(payable_amount - interest) as amount,payer_uid FROM {cowpro_repayment_schedule} WHERE period = period_total AND status = 'COMPLETED' AND receiver_uid != -1 GROUP BY payer_uid")->fetchAll();
+    foreach( $result as $key=>$value ){
+        $profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ( $value->payer_uid, 'real_name' );
+        $result[$key]->name = $profile_real_name->name;
+    }
+    var_dump($result);
+}
+
+function cowpro_report_debto_nopaid(){
+    $result = db_query("SELECT SUM(payable_amount - interest) as amount,payer_uid FROM {cowpro_repayment_schedule} WHERE period = period_total AND status = 'WAITING_FOR' GROUP BY payer_uid")->fetchAll();
+    foreach( $result as $key=>$value ){
+        $profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ( $value->payer_uid, 'real_name' );
+        $result[$key]->name = $profile_real_name->name;
+    }
+    var_dump($result);
+}
+

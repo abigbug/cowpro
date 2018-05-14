@@ -1,5 +1,5 @@
 <?php
-function cowpro_rewards_get_filter_form($form, &$form_state){
+function cowpro_report_get_filter_form($form, &$form_state){
                $form["search_date"]["deadline"] = array(
                 '#type' => 'date', 
                 '#title' => "日期搜索", 
@@ -20,14 +20,14 @@ function cowpro_rewards_get_filter_form($form, &$form_state){
 	return $form;
 }
 
-function cowpro_rewards_get_filter_form_submit($form, &$form_state) {
+function cowpro_report_get_filter_form_submit($form, &$form_state) {
    
     $year = intval($form_state ['values']['deadline']['year']);
     $month = intval($form_state ['values']['deadline']['month']);
     $day = intval($form_state ['values']['deadline']['day']);
     global $base_url;
     $_SESSION['search_report_date'] = $year."-".$month."-".$day;
-    drupal_goto($base_url."/cowpro/rewards/report/");
+    drupal_goto($base_url."/cowpro/report/");
 }
 
 function _cowpro_report_form_pre_render($element) {
