@@ -42,7 +42,11 @@ function _cowpro_customer_user_view_detail($account, $profile_type) {
 	}
 
 	$uid = $account->uid;
-	$href = url("user/$uid/customer-profiles/$type");
+    if($type=="survey"){
+        $href = url("survey");
+    }else{
+        $href = url("user/$uid/customer-profiles/$type");
+    }
 
 	$callback = $type . '_user_view_detail';
 	if (function_exists ( $callback )) {
