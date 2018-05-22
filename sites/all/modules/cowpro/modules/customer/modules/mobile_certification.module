@@ -497,6 +497,7 @@ function mobile_certification_menu_alter(&$items) {
 	if (!mobile_certification_access_check()) {
 		$items['user/password']['page callback'] = 'drupal_goto';
 		$items['user/password']['page arguments'] = array('user/password_by_sms');
+		$items['user/password']['type'] = MENU_CALLBACK;
 	}
 }
 
