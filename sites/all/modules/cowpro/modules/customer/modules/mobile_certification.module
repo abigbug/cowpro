@@ -508,6 +508,11 @@ function mobile_certification_access_check() {
 	return TRUE;
 }
 
+function mobile_certification_mail_alter(&$message) {
+	//取消发送邮件的操作
+	$message['send'] = FALSE;
+}
+
 function mobile_certification_form_user_login_alter(&$form, &$form_state) {
 	$form['#validate'] = array('user_login_name_validate', 'user_login_authenticate_validate', 'mobile_certification_user_login_authenticate_validate', 'user_login_final_validate');
 	//$form['#submit'][] = 'user_login_submit';
