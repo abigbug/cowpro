@@ -147,7 +147,7 @@ function cowpro_rewards_theme() {
 function cowpro_rewards_check_in() {
 	$uid = $GLOBALS ['user']->uid;
 	if (cowpro_rewards_have_checked_in ()) {
-		drupal_set_message ( '您已经签过到了！', 'warning' );
+		drupal_set_message ( '亲，今天已经签过到啦，请明来再来！', 'warning' );
 		drupal_goto ();
 		return;
 	}
