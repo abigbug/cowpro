@@ -1,0 +1,11 @@
+name = CowPro Survey
+description = 调查问卷
+package = CowPro
+;dependencies[] = cowpro_customer
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro"
+
