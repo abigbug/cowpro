@@ -323,7 +323,12 @@ function cowpro_customer_customer_profile_show_form($form, &$form_state, $profil
 	if ($verified) {
 		$verified_class = 'verified';
 		$markup = "已认证";
-		$link_type = "修改设置";
+                if( $type == "survey" ) {
+                    $link_type = "重新评测";
+                }else{
+                    $link_type = "修改设置";
+                }
+		
 	} else {
 		$verified_class = 'unverified';
 		$markup = "未认证";
@@ -347,9 +352,16 @@ function cowpro_customer_customer_profile_show_form($form, &$form_state, $profil
 	$order_name = $form_state ['form_info'] ['order'] [$type];
 	global $base_url;
 	$form = array ();
-	$form ['show_list'] = array (
+        if( $type == 'survey' ) {
+            $form ['show_list'] = array (
+			'#markup' => '<div class="m_r"><div class="mr_t"><div class="phone2"> <p><span>' . $order_name . '</span><i>' . $description . '</i><b class="' . $verified_class . '">' . $markup . '</b><strong class="fundCustodian" style="cursor:pointer"><a href="' . $base_url . '/survey" title="">' . $link_type . '</a></strong></p></div></div></div>'
+            );
+        }else{
+            $form ['show_list'] = array (
 			'#markup' => '<div class="m_r"><div class="mr_t"><div class="phone2"> <p><span>' . $order_name . '</span><i>' . $description . '</i><b class="' . $verified_class . '">' . $markup . '</b><strong class="fundCustodian" style="cursor:pointer"><a href="' . $base_url . '/user/' . $uid . '/customer-profiles/' . $type . '" title="">' . $link_type . '</a></strong></p></div></div></div>'
-	);
+            );
+        }
+	
         $form ['message'] = array (
 			'#type' => 'hidden',
 			'#default_value' => $message,
