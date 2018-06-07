@@ -21,14 +21,25 @@ function cowpro_fund_withdraw($form, &$form_state) {
 
 	GLOBAL $user;
 	$balance = custodian_get_balance($user);
-	$withdraw = 0;
+    $balance_money=0;    //账户余额
+	$withdraw = 0;      //可提现金额
+    $lock=0;           //冻结金额
 	if ($balance) {
-		$withdraw = $balance ['withdraw'];
+      $balance_money = $balance ['balance'];
+	  $withdraw = $balance ['withdraw'];
+	  $lock = $balance ['lock'];
 	}
 
-	$form ['withdraw_balance'] = array (
-			'#markup' => "<p>可提现余额(元)：$withdraw</p>",
-	);
+    if($lock>0){
+      $form ['withdraw_balance'] = array (
+			'#markup' => "<p>账户余额：$balance_money 元 (其中 $lock 元下个工作日可提现)</p><p>当前可提现：$withdraw 元 </p>",
+	  );    
+    }else{
+      $form ['withdraw_balance'] = array (
+			'#markup' => "<p>账户余额：$balance_money 元 </p><p>当前可提现：$withdraw 元 </p>",
+	  );    
+    }
+	
 	$form ['amount'] = array (
 			'#type' => 'numberfield',
 			'#title' => '提现金额(元)',

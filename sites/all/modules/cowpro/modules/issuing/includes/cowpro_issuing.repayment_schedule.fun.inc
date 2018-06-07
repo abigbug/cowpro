@@ -353,6 +353,10 @@ function _cowpro_issuing_build_repayment_schedule_for_issuing($nid, $applicant, 
 		}
 	}
 
+	foreach($repayment_schedule as $k => $schedule) {
+		$repayment_schedule[$k]['period_total'] = $period_total;
+	}
+
 	return $repayment_schedule;
 }
 
@@ -370,7 +374,7 @@ function _cowpro_issuing_save_repayment_schedule($nid, $applicant, $issuing) {
 		$entity_value = array(
 				'issuing_id' => $nid,//对应的原始贷款申请表编号(nid)
 				'period' => $schedule['term_no'],//期次
-				'period_total' => $period_total,//还款计划共分X期
+				'period_total' => $schedule['period_total'],//还款计划共分X期
 				'payer_uid' => $schedule['payer_uid'],//付款人uid
 				'receiver_uid' => $schedule['receiver_uid'],//收款人uid
 				'payable_amount' => $schedule['capital'] + $schedule['interest'],//应付款(包括贷款人应缴的各项费用，所以可能会与receivable_amount字段的值不同)

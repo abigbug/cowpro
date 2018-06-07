@@ -445,25 +445,37 @@ function custodian_user_view_fund($account, $view_mode) {
 		$balance = $function($account->uid);
 		$account->content['fund'] = array(
 				'#type' => 'user_profile_category',
-				'#title' => '托管账号详情',
+				'#title' => '账户资金详情',
 				'#weight' => 0,
 		);
 		if ($balance ['success']) {
+//			$account->content['fund']['fund_1'] = array(
+//					'#type' => 'user_profile_item',
+//					'#title' => '可提现余额',
+//					'#markup' => $balance ['withdraw'],
+//			);
+//			$account->content['fund']['fund_2'] = array(
+//					'#type' => 'user_profile_item',
+//					'#title' => '可投标余额',
+//					'#markup' => $balance ['balance'],
+//			);
+//			$account->content['fund']['fund_3'] = array(
+//					'#type' => 'user_profile_item',
+//					'#title' => '冻结金额',
+//					'#markup' => $balance ['lock'],
+//			);
 			$account->content['fund']['fund_1'] = array(
 					'#type' => 'user_profile_item',
-					'#title' => '可提现余额',
-					'#markup' => $balance ['withdraw'],
-			);
-			$account->content['fund']['fund_2'] = array(
-					'#type' => 'user_profile_item',
-					'#title' => '可投标余额',
+					'#title' => '账户余额',
 					'#markup' => $balance ['balance'],
 			);
-			$account->content['fund']['fund_3'] = array(
+            if($balance ['lock']>0){
+			  $account->content['fund']['fund_2'] = array(
 					'#type' => 'user_profile_item',
-					'#title' => '冻结金额',
-					'#markup' => $balance ['lock'],
-			);
+					'#title' => ' ',
+					'#markup' => '(其中'.$balance ['lock'].'元下个工作日可提现)',
+			  );
+            }
 		} else {
 			$account->content['fund']['fund_1'] = array(
 					'#type' => 'user_profile_item',

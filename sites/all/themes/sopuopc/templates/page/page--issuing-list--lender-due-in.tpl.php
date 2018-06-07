@@ -35,14 +35,13 @@ if ( $user->uid ) :
   <section  class="container" id="sopuo-mainbody">
     <div class="row">
       <div class="col-md-2 " id="frame_left">
-
 <?php
-$block = block_load('system', 'navigation');
+$block = block_load('block', '6');
 $output = @drupal_render(_block_get_renderable_array(_block_render_blocks(array($block))));
 print $output;
 ?>
 <?php
-$block = block_load('block', '6');
+$block = block_load('system', 'navigation');
 $output = @drupal_render(_block_get_renderable_array(_block_render_blocks(array($block))));
 print $output;
 ?>

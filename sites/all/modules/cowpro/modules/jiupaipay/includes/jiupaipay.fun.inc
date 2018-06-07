@@ -140,11 +140,11 @@ function jiupaipay_check_pwd($uid, $step, $data = NULL) {
 		$submit_html .= '<input id="amount" name="amount" value="' . $register_password_data ['amount'] . '" type="hidden" />';
 	} else if ($step == 7) { // 提现
         global $user;
-        $role = user_role_load_by_name ( 'lender' );
+        $role = user_role_load_by_name ( '企业' );
 	    if (user_has_role ( $role->rid, $user )) {
-		  $register_password_data ['operType'] = "W01";
-        }else{
 		  $register_password_data ['operType'] = "W06";
+        }else{
+		  $register_password_data ['operType'] = "W01";
         }
 		$register_password_data ['amount'] = $data ['amount'];
 		$submit_html .= '<input id="amount" name="amount" value="' . $register_password_data ['amount'] . '" type="hidden" />';

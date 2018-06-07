@@ -1,0 +1,26 @@
+<?php
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ */
+function cowpro_ownership_install() {
+    _cowpro_ownership_install_relationship();
+}
+
+function _cowpro_ownership_install_relationship() {
+    $rtype = new StdClass;
+    $rtype->name = '客户归属';
+    $rtype->machine_name = 'ownership';
+    $rtype->plural_name = '客户';
+    $rtype->name_capitalized = '客户';
+    $rtype->plural_name_capitalized = '客户';
+    $rtype->reverse_name = '客户经理';
+    $rtype->reverse_plural_name = '客户经理';
+    $rtype->reverse_name_capitalized = '客户经理';
+    $rtype->reverse_plural_name_capitalized = '客户经理';
+    $rtype->is_oneway = TRUE;
+    $rtype->requires_approval = FALSE;
+    $rtype->expires_val = 0;
+    user_relationships_type_save($rtype);
+}

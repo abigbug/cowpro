@@ -1,0 +1,200 @@
+<?php
+function survey_cowpro_customer_profile_survey_create($values) {
+	$values += array (
+                        'type' => '风险承受能力问卷用户调查结果',
+			'score' => 0,
+                        'level' => 1,
+	);
+	return $values;
+}
+function survey_cowpro_customer_profile_survey_save($profile) {
+	$data = array ();
+        $data ['type'] = $profile->type;
+	$data ['score'] = $profile->score;
+        $data ['level'] = $profile->level;
+	$profile->data = $data;
+	$profile->search_field = $profile->score."|".$profile->level;
+	return $profile;
+}
+function survey_cowpro_customer_profile_survey_load($profile) {
+        $profile->type = $profile->data ['type'];
+	$profile->score = $profile->data ['score'];
+        $profile->level = $profile->data ['level'];
+	return $profile;
+}
+
+/**
+ * Implements hook_cowpro_customer_profile_type_info().
+ */
+function survey_cowpro_customer_profile_type_info() {
+	$profile_types = array ();
+        $level_array = array(
+                        1 => "保守型投资者",
+                        2 => "稳健型投资者",
+                        3 => "积极型投资者",
+                        4 => "激进型投资者",
+            
+                        );
+        global $user;
+        $description = "风险承受能力问卷";
+        $survey_profile = cowpro_customer_profile_load_one_row_with_conditions($user->uid,"survey");
+        if( $survey_profile != NULL && $survey_profile->verified ) {
+            $description = $level_array[$survey_profile->level];
+        }
+	$profile_types ['survey'] = array (
+			'type' => 'survey',
+			'name' => '调查问卷',
+			'description' => $description,
+			'help' => '',
+			'weight' => 100
+	);
+
+	return $profile_types;
+}
+
+function survey_user_view_detail($profile){
+    
+	$goto_url = $GLOBALS['base_url'] . "/survey";
+	if ($profile) {
+		if (! $profile->verified) {
+			$verified = FALSE;
+			$markup = '去评测';
+			$message = "您还未进行调查问卷评测<a href='" . $goto_url . "' class='gotourl'>去评测</a>";
+		} else {
+                    $verified = TRUE;
+                    $markup = '已评测';
+                    $message = "";
+                }
+        }else {
+		$verified = FALSE;
+		$markup = '去评测';
+		$message = "您还未进行调查问卷评测<a href='" . $goto_url . "' class='gotourl'>去评测</a>";
+	}
+        $result ['verified'] = $verified;
+	$result ['markup'] = $markup;
+	$result ['message'] = $message;
+        return $result;
+                
+
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+/*function survey_form_alter(&$form, $form_state, $form_id) {
+  if (isset($form['#node']->type) && $form_id == $form['#node']->type . '_client_form_'.$form["#node"]->nid && variable_get('webform_node_' . $form['#node']->type, FALSE)) {
+      $form['actions']['submit']['#submit'][] = 'survey_form_submit';
+      $form['submit']['#submit'][] = 'survey_form_submit';
+  }
+}*/
+
+/**
+ * Implements hook_node_insert().
+ */
+function survey_node_insert($node){
+    if ( isset($node->webform) ) {
+        $node->webform['submit_notice'] = 0;
+    }
+}
+
+/**
+ * Implements hook_node_load().
+ */
+function survey_node_load($nodes, $types) {
+    $webform_types = webform_node_types();
+  if (count(array_intersect($types, $webform_types)) == 0) {
+    return;
+  }
+
+    foreach( $nodes as $nid => $webform ){
+        $webform->webform['submit_notice'] = 0;
+        $webform->webform['preview_message'] = "";
+   
+        if( isset($webform->webform['components']) ) {
+            foreach( $webform->webform['components'] as $key=>$value ){
+                if( $value["type"] == "pagebreak" && !_survey_ismobile_device() ) {
+                    unset($nodes[$nid]->webform['components'][$key]);
+                }
+            }
+        }
+    } 
+}
+
+
+// 判断是否是移动端
+function _survey_ismobile_device() {
+	$browser = browscap_get_browser ();
+	if ($browser ['ismobiledevice'] == "true") {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function survey_webform_submission_presave($node, &$submission){
+    $components = $node->webform['components'];
+    $components_result = $submission->data;
+    $components_result_parser = array();
+
+    foreach( $components as $key=>$value ){
+        if( isset($components_result[$key]) ) {
+            $components_result_parser[$value['form_key']] = $components_result[$key][0];
+        }
+    }
+
+    $result = array();
+    $total_score = 0;
+    $fractional_structure = array(
+        "subject1" => array("a"=>3,"b"=>2,"c"=>1,"d"=>1,"e"=>0),
+        "subject2" => array("a"=>1,"b"=>3,"c"=>4,"d"=>5,"e"=>6),
+        "subject3" => array("a"=>3,"b"=>2,"c"=>1,"d"=>0),
+        "subject4" => array("a"=>0,"b"=>1,"c"=>2,"d"=>3),
+        "subject5" => array("a"=>5,"b"=>5,"c"=>5,"d"=>0),
+        "subject6" => array("a"=>1,"b"=>2,"c"=>3,"d"=>5),
+        "subject7" => array("a"=>1,"b"=>2,"c"=>3,"d"=>4),
+        "subject8" => array("a"=>1,"b"=>3,"c"=>4,"d"=>6),
+        "subject9" => array("a"=>0,"b"=>1,"c"=>2,"d"=>4,"e"=>6),
+        "subject10" => array("a"=>1,"b"=>2,"c"=>3,"d"=>4,"e"=>0),
+        "subject11" => array("a"=>1,"b"=>3,"c"=>5),
+        "subject12" => array("a"=>2,"b"=>4,"c"=>5,"d"=>6,"e"=>6),
+        "subject13" => array("a"=>0,"b"=>1,"c"=>3,"d"=>5,"e"=>6),
+        "subject14" => array("a"=>0,"b"=>2,"c"=>3,"d"=>4),
+        "subject15" => array("a"=>0,"b"=>2,"c"=>4,"d"=>6),
+        "subject16" => array("a"=>7,"b"=>5,"c"=>4,"d"=>3,"e"=>1),
+        "subject17" => array("a"=>5,"b"=>7,"c"=>3,"d"=>2,"e"=>0),
+        "subject18" => array("a"=>5,"b"=>3,"c"=>1),
+        "subject19" => array("a"=>1,"b"=>2,"c"=>4,"d"=>5),
+        "subject20" => array("a"=>4,"b"=>3,"c"=>2,"d"=>1,"e"=>0),
+    );
+    foreach( $components_result_parser as $key=>$value ){
+        if( isset($fractional_structure[$key]) ) {
+            $total_score += $fractional_structure[$key][$value];
+        }
+    }
+
+    global $user;
+    
+   $survey_profile = cowpro_customer_profile_load_one_row_with_conditions($user->uid,"survey");
+   if ($survey_profile == NULL) {
+            $survey_profile = cowpro_customer_profile_new ( 'survey', $user->uid );
+    }
+    $level = array(
+                1 => array("min"=>0,"max"=>25),
+                2 => array("min"=>26,"max"=>50),
+                3 => array("min"=>51,"max"=>75),
+                4 => array("min"=>76,"max"=>100),
+        
+            );
+    $level_result = 1;
+    foreach( $level as $key=>$value ){
+        if( $total_score >= $value['min'] &&  $total_score <= $value['max']) {
+            $level_result = $key;
+            break;
+        }
+    }
+    
+   $survey_profile->score = $total_score;
+   $survey_profile->level = $level_result;
+   $survey_profile->verified = true;
+   cowpro_customer_profile_save($survey_profile);
+}

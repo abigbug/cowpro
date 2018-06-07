@@ -49,8 +49,8 @@ function _cowpro_fund_get_type_options() {
 	$options[COWPRO_FUND_TYPE_BID] = '投标';
 	$options[COWPRO_FUND_TYPE_ISSUING_FAILING] = '流标退款';
 	$options[COWPRO_FUND_TYPE_MAKE_LOANS_TO] = '满标放款';
-	$options[COWPRO_FUND_TYPE_REPAYMENT_RECEIPTS] = '按期还款，收款方';
-	$options[COWPRO_FUND_TYPE_REPAYMENT_PAYMENTS] = '按期还款，付款方';
+	$options[COWPRO_FUND_TYPE_REPAYMENT_RECEIPTS] = '回款';
+	$options[COWPRO_FUND_TYPE_REPAYMENT_PAYMENTS] = '还款';
 	$options[COWPRO_FUND_TYPE_INTERNAL_TRANS] = '内部转账';
 	return $options;
 }

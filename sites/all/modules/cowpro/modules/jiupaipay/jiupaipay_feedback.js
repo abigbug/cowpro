@@ -1,30 +1,27 @@
 (function($) {
-    window.onload = function(){  
-      check_feedback();
-    };
+  window.onload=function(){
+    check_feedback();
+    var feedback=setInterval(check_feedback,8000);
     function check_feedback(){
+      //alert(123);
       var journal_id = $("[name='journal_id']").val();
-      $.ajax({
-            type: "get",
+      $.ajax({	    
+            type : "GET",
             dataType: "JSON",
             async: false,
-            url:"http://test.jinbeizeng.com/cowpro/jiupaipay/topup_feedback_ajax",//目标地址
-            data:"journal_id="
-                            + encodeURIComponent(journal_id),
+	        url : "/cowpro/jiupaipay/topup_feedback_ajax",
+            data:"journal_id="+ encodeURIComponent(journal_id),
             beforeSend:function(){
                 $("#loading").show();
                 $("#showdata").hide();
             },//发送数据之前
             success:function(response) {
-              $("#showdata").text(response);     //加载数据，并写道页面
-            },
-            complete:function(){
+                clearInterval(feedback);
                 $("#loading").hide();
                 $("#showdata").show();
-            },//接收数据完毕
-            error:function (response) {
-              setTimout(check_feedback(),5000);
+              $("#showdata").text(response);     //加载数据，并写道页面
             }
       }); 
     }
+}
 })(jQuery);

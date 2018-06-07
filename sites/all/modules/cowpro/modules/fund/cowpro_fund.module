@@ -14,8 +14,8 @@ function cowpro_fund_menu() {
 			'title' => '资金管理',
 			'description' => '资金管理',
 			'page callback' => 'cowpro_fund_journal',
-			'access callback' => 'cowpro_fund_real_name_verified',
-			'menu_name' => 'navigation',
+			'access callback' => 'user_is_logged_in',
+			//'menu_name' => 'navigation',
 			'type' => MENU_NORMAL_ITEM,
 			'weight' => 10
 	);
@@ -24,8 +24,8 @@ function cowpro_fund_menu() {
 			'description' => '充值',
 	    'page callback' => 'drupal_get_form',
 	    'page arguments' => array('cowpro_fund_topup'),
-			'access callback' => 'cowpro_fund_real_name_verified',
-			'menu_name' => 'navigation',
+			'access callback' => 'user_is_logged_in',
+			//'menu_name' => 'navigation',
 			'type' => MENU_NORMAL_ITEM,
 			'file' => 'includes/cowpro_fund_topup.inc',
 			'weight' => 20
@@ -35,8 +35,8 @@ function cowpro_fund_menu() {
 			'description' => '提现',
 	    'page callback' => 'drupal_get_form',
 	    'page arguments' => array('cowpro_fund_withdraw'),
-			'access callback' => 'cowpro_fund_real_name_verified',
-			'menu_name' => 'navigation',
+			'access callback' => 'user_is_logged_in',
+			//'menu_name' => 'navigation',
 			'type' => MENU_NORMAL_ITEM,
 			'file' => 'includes/cowpro_fund_withdraw.inc',
 			'weight' => 30
@@ -69,7 +69,7 @@ function cowpro_fund_menu() {
 			'title' => '银行卡',
 			'description' => '银行卡',
 			'page callback' => 'node_page_default',
-			'access callback' => 'cowpro_fund_real_name_verified',
+			'access callback' => 'user_is_logged_in',
 			'type' => MENU_CALLBACK,
 	);
 	return $items;
@@ -355,4 +355,12 @@ function cowpro_fund_topup_callback($success, $journal_id, $external_reference_i
 function cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, $interface_module, $result) {
 	include_once 'includes/cowpro_fund_withdraw.inc';
 	_cowpro_fund_withdraw_callback($success, $journal_id, $external_reference_id, $interface_module, $result);
+}
+
+function cowpro_fund_get_balance($uid) {
+	return custodian_cowpro_fund_balance($uid);
+}
+
+function cowpro_fund_internal_trans_data($uid_from, $uid_to, $amount, $comment='') {
+	return custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comment='');
 }

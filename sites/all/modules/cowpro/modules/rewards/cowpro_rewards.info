@@ -8,6 +8,12 @@ package = _CowPro
 core = 7.x
 files[]=cowpro_rewards.rules.inc
 
+; Views handlers
+files[] = includes/views/handlers/cowpro_rewards_issuing_large_handler_field_user_real_name.inc
+files[] = includes/views/handlers/cowpro_rewards_issuing_large_handler_field_status.inc
+files[] = includes/views/handlers/cowpro_rewards_issuing_large_handler_filter_user_real_name.inc
+
+
 version = "7.x-0.01"
 core = "7.x"
 project = "cowpro_rewards"

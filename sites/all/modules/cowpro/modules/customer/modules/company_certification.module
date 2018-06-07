@@ -1,30 +1,4 @@
 <?php
-/**
- * Implements hook_menu().
- */
-function company_certification_menu() {
-	$items = array ();
-
-	$items ['admin/cowpro/config_company_certification'] = array (
-			'title' => '企业信息认证设置',
-			'description' => '设置企业信息认证所需要的材料',
-			'page callback' => 'drupal_get_form',
-			'page arguments' => array (
-					'company_certification_settings_form',
-			),
-			'access arguments' => array (
-					'configure p2p',
-			),
-			'type' => MENU_NORMAL_ITEM,
-	);
-
-	return $items;
-}
-function company_certification_settings_form($form, &$form_state) {
-	$form = array ();
-
-	return system_settings_form ( $form );
-}
 
 /**
  * Implements hook_views_api().
@@ -91,7 +65,7 @@ function company_certification_cowpro_customer_profile_company_form($form, &$for
 			'#default_value' => $profile->uniSocCreCode,
 			'#maxlength' => 30,
 			'#required' => TRUE,
-			'#weight' => - 10
+			'#weight' => - 9
 	);
 	$form ['bizLicDomicile'] = array (
 			'#type' => 'textfield',
@@ -100,7 +74,7 @@ function company_certification_cowpro_customer_profile_company_form($form, &$for
 			'#default_value' => $profile->bizLicDomicile,
 			'#maxlength' => 256,
 			'#required' => TRUE,
-			'#weight' => - 10
+			'#weight' => - 8
 	);
 	$form ['entType'] = array (
 			'#type' => 'textfield',
@@ -109,7 +83,7 @@ function company_certification_cowpro_customer_profile_company_form($form, &$for
 			'#default_value' => $profile->entType,
 			'#maxlength' => 60,
 			'#required' => TRUE,
-			'#weight' => - 10
+			'#weight' => - 7
 	);
 	$form ['dateOfEst'] = array (
 			'#type' => 'textfield',
@@ -118,7 +92,7 @@ function company_certification_cowpro_customer_profile_company_form($form, &$for
 			'#default_value' => $profile->dateOfEst,
 			'#maxlength' => 8,
 			'#required' => TRUE,
-			'#weight' => - 10
+			'#weight' => - 6
 	);
 	$form ['corpAcc'] = array (
 			'#type' => 'textfield',
@@ -127,7 +101,7 @@ function company_certification_cowpro_customer_profile_company_form($form, &$for
 			'#default_value' => $profile->corpAcc,
 			'#maxlength' => 150,
 			'#required' => TRUE,
-			'#weight' => - 10
+			'#weight' => - 5
 	); 
 	$form ['corpAccBankNo'] = array (
 			'#type' => 'textfield',
@@ -136,7 +110,7 @@ function company_certification_cowpro_customer_profile_company_form($form, &$for
 			'#default_value' => $profile->corpAccBankNo,
 			'#maxlength' => 20,
 			'#required' => TRUE,
-			'#weight' => - 10
+			'#weight' => - 4
 	); 
 	$form ['corpAccBankNm'] = array (
 			'#type' => 'textfield',
@@ -145,7 +119,7 @@ function company_certification_cowpro_customer_profile_company_form($form, &$for
 			'#default_value' => $profile->corpAccBankNm,
 			'#maxlength' => 150,
 			'#required' => TRUE,
-			'#weight' => - 10
+			'#weight' => - 3
 	); 
 	return $form;
 }
@@ -169,34 +143,30 @@ function company_certification_cowpro_customer_profile_company_form_submit($form
 	$profile->corpAcc = $form_state ['values'] ['corpAcc'];
 	$profile->corpAccBankNo = $form_state ['values'] ['corpAccBankNo'];
 	$profile->corpAccBankNm = $form_state ['values'] ['corpAccBankNm'];
-  
-    //企业注册提交信息默认保存银行卡信息
-    $uid = $profile->uid;
-    $profile_bank_card = cowpro_customer_profile_load_one_row_with_conditions ( intval ( $uid ), 'bank_card' );
-    $profile_jiupaipay = cowpro_customer_profile_load_one_row_with_conditions ( intval ( $uid ), 'jiupaipay' );
+        
+        //企业注册提交信息默认保存银行卡信息
+        $uid = $profile->uid;
+        $profile_bank_card = cowpro_customer_profile_load_one_row_with_conditions ( intval ( $uid ), 'bank_card' );
 	if ($profile_bank_card == NULL) {
 	  $profile_bank_card = cowpro_customer_profile_new ( 'bank_card', intval ( $uid ) );
 	}
         
 	$profile_mobile = cowpro_customer_profile_load_one_row_with_conditions ( $uid, 'mobile' );
-    $mobile=$profile_mobile->mobile_number;
-  
+        $mobile=$profile_mobile->mobile_number;
 	$data = array ();
 	$data ['cardholder'] =  $form_state ['values'] ['companyName'];
 	$data ['card_no'] = $form_state ['values'] ['corpAcc'];                   //对公户账号
 	$data ['bank_name'] = $form_state ['values'] ['corpAccBankNm'];        //对公户开户行名称
 	$data ['mobile'] = $mobile;
 	$profile_bank_card->data = $data;
-    $profile_bank_card->card_no = $form_state ['values'] ['corpAcc'];
-    $profile_bank_card->cardholder = $form_state ['values'] ['companyName'];
-    $profile_bank_card->bank_name = $form_state ['values'] ['corpAccBankNm'];
-    $profile_bank_card->mobile = $mobile;
+        $profile_bank_card->card_no = $form_state ['values'] ['corpAcc'];
+        $profile_bank_card->cardholder = $form_state ['values'] ['companyName'];
+        $profile_bank_card->bank_name = $form_state ['values'] ['corpAccBankNm'];
+        $profile_bank_card->mobile = $mobile;
 	$profile_bank_card->search_field =  $form_state ['values'] ['companyName'] . '@' . $form_state ['values'] ['corpAcc'];
 	$profile_bank_card->verified = 1; // 默认已通过认证
-    $profile_bank_card->uid = $uid;
-  	$profile_jiupaipay->jpp_bank_card = 1;
+        $profile_bank_card->uid = $uid;
 	cowpro_customer_profile_save ( $profile_bank_card );
-  	cowpro_customer_profile_save ( $profile_jiupaipay );
 }
 function company_certification_cowpro_customer_profile_company_extra_fields() {
 	$result = array (

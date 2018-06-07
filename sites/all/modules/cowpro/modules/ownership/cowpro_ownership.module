@@ -1,0 +1,123 @@
+<?php
+/**
+ * Implements hook_views_api().
+ */
+function cowpro_ownership_views_api()
+{
+	return array(
+			'api' => 3,
+			'path' => drupal_get_path('module', 'cowpro_ownership') . '/includes/views',
+	);
+}
+
+
+/**
+ * Implementation of hook_action_info().
+ */
+function cowpro_ownership_action_info() {
+	return array (
+                'cowpro_ownership_action_add_roles' => array(
+                    'type' => 'user',
+                    'label' => '分配客户经理角色',
+                    'behavior' => array (
+                                    'views_property'
+                    ),
+                    'configurable' => FALSE,
+                    'vbo_configurable' => FALSE,
+                    'triggers' => array (
+                                    'any'
+                    ),
+                    'aggregate' => TRUE
+                ),
+                'cowpro_ownership_action_cencel_roles' => array(
+                    'type' => 'user',
+                    'label' => '取消客户经理角色',
+                    'behavior' => array (
+                                    'views_property'
+                    ),
+                    'configurable' => FALSE,
+                    'vbo_configurable' => FALSE,
+                    'triggers' => array (
+                                    'any'
+                    ),
+                    'aggregate' => TRUE
+                ),
+                'cowpro_ownership_action' => array(
+                    'type' => 'user',
+                    'label' => '分配客户经理',
+                    'behavior' => array (
+                                    'views_property'
+                    ),
+                    'configurable' => TRUE,
+                    'triggers' => array('any'),
+					'aggregate' => TRUE
+                  ),
+		'cowpro_ownership_action_cancel' => array (
+                    'type' => 'user',
+                    'label' => '取消分配',
+                    'behavior' => array (
+                                    'views_property'
+                    ),
+                    'configurable' => FALSE,
+                    'vbo_configurable' => FALSE,
+                    'triggers' => array (
+                                    'any'
+                    ),
+                    'aggregate' => TRUE
+		),
+	);
+}
+
+function cowpro_ownership_action_add_roles(&$entities, $context = array()) {
+	require_once 'includes/cowpro_ownership.inc';
+	_cowpro_ownership_action_roles ($entities, $context,1);
+}
+function cowpro_ownership_action_cencel_roles(&$entities, $context = array()) {
+	require_once 'includes/cowpro_ownership.inc';
+	_cowpro_ownership_action_roles ($entities, $context,0);
+}
+
+function cowpro_ownership_action_cancel(&$entities, $context = array()) {
+	require_once 'includes/cowpro_ownership.inc';
+	_cowpro_ownership_action_cancel ( $entities, $context);
+}
+
+
+
+function cowpro_ownership_action_form($context)  {
+    $options = array();
+    $role = user_role_load_by_name ( '客户经理' );
+    $rid=$role->rid;
+    $result = db_query('SELECT uid FROM {users_roles} WHERE rid ='.$rid);
+    foreach ($result as $data) {
+      $u_id=$data->uid;
+      $profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ($u_id,'real_name');
+      $real_name=$profile_real_name->name;
+      $options[$u_id] =$real_name;
+    }
+    $form['add_ownership'] = array(
+      '#type' => 'select',
+      '#multiple' => TRUE,
+      '#title' => '设置客户经理',
+      '#options' => $options,
+      '#size' => 5
+    );
+    return $form;
+}
+
+function cowpro_ownership_action_validate($form, $form_state) {
+  if (!$form_state['values']['add_ownership']) {
+    form_set_error('add_ownership', '请选择一位客户经理进行操作！');
+  }
+}
+
+function cowpro_ownership_action_submit($form, $form_state) {
+  return array(
+    'add_ownership' => array_filter($form_state['values']['add_ownership']),
+  );
+}
+
+function cowpro_ownership_action(&$entities, $context = array()) {
+	require_once 'includes/cowpro_ownership.inc';
+	_cowpro_ownership_action_add ( $entities, $context);
+}

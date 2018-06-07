@@ -40,6 +40,42 @@ function jiupaipay_menu() {
 			'description' => '',
 			'type' => MENU_CALLBACK,
 	);
+	$items ['cowpro/jiupaipay/update_status/%/%'] = array (
+			'title' => '手动更新标的状态',
+			'page callback' => 'jiupaipay_update_status',
+			'page arguments' => array (
+					3,4,
+			),
+			'access arguments' => array (
+					'configure p2p',
+			),
+			'description' => '',
+			'type' => MENU_CALLBACK,
+	);
+	$items ['cowpro/jiupaipay/query_account/%'] = array (
+			'title' => '手动查询标的台账信息',
+			'page callback' => 'jiupaipay_query_by_account',
+			'page arguments' => array (
+					3,
+			),
+			'access arguments' => array (
+					'configure p2p',
+			),
+			'description' => '',
+			'type' => MENU_CALLBACK,
+	);
+	$items ['cowpro/jiupaipay/repaire/%/%'] = array (
+			'title' => '手动修复数据的错误',
+			'page callback' => 'jiupaipay_repaire_data',
+            'page arguments' => array (
+                          3,4,
+            ),
+			'access arguments' => array (
+					'configure p2p',
+			),
+			'description' => '',
+			'type' => MENU_CALLBACK,
+	);
 	$items ['cowpro/jiupaipay/file'] = array (
 			'title' => '文件下载通知',
 			'page callback' => "drupal_get_form",
@@ -118,7 +154,7 @@ function jiupaipay_menu() {
            'page callback' => 'jiupaipay_topup_feedback_ajax',
            'access callback' => TRUE,
            'type' => MENU_CALLBACK,
-    ); 
+    );
 	return $items;
 }
 function jiupaipay_topup_marketing_form($form, &$form_state) {
@@ -298,7 +334,7 @@ function jiupaipay_cowpro_customer_profile_jiupaipay_form_submit($form, &$form_s
 		if (is_null ( $profile_mobile ) || (! property_exists ( $profile_mobile, 'mobile_number' ))) {
 			drupal_set_message ( '未进行手机认证', 'error' );
 			return;
-		}                
+		}
                 global $user;
                 $role = user_role_load_by_name ( 'lender' );
 		if (user_has_role ( $role->rid, $user )) {
@@ -316,7 +352,7 @@ function jiupaipay_cowpro_customer_profile_jiupaipay_form_submit($form, &$form_s
 		  if (is_null ( $profile_company ) || (! property_exists ( $profile_company, 'companyName' ))) {
 			drupal_set_message ( '未进行企业信息认证', 'error' );
 			return;
-		  }  
+		  }
 		  if (is_null ( $profile_company ) || (! property_exists ( $profile_company, 'uniSocCreCode' ))) {
 			drupal_set_message ( '未进行企业信息认证', 'error' );
 			return;
@@ -779,13 +815,27 @@ function jiupaipay_cowpro_fund_file_form_submit($form, &$form_state) {
  * $fund_type 类型参考 cowpro_fund_type.inc
  */
 function jiupaipay_result_parser($fund_type, $result) {
-	$msg = '';
-	$data = $result;
-	switch ($fund_type) {
-		case 'TOPUP' :
-			$msg = $data ['result'] ['inBody'] ['respMsg'] . '-' . $data ['result'] ['inBody'] ['respCode'];
-			break;
-	}
+	  $msg = '';
+	  $data = $result;
+        switch ($fund_type) {
+            case 'TOPUP' :
+            case 'WITHDRAW' :
+                    if( $data ['result'] ['inBody'] ['respCode'] == "P2P0000" ) {
+                        $msg = "-";
+                    }else{
+                        $msg = $data ['result'] ['inBody'] ['respMsg'] . '-' . $data ['result'] ['inBody'] ['respCode'];
+                    }
+
+                    break; 
+             case 'INTERNAL_TRANS' :
+                 if( $data ['result']['result_code'] == "P2P0000" ) {
+                     $msg = $data ['comment'];
+                 }else{
+                     $msg = $data ['result']['message'] . '-' . $data ['result']['result_code'];
+                 }
+                    break; 
+        }
+        
 	return $msg;
 }
 
@@ -841,7 +891,7 @@ function jiupaipay_user_view_detail($profile) {
 function jiupaipay_topup_feedback_form($form, &$form_state) {
     $journal_id = $form_state["build_info"]["args"][0];
     drupal_add_js(drupal_get_path ( 'module', 'jiupaipay') . '/jiupaipay_feedback.js');
-  
+
     $form = array ();
     $form ['journal_id'] = array (
       '#type' => 'hidden',
@@ -853,7 +903,7 @@ function jiupaipay_topup_feedback_form($form, &$form_state) {
     );
     $form ['loading'] = array (
       '#markup' => '<div id="loading" style="width:100%;height:50px;line-height:50px;color:#F00;text-align:center;"><img src="/sites/all/themes/sopuopc/images/loading.gif"><br>请耐心等待银行返回信息...</div> ',
-    );	
+    );
    return  $form;
 }
 
@@ -864,7 +914,7 @@ function jiupaipay_topup_feedback_ajax(){
     foreach ($result as $record) {
       $journal_data=unserialize($record->data);
       $respMsg=$journal_data['result']['inBody']['respMsg'];
- 
+
       if ($record->status == 1) {
         $response=$respMsg;
       }else if ($record->status == 0) {
@@ -872,6 +922,24 @@ function jiupaipay_topup_feedback_ajax(){
       }
     }
     drupal_json_output ( $response );
+}
+
+function jiupaipay_update_status($nid, $status) {
+	include_once 'includes/jiupaipay.issuing_publish.inc';
+	$result = jiupaipay_issuing_publish ( intval($nid), 'P04', $status );
+	echo $nid . '<br/>' . $status . '<br/>';
+	echo serialize($result);
+}
+
+function jiupaipay_query_by_account($nid) {
+	include_once 'includes/jiupaipay.query.inc';
+	$issuing_accno = db_query ( "SELECT issuing_object_accno FROM jiupaipay_issuing_accno WHERE nid=:nid", array (
+			":nid" => $nid
+	) )->fetchField ();
+
+	$result = _jiupaipay_cowpro_fund_query_by_account ( $issuing_accno);
+	echo $issuing_accno . '<br/>';
+	var_dump($result);
 }
 
 /**
@@ -892,3 +960,8 @@ function jiupaipay_result_parser($type, $data) {
 	return $msg;
 }
 */
+
+function jiupaipay_repaire_data($nid,$amount) {
+	include_once 'includes/jiupaipay.repaire.inc';
+	return jiupaipay_repaire ( $nid,$amount );
+}

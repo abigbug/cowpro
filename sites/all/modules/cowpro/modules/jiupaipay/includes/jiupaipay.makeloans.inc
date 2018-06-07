@@ -111,7 +111,10 @@ function jiupaipay_make_loans_to($nid) {
 		$result_jpp ['result_code'] = $result ['respHeader'] ['respCode'];
 		return $result_jpp;
 	} else {
-		return $issuing_publish ['message'];
+		$result_jpp = array ();
+		$result_jpp ['success'] = FALSE;
+		$result_jpp ['message'] = $issuing_publish['message'];
+		return $result_jpp;
 	}
 }
 

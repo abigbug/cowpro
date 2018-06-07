@@ -1,0 +1,13 @@
+name = Cowpro_OwnerShip
+description = 客户归属，设置客户和客户经理的关联
+package = _CowPro
+
+; Views handlers
+files[] = includes/views/handlers/cowpro_ownership_handler_field_rtype.inc
+files[] = includes/views/handlers/cowpro_ownership_handler_field_manager_name.inc
+files[] = includes/views/handlers/cowpro_ownership_handler_filter_manager_name.inc
+
+; Information added by Drupal.org packaging script on 2015-01-16
+version = "7.x-0.01"
+core = "7.x"
+project = "Cowpro_OwnerShip"
