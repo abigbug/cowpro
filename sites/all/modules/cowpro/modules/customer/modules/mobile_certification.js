@@ -1,7 +1,12 @@
 (function($) {
 	Drupal.behaviors.mobile_verify = {};
 	Drupal.behaviors.mobile_verify.attach = function(context, settings) {
-		// http://stackoverflow.com/questions/2024389/jquery-click-event-is-firing-multiple-times-when-using-class-selector
+  $( document ).ready(function() {
+    $("#edit-name").val('');
+});
+
+
+      // http://stackoverflow.com/questions/2024389/jquery-click-event-is-firing-multiple-times-when-using-class-selector
 		$(".send-verify-code").unbind('click').click(
 				function(event) {
 					event.preventDefault();
