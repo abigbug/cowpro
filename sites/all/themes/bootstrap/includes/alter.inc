@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * alter.inc
@@ -102,7 +103,7 @@ function bootstrap_element_info_alter(&$info) {
 
         // Setup a default "icon" variable. This allows #icon to be passed
         // to every template and theme function.
-        // @see https://drupal.org/node/2219965
+        // @see https://www.drupal.org/node/2219965
         $element['#icon'] = NULL;
         $element['#icon_position'] = 'before';
 
@@ -158,7 +159,7 @@ function bootstrap_element_info_alter(&$info) {
  * @return array
  *   The altered element info array.
  */
-function _bootstrap_element_info_array_merge($info, $cached) {
+function _bootstrap_element_info_array_merge(array $info, array $cached) {
   foreach ($cached as $type => $element) {
     $replacement_data = isset($element['#bootstrap_replace']) ? $element['#bootstrap_replace'] : array();
     unset($element['#bootstrap_replace']);
@@ -197,6 +198,51 @@ function _bootstrap_element_info_array_merge($info, $cached) {
 
   // Return the altered element info array.
   return $info;
+}
+
+/**
+ * Implements hook_field_widget_form_alter().
+ */
+function bootstrap_field_widget_form_alter(&$element, &$form_state, $context) {
+  $widget_type = isset($context['instance']['widget']['type']) ? $context['instance']['widget']['type'] : NULL;
+  if ($widget_type === 'image_image') {
+    foreach (element_children($element) as $child) {
+      $element[$child]['#process'][] = '_bootstrap_image_field_widget_process';
+    }
+  }
+}
+
+/**
+ * Implements above #process callback.
+ */
+function _bootstrap_image_field_widget_process($element, &$form_state, $form) {
+  // Core explicitly sets #theme_wrappers to an empty array for the upload
+  // element (perhaps for styling reasons?). Thus, bootstrap_form_element() is
+  // invoked, preventing any necessary logic from executing. To achieve the
+  // same goal and keep backwards compatibility, reset the theme wrapper back
+  // and indicating that the wrapper shouldn't be printed.
+  $element['upload']['#theme_wrappers'][] = 'form_element__image_widget';
+  $element['upload']['#form_element_wrapper'] = FALSE;
+
+  // Unfortunately, core also doesn't set #access on the appropriate elements
+  // until way too late (ironically, because of #ajax). Instead of calling
+  // file_managed_file_pre_render(), just mimic the same #access logic, but
+  // using #default_value instead of #value since the ajax request populates
+  // #value.
+  $value = empty($element['#default_value']['fid']);
+  if (!$value) {
+    $element['upload']['#access'] = FALSE;
+    $element['upload_button']['#access'] = FALSE;
+  }
+  // If we don't already have a file, there is nothing to remove.
+  else {
+    $element['remove_button']['#access'] = FALSE;
+  }
+
+  // Make the upload file element an input group with a button.
+  $element['upload']['#input_group_button'] = $value;
+
+  return $element;
 }
 
 /**
@@ -319,7 +365,7 @@ function bootstrap_js_alter(&$js) {
   }
 
   // Ensure jQuery Once is always loaded.
-  // @see https://drupal.org/node/2149561
+  // @see https://www.drupal.org/node/2149561
   if (empty($js['misc/jquery.once.js'])) {
     $jquery_once = drupal_get_library('system', 'jquery.once');
     $js['misc/jquery.once.js'] = $jquery_once['js']['misc/jquery.once.js'];

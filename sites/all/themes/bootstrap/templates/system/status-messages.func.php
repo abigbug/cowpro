@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Stub file for bootstrap_status_messages().
@@ -23,7 +24,7 @@
  *
  * @ingroup theme_functions
  */
-function bootstrap_status_messages($variables) {
+function bootstrap_status_messages(array $variables) {
   $display = $variables['display'];
   $output = '';
 
@@ -56,22 +57,22 @@ function bootstrap_status_messages($variables) {
 
   foreach ($message_list as $type => $messages) {
     $class = (isset($status_class[$type])) ? ' alert-' . $status_class[$type] : '';
-    $output .= "<div class=\"alert alert-block$class messages $type\">\n";
+    $output .= "<div class=\"alert alert-block alert-dismissible$class messages $type\">\n";
     $output .= "  <a class=\"close\" data-dismiss=\"alert\" href=\"#\">&times;</a>\n";
 
     if (!empty($status_heading[$type])) {
-      $output .= '<h4 class="element-invisible">' . _bootstrap_filter_xss($status_heading[$type]) . "</h4>\n";
+      $output .= '<h4 class="element-invisible">' . filter_xss_admin($status_heading[$type]) . "</h4>\n";
     }
 
     if (count($messages) > 1) {
       $output .= " <ul>\n";
       foreach ($messages as $message) {
-        $output .= '  <li>' . _bootstrap_filter_xss($message) . "</li>\n";
+        $output .= '  <li>' . filter_xss_admin($message) . "</li>\n";
       }
       $output .= " </ul>\n";
     }
     else {
-      $output .= _bootstrap_filter_xss($messages[0]);
+      $output .= filter_xss_admin(reset($messages));
     }
 
     $output .= "</div>\n";
