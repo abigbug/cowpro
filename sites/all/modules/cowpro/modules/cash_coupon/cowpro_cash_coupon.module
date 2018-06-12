@@ -28,21 +28,96 @@ function cowpro_cash_coupon_cowpro_issuing_bid_form($form, $form_state) {
 function cowpro_cash_coupon_cowpro_issuing_bid_form_validate($form, $form_state) {
 	if ($form_state ['values'] ['voucher'] != '0_0') {
 		$right_voucher = end ( explode ( '_', $form_state ['values'] ['voucher'] ) );
-		if ($form_state ['values'] ['amount'] < 10000) {
-			if ($right_voucher == 20) {
-				form_set_error ( 'bid', '投资金额大于10000才能使用20元代金券' );
-			}
-		}
-		if (($form_state ['values'] ['amount'] < 30000)) {
-			if ($right_voucher == 30) {
-				form_set_error ( 'bid', '投资金额大于30000且小于50000才能使用30元代金券' );
-			}
-		}
-		if (($form_state ['values'] ['amount'] < 50000) ) {
-			if ($right_voucher == 50) {
-				form_set_error ( 'bid', '投资金额大于50000才能使用50元代金券' );
-			}
-		}
+                $userpoint_txn_array  = explode ( '_', $form_state ['values'] ['voucher'] );
+                $userpoint_txn_id = $userpoint_txn_array[0];
+                $reference = db_query("SELECT reference FROM {userpoints_txn} WHERE txn_id=$userpoint_txn_id")->fetchField();
+                if( $reference == "raffle" ) {//积分抽奖规则
+                    if ($form_state ['values'] ['amount'] < 10000) {
+                            if ($right_voucher == 10) {
+                                    form_set_error ( 'bid', '投资金额大于10000才能使用10元代金券' );
+                            }
+                    }
+                    
+                    if ($form_state ['values'] ['amount'] < 20000) {
+                            if ($right_voucher == 30) {
+                                    form_set_error ( 'bid', '投资金额大于30000才能使用30元代金券' );
+                            }
+                    }
+                    
+                    if ($form_state ['values'] ['amount'] < 30000) {
+                            if ($right_voucher == 50) {
+                                    form_set_error ( 'bid', '投资金额大于30000才能使用50元代金券' );
+                            }
+                    }
+                    
+                     if ($form_state ['values'] ['amount'] < 50000) {
+                            if ($right_voucher == 100) {
+                                    form_set_error ( 'bid', '投资金额大于50000才能使用100元代金券' );
+                            }
+                    }
+                }else if( $reference == "zongzi" ){//端午节抽奖
+                     $node = node_load($form_state['nid']);
+                     $term = $node->field_issuing[LANGUAGE_NONE][0]['loan_term'];
+                     if ($form_state ['values'] ['amount'] < 20000 || $term < 180) {
+                            if ($right_voucher == 10) {
+                                    form_set_error ( 'bid', '投资金额大于20000，投资期限大于6个月才能使用20元代金券' );
+                            }
+                     }
+                     
+                     if ($form_state ['values'] ['amount'] < 40000 || $term < 180) {
+                            if ($right_voucher == 20) {
+                                    form_set_error ( 'bid', '投资金额大于40000，投资期限大于6个月才能使用20元代金券' );
+                            }
+                     }
+                     
+                     if ($form_state ['values'] ['amount'] < 100000 || $term < 180) {
+                            if ($right_voucher == 50) {
+                                    form_set_error ( 'bid', '投资金额大于100000，投资期限大于6个月才能使用20元代金券' );
+                            }
+                     }
+                }else if( $reference == "zongzi_online" ){//端午节线上小程序
+                     if ($form_state ['values'] ['amount'] < 5000) {
+                            if ($right_voucher == 5) {
+                                    form_set_error ( 'bid', '投资金额大于5000才能使用5元代金券' );
+                            }
+                    }
+                    
+                     if ($form_state ['values'] ['amount'] < 10000) {
+                            if ($right_voucher == 10) {
+                                    form_set_error ( 'bid', '投资金额大于10000才能使用10元代金券' );
+                            }
+                    }
+                    
+                     if ($form_state ['values'] ['amount'] < 20000) {
+                            if ($right_voucher == 20) {
+                                    form_set_error ( 'bid', '投资金额大于20000才能使用20元代金券' );
+                            }
+                    }
+                    
+                     if ($form_state ['values'] ['amount'] < 50000) {
+                            if ($right_voucher == 50) {
+                                    form_set_error ( 'bid', '投资金额大于50000才能使用50元代金券' );
+                            }
+                    }
+                }else{
+                      
+                    if ($form_state ['values'] ['amount'] < 10000) {
+                            if ($right_voucher == 20) {
+                                    form_set_error ( 'bid', '投资金额大于10000才能使用20元代金券' );
+                            }
+                    }
+                    if ( $form_state ['values'] ['amount'] < 30000 ) {
+                            if ($right_voucher == 30) {
+                                    form_set_error ( 'bid', '投资金额大于30000且小于50000才能使用30元代金券' );
+                            }
+                    }
+                    if ( $form_state ['values'] ['amount'] < 50000 ) {
+                            if ($right_voucher == 50) {
+                                    form_set_error ( 'bid', '投资金额大于50000才能使用50元代金券' );
+                            }
+                    }
+                }
+              
 	}
 }
 
@@ -57,7 +132,7 @@ function cowpro_cash_coupon_cowpro_issuing_bid_form_submit($form, $form_state) {
 		$uid_from = NULL;//user_load_by_name ( variable_get ( 'fund_imprest_account', '' ) )->uid; // 转出账户ID
 		$uid_to = $user->uid; // 转入账户ID
 		$amount = $right_voucher; // 转入金额
-		$comment = '使用代金券';
+		$comment = '代金券返现';
 
 		$result = custodian_cowpro_fund_internal_trans ( $uid_from, $uid_to, $amount, $comment);
 

@@ -1,34 +1,39 @@
-.page-shop #sopuo-mainbody{
+#sopuo-mainbody{
     padding-bottom: 30px;
-    width: 100%;
-    margin: 0px auto;
 }
-.page-shop #sopuo-mainbody .item-list{
-    width: 100%;
-    margin: 0px auto;
-}
-.page-shop #sopuo-mainbody .item-list .all-products {
+.item-list .all-products {
+    clear: both;
     width: 100%;
     text-align: center;
     margin: 0px auto;
 }
+.item-list .all-products li.views-row{
+    display: inline;
+    float: left;
+    min-height: 320px;
+    height: auto;
+    margin:5px;
+    width:32%;
+    background-color: #FFF;
+    text-align: center;
+    box-shadow: 5px 5px 3px #dfdfdf;
+}
 
-.page-shop #sopuo-mainbody .item-list .all-products li{ display:inline-block; float:left; margin:0 0 28px 21px; width:257px;overflow:hidden; border:1px solid #cccccc; -webkit-border-radius:5px; -moz-border-radius:5px; -ms-border-radius:5px; border-radius:5px;}
-.page-shop #sopuo-mainbody .item-list .all-products li:hover{ -webkit-box-shadow:0 0 10px #aaa; -moz-box-shadow:0 0 10px #aaa; -ms-box-shadow:0 0 10px #aaa; box-shadow:0 0 10px #aaa;}
-.jfgoods-img{ width:257px; height:220px; overflow:hidden;}
-.jfgoods-img img{ display:block; width:257px; height:220px;}
-.jfgoods-xinxi{ padding:5px 25px 22px 17px; background:#f8f8f8;}
-.jfgoods-name{ height:24px; line-height:24px; font-size:14px; color:#666666; font-weight:bold; text-overflow:ellipsis; white-space:nowrap; overflow:hidden;}
-.jfgoods-line{ display:inline-block; margin:10px 0; width:100%; height:8px; background:#e68f90; overflow:hidden; -moz-border-radius:4px; -webkit-border-radius:4px; -ms-border-radius:4px; border-radius:4px;}
-.jfgoods-p{ height:40px;}
-.jfgoods-p h6{ float:left; display:inline-block; text-align: left;}
-.jfgoods-p h6.jfgoods-w1{ width:100px; margin: 0px auto;padding-left: 10px;border-right:1px solid #c4c4c4;}
-.jfgoods-p h6.jfgoods-w2{ width:70px; padding-left:12px;}
-.jfgoods-p h6.jfgoods-w3{ width:80px; margin: 0px auto;padding-left: 30px;}
-.jfgoods-p h6.jfgoods-w3 a{color: #ffffff;}
-.jfgoods-p h6 p{ height:20px; line-height:20px; font-size:14px; color:#666666;margin: 0px;}
-.jfgoods-p h6 p.jfgoods-pcol1{color:#fc6a40; font-weight:bold;}
-.jfgoods-btn{ display:inline-block; margin-top:5px; width:70px; height:30px; line-height:30px; text-align:center; font-size:14px; color:#ffffff; background:#ff6725; overflow:hidden;}
+.item-list .all-products li header{
+    color: #000;
+    width: 90%;
+    margin: 0px auto;
+    text-align: left;
+    font-family: Microsoft Yahei;
+    text-decoration: none;
+}
+.item-list .all-products li header h2 {
+    clear: both;
+    font-size: 12px;
+    line-height: 20px;
+    padding-top: 8px;
+}
+
 
 .sopuo-shop-view{ 
     width: 100%;
@@ -83,16 +88,16 @@
 	margin-top: 70px;
 }
 .Xcontent06{
-	width:350px;
-        height: 350px;
+	width:320px;
+        height: 320px;
 	border: 1px solid #e8e8e8;
 	margin-top: 26px;
 	float: left;
 }
 .Xcontent06 img{
        clear: both;
-	width:348px;
-        height: 348px;
+	width:318px;
+        height: 318px;
 }
 .Xcontent08{
 	float: left;
@@ -150,7 +155,7 @@
 	height: 100%;
 }
 .Xcontent13{
-	width: 390px;
+	width: 340px;
         padding-left: 10px;
         height: auto;
 	float: right;
@@ -294,28 +299,21 @@
 }
 .Xcontent30{
 	width: 100%;
-	height: 150px;
+	height: 100px;
 	overflow: hidden;
 }
 .Xcontent30 .Xmsdh{
+    clear: both;
     position: absolute;
-    width: 100%;
-    padding-left:18px;
-    padding-top: 80px;
-}
-.Xcontent30 .Xmsdh button{
-    width: 130px;
-    height: 35px;
-    line-height: 35px;
-    text-align:center;
-    background-color: #ff6725;
-    color: #ffffff;
+    padding-top: 90px;
+    padding-left: 20px;
+    z-index: 9999;
 }
 .Xcontent31{
 	font-family: Microsoft Yahei;
 	font-size: 14px;
 	color: #605f5f;
-	line-height: 80px;
+	line-height: 100px;
 	margin-left: 16px;
 	float: left;
 }
@@ -326,15 +324,13 @@
 }
 	
 .input{
-    z-index: 999;
 	height: 30px;
 	width: 60px;
-	margin-top: 26px;
+	margin-top: 34px;
 	border: 1px solid #dddddd;
 	line-height: 30px;
 	text-align: center;
 	float: left;
-        position: relative;
 }
 .Xcontent33>img{
 	float: left;
@@ -371,3 +367,4 @@
 
 #shop_list{ clear: both; padding-top: 20px; text-align: center}
 #shop_list a{ margin-left: 10px;}
+

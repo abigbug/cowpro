@@ -338,55 +338,33 @@ function cowpro_draw_user_login(){
 }
 
 function cowpro_draw_cowpro_issuing_bid_finished($success, $nid, $journal_id) {
-    $data_array = array("2018-02-15","2018-02-16","2018-02-17");
-    if( !in_array(date("Y-m-d",time()), $data_array) ) {
-        return ;
-    }
     if( !$success ) return;
      global $user;
      $uid = $user->uid;
+     $node = node_load ( $nid );
+     $journal_result = db_query ( "SELECT * FROM {cowpro_fund_journal} WHERE uid=" . $uid . " AND issuing_id=" . $nid . " AND journal_id=" . $journal_id . " AND type='BID'" )->fetchAll ();
+     $amount = $journal_result [0]->amount;
+     $issuing = $node->field_issuing [LANGUAGE_NONE] [0];
+     $loan_term = $issuing ['loan_term'];
+     $rate = ($amount / 12) * ($loan_term / 30);
+     $zongzi = round($rate / 10000,2) * 100;
+     $term = current ( taxonomy_get_term_by_name ( '粽子' ) );
+     $params = array (
+               'uid' => $uid,
+               'points' => $zongzi,
+               'description' => '端午节抽奖',
+               'display' => FALSE,
+               'entity_type' => 'node',
+               'entity_id' => "",
+               'tid' => $term->tid,
+               'reference' => "draw",
+    );
+     userpoints_userpointsapi ( $params );
+	 $show_zongzi = round($zongzi / 100,2);
+     drupal_set_message("恭喜您获得".$show_zongzi."个粽子,<a href='/cowpro/zongzi'>查看活动详情</a>");
 
-     $user_amount = db_query("SELECT amount FROM {cowpro_fund_journal} WHERE issuing_id=".$nid." AND uid=".$uid." AND type='BID' AND journal_id=".$journal_id)->fetchAll(PDO::FETCH_ASSOC);
-
-    //投资小于10000 不发红包
-    if( $user_amount[0]['amount'] < MAX_ISSUING_AMOUNT ) {
-        return;
-    }
-    $date = date("Y-m-d",time());
-    //判断cowpro_marketing 表里是否有投标之后发的红包记录， type=2为投资之后发红包
-     $list = db_query("SELECT * FROM {cowpro_marketing} WHERE date='".$date."' AND status=1 AND type=2 AND uid=".$uid )->fetchAll(PDO::FETCH_ASSOC);
-     if( !empty($list) ) {
-         return;
-     }else{
-        $num = randomFloat(0.88,2.88);
-        $amount  = round($num,2);
-
-        $term = current(taxonomy_get_term_by_name('奖金'));
-        $params = array (
-                      'uid' => $uid,
-                      'points' => intval($amount*100),
-                      'description' => '过年投标发红包',
-                      'display' => FALSE,
-                      'entity_type' => 'node',
-                      'entity_id' => "",
-                      'tid' => $term->tid,
-                      'reference' => "draw",
-          );
-            db_insert('cowpro_marketing')
-            ->fields(array(
-              'uid' => $uid,
-              'type' => 2,
-              'status' => 1,
-              'amount' => $amount,
-              'created' => time(),
-              'date'  => date("Y-m-d",time()),
-            ))
-            ->execute();
-        userpoints_userpointsapi ( $params );
-        drupal_set_message("过年有惊喜，恭喜你投资成功之后获得".$amount."元红包");
-     }
 }
 
 function randomFloat($min, $max) {
         return $min + mt_rand() / mt_getrandmax() * ($max - $min);
-    }
+}

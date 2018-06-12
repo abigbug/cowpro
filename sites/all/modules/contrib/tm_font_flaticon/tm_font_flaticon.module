@@ -1,5 +1,0 @@
-<?php
-
-function tm_font_flaticon_init() {
-	drupal_add_css(drupal_get_path('module', 'tm_font_flaticon') . '/css/flaticon.css');
-}

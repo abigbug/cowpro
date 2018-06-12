@@ -1,5 +1,0 @@
-<?php
-
-function tm_font_awesome_init() {
-	drupal_add_css(drupal_get_path('module', 'tm_font_awesome') . '/css/font-awesome.css');
-}

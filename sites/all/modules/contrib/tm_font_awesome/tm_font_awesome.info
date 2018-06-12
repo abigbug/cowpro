@@ -1,5 +1,0 @@
-name = TM Font Awesome
-description = "Provides iconic font designed for use with Twitter Bootstrap. Font Awesome v. 4.3.0."
-core = 7.x
-package = TM Framework
-version = "7.x-1.1"
