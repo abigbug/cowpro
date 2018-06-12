@@ -1,0 +1,201 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the sms_user module.
+ *
+ */
+
+/**
+ * Checks if the Generic User Registration settings are correctly configured
+ * 
+ * Implemenents hook_requirements()
+ */
+function sms_user_requirements($phase) {
+  $requirements = array();
+  if ($phase == 'runtime') {
+    $sms_user_registration_enabled = variable_get('sms_user_registration_enabled');
+    $user_email_verification = variable_get('user_email_verification');
+    $user_register = variable_get('user_register');
+    if ($sms_user_registration_enabled) {
+      $requirements['sms_user'] = array(
+        'title' => t('SMS User'),
+        'value' => "Enabled",
+        'description' => t("You allow users to register via SMS."),
+        'severity' =>  REQUIREMENT_OK,
+      );
+      if ($user_email_verification)  {
+        $requirements['sms_user']['value'] = "Partially Working";
+        $requirements['sms_user']['description'] .= t(' But you require Email verification. You should switch that off on the ' . l('account settings page', 'admin/config/people/accounts'));
+        $requirements['sms_user']['severity'] =  REQUIREMENT_WARNING;
+      }
+      if (!$user_register) {
+        $requirements['sms_user']['value'] = "Partially Working";
+        $requirements['sms_user']['description'] .= t(' Users can not register so all SMS users will be blocked. You should switch visitor registration on, on the ' . l('account settings page', 'admin/config/people/accounts'));
+        $requirements['sms_user']['severity'] = REQUIREMENT_ERROR;
+      }
+    }
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_install().
+ */
+function sms_user_install() {
+}
+
+/**
+ * Implements hook_schema().
+ */
+function sms_user_schema() {
+  $schema['sms_user'] = array(
+    'fields' => array(
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'number' => array(
+        'type' => 'varchar',
+        'not null' => TRUE,
+        'length' => 32,
+      ),
+      'status' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'code' => array(
+        'type' => 'varchar',
+        'not null' => FALSE,
+        'length' => 16,
+        'default' => ''
+      ),
+      'gateway' => array(
+        'type' => 'text',
+        'serialize' => TRUE,
+      ),
+      'sleep_enabled' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'default' => 0,
+        'not null' => TRUE,
+      ),
+      'sleep_start_time' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'default' => 0,
+        'not null' => FALSE,
+      ),
+      'sleep_end_time' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'default' => 0,
+        'not null' => FALSE,
+      ),
+      // Additional sms_user_opt_out field.
+      'sms_user_opt_out' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'default' => 0,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('number'),
+    'indexes' => array('uid' => array('uid')),
+  );
+
+  return $schema;
+}
+
+/**
+ * Drop the now dead delta field, and change primary key to number.
+ */
+function sms_user_update_1() {
+  $ret = array();
+  db_drop_primary_key('sms_user');
+  db_add_primary_key('sms_user', array('number'));
+  db_add_index('sms_user', 'uid', array('uid'));
+  db_drop_field('sms_user', 'delta');
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  return t('TODO Add a descriptive string here to show in the UI.') /* $ret */;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function sms_user_uninstall() {
+  $variables = array(
+    'sms_user_registration_enabled',
+    'sms_user_allow_password',
+    'sms_user_new_account_message',
+  );
+
+  foreach ($variables as $variable) {
+    variable_del($variable);
+  }
+
+}
+
+/**
+ * Update code field to NOT NULL.
+ */
+function sms_user_update_7000() {
+  // update code field to NOT NULL
+}
+
+/**
+ * Add sleep_enabled, sleep_start_time, sleep_end_time fields to {sms_user} table.
+ */
+function sms_user_update_7003() {
+  $spec = array(
+      'sleep_enabled' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'default' => 0,
+        'not null' => TRUE,
+      ),
+      'sleep_start_time' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'default' => 0,
+        'not null' => FALSE,
+      ),
+      'sleep_end_time' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'default' => 0,
+        'not null' => FALSE,
+      ),
+    );
+  foreach ($spec as $key => $value) {
+    db_add_field('sms_user', $key, $value);
+  }
+}
+
+/**
+ * Add sms_user_opt_out field to {sms_user} table.
+ */
+function sms_user_update_7004() {
+  $spec = array(
+      'sms_user_opt_out' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'default' => 0,
+        'not null' => TRUE,
+      ),
+    );
+  foreach ($spec as $key=>$value) {
+    db_add_field('sms_user', $key, $value);
+  }
+}

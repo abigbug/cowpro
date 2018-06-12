@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * @file
+ * Contains tests for the sms_blast module.
+ */
+
+/**
+ * Provides integration tests for the sms_user module.
+ */
+class SmsBlastWebTest extends DrupalWebTestCase {
+
+  /**
+   * Provides test information.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'SMS Blast Test',
+      'description' => 'Tests for SMS Blast module.',
+      'group' => 'SMS Framework',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  function setUp() {
+    parent::setUp('sms', 'sms_test_gateway', 'sms_user', 'sms_blast');
+  }
+
+  /**
+   * Tests sending sms blast.
+   */
+  function testSendBlast() {
+    // Set up test default gateway and test user.
+    variable_set('sms_default_gateway', 'test');
+    $user = $this->drupalCreateUser(array('receive sms', 'Send SMS Blast'));
+    $this->drupalLogin($user);
+    $data = array(
+      'number' => '23415678900',
+      'status' => SMS_USER_CONFIRMED,
+      'code' => rand(1000, 9999),
+      'gateway' => array(),
+    );
+    user_save($user, array('sms_user' => $data), 'mobile');
+
+    // Post sms blast.
+    $message = $this->randomString(140);
+    $this->drupalPost('sms_blast', array('message' => $message), t('Send'));
+    $this->assertResponse(200);
+    $this->assertText('The message was sent to 1 users.', 'Message sent to 1 user.');
+
+    // Get the resulting message that was sent and confirm.
+    $gw_result = sms_test_gateway_result();
+    $this->assertEqual($gw_result['message'], $message, 'Successfully sent sms blast message');
+  }
+
+}

@@ -1,0 +1,15 @@
+name = Invite Notifications
+description = Process notifications for Invite module.
+core = 7.x
+package = Invite
+
+;configure = admin/config/people/invite
+
+dependencies[] = invite
+
+; Information added by Drupal.org packaging script on 2017-06-14
+version = "7.x-4.1-rc1"
+core = "7.x"
+project = "invite"
+datestamp = "1497456328"
+

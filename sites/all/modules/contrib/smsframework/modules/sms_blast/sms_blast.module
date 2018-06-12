@@ -1,0 +1,86 @@
+<?php
+
+/**
+ * @file
+ * Allows bulk text messages to be sent to registered users.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function sms_blast_permission() {
+  return array(
+    'Send SMS Blast' => array(
+      'title' => t('Send SMS Blast'),
+      'description' => t('This allows the user to send an SMS blast.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function sms_blast_menu() {
+  $items['sms_blast'] = array(
+    'title'            => 'SMS Blast',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('sms_blast_form'),
+    'access arguments' => array('Send SMS Blast'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+/**
+ * Displays the sms blast form.
+ */
+function sms_blast_form() {
+  $form['message'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Message'),
+    '#cols' => 60,
+    '#rows' => 5,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Send'),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for the sms blast form.
+ */
+function sms_blast_form_submit(&$form, $form_state) {
+  $result = db_query("SELECT uid FROM {sms_user} WHERE status = :status", array(':status' => SMS_USER_CONFIRMED));
+  $num_passed = $num_failed = 0;
+
+  if ($result->rowCount() != 0) {
+    $errors = array();
+    foreach ($result as $row) {
+      try {
+        if (sms_user_send($row->uid, $form_state['values']['message'])) {
+          $num_passed++;
+        }
+        else {
+          $num_failed++;
+        }
+      }
+      catch (Exception $e) {
+        $errors[] = $e->getMessage();
+        $num_failed++;
+      }
+    }
+    if ($num_passed) {
+      drupal_set_message(t('The message was sent to %count users.', array('%count' => $num_passed)));
+    }
+    if ($num_failed) {
+      drupal_set_message(t('The message could not be sent to %count users.', array('%count' => $num_failed)), 'warning');
+    }
+  }
+  else {
+    drupal_set_message(t('There are 0 users with confirmed phone numbers. The message was not sent.'));
+  }
+}

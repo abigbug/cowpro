@@ -1,0 +1,11 @@
+name = Browscap
+description = Provides a replacement for PHPs get_browser() function.
+core = 7.x
+configure = admin/config/system/browscap
+
+; Information added by Drupal.org packaging script on 2016-03-23
+version = "7.x-2.3"
+core = "7.x"
+project = "browscap"
+datestamp = "1458745750"
+

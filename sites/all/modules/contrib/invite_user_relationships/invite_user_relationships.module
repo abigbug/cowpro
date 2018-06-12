@@ -1,0 +1,147 @@
+<?php
+
+/**
+ * @file
+ * Automatically create a relationship between inviter and invitee.
+ */
+
+/**
+ * Implements hook_invite_sending_controller().
+ */
+function invite_user_relationships_invite_sending_controller() {
+  return array(
+    'label' => t('User Relationships'),
+  );
+}
+
+/**
+ * Implements hook_field_info().
+ */
+function invite_user_relationships_field_info() {
+  return array(
+    'invite_user_relationship_type' => array(
+      'label' => t('User relationship type'),
+      'description' => t('This field stores user relationship type.'),
+      'no_ui' => TRUE,
+      'instance_settings' => array(),
+      'default_widget' => 'invite_user_relationship_type',
+      'default_formatter' => 'invite_user_relationship_type',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function invite_user_relationships_field_widget_info() {
+  return array(
+    'invite_user_relationship_type' => array(
+      'label' => t('User Relationship Type'),
+      'field types' => array('invite_user_relationship_type'),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_DEFAULT,
+        'default value' => FIELD_BEHAVIOR_DEFAULT,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function invite_user_relationships_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $options = array();
+  foreach (user_relationships_types_load() as $type) {
+    $options[$type->rtid] = $type->name;
+  }
+
+  $element += array(
+    '#type' => 'select',
+    '#options' => $options,
+    '#default_value' => isset($items[$delta]['rtid']) ? $items[$delta]['rtid'] : NULL,
+  );
+
+  return array('rtid' => $element);
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function invite_user_relationships_field_is_empty($item, $field) {
+  return empty($item['rtid']);
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function invite_user_relationships_field_formatter_info() {
+  return array(
+    'invite_user_relationship_type' => array(
+      'label' => t('User relationship types'),
+      'field types' => array('invite_user_relationship_type'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function invite_user_relationships_field_formatter_view($object_type, $object, $field, $instance, $langcode, $items, $display) {
+  if ($display['type'] == 'invite_user_relationship_type') {
+    return array_map(function($item) {
+      return array('#markup' => user_relationships_type_load($item['rtid'])->name);
+    }, $items);
+  }
+
+  return array();
+}
+
+/**
+ * Implements hook_TYPE_insert().
+ *
+ * @param InviteType $invite_type
+ */
+function invite_user_relationships_invite_type_insert($invite_type) {
+  invite_user_relationships_invite_type_update($invite_type);
+}
+
+/**
+ * Implements hook_TYPE_update().
+ *
+ * @param InviteType $invite_type
+ */
+function invite_user_relationships_invite_type_update($invite_type) {
+  // Proceed only if entity contains invite_user_relationships controller.
+  if ($invite_type->hasSendingController('invite_user_relationships')) {
+    if (!field_read_field(array('field_name' => 'field_invite_user_relation_type'))) {
+      field_create_field(array(
+        'field_name' => 'field_invite_user_relation_type',
+        'type' => 'invite_user_relationship_type',
+      ));
+    }
+
+    // Ensure that field wasn't added previously.
+    if (!field_read_instance('invite', 'field_invite_user_relation_type', $invite_type->type)) {
+      field_create_instance(array(
+        'field_name' => 'field_invite_user_relation_type',
+        'entity_type' => 'invite',
+        'bundle' => $invite_type->type,
+        'label' => t('Relationship type'),
+        'description' => t('User Relationship Type'),
+      ));
+    }
+  }
+  // If controller is not invite_user_relationships and field exists - delete it.
+  elseif ($instance = field_read_instance('invite', 'field_invite_user_relation_type', $invite_type->type)) {
+    field_delete_instance($instance, TRUE);
+  }
+}
+
+/**
+ * Implements hook_invite_accept().
+ */
+function invite_user_relationships_invite_accept($invite) {
+  foreach ($invite->field_invite_user_relation_type[LANGUAGE_NONE] as $field) {
+    user_relationships_request_relationship($invite->uid, $invite->invitee, $field['rtid'], TRUE);
+  }
+}

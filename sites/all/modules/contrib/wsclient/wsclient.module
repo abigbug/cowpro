@@ -1,0 +1,148 @@
+<?php
+
+/**
+ * @file
+ * Web service client - module file.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function wsclient_menu() {
+  $items['wsclient/%wsclient_service/notify'] = array(
+    'page callback' => 'wsclient_notify',
+    'page arguments' => array(1),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'wsclient.inc',
+  );
+  return $items;
+}
+
+function wsclient_access($service) {
+  return $service->access();
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function wsclient_entity_info() {
+  return array(
+    'wsclient_service' => array(
+      'label' => t('Web service description'),
+      'entity class' => 'WSClientServiceDescription',
+      'controller class' => 'EntityAPIControllerExportable',
+      'base table' => 'wsclient_service',
+      'module' => 'wsclient',
+      'fieldable' => FALSE,
+      'entity keys' => array(
+        'id' => 'id',
+        'name' => 'name',
+        'label' => 'label',
+      ),
+      'exportable' => TRUE,
+      'access callback' => 'wsclient_entity_access',
+      'features controller class' => 'WSClientFeaturesController',
+    ),
+  );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function wsclient_permission() {
+  $permissions['administer web services'] = array(
+    'title' => t('Administer web service descriptions'),
+    'description' => t('Administer web service descriptions that can be used to connect to other sites.'),
+  );
+  foreach (entity_load_multiple_by_name('wsclient_service', FALSE) as $name => $service) {
+    $permissions['interact with  ' . $name] = array(
+      'title' => t('Interact with web service %label', array('%label' => $service->label)),
+    );
+  }
+  return $permissions;
+}
+
+/**
+ * Gets all defined remote endpoint types.
+ */
+function wsclient_get_types() {
+  $data = array();
+  foreach (module_implements('wsclient_endpoint_types') as $module) {
+    $result = call_user_func($module . '_wsclient_endpoint_types');
+    if (isset($result) && is_array($result)) {
+      foreach ($result as $name => $item) {
+        $item += array('module' => $module);
+        $data[$name] = $item;
+      }
+    }
+  }
+  drupal_alter('wsclient_endpoint_types', $data);
+  return $data;
+}
+
+/**
+ * Load a single web service description.
+ *
+ * @return WSClientServiceDescription
+ *   The web service description or FALSE.
+ */
+function wsclient_service_load($name) {
+  $return = entity_load_multiple_by_name('wsclient_service', array($name));
+  return reset($return);
+}
+
+/**
+ * Gets configured http auth settings.
+ */
+function wsclient_get_http_auth() {
+  if (($username = variable_get('wsclient_httpauth_username', NULL)) && $password = variable_get('wsclient_httpauth_password', NULL)) {
+    return array(
+      'method' => variable_get('wsclient_httpauth_method', CURLAUTH_BASIC),
+      'username' => $username,
+      'password' => $password,
+    );
+  }
+}
+
+/**
+ * Access callback for operations on wsclient entities.
+ *
+ * @see entity_access()
+ */
+function wsclient_entity_access($op, $entity, $account, $entity_type) {
+  return user_access('administer web services', $account);
+}
+
+/**
+ * Returns all data types of all services indexed by their global name.
+ */
+function wsclient_data_type_info() {
+  $services = entity_load_multiple_by_name('wsclient_service');
+  $types = array();
+  foreach ($services as $name => $service) {
+    foreach ($service->dataTypes() as $type_name => $info) {
+      $types['wsclient_' . $name . '_' . $type_name] = $info;
+    }
+  }
+  return $types;
+}
+
+/**
+ * Maps the type name from the name used by the remote info to the rules name.
+ */
+function wsclient_map_type($service_name, $service_types, $type) {
+  if (is_array($type)) {
+    foreach ($type as $key => $entry) {
+      $type[$key] = wsclient_map_type($service_name, $service_types, $entry);
+    }
+    return $type;
+  }
+  if (isset($service_types[$type])) {
+    return 'wsclient_' . $service_name . '_' . $type;
+  }
+  if (strpos($type, 'list<') === 0 && isset($service_types[substr($type, 5, -1)])) {
+    return 'list<wsclient_' . $service_name . '_' . substr($type, 5, -1) . '>';
+  }
+  return $type;
+}

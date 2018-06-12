@@ -1,0 +1,215 @@
+<?php
+
+/**
+ * @file
+ * Contains tests for sms_sendtophone.module
+ */
+
+/**
+ * Tests the SMS SendToPhone functionality.
+ */
+class SmsSendToPhoneWebTest extends DrupalWebTestCase {
+
+  /**
+   * Provides information on the web test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'SMS SendToPhone Integration Test',
+      'description' => 'Integration tests for the SMS SendToPhone Module.',
+      'group' => 'SMS Framework',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('sms', 'sms_user', 'sms_sendtophone', 'sms_test_gateway');
+  }
+
+  /**
+   * Tests admin settings page and sendtophone node integration.
+   */
+  public function testAdminSettingsAndSendToPhone() {
+    $user = $this->drupalCreateUser(array('administer smsframework'));
+    $this->drupalLogin($user);
+
+    $this->drupalGet('admin/smsframework/sendtophone');
+    $edit = array();
+    $expected = array();
+    foreach (node_type_get_types() as $type) {
+      $this->assertText($type->name);
+      $edit["sms_sendtophone_content_types[{$type->type}]"] = $expected[$type->type] = rand(0, 1) > 0.5;
+    }
+    // Ensure at least one type is enabled.
+    $edit["sms_sendtophone_content_types[page]"] = $expected['page'] = true;
+    $this->drupalPost('admin/smsframework/sendtophone', $edit, t('Save configuration'));
+    $saved = variable_get('sms_sendtophone_content_types', array());
+    $this->assertEqual($expected, $saved);
+
+    // Create a new node with sendtophone enabled and verify that the button is
+    // added.
+    $types = array_keys(array_filter($expected));
+    $node = $this->drupalCreateNode(array('type' => $types[0]));
+    $this->drupalGet('node/' . $node->nid);
+    // Confirm message for user without confirmed number.
+    $this->assertText('Setup your mobile number to send to phone.');
+
+    // Add unconfirmed phone number.
+    $edit['sms_user']['number'] = '23456897623';
+    user_save($user, $edit);
+    $this->drupalGet('user/' . $user->uid . 'edit');
+    $this->drupalGet('node/' . $node->nid);
+    // Confirm message for user without confirmed number.
+    $this->assertText('Confirm your mobile number to send to phone.');
+
+    // Confirm phone number.
+    $edit['sms_user']['status'] = 2;
+    user_save($user, $edit);
+    $this->drupalGet('node/' . $node->nid);
+    // Confirm message for user without confirmed number.
+    $this->assertText('Send to phone');
+    $this->assertFieldByXPath('//a[@title="Send a link via SMS." and @class="sms-sendtophone"]', NULL);
+
+    // Navigate to the "Send to phone" link.
+    $this->clickLink('Send to phone');
+    $this->assertResponse(200);
+    $this->assertText(url('node/' . $node->nid, array('absolute' => true)));
+
+    // Set test gateway.
+    variable_set('sms_default_gateway', 'test');
+
+    // Click the send button there.
+    $this->drupalPost('sms/sendtophone/node/1', array(), t('Send'));
+    $result = sms_test_gateway_result();
+    $this->assertEqual($result['number'], $edit['sms_user']['number']);
+    $this->assertEqual($result['message'], url('node/' . $node->nid, array('absolute' => true)));
+  }
+
+  /**
+   * Tests sendtophone filter integration.
+   */
+  public function testSendToPhoneFilter() {
+    $filtered_html_format = filter_format_load('filtered_html');
+    $user = $this->drupalCreateUser(array(
+      'administer filters',
+      filter_permission_name($filtered_html_format)
+    ));
+    $this->drupalLogin($user);
+
+    $edit = array(
+      'filters[sms_sendtophone][status]' => true,
+      'filters[sms_sendtophone][settings][sms_sendtophone_filter_inline_display]' => 'text',
+    );
+    $this->drupalPost('admin/config/content/formats/filtered_html', $edit, t('Save configuration'));
+    // Create a new node sms markup and verify that a link is created.
+    $type_names = array_keys(node_type_get_types());
+    $node_body = $this->randomName(30);
+    $node = $this->drupalCreateNode(array(
+      'type' => array_pop($type_names),
+      'body' => array(
+        LANGUAGE_NONE => array(
+          array(
+            'value' => "[sms]{$node_body}[/sms]",
+            'format' => 'filtered_html',
+          )
+        )
+      ),
+    ));
+    $this->drupalGet('node/' . $node->nid);
+    // Confirm link was created for Send to phone.
+    $this->assertText("$node_body (Send to phone)");
+    // Add confirmed phone number assert the corresponding message.
+    $edit['sms_user'] = array(
+      'number' => '97623234568',
+      'status' => 2,
+    );
+    user_save($user, $edit);
+    $this->clickLink('Send to phone');
+    $this->assertText($node_body);
+    // Submit phone number and confirm message received.
+    variable_set('sms_default_gateway', 'test');
+    $this->drupalPost('sms/sendtophone/inline', array(), t('Send'), array(
+      'query' => array(
+        'text' => $node_body,
+        'destination' => 'node/' . $node->nid,
+      )
+    ));
+    $result = sms_test_gateway_result();
+    $this->assertEqual($result['message'], $node_body, 'Message body "' . $node_body . '" successfully sent.');
+
+    // For number not registered, assert the corresponding message.
+    sms_user_delete_user_info($user->uid);
+    $this->drupalGet('sms/sendtophone/inline');
+    $this->assertText('You need to setup your mobile phone to send messages.');
+
+    // Check for unconfirmed number.
+    $edit['sms_user'] = array(
+      'number' => '97623234568',
+      'status' => 1,
+    );
+    user_save($user, $edit);
+    $this->drupalGet('sms/sendtophone/inline');
+    $this->assertText('You need to confirm your mobile phone number to send messages.');
+  }
+
+  /**
+   * Tests field format integration and widget.
+   */
+  public function testFieldFormatAndWidget() {
+    $user = $this->drupalCreateUser();
+    $this->drupalLogin($user);
+
+    // Create a custom field of type 'text' using the sms_sendtophone formatter.
+    $bundles = array_keys(node_type_get_types());
+    $field_name = strtolower($this->randomName());
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'node',
+      'bundle' => $bundles[0],
+      'display' => array(
+        'default' => array(
+          'type' => 'sms_sendtophone',
+        )
+      ),
+    );
+    field_create_field(array(
+      'field_name' => $field_name,
+      'type' => 'text',
+    ));
+    field_create_instance($instance);
+    $random_text = $this->randomName(32);
+    $test_node = $this->drupalCreateNode(array(
+      'type' => $bundles[0],
+      $field_name => array(
+        'und' => array(
+          array(
+            'value' => $random_text,
+          ),
+        ),
+      ),
+    ));
+
+    // Setup users phone number to check sending.
+    $edit['sms_user'] = array(
+      'number' => '97623234568',
+      'status' => 2,
+    );
+    user_save($user, $edit);
+    // Set test gateway and click send button.
+    variable_set('sms_default_gateway', 'test');
+
+    $this->drupalGet('node/' . $test_node->nid);
+    $this->assertText($random_text . ' (Send to phone)');
+    $this->clickLink('Send to phone');
+    $this->assertText($random_text, 'Field format works');
+
+    // Click the send button there.
+    $this->drupalPost('sms/sendtophone/field', NULL, 'Send', array('query' => array('text' => $random_text)));
+    $result = sms_test_gateway_result();
+    $this->assertEqual($result['number'], $edit['sms_user']['number'], 'Message sent to correct number');
+    $this->assertEqual($result['message'], $random_text, 'Field content sent to user with number ' . $result['number']);
+  }
+
+}

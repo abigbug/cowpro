@@ -1,0 +1,12 @@
+name = "ThemeKey Example"
+description = "Implements parts of the ThemeKey API as an example for Developers."
+core = 7.x
+dependencies[]= themekey
+package = Example modules
+
+; Information added by Drupal.org packaging script on 2015-07-06
+version = "7.x-3.4"
+core = "7.x"
+project = "themekey"
+datestamp = "1436191441"
+

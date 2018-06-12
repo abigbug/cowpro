@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the smsframework module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function sms_install() {
+}
+
+/**
+ * Implements hook_schema().
+ */
+function sms_schema() {
+  $schema['sms_carriers'] = array(
+    'fields' => array(
+      'name' => array(
+        'type' => 'varchar',
+        'not null' => TRUE,
+        'length' => 64,
+      ),
+      'domain' => array(
+        'type' => 'varchar',
+        'not null' => TRUE,
+        'length' => 128,
+      ),
+    ),
+    'primary key' => array('domain'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Drop the now dead delta field, and change primary key to number.
+ */
+function sms_update_1() {
+  $ret = array();
+  db_drop_primary_key('sms_user');
+  db_add_primary_key('sms_user', array('number'));
+  db_add_index('sms_user', 'uid', array('uid'));
+  db_drop_field('sms_user', 'delta');
+  return t('SMS database update 1 successful.');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function sms_uninstall() {
+  $variables = array();
+  # XXX D7 porting issue: need to variable_del sms* variables on sms_uninstall()
+  foreach ($variables as $variable) {
+    variable_del($variable);
+  }
+}

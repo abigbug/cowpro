@@ -1,0 +1,77 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the Browscap module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function browscap_schema() {
+  $schema['browscap'] = array(
+    'fields' => array(
+      'useragent' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'size' => 'big',
+      ),
+    ),
+    'primary key' => array('useragent'),
+  );
+  $schema['cache_browscap'] = drupal_get_schema_unprocessed('system', 'cache');
+
+  return $schema;
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function browscap_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  if ($phase == 'runtime' && user_access('administer browscap')) {
+    $requirement = array(
+      'value' => variable_get('browscap_version', 0) === 0 ? $t('Not installed') : l(variable_get('browscap_version', 0), 'admin/config/system/browscap'),
+      'title' => $t('Browscap version'),
+    );
+
+    if (variable_get('browscap_version', 0) === 0) {
+      $requirement += array(
+        'severity' => REQUIREMENT_ERROR,
+        'description' => $t('Browscap data is not imported! See <a href="!settings_url">Browscap settings</a> to import manually.', array(
+          '!settings_url' => url('admin/config/system/browscap'),
+        )),
+      );
+    }
+    else {
+      $requirement += array(
+        'severity' => REQUIREMENT_OK,
+      );
+    }
+
+    $requirements['browscap_version'] = $requirement;
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function browscap_uninstall() {
+  variable_del('browscap_imported');
+  variable_del('browscap_version');
+  variable_del('browscap_enable_automatic_updates');
+  variable_del('browscap_automatic_updates_timer');
+}
+
+/**
+ * Drop the unused Browscap 1.x statistics table.
+ */
+function browscap_update_7200() {
+  db_drop_table('browscap_statistics');
+}

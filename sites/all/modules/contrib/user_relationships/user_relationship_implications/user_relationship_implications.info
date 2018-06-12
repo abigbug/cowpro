@@ -1,0 +1,14 @@
+name = User Relationships Implications
+description = "Lets administrators create implied relationships. For example 'Manager implies Coworker'"
+dependencies[] = user_relationships
+dependencies[] = user_relationships_ui
+package = "User Relationships"
+core = 7.x
+files[]=user_relationship_implications.module
+
+; Information added by Drupal.org packaging script on 2015-09-20
+version = "7.x-1.0-alpha6+2-dev"
+core = "7.x"
+project = "user_relationships"
+datestamp = "1442757557"
+

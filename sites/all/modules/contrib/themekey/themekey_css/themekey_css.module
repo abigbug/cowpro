@@ -1,0 +1,118 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function themekey_css_menu() {
+  $items = array();
+
+  $items['admin/config/user-interface/themekey/css'] = array(
+    'title' => 'Adding CSS Rule Chain',
+    'description' => 'Set up rules to add css files dynamically, depending on Drupal paths or different properties.',
+    'access callback' => 'user_access',
+    'access arguments' => array('administer theme assignments'),
+    'file' => 'themekey_css_admin.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('themekey_css_rule_chain_form'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+  );
+  $items['admin/config/user-interface/themekey/css/delete'] = array(
+    'title' => 'Delete ThemeKey Rule',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('themekey_css_admin_delete_rule_confirm', 1),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer theme assignments'),
+    'file' => 'themekey_css_admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function themekey_css_theme() {
+  $items = array(
+    'themekey_css_rule_chain_form' => array(
+      'file' => 'themekey_css_admin.inc',
+      'render element' => 'form',
+    ),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_themekey_rebuild().
+ */
+function themekey_css_themekey_rebuild() {
+  module_load_include('inc', 'themekey_css', 'themekey_css_build');
+  themekey_css_scan();
+}
+
+
+function themekey_css_format_rule_as_string($themekey_property_id) {
+  module_load_include('inc', 'themekey', 'themekey_build');
+  return themekey_abstract_format_rule_as_string($themekey_property_id, array(
+    'rule' => themekey_css_rule_get($themekey_property_id),
+  ));
+}
+
+function themekey_check_css_exists($css_file) {
+  return is_readable(DRUPAL_ROOT . '/' . $css_file);
+}
+
+/**
+ * Loads ThemeKey rule from database.
+ *
+ * @param $id
+ *   id of the rule to be loaded from database
+ *
+ * @return
+ *   the rule as associative array or NULL
+ */
+function themekey_css_rule_get($id) {
+  return themekey_abstract_rule_get('themekey_css_rules', $id);
+}
+
+/**
+ * Implements hook_init().
+ */
+function themekey_css_init() {
+  if (themekey_is_active()) {
+    require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'themekey') . '/themekey_base.inc';
+    $parameters = themekey_get_global_parameters();
+    $result = themekey_match_rule_childs($parameters, array(
+      'table' => 'themekey_css_rules',
+      'format_rule_as_string_callback' => 'themekey_css_format_rule_as_string',
+      'check_enabled_callback' => 'themekey_check_css_exists',
+    ));
+    if (is_array($result) && 'default' != $result['theme']) {
+      drupal_alter('themekey_add_css', $result['theme'], $result['rules_matched']);
+      drupal_add_css($result['theme']);
+      if (variable_get('themekey_debug_trace_rule_switching', FALSE)) {
+        themekey_set_debug_message('Adding CSS file %css_file.', array('%css_file' => $result['theme']));
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_help().
+ */
+function themekey_css_help($path, $arg) {
+  switch ($path) {
+    case 'admin/config/user-interface/themekey/css':
+      if (!function_exists('themekey_help_properties_form')) {
+        module_load_include('inc', 'themekey', 'themekey_help');
+      }
+      $properties_form = drupal_get_form('themekey_help_properties_form', TRUE);
+      $operators_form = drupal_get_form('themekey_help_operators_form', TRUE);
+      $text_1 = t('For every page request, Drupal steps through this Adding CSS Rule Chain until an activated rule matches or it reaches the end. If a rule matches, the CSS file associated with this rule will be added to the requested page.');
+
+      return '<p>' . $text_1 . '</p> ' .
+        drupal_render($properties_form) .
+        drupal_render($operators_form);
+  }
+}

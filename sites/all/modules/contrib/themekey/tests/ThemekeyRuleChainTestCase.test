@@ -1,0 +1,44 @@
+<?php
+
+
+/**
+ * @file
+ * Implements tests for the theme switching rules.
+ */
+
+class ThemekeyRuleChainTestCase extends ThemekeyWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'ThemeKey Rule Chain',
+      'description' => 'Test a chain of multiple ThemeKey rules.',
+      'group' => 'ThemeKey',
+    );
+  }
+
+
+  public function testChildProperty() {
+    $node1 = $this->drupalCreateNode(array('title' => 'Node title test'));
+    $node2 = $this->drupalCreateNode();
+
+    $this->drupalGet('node/' . $node1->nid);
+    $this->assertTheme('bartik');
+
+    $this->addThemeKeyRule('node:title', '=', 'Node title test', 'garland');
+
+    $this->drupalGet('node/' . $node1->nid);
+    $this->assertTheme('garland');
+
+    $this->addThemeKeyRule('user:uid', '=', '0', 'seven', '1', '', $this->last_rule_id);
+
+    $this->drupalGet('node/' . $node1->nid);
+    $this->assertTheme('bartik');
+
+    $this->drupalLogout();
+
+    $this->drupalGet('node/' . $node1->nid);
+    $this->assertTheme('seven');
+
+    $this->drupalGet('node/' . $node2->nid);
+    $this->assertTheme('bartik');
+  }
+}

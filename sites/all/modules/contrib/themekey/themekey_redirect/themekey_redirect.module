@@ -1,0 +1,399 @@
+<?php
+/**
+ * @file
+ *
+ * Define rules to redirect the user to a different domain.
+ * The common use-case is to setup sub-domains for mobile sites.
+ * In this case you can configure ThemeKey Redirect to detect mobile clients and
+ * redirect the user accordingly. In ThemeKey itself you have to configure rules
+ * to select a mobile theme depending on the sub-domain.
+ *
+ * Cookie states:
+ *  - 0: No redirect happened, keep on evaluating redirect rule chain on further
+ *       requests. Note: if cookie is not set the state is 0 as well.
+ *  - 1: Redirect happened. Optionally provide the user the choice to switch back.
+ *  - 2: Redirect completed and no further redirects will happen until the
+ *       browser gets closed.
+ *
+ * Initial State, user visits Domain A:
+ *  Domain A 0, Domain B 0
+ *
+ * User gets redirected to Domain B and is allowed to switch back manually:
+ *  Domain A 0, Domain B 1 (set via php before page delivery)
+ *  Domain A 0, Domain B 2 (set via javascript after page delivery and a switch back link has been shown)
+ *
+ * If user clicks switch back link:
+ *  Domain A 2 (set via php before page delivery), Domain B 2
+ *
+ *
+ * Initial State, user visits Domain A:
+ *  Domain A 0, Domain B 0
+ *
+ * User gets redirected to Domain B and is not allowed to switch back manually:
+ *  Domain A 0, Domain B 1 (set via php before page delivery)
+ *  Domain A 0, Domain B 2 (set via javascript after page delivery)
+ *
+ *
+ * Initial State, user visits Domain A:
+ *  Domain A 0, Domain B 0
+ *
+ * User gets redirected to Domain B and "Don't evaluate the rule chain again if the user comes back after a redirect." is turned on:
+ *  Domain A 2 (set via php before page delivery), Domain B 1 (set via php before page delivery)
+ *  Domain A 2, Domain B 2 (set via javascript after page delivery)
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function themekey_redirect_menu() {
+  $items = array();
+
+  $items['admin/config/user-interface/themekey/redirects'] = array(
+    'title' => 'Redirecting Rule Chain',
+    'description' => 'Set up rules to redirect the user, depending on Drupal paths or different properties.',
+    'access callback' => 'user_access',
+    'access arguments' => array('administer theme assignments'),
+    'file' => 'themekey_redirect_admin.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('themekey_redirect_rule_chain_form'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+  );
+  $items['admin/config/user-interface/themekey/redirects/delete'] = array(
+    'title' => 'Delete ThemeKey Redirect Rule',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('themekey_redirect_admin_delete_rule_confirm', 1),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer theme assignments'),
+    'file' => 'themekey_redirect_admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/config/user-interface/themekey/settings/redirects'] = array(
+    'title' => 'Redirect',
+    'access callback' => 'user_access',
+    'access arguments' => array('administer themekey settings'),
+    'file' => 'themekey_redirect_admin.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('themekey_redirect_settings_form'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 9,
+  );
+  $items['themekey/redirect_callback'] = array(
+    'title' => 'ThemeKey Redirect Callback',
+    'page callback' => 'themekey_redirect_callback',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'delivery callback' => 'drupal_json_output',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function themekey_redirect_theme() {
+  $items = array(
+    'themekey_redirect_rule_chain_form' => array(
+      'file' => 'themekey_redirect_admin.inc',
+      'render element' => 'form',
+    ),
+    'themekey_redirect_domain_selector_links' => array(
+      'template' => 'themekey_redirect_domain_selector_links',
+      'variables' => array(
+        'links' => array(),
+      ),
+    ),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_themekey_disabled_paths().
+ */
+function themekey_redirect_themekey_disabled_paths() {
+  return array('themekey/redirect_callback');
+}
+
+function themekey_redirect_format_rule_as_string($themekey_property_id) {
+  module_load_include('inc', 'themekey', 'themekey_build');
+  return themekey_abstract_format_rule_as_string($themekey_property_id, array(
+    'rule' => themekey_redirect_rule_get($themekey_property_id),
+  ));
+}
+
+/**
+ * Loads ThemeKey rule from database.
+ *
+ * @param $id
+ *   id of the rule to be loaded from database
+ *
+ * @return
+ *   the rule as associative array or NULL
+ */
+function themekey_redirect_rule_get($id) {
+  return themekey_abstract_rule_get('themekey_redirect_rules', $id);
+}
+
+/**
+ * Implements hook_init().
+ */
+function themekey_redirect_init() {
+  if (themekey_is_active()) { // Not active if ThemeKey Redirect ajax callback is requested.
+    // Ensure to have javascript based switching for anonymous users in page cache.
+    themekey_redirect_add_js();
+
+    if (isset($_GET['themekey_redirect'])) {
+      // Don't cache the page if query param 'themekey_redirect' is set.
+      drupal_page_is_cacheable(FALSE);
+
+      switch ($_GET['themekey_redirect']) {
+        case 'active':
+          // User has been redirected.
+          setcookie('themekey_redirect_state', 1, 0, '/');
+          break;
+        case 'avoid':
+          //User manually selected a domain. No further redirects.
+          setcookie('themekey_redirect_state', 2, 0, '/');
+          break;
+      }
+    }
+  }
+}
+
+function themekey_redirect_add_js() {
+  drupal_add_library('system', 'jquery.cookie');
+  drupal_add_js(array('ThemeKeyRedirect' => array(
+    'checkOnce' => variable_get('themekey_redirect_check_once', FALSE),
+    'redirectOnce' => variable_get('themekey_redirect_redirect_once', FALSE),
+  )), 'setting');
+  drupal_add_js(drupal_get_path('module', 'themekey_redirect') . '/themekey_redirect.js');
+}
+
+function themekey_redirect_match_rules() {
+  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'themekey') . '/themekey_base.inc';
+  $parameters = themekey_get_global_parameters();
+  $result = themekey_match_rule_childs($parameters, array(
+    'table' => 'themekey_redirect_rules',
+    'format_rule_as_string_callback' => 'themekey_redirect_format_rule_as_string',
+    'check_enabled_callback' => 'themekey_redirect_check_different_url',
+    'stop_on_check_enabled_false' => TRUE,
+  ));
+
+  if (is_array($result) && 'default' != $result['theme']) {
+    drupal_alter('themekey_redirect', $result['theme'], $result['rules_matched']);
+
+    $last_rule = array_pop($result['rules_matched']);
+    $query_string = themekey_query_string();
+
+    return url(
+      $result['theme'] .
+        (
+          $last_rule->append_path ?
+            (
+              variable_get('themekey_redirect_compatible_path', FALSE) ? '/index.php?q=' . $_GET['q'] .
+                (
+                  $query_string ? '&' . $query_string : ''
+                ) : request_uri()
+            ) : ''
+        ),
+      array('query' => array('themekey_redirect' => 'active')) // If we redirect to a non-drupal site, the query should not break anything.
+    );
+  }
+
+  return FALSE;
+}
+
+function themekey_redirect_callback() {
+  // Don't cache this JSON response.
+  drupal_page_is_cacheable(FALSE);
+  // Clean-up the URI path for rule matching and response by overriding
+  // $_GET['q'] and $_SERVER['REQUEST_URI'].
+  $_GET['q'] = implode('/', func_get_args());
+  // If the path is empty, we're at the front page.
+  if (empty($_GET['q'])) {
+    $_GET['q'] = variable_get('site_frontpage', 'node');
+  }
+
+  // Coder module complains "the use of REQUEST_URI is prone to XSS exploits and
+  // does not work on IIS; use request_uri() instead [security_12]". But we have
+  // to override (or set) the REQUEST_URI here which is not an security issue.
+  // The rule in coder module is about reading $_SERVER['REQUEST_URI'] and not
+  // about setting it.
+  // @ignore security_12
+  $_SERVER['REQUEST_URI'] = str_replace('themekey/redirect_callback/', '', request_uri());
+  return themekey_redirect_match_rules();
+}
+
+/**
+ * Implements hook_help().
+ */
+function themekey_redirect_help($path, $arg) {
+  switch ($path) {
+    case 'admin/config/user-interface/themekey/redirects':
+      if (!function_exists('themekey_help_properties_form')) {
+        module_load_include('inc', 'themekey', 'themekey_help');
+      }
+      $properties_form = drupal_get_form('themekey_help_properties_form', TRUE);
+      $operators_form = drupal_get_form('themekey_help_operators_form', TRUE);
+      $text_1 = t('For every page request, Drupal steps through this Redirecting Rule Chain until an activated rule matches or it reaches the end. If a rule matches, the redirect associated with this rule will be performed.');
+
+      return '<p>' . $text_1 . '</p> ' .
+        drupal_render($properties_form) .
+        drupal_render($operators_form);
+  }
+}
+
+/**
+ * Avoid a redirect loop by not redirecting to current domain.
+ *
+ * @param $url
+ * @return bool
+ */
+function themekey_redirect_check_different_url($url) {
+  $parts = parse_url($url);
+  $host = $parts['host'];
+  if (isset($parts['port']) && ($parts['port'] != 80) && ($parts['port'] != 443)) {
+    $host .= ':' . $parts['port'];
+  }
+
+  return (
+    $host != $_SERVER['HTTP_HOST']
+  );
+}
+
+/**
+ * Implements hook_themekey_page_cache_support_alter().
+ */
+function themekey_redirect_themekey_page_cache_support_alter(&$page_cache, $key, $form_id) {
+  if ('themekey_redirect_rule_chain_form' == $form_id) {
+    $page_cache = THEMEKEY_PAGECACHE_SUPPORTED;
+  }
+}
+
+/**
+ * Implements hook_block().
+ */
+function themekey_redirect_block_info() {
+  $blocks['domain_selector'] = array(
+    'info' => t('ThemeKey Redirect Domain Selector'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_configure().
+ */
+function themekey_redirect_block_configure($delta = '') {
+  $form = array();
+
+  switch ($delta) {
+    case 'domain_selector':
+      $form['domain_list'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Domain Targets'),
+        '#description' => t('One entry per line, format: url|link title. The url must include the protocol. Example: http://www.example.com|My Example Site'),
+        '#default_value' => themekey_redirect_encode_domain_selector(variable_get('themekey_redirect_domain_selector', array())),
+        '#element_validate' => array('themekey_redirect_domain_list_validate'),
+        '#required' => TRUE,
+      );
+
+      $form['auto_hide'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Auto hide'),
+        '#description' => t('If selected the user will only be asked once to return to a previous URL after the redirect.'),
+        '#default_value' => variable_get('themekey_redirect_domain_selector_auto_hide', 1),
+      );
+
+      break;
+  }
+
+  $form['#validate'][] = 'themekey_redirect_block_validate';
+
+  return $form;
+}
+
+/*
+ * There's no hook_block_validate() in drupal. So we have to validate the form
+ * on element level.
+ */
+function themekey_redirect_domain_list_validate($element) {
+  if (!empty($element['#value'])) {
+    $domain_selector = themekey_redirect_parse_domain_selector($element['#value']);
+    foreach ($domain_selector as $url => $link) {
+      @$parts = parse_url($url);
+      if (!isset($parts['host']) || !isset($parts['scheme'])) {
+        form_set_error('domain_list', t('The url %url is not valid.', array('%url' => $url)));
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_block_save().
+ */
+function themekey_redirect_block_save($delta = '', $edit = array()) {
+  switch ($delta) {
+    case 'domain_selector':
+      variable_set('themekey_redirect_domain_selector', themekey_redirect_parse_domain_selector($edit['domain_list']));
+      variable_set('themekey_redirect_domain_selector_auto_hide', !empty($edit['auto_hide']) ? 1 : 0);
+      // fast deletion of page cache (truncate) for new css
+      cache_clear_all('*', 'cache_page', TRUE);
+      // and block cache
+      cache_clear_all('*', 'cache_block', TRUE);
+      break;
+  }
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function themekey_redirect_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'domain_selector':
+      if ($links = variable_get('themekey_redirect_domain_selector', array())) {
+        $block['subject'] = t('You have been redirected automatically.');
+        $block['content'] = theme('themekey_redirect_domain_selector_links', array('links' => $links));
+        if (variable_get('themekey_redirect_domain_selector_auto_hide', 1)) {
+          drupal_add_css(drupal_get_path('module', 'themekey_redirect') . '/themekey_redirect_domain_selector.css');
+        }
+      }
+      break;
+  }
+
+  return $block;
+}
+
+function themekey_redirect_preprocess_themekey_redirect_domain_selector_links(&$vars) {
+  $vars['links_rendered'] = array();
+  foreach ($vars['links'] as $url => $link) {
+    if (themekey_redirect_check_different_url($url)) {
+      $vars['links_rendered'][] = l(t($link), $url . str_replace('themekey_redirect=active', '', request_uri()), array('query' => array('themekey_redirect' => 'avoid')));
+    }
+  }
+}
+
+function themekey_redirect_parse_domain_selector($domain_selector_string) {
+  $domain_selector = array();
+  $domain_selector_string = trim($domain_selector_string, " \r\n");
+  $lines = explode("\n", $domain_selector_string);
+  foreach ($lines as $line) {
+    @list($url, $link) = explode('|', $line);
+    $url = trim($url, " \r\n");
+    $link = trim($link, " \r\n");
+    $domain_selector[$url] = $link ? $link : $url;
+  }
+  return $domain_selector;
+}
+
+function themekey_redirect_encode_domain_selector($domain_selector) {
+  $domain_selector_strings = array();
+  foreach ($domain_selector as $url => $link) {
+    $domain_selector_strings[] = $url . '|' . $link;
+  }
+  return implode("\n", $domain_selector_strings);
+}

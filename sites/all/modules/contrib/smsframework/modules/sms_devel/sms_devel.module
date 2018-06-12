@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * @file
+ * Development and testing tools for Drupal SMS Framework.
+ *
+ * @package sms
+ * @subpackage sms_devel
+ */
+/*
+include DRUPAL_ROOT . '/' . 'sms_devel.send_form.inc';
+include DRUPAL_ROOT . '/' . 'sms_devel.virtualgw.inc';
+include DRUPAL_ROOT . '/' . 'sms_devel.virtualgw.admin.inc';*/
+//include 'sms_devel.send_form.inc';
+include 'sms_devel.virtualgw.inc';
+//include 'sms_devel.virtualgw.admin.inc';
+
+
+/**
+ * Implements hook_menu().
+ */
+function sms_devel_menu() {
+  $items = array();
+
+  $items['admin/smsframework/devel'] = array(
+    'title' => 'Devel',
+    'description' => 'Development and testing tools.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sms_devel_send_form', NULL),
+    'access arguments' => array('administer smsframework'),
+    'file' => 'sms_devel.send_form.inc',
+  );
+
+  $items['admin/smsframework/devel/send_form'] = array(
+    'title' => 'Test send form',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  $items['admin/smsframework/devel/virtualgw'] = array(
+    'title' => 'Virtual gateway',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sms_devel_virtualgw_form', NULL),
+    'access arguments' => array('administer smsframework'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -9,
+    'file' => 'sms_devel.virtualgw.admin.inc',
+  );
+
+  $items['admin/smsframework/devel/virtualgw/send'] = array(
+    'page callback' => 'sms_devel_virtualgw_ahah_send',
+    'access arguments' => array('administer smsframework'),
+    'type' => MENU_CALLBACK,
+    'file' => 'sms_devel.virtualgw.inc',
+  );
+
+  $items['sms/virtualgw/receiver'] = array(
+    'page callback' => 'sms_devel_virtualgw_receiver',
+    'page arguments' => array(),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'sms_devel.virtualgw.inc',
+  );
+
+  $items['admin/smsframework/devel/virtualgw/getactivity'] = array(
+    'page callback' => 'sms_devel_virtualgw_js_getactivity',
+    'page arguments'   => array(),
+    'access arguments' => array('administer smsframework'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_gateway_info().
+ */
+function sms_devel_gateway_info() {
+  return array(
+    'virtualgw' => array(
+      'name' => 'Devel virtual gateway',
+      'send' => 'sms_devel_virtualgw_send',
+      'configure form' => 'sms_devel_virtualgw_settings_form',
+    ),
+  );
+}

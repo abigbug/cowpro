@@ -1,0 +1,33 @@
+name = Entityqueue
+description = Allows users to collect entities in arbitrarily ordered lists.
+package = Entityqueue
+core = 7.x
+;configure = admin/structure/entityqueue/settings
+
+dependencies[] = system (>7.11)
+dependencies[] = ctools
+dependencies[] = entity
+dependencies[] = entityreference
+
+; EntityQueue and EntitySubqueue classes.
+files[] = includes/entityqueue_queue.class.inc
+files[] = includes/entityqueue_subqueue.class.inc
+
+; Handler plugin interface and base implementation.
+files[] = plugins/entityqueue/handler/base.inc
+
+; Entity API controller.
+files[] = includes/entityqueue.controller.inc
+
+; Views handlers.
+files[] = includes/views/entityqueue_handler_relationship_entityqueue.inc
+files[] = includes/views/entityqueue_handler_sort_position.inc
+files[] = includes/views/entityqueue_handler_argument_subqueue_id.inc
+files[] = includes/views/entityqueue_handler_filter_in_queue.inc
+
+; Information added by Drupal.org packaging script on 2015-08-20
+version = "7.x-1.1"
+core = "7.x"
+project = "entityqueue"
+datestamp = "1440098806"
+

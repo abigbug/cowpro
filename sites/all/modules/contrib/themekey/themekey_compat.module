@@ -1,0 +1,131 @@
+<?php
+
+/**
+ * @file
+ * Integration of different theme switching modules into ThemeKey and its theme switching rule chain.
+ * @see themekey.module
+ *
+ * @author Markus Kalkbrenner | bio.logis GmbH
+ *   @see http://drupal.org/user/124705
+ */
+
+
+/**
+ * Implements hook_menu().
+ */
+function themekey_compat_menu() {
+  $items = array();
+  $items['admin/config/user-interface/themekey/settings/compat'] = array(
+    'title' => 'Compatibility',
+    'access callback' => 'user_access',
+    'access arguments' => array('administer themekey settings'),
+    'file' => 'themekey_compat_admin.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('themekey_compat_settings_form'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 11,
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_themekey_properties().
+ *
+ * Provides additional properties for the ThemeKey module:
+ *   themekey_compat:module_MODULE_triggers_theme
+ *
+ * @return
+ *   array of themekey properties
+ */
+function themekey_compat_themekey_properties() {
+
+  // Attributes for properties
+  $attributes = array();
+  // Mapping functions
+  $maps = array();
+
+  foreach (variable_get('themekey_compat_modules_enabled', array()) as $module) {
+    $property_name = 'themekey_compat:module_' . $module . '_triggers_theme';
+    $module_info = system_get_info('module', $module);
+
+    $attributes[$property_name] = array(
+      'description' => t('The property %property could not be selected from the property drop-down. You got this static property by activating the %module module at the ThemeKey Compatibility !settings_link. You can move the property to any position in the rule chain.',
+        array(
+          '%property' => $property_name,
+          '%module' => $module_info['name'],
+          '!settings_link' => l(t('settings'), 'admin/config/user-interface/themekey/settings/compat')
+        )
+      ),
+      'page cache' => THEMEKEY_PAGECACHE_SUPPORTED,
+      'static' => TRUE,
+    );
+
+    $maps[] = array(
+      'src' => 'system:dummy',
+      'dst' => $property_name,
+      'callback' => 'themekey_compat_dummy2theme',
+      'args' => array('module' => $module),
+    );
+  }
+
+  return array('attributes' => $attributes, 'maps' => $maps);
+}
+
+
+/**
+ * This function implements the interface of a ThemeKey
+ * mapping function but doesn't set a ThemeKey property's
+ * value. It sets the Drupal static themekey_custom_theme
+ * which will cause ThemeKey to use this theme.
+ *
+ * @param $dummy
+ *   dummy
+ *
+ * @return
+ *   string "static" if global custom theme has been set
+ *   or NULL if no theme has been assigned to the node
+ */
+function themekey_compat_dummy2theme($dummy, $args) {
+  $custom_theme = &drupal_static('themekey_custom_theme', '');
+
+  $function = $args['module'] . '_custom_theme';
+  if (function_exists($function)) {
+    $custom_theme = $function();
+
+    if ($custom_theme &&
+      (!in_array($args['module'], variable_get('themekey_compat_modules_enabled', array())) || variable_get('theme_default', 'bartik') != $custom_theme)) {
+      if (variable_get('themekey_debug_trace_rule_switching', FALSE)) {
+        themekey_set_debug_message('Theme set to %theme by module %module.', array('%theme' => $custom_theme, '%module' => $args['module']));
+      }
+      return 'static';
+    }
+  }
+
+  return NULL;
+}
+
+
+/**
+ * Implements hook_modules_disabled().
+ */
+function themekey_compat_modules_disabled($modules) {
+  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'themekey') . '/themekey_build.inc';
+
+  variable_set('themekey_compat_modules_enabled',
+    array_diff(variable_get('themekey_compat_modules_enabled', array()), $modules));
+
+  foreach ($modules as $module) {
+    themekey_update_static_rule('themekey_compat:module_' . $module . '_triggers_theme', FALSE);
+  }
+}
+
+
+function themekey_compat_module_implements_alter(&$implementations, $hook) {
+  if ('custom_theme' == $hook) {
+    foreach (variable_get('themekey_compat_modules_enabled', array()) as $module) {
+      unset($implementations[$module]);
+    }
+  }
+}

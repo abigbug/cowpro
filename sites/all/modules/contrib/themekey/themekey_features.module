@@ -1,0 +1,257 @@
+<?php
+
+/**
+ * Implements hook_features_api().
+ */
+function themekey_features_features_api() {
+  return array(
+    'themekey_features_rule_chain' => array(
+      'name' => t('ThemeKey Rule Chain'),
+      'default_hook' => 'themekey_features_rule_chain', // simply compare against the exported feature to detect overridden configuration
+      'default_file' => FEATURES_DEFAULTS_INCLUDED_COMMON,
+      'feature_source' => TRUE,
+    ),
+  );
+}
+
+
+/**
+ * Implements hook_features_export_options().
+ */
+function themekey_features_rule_chain_features_export_options() {
+  $options = array();
+  $rules = themekey_features_load_rule_childs();
+
+  if (!empty($rules)) {
+    foreach ($rules as $rule) {
+      $string = themekey_features_get_rule_cascade_string($rule);
+      $options[$string] = $string;
+    }
+  }
+
+  return $options;
+}
+
+
+/**
+ * Implements hook_features_export().
+ */
+function themekey_features_rule_chain_features_export($data, &$export, $module_name = '') {
+  $export['dependencies']['themekey'] = 'themekey';
+  $export['dependencies']['themekey_features'] = 'themekey_features';
+  // TODO set dependencies to providers of each single themekey property
+
+  foreach ($data as $rule_string) {
+    $export['features']['themekey_features_rule_chain'][$rule_string] = $rule_string;
+  }
+
+  return array();
+}
+
+
+/**
+ * Implements hook_features_export_render().
+ */
+function themekey_features_rule_chain_features_export_render($module_name, $data, $export = NULL) {
+  $rules = themekey_features_load_rule_childs($module_name);
+  $keep_rules = array();
+
+  foreach ($rules as $rule) {
+    if (in_array(themekey_features_get_rule_cascade_string($rule), $data)) {
+      $keep_rules[] = $rule;
+    }
+  }
+
+  $code = array();
+  $code[] = "if (!defined('THEMEKEY_PAGECACHE_UNSUPPORTED')) {
+    define('THEMEKEY_PAGECACHE_UNSUPPORTED', 0);
+    define('THEMEKEY_PAGECACHE_SUPPORTED', 1);
+    define('THEMEKEY_PAGECACHE_TIMEBASED', 2);
+  }";
+  $code[] = '$rules = ' . features_var_export($keep_rules) . ';';
+  $code[] = '';
+  $code[] = 'return $rules;';
+
+  return array('themekey_features_rule_chain' => implode("\n", $code));
+}
+
+
+/**
+ * Implements hook_features_enable_feature().
+ */
+function themekey_features_rule_chain_features_enable_feature($module) {
+  $rules = module_invoke($module, 'themekey_features_rule_chain');
+  themekey_features_save_rule_childs($module, $rules, /* graceful */ TRUE);
+}
+
+/**
+ * Implements hook_features_disable_feature().
+ */
+function themekey_features_rule_chain_features_disable_feature($module) {
+  module_load_include('inc', 'themekey', 'themekey_build');
+
+  $rules = themekey_load_rules();
+  foreach ($rules as $id => $rule) {
+    if ($rule['module'] == $module) {
+      themekey_rule_disable($id);
+    }
+  }
+}
+
+/**
+ * Implements hook_features_revert().
+ */
+function themekey_features_rule_chain_features_revert($module) {
+  // delete all rules related to this feature,
+  // except that the administrator added childs
+  themekey_features_graceful_rule_deletion($module);
+
+  // disable all remaining rules related to this feature,
+  // including childs added by the administrator
+  themekey_features_rule_chain_features_disable_feature($module);
+
+  // now re-enable or re-create all rules from
+  // exported feature in an unmodified state
+  $rules = module_invoke($module, 'themekey_features_rule_chain');
+  themekey_features_save_rule_childs($module, $rules, /* force */ TRUE);
+}
+
+/**
+ * Deletes all rules related to this feature,
+ * except that the administrator added childs
+ */
+function themekey_features_graceful_rule_deletion($module) {
+  module_load_include('inc', 'themekey', 'themekey_build');
+
+  $rules = themekey_load_rules();
+  $delete = TRUE;
+
+  while ($delete) {
+    $delete = FALSE;
+    foreach ($rules as $id => $rule) {
+      if ($rule['module'] == $module) {
+        try {
+          themekey_rule_del($id);
+          $delete = TRUE;
+        }
+        catch (ThemeKeyRuleDeletionException $e) {
+          continue;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Loads current ThemeKey Rule Chain as array.
+ * The difference compared to themekey_load_rules() is, that
+ * database stuff like ids, parent ids and weights are stripped
+ * for export.
+ *
+ * @param $parent
+ *   internal use in recursion
+ *
+ * @return
+ *   serialized ThemeKey Rule Chain as array
+ */
+function themekey_features_load_rule_childs($module_name = '', $parent = 0) {
+  module_load_include('inc', 'themekey', 'themekey_base');
+  module_load_include('inc', 'themekey', 'themekey_build');
+
+  $rules = array();
+
+  if ($result = db_select('themekey_properties', 'tp')
+      ->fields('tp', array('id'))
+      ->condition('parent', $parent)
+      ->condition('enabled', 1)
+      ->orderBy('weight', 'ASC')
+      ->execute()
+  ) {
+
+    foreach ($result as $record) {
+
+      // we have to load the rule again using themekey_rule_get() which applies some transformations
+      // like themekey_complete_path()
+      $rule = themekey_rule_get($record->id);
+
+      if (!empty($module_name)) {
+        $rule->module = $module_name;
+      }
+
+      // remove the database specific stuff for export
+      unset($rule->id);
+      unset($rule->parent);
+      unset($rule->weight);
+
+      $rules[] = array(
+        'rule' => $rule,
+        'string' => themekey_format_rule_as_string($record->id),
+        'childs' => themekey_features_load_rule_childs($module_name, $record->id),
+      );
+    }
+  }
+
+  return $rules;
+}
+
+/**
+ * Takes a serialized ThemeKey Rule Chain as created by
+ * themekey_features_load_rule_childs() and adds it to
+ * the current one in the database with it.
+ * Conflicting rules will be stored as well, but disabled.
+ *
+ * @param string $module
+ *   The name of the feature module whose components should be reverted.
+ * @param $childs
+ *   serialized ThemeKey Rule Chain as array
+ * @param $parent
+ *   internal use in recursion
+ */
+function themekey_features_save_rule_childs($module, $childs, $force = FALSE, $parent = 0, $enabled = 1) {
+  module_load_include('inc', 'themekey', 'themekey_build');
+
+  foreach ($childs as $child) {
+    $child['rule']['parent'] = $parent;
+
+    $id = db_select('themekey_properties', 'tp')
+      ->fields('tp', array('id'))
+      ->condition('property', $child['rule']['property'])
+      ->condition('operator', $child['rule']['operator'])
+      ->condition('value', $child['rule']['value'])
+      ->condition('parent', $child['rule']['parent'])
+      ->condition('module', $module)
+      ->condition('enabled', 0)
+      ->execute()
+      ->fetchField();
+
+    if ($id) {
+      // re-enable a disabled rule
+      $child['rule']['id'] = $id;
+    }
+
+    try {
+      themekey_rule_set($child['rule'], $module);
+    }
+    catch (ThemeKeyRuleConflictException $e) {
+      // disable a conflicting rule
+      if ($force) {
+        themekey_rule_disable($e->getCode());
+      }
+      else {
+        $child['rule']['enabled'] = 0;
+      }
+      themekey_rule_set($child['rule'], $module);
+      drupal_set_message(t('ThemeKey rule %rule has been disabled because it conflicts with an existing one.', array('%rule' => $child['string'])), 'warning');
+    }
+    themekey_features_save_rule_childs($module, $child['childs'], $force, $child['rule']['id'], $child['rule']['enabled']);
+  }
+}
+
+
+function themekey_features_get_rule_cascade_string($rule) {
+  $string = trim($rule['string'], '"');
+  if (!empty($rule['childs'])) {
+    return preg_replace('/>>>.+$/', '>>> ... ' . t('rule cascade'), $string);
+  }
+  return $string;
+}

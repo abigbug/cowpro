@@ -1,0 +1,180 @@
+<?php
+/*
+ * @file
+ * This module allows users to be registered without the necessity to
+ * inform an e-mail. Therefore, the e-mail field is non-mandatory.
+ * Thanks to http://drupal.org/node/747824#comment-4038044  for the
+ * initial code.
+ *
+ */
+
+/**
+ * Test if the module No Request New Password exists.
+ */
+function optional_mail_on_register_check_noreqnewpass() {
+  $nrnpmsg = '';
+  if (($_GET['q'] == 'admin/config/people/accounts') && (variable_get('optionalmail_register', 0) == '1') && (module_exists('noreqnewpass') == FALSE)) {
+    $nrnpmsg = t('We recommend the module <a href="@moduleurl">No Request New Password</a> as a complement to Optional mail on register. It removes the ability to do a password reset via email.', array('@moduleurl' => url('http://drupal.org/project/noreqnewpass')));
+  }
+  return $nrnpmsg;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function optional_mail_on_register_form_alter(&$form, &$form_state, $form_id) {
+  switch ($form_id) {
+    case 'user_register_form':
+      if (variable_get('optionalmail_register', 0) == '1') {
+        $form['mail']['#required'] = FALSE;
+        $form['account']['mail']['#required'] = FALSE;
+        switch (variable_get('optionalmail_alterfield_register', 'field visible')) {
+          case 'field disabled':
+            $form['mail']['#disabled'] = TRUE;
+            $form['account']['mail']['#disabled'] = TRUE;
+            break;
+          case 'field hidden':
+            $form['mail']['#prefix'] = '<div style="display: none">';
+            $form['mail']['#suffix'] = '</div>';
+
+            $form['account']['mail']['#prefix'] = '<div style="display: none">';
+            $form['account']['mail']['#suffix'] = '</div>';
+            break;
+        }
+        $form['#validate'][0] = 'optional_mail_on_register_form_validate';
+      }
+      break;
+    case 'user_profile_form':
+      if (variable_get('optionalmail_edit', 0) == '1') {
+        $form['account']['mail']['#required'] = FALSE;
+        switch (variable_get('optionalmail_alterfield_edit', 'field visible')) {
+          case 'field disabled':
+            $form['account']['mail']['#disabled'] = TRUE;
+            break;
+          case 'field hidden':
+            $form['account']['mail']['#prefix'] = '<div style="display: none">';
+            $form['account']['mail']['#suffix'] = '</div>';
+            break;
+        }
+        $form['#validate'][0] = 'optional_mail_on_register_form_validate';
+      }
+      break;
+    case 'user_admin_settings':
+      // Add some css and js to admin user settings' page.
+      $form['#attached']['css'] = array(
+        drupal_get_path('module', 'optional_mail_on_register') . '/optional_mail_on_register.css'
+      );
+      $form['#attached']['js'] = array(
+        drupal_get_path('module', 'optional_mail_on_register') . '/optional_mail_on_register.js'
+      );
+      // Test if the feature is On and disable the email verification on
+      // new accounts.
+      if (variable_get('optionalmail_register', 0) == '1') {
+        $form['registration_cancellation']['user_email_verification']['#disabled'] = TRUE;
+        $form['registration_cancellation']['user_email_verification']['#title'] .= ' <strong>Disabled by the Optional Mail on Register module</strong>.';
+        if (module_exists('contact')) {
+          $form['contact']['contact_default_status']['#disabled'] = TRUE;
+          $form['contact']['contact_default_status']['#title'] .= ' <strong>Disabled by the Optional Mail on Register module</strong>.';
+        }
+      }
+      $form['optionalmail_settings'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Optional mail on register settings'),
+        '#weight' => -10,
+        '#description' => optional_mail_on_register_check_noreqnewpass(),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+      );
+      $form['optionalmail_settings']['optionalmail_register'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Enable optional email in the user register'),
+        '#default_value' => variable_get('optionalmail_register', 0),
+        '#return_value' => 1,
+      );
+      $form['optionalmail_settings']['optionalmail_alterfield_register'] = array(
+        '#type' => 'radios',
+        '#default_value' => variable_get('optionalmail_alterfield_register', 'field visible'),
+        '#prefix' => '<div id="optionalmail-radios-options-1" class="optionalmail-radios-options">',
+        '#suffix' => '</div>',
+        '#options' =>
+        array(
+          'field visible' => t('Leave the e-mail field visible and editable in the user register form.'),
+          'field disabled' => t('Disable the e-mail field in user register form.'),
+          'field hidden' => t('Hide the e-mail field in the user register form.'),
+        ),
+      );
+      $form['optionalmail_settings']['optionalmail_edit'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Enable optional email in the user edition'),
+        '#default_value' => variable_get('optionalmail_edit', 0),
+        '#return_value' => 1,
+      );
+      $form['optionalmail_settings']['optionalmail_alterfield_edit'] = array(
+        '#type' => 'radios',
+        '#default_value' => variable_get('optionalmail_alterfield_edit', 'field visible'),
+        '#prefix' => '<div id="optionalmail-radios-options-2" class="optionalmail-radios-options">',
+        '#suffix' => '</div>',
+        '#options' =>
+        array(
+          'field visible' => t('Leave the e-mail field visible and editable in the user profile edit form.'),
+          'field disabled' => t('Disable the e-mail field in user profile edit form.'),
+          'field hidden' => t('Hide the e-mail field in the user profile edit form.'),
+        ),
+      );
+      if (module_exists('contact')) {
+        $form['optionalmail_settings']['user_contact_form'] = array(
+          '#type' => 'checkbox',
+          '#default_value' => variable_get('user_contact_form', FALSE),
+          '#title' => t("Disable the user's contact form in all users"),
+          '#return_value' => 1,
+        );
+      }
+      $form['#submit'][] = 'optional_mail_on_register_optionalmail_settings_submit';
+      break;
+  }
+}
+
+/**
+ * Implements hook_form_submit().
+ */
+function optional_mail_on_register_optionalmail_settings_submit($form, &$form_state) {
+  if ($form_state['values']['optionalmail_register'] == '1') {
+    drupal_set_message(t('A request for mail in the register of new users is now optional. Email check for new user accounts has been disabled.'), 'status');
+    variable_set('user_email_verification', FALSE);
+    if (module_exists('contact')) {
+      variable_set('contact_default_status', FALSE);
+    }
+  }
+  if ($form_state['values']['optionalmail_edit'] == '1') {
+    drupal_set_message(t('The email field in the user edit form is now optional.'), 'status');
+  }
+  if (module_exists('contact') && $form_state['values']['user_contact_form'] == '1') {
+    $uids = db_select('users', 'u')->fields('u', array('uid'))->condition('uid', 0, '<>')->execute()->fetchAssoc();
+    foreach ($uids as $uid) {
+      $user  = user_load($uid);
+      if ($user->data['contact'] == 1) {
+        $user->data['contact'] = 0;
+        user_save($user);
+      }
+    }
+  }
+  drupal_set_message(optional_mail_on_register_check_noreqnewpass(), 'status');
+}
+
+/**
+ * Performs user register validation, fooling the lack of e-mail in
+ * registration
+ */
+function optional_mail_on_register_form_validate($form, &$form_state) {
+  // If no email value, then stuff a temp one to fool the validation.
+  if ($form_state['values']['mail'] == NULL) {
+    // A unique non-existent email.
+    $form_state['values']['mail'] = 'nobody@nowhere.com';
+  }
+  // Call original system validation.
+  user_account_form_validate($form, $form_state);
+  // Stuff empty back again.
+  if ($form_state['values']['mail'] == 'nobody@nowhere.com') {
+    $form_state['values']['mail'] = '';
+  }
+}

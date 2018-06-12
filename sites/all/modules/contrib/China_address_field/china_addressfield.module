@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * A Field offering province, city, and county of China.
+ */
+
+/**
+ * Implements of hook_ctools_plugin_dierctory().
+ */
+function china_addressfield_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'addressfield' && !empty($plugin)) {
+    return "plugins/$plugin";
+  }
+}
+

@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Database schema of
+ * @see themekey_css.module
+ *
+ * @author Markus Kalkbrenner | bio.logis GmbH
+ *   @see http://drupal.org/user/124705
+ */
+
+
+/**
+ * Implements hook_schema().
+ */
+function themekey_css_schema() {
+  module_load_include('install', 'themekey');
+  $themekey_schema = themekey_schema();
+
+  $schema = array();
+  $schema['themekey_css_rules'] = $themekey_schema['themekey_properties'];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function themekey_css_uninstall() {
+  variable_del('themekey_css_files');
+}
+

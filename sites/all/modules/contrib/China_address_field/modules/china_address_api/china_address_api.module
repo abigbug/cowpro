@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * @file
+ * A Field offering province, city, and county of China.
+ */
+define('CHINA_ADDRESS_API_PROVINCE', 1);
+define('CHINA_ADDRESS_API_CITY', 2);
+define('CHINA_ADDRESS_API_COUNTY', 3);
+
+/**
+ * Determine what kind of level to display the field.
+ */
+function china_address_api_get_province_list($language = 'en') {
+  $provinces = &drupal_static(__FUNCTION__);
+  if (!isset($provinces)) {
+    if($cache = cache_get('china_address_api_provices_' . $language)) {
+      $provinces = $cache->data;
+    } else {
+      $field = $language == 'en' ? 'region_name_py' : 'region_name_cn';
+      $rows = db_select('china_address_api', 'a')
+            ->fields('a', array($field))
+            ->condition('parent_id', 1)
+            ->condition('region_type', CHINA_ADDRESS_API_PROVINCE)
+            ->condition('status', 1)
+            ->orderBy('weight', 'ASC')
+            ->execute()
+            ->fetchCol();
+      $provinces = drupal_map_assoc($rows);
+      cache_set('china_address_api_provices_' . $language, $provinces, 'cache');
+    }
+  }
+  //dsm($ret, 'province list');
+  return $provinces;
+}
+
+function china_address_api_get_city_list_by_id($province_id = 2, $language = 'en') {
+  $field = $language == 'en' ? 'region_name_py' : 'region_name_cn';
+  $rows = db_select('china_address_api', 'a')
+            ->fields('a', array($field))
+            ->condition('parent_id', $province_id)
+            ->condition('region_type', CHINA_ADDRESS_API_CITY)
+            ->execute()
+            ->fetchCol();
+  return drupal_map_assoc($rows);
+}
+
+function china_address_api_get_city_list_by_name($province_name = 'Jiangsu', $language = 'en') {
+  $cities = &drupal_static(__FUNCTION__ . $province_name . '_' . $language);
+  if(!isset($cities)) {
+    if ($cache = cache_get('china_address_api_cities_' . $province_name . '_' . $language)) {
+      $cities = $cache->data;
+    } else {
+      $province_id = china_address_api_get_id_by_name($province_name, CHINA_ADDRESS_API_PROVINCE, $language);
+      $cities = china_address_api_get_city_list_by_id($province_id, $language);
+      cache_set('china_address_api_cities_' . $province_name . '_' . $language, $cities, 'cache');
+    }
+  }
+  return $cities;
+}
+function china_address_api_get_county_list_by_id($city_id = 222, $language = 'en') {
+  $field = $language == 'en' ? 'region_name_py' : 'region_name_cn';
+  $rows = db_select('china_address_api', 'a')
+            ->fields('a', array($field))
+            ->condition('parent_id', $city_id)
+            ->condition('region_type', CHINA_ADDRESS_API_COUNTY)
+            ->execute()
+            ->fetchCol();
+  return drupal_map_assoc($rows);
+}
+
+function china_address_api_get_county_list_by_name($city_name = 'Wuxi', $language = 'en') {
+  $counties = drupal_static(__FUNCTION__ . $city_name . '_' . $language);
+  if (!isset($counties)) {
+    if ($cache = cache_get('china_address_api_counties_' . $city_name . '_' . $language)) {
+      $counties = $cache->data;
+    } else {
+      $city_id = china_address_api_get_id_by_name($city_name, CHINA_ADDRESS_API_CITY, $language);
+      $counties = china_address_api_get_county_list_by_id($city_id, $language);
+      cache_set('china_address_api_counties_' . $city_name . '_' . $language, $counties, 'cache');
+    }
+  }
+  return $counties;
+}
+
+function china_address_api_get_id_by_name($region_name, $type = CHINA_ADDRESS_API_PROVINCE, $language) {
+  $field = $language == 'en' ? 'region_name_py' : 'region_name_cn';
+  $region_id = db_select('china_address_api', 'a')
+                    ->fields('a', array('region_id'))
+                    ->condition($field, $region_name)
+                    ->condition('region_type', $type)
+                    ->execute()
+                    ->fetchField();
+  return $region_id;
+}

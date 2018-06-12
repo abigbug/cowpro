@@ -1,0 +1,107 @@
+<?php
+
+/**
+ * @file
+ * Install  functions for China address api.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function china_address_api_schema() {
+  $schema['china_address_api'] = array(
+    'fields' => array(
+      'region_id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'parent_id' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'region_name_py' => array(
+        'type' => 'varchar',
+        'length' => 120,
+        'not null' => TRUE,
+      ),
+      'region_name_cn' => array(
+        'type' => 'varchar',
+        'length' => 120,
+        'not null' => TRUE,
+      ),
+      'region_type' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 2,
+        'size' => 'tiny',
+      ),
+      'agency_id' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'small',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'big',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+    ),
+    'indexes' => array(
+      'parent_id' => array('parent_id'),
+      'region_type' => array('region_type'),
+      'agency_id' => array('agency_id'),
+    ),
+    'primary key' => array('region_id'),
+  );
+
+  return $schema;
+}
+/**
+ * Implements hook_install().
+ */
+function china_address_api_install() {
+  $header = get_csv_header(__DIR__ . '/china_address_api.csv');
+  $fp = fopen(__DIR__ . '/china_address_api.csv', 'r');
+  $i = 0;
+  while ($row = fgetcsv($fp, 100, ',')) {
+    if ($i == 0) {
+      $i++;
+      continue;
+    }
+    $field = array_combine($header, $row);
+    $region_id = array_shift($field);
+    db_merge('china_address_api')
+      ->key(array('region_id' => $region_id))
+      ->fields($field)
+      ->execute();
+    //var_dump($row);
+    $i++;
+  }
+  fclose($fp);
+}
+
+function china_address_api_uninstall() {
+  drupal_uninstall_schema('china_address_api');
+}
+
+
+function get_csv_header($file = 'china_address_api.csv') {
+  static $header;
+  if (isset($header)) {
+    return $header;
+  } else {
+    $fp = fopen($file, 'r');
+    $header = fgetcsv($fp, ',');
+    fclose($fp);
+    return $header;
+  }
+}

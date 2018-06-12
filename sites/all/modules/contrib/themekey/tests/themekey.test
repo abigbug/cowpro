@@ -1,0 +1,98 @@
+<?php
+
+
+/**
+ * @file
+ * Implements tests for the theme switching rules.
+ */
+
+
+class ThemekeyWebTestCase extends DrupalWebTestCase {
+  /**
+   * @var stdClass
+   *   drupal user with permission to administer ThemeKey.
+   */
+  protected $privileged_user;
+
+  /**
+   * @var int
+   *   contains the rule id of the rule created by the last call to
+   *   ThemekeyWebTestCase::addThemeKeyRule().
+   */
+  public $last_rule_id;
+
+  public function setUp() {
+    $modules = func_get_args();
+    if (empty($modules)) {
+      $modules = array();
+    }
+    else {
+      $modules = $modules[0];
+    }
+    $modules = array_unique(array_merge(array('themekey_simpletest', 'themekey', 'themekey_compat', 'themekey_ui', 'themekey_debug'), $modules));
+
+    parent::setUp($modules);
+
+    $this->privileged_user = $this->drupalCreateUser(array('administer theme assignments', 'administer themekey settings'));
+    $this->drupalLogin($this->privileged_user);
+    theme_enable(array('garland', 'seven'));
+  }
+
+  public function simplePropertyTest($property, $operator, $value, $url = array()) {
+    debug($property . $operator . $value, 'Testing Rule');
+
+    $url += array(
+      'path' => '<front>',
+      'options' => array(),
+    );
+
+    // load page
+    $this->drupalGet($url['path'], $url['options']);
+    // theme is bartik
+    $this->assertTheme('bartik');
+    // create ThemeKey Rule
+    $this->addThemeKeyRule($property, $operator, $value, 'garland');
+    // load page
+    $this->drupalGet($url['path'], $url['options']);
+    // theme is garland
+    $this->assertTheme('garland');
+  }
+
+
+  public function assertTheme($theme) {
+    $this->assertRaw('themes/' . $theme, 'current theme is ' . $theme);
+  }
+
+  public function addThemeKeyRule($property, $operator, $value, $theme, $enabled = '1', $wildcard = '', $parent = 0) {
+    $edit = array(
+      'new_item[property]' => $property,
+      'new_item[wildcard]' => $wildcard,
+      'new_item[operator]' => $operator,
+      'new_item[value]' => $value,
+      'new_item[theme]' => $theme,
+      'new_item[enabled]' => $enabled,
+    );
+    $this->drupalPost('admin/config/user-interface/themekey/properties', $edit, t('Save configuration'));
+
+    foreach (array_reverse(themekey_load_rules()) as $rule) {
+      if (
+        ($rule['property'] == $property || (!empty($wildcard) && $rule['property'] == $wildcard)) &&
+        $rule['operator'] == $operator &&
+        $rule['value'] == $value &&
+        $rule['theme'] == $theme &&
+        $rule['enabled'] == $enabled
+      ) {
+       $this->last_rule_id = $rule['id'];
+       break;
+      }
+    }
+
+    if ($parent) {
+      $edit = array(
+        'old_items[' . $this->last_rule_id . '][parent]' => $parent,
+      );
+
+      $this->drupalPost('admin/config/user-interface/themekey/properties', $edit, t('Save configuration'));
+    }
+  }
+}

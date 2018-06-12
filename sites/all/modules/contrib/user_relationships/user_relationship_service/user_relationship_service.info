@@ -1,0 +1,13 @@
+name = User Relationships Services
+description = "Provides functions of User Relationships to Services module."
+package = "User Relationships"
+core = 7.x
+dependencies[] = services
+dependencies[] = user_relationships
+
+; Information added by Drupal.org packaging script on 2015-09-20
+version = "7.x-1.0-alpha6+2-dev"
+core = "7.x"
+project = "user_relationships"
+datestamp = "1442757557"
+

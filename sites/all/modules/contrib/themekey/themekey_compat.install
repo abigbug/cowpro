@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Cleans up variables when uninstalling
+ * @see themekey_compyt.module
+ *
+ * @author Markus Kalkbrenner | bio.logis GmbH
+ *   @see http://drupal.org/user/124705
+ */
+
+
+/**
+ * Implements hook_uninstall().
+ */
+function themekey_compat_uninstall() {
+  // Remove variables
+  variable_del('themekey_compat_modules_enabled');
+  variable_del('themekey_compat_modules_no_default_theme');
+}

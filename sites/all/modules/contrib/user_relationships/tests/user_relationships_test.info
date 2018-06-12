@@ -1,0 +1,10 @@
+name = User Relationships Test module
+description = Contains test hooks and soft dependencies for tests.
+
+dependencies[]=i18n
+; Information added by Drupal.org packaging script on 2015-09-20
+version = "7.x-1.0-alpha6+2-dev"
+core = "7.x"
+project = "user_relationships"
+datestamp = "1442757557"
+

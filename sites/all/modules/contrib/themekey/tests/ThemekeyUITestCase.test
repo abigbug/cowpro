@@ -1,0 +1,138 @@
+<?php
+
+
+/**
+ * @file
+ * Implements tests for the theme switching rules.
+ */
+
+class ThemekeyUITestCase extends ThemekeyWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'ThemeKey UI',
+      'description' => 'Test the ThemeKey UI features.',
+      'group' => 'ThemeKey',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array('contact', 'blog'));
+
+    $edit = array(
+      'themekey_ui_selectable_themes[bartik]' => 1,
+      'themekey_ui_selectable_themes[garland]' => 1,
+      'themekey_ui_author' => 1,
+    );
+    $this->drupalPost('admin/config/user-interface/themekey/settings/ui', $edit, t('Save configuration'));
+
+    $this->drupalLogout();
+
+    $this->content_user = $this->drupalCreateUser(array(
+      'assign theme to own nodes',
+      'create article content',
+      'create blog content',
+    ));
+    $this->registered_user = $this->drupalCreateUser(array(
+      'access user contact forms',
+    ));
+
+    variable_set('node_admin_theme', 0);
+  }
+
+  public function setThemeForOwnContent($theme) {
+    $edit = array(
+      'themekey_ui_theme' => $theme,
+    );
+    $this->drupalPost('user/' . $this->content_user->uid . '/edit', $edit, t('Save'));
+  }
+
+  public function enableContactForm() {
+    $edit = array(
+      'contact' => 1,
+    );
+    $this->drupalPost('user/' . $this->content_user->uid . '/edit', $edit, t('Save'));
+  }
+
+  public function testAuthorTriggersTheme() {
+    $this->drupalLogin($this->content_user);
+
+    $this->enableContactForm();
+
+    $this->drupalLogout();
+    $this->drupalLogin($this->registered_user);
+
+    $this->drupalGet('user/' . $this->content_user->uid . '/contact');
+    $this->assertTheme('bartik');
+
+    $this->drupalLogout();
+    $this->drupalLogin($this->content_user);
+
+    $this->drupalGet('node/add');
+    $this->assertTheme('bartik');
+
+    $this->drupalGet('node/add/article');
+    $this->assertTheme('bartik');
+
+    $node = $this->drupalCreateNode();
+
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertTheme('bartik');
+
+    $this->drupalGet('user');
+    $this->assertTheme('bartik');
+
+    $this->drupalGet('user/' . $this->content_user->uid);
+    $this->assertTheme('bartik');
+
+    $this->setThemeForOwnContent('garland');
+
+    $this->drupalGet('node/add');
+    $this->assertTheme('garland');
+
+    $this->drupalGet('node/add/article');
+    $this->assertTheme('garland');
+
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertTheme('garland');
+
+    $this->drupalGet(''); // front page
+    $this->assertTheme('bartik');
+
+    $this->drupalGet('user');
+    $this->assertTheme('garland');
+
+    $this->drupalGet('user/' . $this->content_user->uid);
+    $this->assertTheme('garland');
+
+    $this->drupalLogout();
+
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertTheme('garland');
+
+    $this->drupalGet(''); // front page
+    $this->assertTheme('bartik');
+
+    $this->drupalGet('user'); // user login form when anonymous
+    $this->assertTheme('bartik');
+
+    $this->drupalGet('user/' . $this->content_user->uid);
+    $this->assertTheme('garland');
+
+    $this->drupalLogin($this->registered_user);
+
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertTheme('garland');
+
+    $this->drupalGet(''); // front page
+    $this->assertTheme('bartik');
+
+    $this->drupalGet('user'); // user login form when anonymous
+    $this->assertTheme('bartik');
+
+    $this->drupalGet('user/' . $this->content_user->uid);
+    $this->assertTheme('garland');
+
+    $this->drupalGet('user/' . $this->content_user->uid . '/contact');
+    $this->assertTheme('garland');
+  }
+}

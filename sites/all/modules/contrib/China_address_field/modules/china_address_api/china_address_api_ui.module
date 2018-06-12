@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function china_address_api_ui_menu() {
+  $items = array();
+  $items['admin/config/user-interface/china-addressfield'] = array(
+    'title' => t('China addressfield config'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('china_address_api_config_form'),
+    'access arguments' => array('administer China address api'),
+    'file' => 'china_address_api_ui.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permissions().
+ */
+function china_address_api_ui_permission() {
+  return array(
+    'administer China address api' => array(
+      'title' => t('Administer China address api'),
+      'description' => t('Perform administration tasks for China addrss api.'),
+    ),
+  );
+}
+
+/**
+ * Implement hook_theme().
+ */
+function china_address_api_ui_theme() {
+  return array(
+    'china_address_api_config_form' => array(
+      'render element' => 'form',
+      'file' => 'china_address_api_ui.admin.inc'
+    ),
+  );
+}
