@@ -137,6 +137,16 @@ function _cowpro_issuing_bid_form_validate($form, &$form_state) {
 		if ($form_state ['values']['amount'] > 200000) {
 			form_set_error ( 'bid', '当投资金额大于二十万元的时候，请拆分成多笔资金分别投资' );
 		}
+		global $user;
+		$balance = cowpro_fund_get_balance($user->uid);
+		$availableAmount = 0;
+		if ($balance ['success']) {
+		    $availableAmount = $balance['balance'];
+		}
+		if ($form_state ['values']['amount'] > $availableAmount) {
+		    form_set_error ( 'bid', '账户余额不足' );
+		}
+		
 		module_invoke_all ( 'cowpro_issuing_bid_form_validate', $form, $form_state );
 	}
 }
