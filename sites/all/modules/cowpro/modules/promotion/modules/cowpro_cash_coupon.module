@@ -1,0 +1,184 @@
+<?php
+
+// 获取代金券显示在投资页面
+function cowpro_cash_coupon_cowpro_issuing_bid_form($form, $form_state) {
+	global $user;
+	// 获取表里该用户未使用并且没过期的代金券
+	$term = current ( taxonomy_get_term_by_name ( '代金券' ) );
+	$result = db_query ( "SELECT txn_id,points FROM {userpoints_txn} WHERE uid=" . $user->uid . " AND tid=" . $term->tid . " AND expired=0 AND points>0" );
+	if ($result !== FALSE) {
+		// 将代金券输出为数组显示在投资页面,默认选项是“不使用代金券”,值为0
+		$item_points = array ();
+		$item_points['0_0'] = '不使用代金券';
+		foreach ( $result as $data ) {
+			$item_points [$data->txn_id . "_" . $data->points] = $data->points . "元代金券";
+		}
+		$items = array ();
+		$items ['voucher'] = array (
+				'#type' => 'select',
+				'#title' => '代金券选项',
+				'#options' => $item_points,
+				'#description' => '',
+		);
+		return $items;
+	}
+}
+
+// 代金券使用验证
+function cowpro_cash_coupon_cowpro_issuing_bid_form_validate($form, $form_state) {
+	if ($form_state ['values'] ['voucher'] != '0_0') {
+		$right_voucher = end ( explode ( '_', $form_state ['values'] ['voucher'] ) );
+                $userpoint_txn_array  = explode ( '_', $form_state ['values'] ['voucher'] );
+                $userpoint_txn_id = $userpoint_txn_array[0];
+                $reference = db_query("SELECT reference FROM {userpoints_txn} WHERE txn_id=$userpoint_txn_id")->fetchField();
+                if( $reference == "raffle" ) {//积分抽奖规则
+                    if ($form_state ['values'] ['amount'] < 10000) {
+                            if ($right_voucher == 10) {
+                                    form_set_error ( 'bid', '投资金额大于10000才能使用10元代金券' );
+                            }
+                    }
+                    
+                    if ($form_state ['values'] ['amount'] < 20000) {
+                            if ($right_voucher == 30) {
+                                    form_set_error ( 'bid', '投资金额大于30000才能使用30元代金券' );
+                            }
+                    }
+                    
+                    if ($form_state ['values'] ['amount'] < 30000) {
+                            if ($right_voucher == 50) {
+                                    form_set_error ( 'bid', '投资金额大于30000才能使用50元代金券' );
+                            }
+                    }
+                    
+                     if ($form_state ['values'] ['amount'] < 50000) {
+                            if ($right_voucher == 100) {
+                                    form_set_error ( 'bid', '投资金额大于50000才能使用100元代金券' );
+                            }
+                    }
+                }else if( $reference == "zongzi" ){//端午节抽奖
+                     $node = node_load($form_state['nid']);
+                     $term = $node->field_issuing[LANGUAGE_NONE][0]['loan_term'];
+                     if ($form_state ['values'] ['amount'] < 20000 || $term < 180) {
+                            if ($right_voucher == 10) {
+                                    form_set_error ( 'bid', '投资金额大于20000，投资期限大于6个月才能使用20元代金券' );
+                            }
+                     }
+                     
+                     if ($form_state ['values'] ['amount'] < 40000 || $term < 180) {
+                            if ($right_voucher == 20) {
+                                    form_set_error ( 'bid', '投资金额大于40000，投资期限大于6个月才能使用20元代金券' );
+                            }
+                     }
+                     
+                     if ($form_state ['values'] ['amount'] < 100000 || $term < 180) {
+                            if ($right_voucher == 50) {
+                                    form_set_error ( 'bid', '投资金额大于100000，投资期限大于6个月才能使用20元代金券' );
+                            }
+                     }
+                }else if( $reference == "zongzi_online" ){//端午节线上小程序
+                     if ($form_state ['values'] ['amount'] < 5000) {
+                            if ($right_voucher == 5) {
+                                    form_set_error ( 'bid', '投资金额大于5000才能使用5元代金券' );
+                            }
+                    }
+                    
+                     if ($form_state ['values'] ['amount'] < 10000) {
+                            if ($right_voucher == 10) {
+                                    form_set_error ( 'bid', '投资金额大于10000才能使用10元代金券' );
+                            }
+                    }
+                    
+                     if ($form_state ['values'] ['amount'] < 20000) {
+                            if ($right_voucher == 20) {
+                                    form_set_error ( 'bid', '投资金额大于20000才能使用20元代金券' );
+                            }
+                    }
+                    
+                     if ($form_state ['values'] ['amount'] < 50000) {
+                            if ($right_voucher == 50) {
+                                    form_set_error ( 'bid', '投资金额大于50000才能使用50元代金券' );
+                            }
+                    }
+                }else{
+                      
+                    if ($form_state ['values'] ['amount'] < 10000) {
+                            if ($right_voucher == 20) {
+                                    form_set_error ( 'bid', '投资金额大于10000才能使用20元代金券' );
+                            }
+                    }
+                    if ( $form_state ['values'] ['amount'] < 30000 ) {
+                            if ($right_voucher == 30) {
+                                    form_set_error ( 'bid', '投资金额大于30000且小于50000才能使用30元代金券' );
+                            }
+                    }
+                    if ( $form_state ['values'] ['amount'] < 50000 ) {
+                            if ($right_voucher == 50) {
+                                    form_set_error ( 'bid', '投资金额大于50000才能使用50元代金券' );
+                            }
+                    }
+                }
+              
+	}
+}
+
+// 投资提交
+function cowpro_cash_coupon_cowpro_issuing_bid_form_submit($form, $form_state) {
+	if ($form_state ['values'] ['voucher'] != '0_0') {
+		// 判断如果使用代金券就站内转账
+		global $user;
+		$txn_id = reset ( explode ( '_', $form_state ['values'] ['voucher'] ) ); // 获取代金券ID
+		$right_voucher = end ( explode ( '_', $form_state ['values'] ['voucher'] ) ); // 获取代金券金额
+
+		$uid_from = NULL;//user_load_by_name ( variable_get ( 'fund_imprest_account', '' ) )->uid; // 转出账户ID
+		$uid_to = $user->uid; // 转入账户ID
+		$amount = $right_voucher; // 转入金额
+		$comment = '代金券返现';
+
+		$result = custodian_cowpro_fund_internal_trans ( $uid_from, $uid_to, $amount, $comment);
+
+		if ($result ['success']) {
+			//$form_state['input']['amount'] = $form_state['input']['amount'] + $amount;
+			$term = current ( taxonomy_get_term_by_name ( '代金券' ) );
+			$desc = "投资使用代金券：" . $amount . "元代金券";
+			$issuing_id = $form_state ['nid'];
+			$params = array (
+					'txn_id' => $txn_id,
+					'uid' => $user->uid,
+					'points' => 0 - $amount,
+					'description' => $desc,
+					'display' => false,
+					'tid' => $term->tid,
+					'reference' => "draw:node:$issuing_id",
+					'expired' => true,
+			);
+			$result = userpoints_userpointsapi ( $params );
+			return true;
+		} else {
+			$message = '代金券转账失败:' . $result['message'] .	'(' . $result['result_code'] . ')';
+
+			drupal_set_message ( $message, 'error' );
+			return false;
+		}
+	} else {
+		return true;
+	}
+}
+
+/*
+ function cowpro_cash_coupon_cowpro_issuing_bid_finished($success, $nid, $journal_id) {
+ ctools_include ( 'modal' );
+ ctools_include ( 'ajax' );
+ $commands = array ();
+ $url = $GLOBALS['base_url'] . '/cowpro/draw';
+ $delay = 0;
+ $options = array ();
+ $options ['query'] = array (
+ 'success' => $success,
+ 'nid' => $nid,
+ 'journal_id' => $journal_id
+ );
+ $commands [] = ctools_ajax_command_redirect ( $url, $delay, $options );
+ print ajax_render ( $commands );
+ drupal_exit ();
+ }
+ */
