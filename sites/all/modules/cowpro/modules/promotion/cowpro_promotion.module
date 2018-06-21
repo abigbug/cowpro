@@ -1,0 +1,504 @@
+<?php
+const NO_VOUCHERS = 'NO_VOUCHERS';
+
+/**
+ * Implementation of hook_menu()
+ */
+function cowpro_promotion_menu() {
+  $items['cowpro/promotion'] = array(
+    'title' => '推广活动',
+    'description' => '列出当前正在执行的推广活动',
+    'page callback' => 'cowpro_promotion_show',
+    'access arguments' => array(
+      'configure p2p'
+    ),
+    'type' => MENU_NORMAL_ITEM
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function cowpro_promotion_entity_info() {
+  $entity_info['cowpro_coupon_usage'] = array(
+    'label' => t('Cowpro Coupon Usage'),
+    'plural label' => t('Cowpro Coupon Usages'),
+    'controller class' => 'CowproCouponUsageEntityController',
+    'metadata controller class' => '',
+    'base table' => 'cowpro_coupon_usage',
+    'fieldable' => TRUE,
+    'entity keys' => array(
+      'id' => 'coupon_usage_id',
+      'label' => 'coupon usage',
+      'bundle' => '',
+    ),
+  );
+  
+  return $entity_info;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function cowpro_promotion_theme() {
+  return array(
+    'cowpro_promotion_info_list' => array(
+      'variables' => array(
+        'promotion_info_list' => NULL,
+        'coupon_info_list' => NULL
+      ),
+      'template' => 'cowpro-promotion-info-list'
+    )
+  );
+}
+
+/**
+ * 读取所有有效的推广活动的列表
+ */
+function cowpro_promotion_show() {
+  $promotion_info_list = cowpro_promotion_info_list();
+  $coupon_info_list = cowpro_coupon_info_list();
+  $html = theme('cowpro_promotion_info_list', array(
+    'promotion_info_list' => $promotion_info_list,
+    'coupon_info_list' => $coupon_info_list
+  ));
+  return $html;
+}
+
+/**
+ * 返回一个数组，数组中的项是每一个推广活动的信息.
+ */
+function cowpro_promotion_info_list() {
+  // First check the static cache for a promotion info array.
+  $promotion_info_list = &drupal_static(__FUNCTION__);
+  
+  // If it did not exist, fetch the info list now.
+  if (!isset($promotion_info_list)) {
+    $promotion_info_list = array();
+    
+    // Find promotion defined by hook_cowpro_promotion_info().
+    foreach (module_implements('cowpro_promotion_info') as $module) {
+      foreach (module_invoke($module, 'cowpro_promotion_info') as $key => $promotion_info) {
+        $promotion_info_list[$key] = $promotion_info;
+        $promotion_info_list[$key]['module'] = $module;
+      }
+    }
+    
+    // Last allow the info to be altered by other modules.
+    drupal_alter('cowpro_promotion_info', $promotion_info_list);
+  }
+  
+  return $promotion_info_list;
+}
+
+/**
+ * 返回一个数组，数组中的项是每一类代金券的信息.
+ */
+function cowpro_promotion_coupon_info_list() {
+  // First check the static cache for a coupon array.
+  $coupon_info_list = &drupal_static(__FUNCTION__);
+  
+  // If it did not exist, fetch the coupon list now.
+  if (!isset($coupon_info_list)) {
+    $coupon_info_list = array();
+    
+    // Find coupon defined by hook_cowpro_coupon_info().
+    foreach (module_implements('cowpro_coupon_info') as $module) {
+      foreach (module_invoke($module, 'cowpro_coupon_info') as $key => $coupon_info) {
+        $coupon_info_list[$key] = $coupon_info;
+        $coupon_info_list[$key]['module'] = $module;
+      }
+    }
+    
+    // Last allow the info to be altered by other modules.
+    drupal_alter('cowpro_coupon_info', $coupon_info_list);
+  }
+  
+  return $promotion_info_list;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function cowpro_promotion_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'cowpro_promotion') . '/includes/views'
+  );
+}
+
+/**
+ * Implements hook_modules_enabled().
+ */
+function cowpro_promotion_modules_enabled($modules) {
+  foreach ($modules as $module) {
+    if (module_hook($module, 'cowpro_coupon_info')) {
+      foreach (module_invoke($module, 'cowpro_coupon_info') as $key => $coupon_info) {
+        // 如果新安装的模块定义了“代金券”
+        // 那么，我们先在userpoints分类之下再创建一个新的分类
+        $term_name = $coupon_info['name'];
+        if (count(taxonomy_get_term_by_name($term_name))) {
+          $new_term = new stdClass();
+          $new_term->vid = userpoints_get_vid();
+          $new_term->name = $term_name;
+          taxonomy_term_save($new_term);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * 发放代金券给用户
+ *
+ * @param int $uid
+ *        接受代金券的用户id
+ * @param int $points
+ *        代金券面值
+ * @param string $name
+ *        代金券名称，如果未指定，就是指“普通积分”
+ * @param UNIX timestamp $expirydate
+ *        失效时间，如果未指定，就用 hook_cowpro_coupon_info() 里面定义的 expirydate
+ * @param string $description
+ *        备注
+ * @param string $reference
+ *        reserved for module specific use
+ * @param string $entity_type
+ *        参考（引用）的实体类型
+ * @param int $entity_id
+ *        参考（引用）的实体编号
+ * @return array
+ */
+function cowpro_promotion_grant_coupon($params) {
+  // Check if parameters are set.
+  $params_null_check = array('name', 'expirydate', 'description', 'reference', 'entity_id', 'entity_type');
+  foreach ($params_null_check as $param_null_check) {
+    if (!isset($params[$param_null_check])) {
+      $params[$param_null_check] = NULL;
+    }
+  }
+  $uid = $params['uid'];
+  $points = $params['points'];
+  $name = $params['name'];
+  $description = $params['description'];
+  $reference = $params['reference'];
+  $entity_type = $params['entity_type'];
+  $entity_id = $params['entity_id'];
+  $expirydate = $params['expirydate'];
+  
+  $module = $params['module'];
+  $search_field = $params['search_field'];
+  $data = $params['data'];
+  
+  $result = array();
+  $result['success'] = TRUE;
+  $result['message'] = '';
+  $coupon = null;
+  $tid = 0; // 积分
+  
+  if ($name !== null) {
+    $coupon = _cowpro_promotion_get_coupon_by_name($name);
+    if ($coupon === null) {
+      $result['success'] = FALSE;
+      $result['message'] = "未找到“$name”";
+    }
+    else 
+      if (_cowpro_promotion_valid_coupon_by_name($coupon, $points)) {
+        $result['success'] = FALSE;
+        $result['message'] = "面值不存在“$points";
+      }
+      else {
+        $term = current(taxonomy_get_term_by_name($coupon['name']));
+        $tid = $term->tid;
+      }
+  }
+  
+  if ($result['success'] === TRUE) {
+    if ($expirydate === NULL) {
+      $expirydate = _cowpro_promotion_get_coupon_expirydate($coupon);
+    }
+    $params = array(
+      'uid' => $uid,
+      'points' => $points,
+      'expirydate' => $expirydate, // timestamp or 0, 0 = non-expiring; NULL =
+                                   // site default
+      'description' => $description,
+      'reference' => $reference,
+      'display' => FALSE,
+      'entity_type' => $entity_type,
+      'entity_id' => $entity_id,
+      'tid' => $tid
+    );
+    $userpoints_result = userpoints_userpointsapi($params);
+    
+    if ($userpoints_result['status']) {
+      $txn_id = $userpoints_result['transaction']['txn_id'];
+      $entity_value = array(
+        'txn_id' => $txn_id,
+        'search_field' => $search_field,
+        'module' => $module,
+        'data' => $data,
+      );      
+      $entity = entity_create('cowpro_coupon_usage', $entity_value);
+      entity_get_controller('cowpro_coupon_usage')->save($entity);
+    }
+    
+    watchdog('COWPRO_PROMOTION', "uid:$uid;$desc", NULL, WATCHDOG_DEBUG);
+  }
+  return $result;
+}
+
+/**
+ * 使用代金券
+ *
+ * @param int $txn_id
+ *        指向 userpoints_txn 的 $txn_id
+ * @param int $points
+ *        代金券面值
+ * @param string $description
+ *        备注
+ * @param string $reference
+ *        reserved for module specific use
+ * @return array
+ */
+function cowpro_promotion_use_coupon($params) {
+  $txn_id = $params['txn_id'];
+  $points = $params['points'];
+  $description = $params['description'];
+  $reference = $params['reference'];
+  
+  $module = $params['module'];
+  $search_field = $params['search_field'];
+  $data = $params['data'];
+  
+  $params = array(
+    'txn_id' => $txn_id,
+    'points' => 0 - $points,
+    'description' => $description,
+    'display' => false,
+    'reference' => $reference,
+    'expired' => true
+  );
+  $result = userpoints_userpointsapi($params);
+
+  $entity_value = array(
+    'txn_id' => $txn_id,
+    'search_field' => $search_field,
+    'module' => $module,
+    'data' => $data,
+  );
+  $entity = entity_create('cowpro_coupon_usage', $entity_value);
+  entity_get_controller('cowpro_coupon_usage')->save($entity);
+}
+
+/**
+ * 按名字查找代金券的定义
+ *
+ * @param string $name
+ *        代金券名称
+ * @return unknown
+ */
+function _cowpro_promotion_get_coupon_by_name($name) {
+  $coupon_info_list = cowpro_coupon_info_list();
+  $coupon = null;
+  foreach ($coupon_info_list as $key => $coupon_info) {
+    if ($coupon_info['name'] === $name) {
+      $coupon = $coupon_info;
+      break;
+    }
+  }
+  return $coupon;
+}
+
+/**
+ * 将$coupon_info里面定义的expirydate转换为timestamp的格式并返回
+ *
+ * @param unknown $coupon_info
+ * @return UNIX timestamp
+ */
+function _cowpro_promotion_get_coupon_expirydate($coupon_info) {
+  // 有效期到XXX止(格式为'Y-m-d H:i:s')，
+  // 也可以按 DateInterval 的定义设置为过X天失效的形式(P8D，有效期八天)，
+  // 如果未设置，则长期有效
+  $valid_date = TRUE;
+  $valid_interval = TRUE;
+  if ((!array_key_exists('expirydate', $coupon_info)) || ($coupon_info['expirydate'] === null)) {
+    $expirydate = 0;
+  }
+  else {
+    $expiry = $coupon_info['expirydate'];
+    $format = 'Y-m-d H:i:s'; // 格式样例：'2018-03-05 25:12:08'
+    $expirydate = DateTime::createFromFormat($format, $expiry);
+    if ($expirydate === FALSE) {
+      $valid_date = FALSE;
+    }
+    if ($valid_date === FALSE) {
+      $interval = $coupon_info['expirydate'];
+      try {
+        $datainterval = new DateInterval($interval);
+        $expirydate = new DateTime('now');
+        $expirydate->add($datainterval);
+      }
+      catch (Exception $exception) {
+        $valid_interval = FALSE;
+      }
+    }
+    if (($valid_date === FALSE) && (($valid_date === FALSE))) {
+      watchdog('COWPRO_PROMOTION', 'invalid expirydate: ' . $coupon_info['expirydate'], NULL, WATCHDOG_ERROR);
+      $expirydate = new DateTime('now');
+    }
+    $expirydate = $expirydate->getTimestamp();
+  }
+  
+  return $expirydate;
+}
+
+function _cowpro_promotion_valid_coupon_denomination($coupon_info, $denomination) {
+  $result = TRUE;
+  if (array_key_exists('denominations', $coupon_info) && (!array_key_exists($denomination, $coupon_info['denominations']))) {
+    // hook_cowpro_coupon_info 定义了面值，但是我们要处理的面值不在定义中
+    $result = FALSE;
+  }
+  return $result;
+}
+
+/**
+ * 获取当前用户在指定标的上面可用的代金券列表
+ *
+ * @param int $nid
+ *        标的编号
+ * @return array 返回的数组结构如下：
+ * array(
+ *  module_name => array(
+ *    txn_id => points,
+ *  )
+ * )
+ */
+function cowpro_promotion_get_avaliable_coupon($nid) {
+  $args = func_get_args();
+  $hook = 'cowpro_promotion_avaliable_coupon';
+  $return = array();
+  foreach (module_implements($hook) as $module) {
+    $function = $module . '_' . $hook;
+    if (function_exists($function)) {
+      $result = call_user_func_array($function, $args);
+      if (isset($result)) {
+        $return[$module] = $result;
+      }
+    }
+  }
+  
+  return $return;
+}
+
+/**
+ * 获取代金券显示在投资页面
+ */
+function cowpro_promotion_cowpro_issuing_bid_form($form, $form_state) {
+  $voucher_opts = array ();
+  $voucher_opts[NO_VOUCHERS] = '不使用代金券';
+  $avaliable_coupons = cowpro_promotion_get_avaliable_coupon($form_state['nid']);
+  foreach ($avaliable_coupons as $module => $coupons) {
+    foreach ($coupons as $txn_id => $points) {
+      $function = $module . '_get_brief_intro';
+      if (function_exists($function)) {
+        $args = array($txn_id, $points);
+        $brief_intro = call_user_func_array($function, $args);
+      } else {
+        $brief_intro = "($module) $points 元代金券";
+      }
+      $voucher_opts[$module . '_' . $txn_id . '_' . $points] = $brief_intro;
+    }
+  }
+
+  $items = array ();
+  $items ['voucher'] = array (
+    '#type' => 'select',
+    '#title' => '代金券选项',
+    '#options' => $voucher_opts,
+    '#description' => '',
+  );
+  return $items;
+}
+
+/**
+ * 代金券使用验证
+ */
+function cowpro_promotion_cowpro_issuing_bid_form_validate($form, $form_state) {
+  $voucher = $form_state ['values'] ['voucher'];
+  if ($voucher === NO_VOUCHERS) {
+    return;
+  }
+  $split = explode ( '_', $form_state ['values'] ['voucher'] );
+  $module = $split[0];
+  $txn_id = $split[1];
+  $points = $split[2];
+  $bid_amount = $form_state ['values'] ['amount'];
+  $nid = $form_state ['values'] ['nid'];
+  $function = $module . '_bid_validate';
+  if (function_exists($function)) {
+    $args = array($txn_id, $points, $bid_amount, $nid);
+    $result = call_user_func_array($function, $args);
+    if ($result['success'] === FALSE) {
+      form_set_error('bid', $result['message']);
+    }
+  }
+}
+
+/**
+ * 投资提交
+ */
+function cowpro_promotion_cowpro_issuing_bid_form_submit($form, $form_state) {
+  $voucher = $form_state ['values'] ['voucher'];
+  if ($voucher === NO_VOUCHERS) {
+    return;
+  }
+  $split = explode ( '_', $form_state ['values'] ['voucher'] );
+  $module = $split[0];
+  $txn_id = $split[1];
+  $points = $split[2];
+  $bid_amount = $form_state ['values'] ['amount'];
+  $nid = $form_state ['values'] ['nid'];
+  $function = $module . '_bid_submit';
+  if (function_exists($function)) {
+    $args = array($txn_id, $points, $bid_amount, $nid);
+    $result = call_user_func_array($function, $args);
+    if ($result['success'] === FALSE) {
+      form_set_error('bid', $result['message']);
+    }
+  }
+}
+
+// nction 使用代金券
+/*
+ 仅用于测试，当用户登录的时候，触发cowpro_fund_bid_finished event
+ */
+/*
+ function cowpro_promotion_user_login(&$edit, $account) {
+ $uid = $GLOBALS ['user']->uid;
+ if ($uid != 70041) {//只有用户 bigbug 登录的时候，才触发后面的逻辑
+ return;
+ }
+ 
+ $issuing_id = 2500;
+ $period = 1;
+ $node = node_load($issuing_id);
+ 
+ $repayment_schedules = array();
+ $conditions = array (
+ 'issuing_id' => $issuing_id,
+ 'period' => $period,
+ //'status' => 'WAITING_FOR',
+ );
+ $reset = FALSE;
+ $schedules = entity_load ( 'cowpro_repayment_schedule', FALSE, $conditions, $reset );
+ foreach ($schedules as $schedule) {
+ if ($schedule->receiver_uid != -1) {
+ $repayment_schedules[] = $schedule;
+ }
+ }
+ 
+ rules_invoke_event('cowpro_fund_repayment_finished', TRUE, $node, $repayment_schedules);
+ }
+ */

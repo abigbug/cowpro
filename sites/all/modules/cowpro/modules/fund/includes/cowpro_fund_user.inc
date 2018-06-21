@@ -45,12 +45,12 @@ html;
 		$logout = "$base_url/user/logout";
 		$checkin = '';
 		$checkin_status = '';
-		if (module_exists('cowpro_rewards')) {
-			if (cowpro_rewards_have_checked_in ()) {
+		if (module_exists('cowpro_check_in')) {
+		  if (_cowpro_check_in_have_checked_in ()) {
 				$checkin = '#';
 				$checkin_status = '已签到';
 			} else {
-				$checkin = "$base_url/cowpro/rewards/check_in";
+				$checkin = "$base_url/cowpro/check_in";
 				$checkin_status = '签到';
 			}
 		}

@@ -1,0 +1,213 @@
+<?php
+
+function cowpro_cash_coupon_get_coupon_name() {
+  return '代金券';
+}
+
+/*
+ * 实现 hook_cowpro_coupon_info
+ */
+function cowpro_cash_coupon_cowpro_coupon_info() {
+  $items = array();
+  $items['cowpro_cash_coupon'] = array(
+    'name' => cowpro_cash_coupon_get_coupon_name(), // 代金券的名称（建议采用简单易懂的中文）
+    'description' => '', // 对代金券的简单说明
+    'expirydate' => null, // 有效期到X止(格式为'Y-m-d H:i:s')，也可以按 DateInterval
+                          // 的定义设置为过X天失效的形式(P8D，有效期八天)，如果未设置，则长期有效
+    'denominations' => array(
+      10 => '投资金额大于10000可使用10元代金券', // 数组中的每一项都是以面值作为 KEY，以说明作为 VALUE
+      30 => '投资金额大于20000可使用30元代金券',
+      50 => '投资金额大于30000可使用50元代金券',
+      100 => '投资金额大于50000可使用100元代金券'
+    ) // 定义不同的面值
+  );
+  return $items;
+}
+
+function cowpro_cash_coupon_cowpro_promotion_avaliable_coupon($nid) {
+  global $user;
+  // 获取表里该用户未使用并且没过期的代金券
+  $term = current(taxonomy_get_term_by_name(cowpro_cash_coupon_get_coupon_name()));
+  $result = db_query("SELECT txn_id,points FROM {userpoints_txn} WHERE uid=" . $user->uid . " AND tid=" . $term->tid . " AND expired=0 AND points>0");
+  if ($result !== FALSE) {
+    $item_points = array();
+    foreach ($result as $data) {
+      $item_points[$data->txn_id] = $data->points;
+    }
+    return $item_points;
+  }
+}
+
+function cowpro_cash_coupon_get_brief_intro($txn_id, $points) {
+  return "$points 元代金券";
+}
+
+// 代金券使用验证
+function cowpro_cash_coupon_bid_validate($txn_id, $points, $bid_amount, $nid) {
+  $result = array();
+  $result['success'] = TRUE;
+  $result['message'] = '';
+    
+  $reference = db_query("SELECT reference FROM {userpoints_txn} WHERE txn_id=$txn_id")->fetchField();
+  if ($reference == "raffle") { // 积分抽奖规则
+    if ($bid_amount < 10000) {
+      if ($points == 10) {
+        $result['success'] = FALSE;
+        $result['message'] = '投资金额大于10000才能使用10元代金券';
+      }
+    }
+    
+    if ($bid_amount < 20000) {
+      if ($points == 30) {
+        $result['success'] = FALSE;
+        $result['message'] = '投资金额大于20000才能使用30元代金券';
+      }
+    }
+    
+    if ($bid_amount < 30000) {
+      if ($points == 50) {
+        $result['success'] = FALSE;
+        $result['message'] = '投资金额大于30000才能使用50元代金券';
+      }
+    }
+    
+    if ($bid_amount < 50000) {
+      if ($points == 100) {
+        $result['success'] = FALSE;
+        $result['message'] = '投资金额大于50000才能使用100元代金券';
+      }
+    }
+  }
+  else 
+    if ($reference == "zongzi") { // 端午节抽奖
+      $node = node_load($form_state['nid']);
+      $term = $node->field_issuing[LANGUAGE_NONE][0]['loan_term'];
+      if ($bid_amount < 20000 || $term < 180) {
+        if ($points == 10) {
+          $result['success'] = FALSE;
+          $result['message'] = '投资金额大于20000，投资期限大于6个月才能使用20元代金券';
+        }
+      }
+      
+      if ($bid_amount < 40000 || $term < 180) {
+        if ($points == 20) {
+          $result['success'] = FALSE;
+          $result['message'] = '投资金额大于40000，投资期限大于6个月才能使用20元代金券';
+        }
+      }
+      
+      if ($bid_amount < 100000 || $term < 180) {
+        if ($points == 50) {
+          $result['success'] = FALSE;
+          $result['message'] = '投资金额大于100000，投资期限大于6个月才能使用20元代金券';
+        }
+      }
+    }
+    else 
+      if ($reference == "zongzi_online") { // 端午节线上小程序
+        if ($bid_amount < 5000) {
+          if ($points == 5) {
+            $result['success'] = FALSE;
+            $result['message'] = '投资金额大于5000才能使用5元代金券';
+          }
+        }
+        
+        if ($bid_amount < 10000) {
+          if ($points == 10) {
+            $result['success'] = FALSE;
+            $result['message'] = '投资金额大于10000才能使用10元代金券';
+          }
+        }
+        
+        if ($bid_amount < 20000) {
+          if ($points == 20) {
+            $result['success'] = FALSE;
+            $result['message'] = '投资金额大于20000才能使用20元代金券';
+          }
+        }
+        
+        if ($bid_amount < 50000) {
+          if ($points == 50) {
+            $result['success'] = FALSE;
+            $result['message'] = '投资金额大于50000才能使用50元代金券';
+          }
+        }
+      }
+      else {
+        if ($bid_amount < 10000) {
+          if ($points == 20) {
+            $result['success'] = FALSE;
+            $result['message'] = '投资金额大于10000才能使用20元代金券';
+          }
+        }
+        if ($bid_amount < 30000) {
+          if ($points == 30) {
+            $result['success'] = FALSE;
+            $result['message'] = '投资金额大于30000且小于50000才能使用30元代金券';
+          }
+        }
+        if ($bid_amount < 50000) {
+          if ($points == 50) {
+            $result['success'] = FALSE;
+            $result['message'] = '投资金额大于50000才能使用50元代金券';
+          }
+        }
+      }
+      return $result;
+}
+
+// 投资提交
+function cowpro_cash_coupon_bid_submit($txn_id, $points, $bid_amount, $nid) {
+    // 调用站内转账功能将代金券兑现
+    global $user;
+    $uid_from = NULL;
+    $uid_to = $user->uid; // 转入账户ID
+    $amount = $points; // 转入金额
+    $comment = '代金券返现';
+    
+    $trans_result = custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comment);
+    
+    if ($trans_result['success']) {
+      // $form_state['input']['amount'] = $form_state['input']['amount'] +
+      // $amount;
+      $term = current(taxonomy_get_term_by_name(cowpro_cash_coupon_get_coupon_name()));
+      $desc = "投资使用代金券：" . $amount . "元代金券";
+      $issuing_id = $nid;
+      $params = array(
+        'txn_id' => $txn_id,
+        'points' => $amount,
+        'description' => $desc,
+        'reference' => "draw:node:$issuing_id",
+      );
+      cowpro_promotion_use_coupon($params);
+      $result = array();
+      $result['success'] = FALSE;
+      $result['message'] = '';
+      return $result;
+    }
+    else {
+      $result = array();
+      $result['success'] = FALSE;
+      $result['message'] = '代金券转账失败:' . $trans_result['message'] . '(' . $trans_result['result_code'] . ')';
+      return $result;
+    }
+}
+
+/*
+ function cowpro_cash_coupon_cowpro_issuing_bid_finished($success, $nid, $journal_id) {
+ ctools_include ( 'modal' );
+ ctools_include ( 'ajax' );
+ $commands = array ();
+ $url = $GLOBALS['base_url'] . '/cowpro/draw';
+ $delay = 0;
+ $options = array ();
+ $options ['query'] = array (
+ 'success' => $success,
+ 'nid' => $nid,
+ 'journal_id' => $journal_id
+ );
+ $commands [] = ctools_ajax_command_redirect ( $url, $delay, $options );
+ print ajax_render ( $commands );
+ drupal_exit ();
+ }
+ */

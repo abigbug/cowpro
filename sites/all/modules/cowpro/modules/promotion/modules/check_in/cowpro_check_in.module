@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * Implementation of hook_menu()
+ */
+function cowpro_check_in_menu() {
+  $items['cowpro/check_in'] = array(
+    'title' => '签到',
+    'description' => '',
+    'page callback' => 'cowpro_check_in_call',
+    'page arguments' => array(),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_NORMAL_ITEM
+  );
+  return $items;
+}
+
+/*
+ * 实现 hook_cowpro_promotion_info
+ */
+function cowpro_check_in_cowpro_promotion_info() {
+  $items = array();
+  $items['cowpro_check_in'] = array(
+    'title' => '签到奖励积分',
+    'description' => '用户签到奖励积分1个，每天(当日零时到24时为一天)只允许签到一次',
+    'duration_begin' => null,//活动开始时间(格式为'Y-m-d H:i:s')，如果未设置，则即时开始
+    'duration_end' => null,//活动开始时间(格式为'Y-m-d H:i:s')，如果未设置，则活动一直有效
+    'event' => 'cowpro_promotion_user_check_in',//由此事件触发
+    'action' => 'cowpro_check_in_grant_points',//执行这个动作
+  );
+  return $items;
+}
+
+function cowpro_check_in_call() {
+  $uid = $GLOBALS['user']->uid;
+  if (_cowpro_check_in_have_checked_in()) {
+    drupal_set_message('亲，今天已经签过到啦，请明来再来！', 'warning');
+    drupal_goto('<front>');
+    return;
+  }
+  
+  db_merge('cowpro_checkin')->key(array(
+    'uid' => $uid
+  ))->fields(array(
+    'uid' => $uid,
+    'last_checkin' => time()
+  ))->execute();
+
+  $user = $GLOBALS['user'];
+  rules_invoke_event ( 'cowpro_promotion_user_check_in', $user);
+  
+  drupal_goto();
+}
+
+function _cowpro_check_in_have_checked_in() {
+  $uid = $GLOBALS['user']->uid;
+  $start_time = mktime(0, 0, 0, date("n"), date("j"), date("Y")); // 今天零时
+  $query = db_select('cowpro_checkin', 'checkin')->fields('checkin', array(
+    'uid',
+    'last_checkin'
+  ))->condition('uid', $uid)->condition('last_checkin', $start_time, '>');
+  
+  if ($query->execute()->fetchObject()) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}

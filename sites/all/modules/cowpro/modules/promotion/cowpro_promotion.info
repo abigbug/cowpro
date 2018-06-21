@@ -1,0 +1,13 @@
+; $Id
+name = "cowpro promotion"
+description = 为各类促销与推广活动提供基础架构
+dependencies[] = userpoints 
+dependencies[] = rules
+package = _CowPro
+core = 7.x
+files[] = cowpro_promotion.rules.inc
+files[] = includes/cowpro_coupon_usage.controller.inc
+
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro_promotion"

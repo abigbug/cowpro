@@ -1,0 +1,10 @@
+; $Id
+name = "cowpro raffle"
+description = 积分抽奖
+package = _CowPro
+core = 7.x
+
+
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro_raffle"

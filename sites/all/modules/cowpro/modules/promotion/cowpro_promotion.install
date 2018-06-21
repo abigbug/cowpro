@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function cowpro_promotion_schema() {
+  $schema['cowpro_coupon_usage'] = array(
+    'description' => 'Table for keeping track of coupon usage',
+    'fields' => array(
+      'coupon_usage_id' => array(
+        'description' => 'The primary identifier for this record.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'txn_id' => array(
+        'description' => 'The primary identifier for a coupon.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the record was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'search_field' => array(
+        'description' => '用于搜索data字段的内容.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'module' => array(
+        'description' => '处理交易以及解释data结构的模块.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'default' => '',
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => FALSE,
+        'serialize' => TRUE,
+        'description' => 'Everything else, serialized.',
+      ),
+    ),
+    'primary key' => array('coupon_usage_id'),
+    'foreign keys' => array(
+      'txn_id' => array(
+        'table' => 'userpoints_txn',
+        'columns' => array('txn_id' => 'txn_id'),
+      ),
+    ),
+  );
+  
+  return $schema;
+}

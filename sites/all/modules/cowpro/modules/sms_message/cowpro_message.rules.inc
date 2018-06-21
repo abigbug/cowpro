@@ -6,7 +6,7 @@
 function cowpro_message_rules_action_info() {
   $actions = array(
   		'cowpro_fund_topup_finished' => array(
-  				'label' => 'cowpro_fund_topup_finished',
+  				'label' => '充值成功，发送消息',
   				'group' => t('cowpro'),
   				'parameter' => array(
   						'success' => array(
@@ -21,7 +21,7 @@ function cowpro_message_rules_action_info() {
   				'base' => '_cowpro_message_cowpro_fund_topup_finished',
   		),
   		'cowpro_fund_withdraw_finished' => array(
-  				'label' => 'cowpro_fund_withdraw_finished',
+  				'label' => '提现成功，发送消息',
   				'group' => t('cowpro'),
   				'parameter' => array(
   						'success' => array(
@@ -36,7 +36,7 @@ function cowpro_message_rules_action_info() {
   				'base' => '_cowpro_message_cowpro_fund_withdraw_finished',
   		),
     'cowpro_fund_bid_finished' => array(
-      'label' => 'cowpro_fund_bid_finished',
+      'label' => '投资成功，发送消息',
       'group' => t('cowpro'),
       'parameter' => array(
         'success' => array(
@@ -55,7 +55,7 @@ function cowpro_message_rules_action_info() {
     	'base' => '_cowpro_message_cowpro_fund_bid_finished',
     ),
   	'cowpro_fund_buy_creditor_assignment_finished' => array(
-      'label' => 'cowpro_fund_buy_creditor_assignment_finished',
+      'label' => '债权转让，发送消息',
       'group' => t('cowpro'),
       'parameter' => array(
         'success' => array(
@@ -82,7 +82,7 @@ function cowpro_message_rules_action_info() {
     	'base' => '_cowpro_message_cowpro_fund_buy_creditor_assignment_finished',
     ),
     'cowpro_fund_make_loans_to_finished' => array(
-      'label' => 'cowpro_fund_make_loans_to_finished',
+      'label' => '满标放款，发送消息',
       'group' => t('cowpro'),
       'parameter' => array(
         'success' => array(
@@ -101,7 +101,7 @@ function cowpro_message_rules_action_info() {
     	'base' => '_cowpro_message_cowpro_fund_make_loans_to_finished',
     ),
   	'cowpro_fund_repayment_finished' => array(
-      'label' => 'cowpro_fund_repayment_finished',
+      'label' => '按期还款，发送消息',
       'group' => t('cowpro'),
       'parameter' => array(
         'success' => array(

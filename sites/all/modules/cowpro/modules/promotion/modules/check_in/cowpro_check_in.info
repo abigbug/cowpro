@@ -1,0 +1,10 @@
+; $Id
+name = "cowpro check in"
+description = 签到奖励积分
+package = _CowPro
+core = 7.x
+files[] = cowpro_check_in.rules.inc
+
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro_check_in"
