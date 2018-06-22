@@ -115,7 +115,7 @@ function cowpro_promotion_coupon_info_list() {
     drupal_alter('cowpro_coupon_info', $coupon_info_list);
   }
   
-  return $promotion_info_list;
+  return $coupon_info_list;
 }
 
 /**
@@ -180,7 +180,11 @@ function cowpro_promotion_grant_coupon($params) {
   }
   $uid = $params['uid'];
   $points = $params['points'];
+  if (isset($params['name'])) {
   $name = $params['name'];
+      } else {
+      $name=null;
+      }
   $description = $params['description'];
   $reference = $params['reference'];
   $entity_type = $params['entity_type'];
@@ -204,9 +208,9 @@ function cowpro_promotion_grant_coupon($params) {
       $result['message'] = "未找到“$name”";
     }
     else 
-      if (_cowpro_promotion_valid_coupon_by_name($coupon, $points)) {
+      if (!_cowpro_promotion_valid_coupon_denomination($coupon, $points)) {
         $result['success'] = FALSE;
-        $result['message'] = "面值不存在“$points";
+        $result['message'] = "面值不存在“ $points ”";
       }
       else {
         $term = current(taxonomy_get_term_by_name($coupon['name']));
@@ -245,6 +249,8 @@ function cowpro_promotion_grant_coupon($params) {
     }
     
     watchdog('COWPRO_PROMOTION', "uid:$uid;$desc", NULL, WATCHDOG_DEBUG);
+  }else{
+    watchdog('COWPRO_PROMOTION', $result['message'], NULL, WATCHDOG_ERROR);
   }
   return $result;
 }
@@ -300,7 +306,7 @@ function cowpro_promotion_use_coupon($params) {
  * @return unknown
  */
 function _cowpro_promotion_get_coupon_by_name($name) {
-  $coupon_info_list = cowpro_coupon_info_list();
+  $coupon_info_list = cowpro_promotion_coupon_info_list();
   $coupon = null;
   foreach ($coupon_info_list as $key => $coupon_info) {
     if ($coupon_info['name'] === $name) {
@@ -408,7 +414,7 @@ function cowpro_promotion_cowpro_issuing_bid_form($form, $form_state) {
       } else {
         $brief_intro = "($module) $points 元代金券";
       }
-      $voucher_opts[$module . '_' . $txn_id . '_' . $points] = $brief_intro;
+      $voucher_opts[$module . '|' . $txn_id . '|' . $points] = $brief_intro;
     }
   }
 
@@ -430,12 +436,12 @@ function cowpro_promotion_cowpro_issuing_bid_form_validate($form, $form_state) {
   if ($voucher === NO_VOUCHERS) {
     return;
   }
-  $split = explode ( '_', $form_state ['values'] ['voucher'] );
+  $split = explode ( '|', $form_state ['values'] ['voucher'] );
   $module = $split[0];
   $txn_id = $split[1];
   $points = $split[2];
   $bid_amount = $form_state ['values'] ['amount'];
-  $nid = $form_state ['values'] ['nid'];
+  $nid = $form_state ['nid'];
   $function = $module . '_bid_validate';
   if (function_exists($function)) {
     $args = array($txn_id, $points, $bid_amount, $nid);
@@ -452,14 +458,14 @@ function cowpro_promotion_cowpro_issuing_bid_form_validate($form, $form_state) {
 function cowpro_promotion_cowpro_issuing_bid_form_submit($form, $form_state) {
   $voucher = $form_state ['values'] ['voucher'];
   if ($voucher === NO_VOUCHERS) {
-    return;
+    return true;
   }
-  $split = explode ( '_', $form_state ['values'] ['voucher'] );
+  $split = explode ( '|', $form_state ['values'] ['voucher'] );
   $module = $split[0];
   $txn_id = $split[1];
   $points = $split[2];
   $bid_amount = $form_state ['values'] ['amount'];
-  $nid = $form_state ['values'] ['nid'];
+  $nid = $form_state ['nid'];
   $function = $module . '_bid_submit';
   if (function_exists($function)) {
     $args = array($txn_id, $points, $bid_amount, $nid);
@@ -468,6 +474,7 @@ function cowpro_promotion_cowpro_issuing_bid_form_submit($form, $form_state) {
       form_set_error('bid', $result['message']);
     }
   }
+  return true;
 }
 
 // nction 使用代金券

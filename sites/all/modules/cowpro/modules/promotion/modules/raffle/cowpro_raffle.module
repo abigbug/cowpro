@@ -170,7 +170,10 @@ function cowpro_raffle_ajax() {
             'entity_id' => 0,
             'name' => '代金券',
             'reference' => "raffle",
-            'expirydate' => $expirydate
+            'expirydate' => $expirydate,
+            'module'     => 'cowpro_raffle',
+            'search_field' => null,
+            'data'       => array(),
           );
         }
         else 
@@ -181,9 +184,13 @@ function cowpro_raffle_ajax() {
               'description' => '积分抽奖积分奖励',
               'entity_type' => 'node',
               'entity_id' => 0,
-              'reference' => "raffle"
+              'reference' => "raffle",
+              'module'     => 'cowpro_raffle',
+              'search_field' => null,
+              'data'       => array(),
             );
           }
+          
         cowpro_promotion_grant_coupon($params2);
         $data['prize_name'] = $res['prize'];
         $data['prize_site'] = $prize_site; // 前端奖项从-1开始

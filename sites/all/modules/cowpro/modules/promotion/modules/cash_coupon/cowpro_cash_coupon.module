@@ -50,29 +50,29 @@ function cowpro_cash_coupon_bid_validate($txn_id, $points, $bid_amount, $nid) {
     
   $reference = db_query("SELECT reference FROM {userpoints_txn} WHERE txn_id=$txn_id")->fetchField();
   if ($reference == "raffle") { // 积分抽奖规则
-    if ($bid_amount < 10000) {
-      if ($points == 10) {
+    if ($points == 10) {
+        if ($bid_amount < 10000) {
         $result['success'] = FALSE;
         $result['message'] = '投资金额大于10000才能使用10元代金券';
       }
     }
     
-    if ($bid_amount < 20000) {
-      if ($points == 30) {
+    if ($points == 30) {
+     if ($bid_amount < 20000) {
         $result['success'] = FALSE;
         $result['message'] = '投资金额大于20000才能使用30元代金券';
       }
     }
     
-    if ($bid_amount < 30000) {
-      if ($points == 50) {
+    if ($points == 50) {
+      if ($bid_amount < 30000) {
         $result['success'] = FALSE;
         $result['message'] = '投资金额大于30000才能使用50元代金券';
       }
     }
     
-    if ($bid_amount < 50000) {
-      if ($points == 100) {
+    if ($points == 100) {
+     if ($bid_amount < 50000) {
         $result['success'] = FALSE;
         $result['message'] = '投资金额大于50000才能使用100元代金券';
       }
@@ -82,22 +82,22 @@ function cowpro_cash_coupon_bid_validate($txn_id, $points, $bid_amount, $nid) {
     if ($reference == "zongzi") { // 端午节抽奖
       $node = node_load($form_state['nid']);
       $term = $node->field_issuing[LANGUAGE_NONE][0]['loan_term'];
-      if ($bid_amount < 20000 || $term < 180) {
-        if ($points == 10) {
+      if ($points == 10) {
+        if ($bid_amount < 20000 || $term < 180) {
           $result['success'] = FALSE;
           $result['message'] = '投资金额大于20000，投资期限大于6个月才能使用20元代金券';
         }
       }
       
-      if ($bid_amount < 40000 || $term < 180) {
-        if ($points == 20) {
+      if ($points == 20) {
+        if ($bid_amount < 40000 || $term < 180) {
           $result['success'] = FALSE;
           $result['message'] = '投资金额大于40000，投资期限大于6个月才能使用20元代金券';
         }
       }
       
-      if ($bid_amount < 100000 || $term < 180) {
-        if ($points == 50) {
+      if ($points == 50) {
+        if ($bid_amount < 100000 || $term < 180) {
           $result['success'] = FALSE;
           $result['message'] = '投资金额大于100000，投资期限大于6个月才能使用20元代金券';
         }
@@ -105,49 +105,49 @@ function cowpro_cash_coupon_bid_validate($txn_id, $points, $bid_amount, $nid) {
     }
     else 
       if ($reference == "zongzi_online") { // 端午节线上小程序
-        if ($bid_amount < 5000) {
-          if ($points == 5) {
+        if ($points == 5) {
+          if ($bid_amount < 5000) {
             $result['success'] = FALSE;
             $result['message'] = '投资金额大于5000才能使用5元代金券';
           }
         }
         
-        if ($bid_amount < 10000) {
-          if ($points == 10) {
+        if ($points == 10) {
+          if ($bid_amount < 10000) {
             $result['success'] = FALSE;
             $result['message'] = '投资金额大于10000才能使用10元代金券';
           }
         }
         
-        if ($bid_amount < 20000) {
-          if ($points == 20) {
+        if ($points == 20) {
+         if ($bid_amount < 20000) {
             $result['success'] = FALSE;
             $result['message'] = '投资金额大于20000才能使用20元代金券';
           }
         }
         
-        if ($bid_amount < 50000) {
-          if ($points == 50) {
+        if ($points == 50) {
+         if ($bid_amount < 50000) {
             $result['success'] = FALSE;
             $result['message'] = '投资金额大于50000才能使用50元代金券';
           }
         }
       }
       else {
-        if ($bid_amount < 10000) {
-          if ($points == 20) {
+        if ($points == 20) {
+          if ($bid_amount < 10000) {
             $result['success'] = FALSE;
             $result['message'] = '投资金额大于10000才能使用20元代金券';
           }
         }
-        if ($bid_amount < 30000) {
-          if ($points == 30) {
+        if ($points == 30) {
+         if ($bid_amount < 30000) {
             $result['success'] = FALSE;
             $result['message'] = '投资金额大于30000且小于50000才能使用30元代金券';
           }
         }
-        if ($bid_amount < 50000) {
-          if ($points == 50) {
+        if ($points == 50) {
+         if ($bid_amount < 50000) {
             $result['success'] = FALSE;
             $result['message'] = '投资金额大于50000才能使用50元代金券';
           }
