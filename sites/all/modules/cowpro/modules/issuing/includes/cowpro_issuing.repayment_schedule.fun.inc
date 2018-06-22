@@ -406,3 +406,31 @@ function _cowpro_issuing_get_repayment_schedule_data_serial($schedule) {
 	}
 	return $max_serial + 1;
 }
+
+
+function _cowpro_issuing_days_diff($d1, $d2) {
+  $x1 = _cowpro_issuing_days($d1);
+  $x2 = _cowpro_issuing_days($d2);
+  
+  if ($x1 && $x2) {
+    return $x1 - $x2;
+  }
+}
+
+function _cowpro_issuing_days($x) {
+  if (get_class($x) != 'DateTime') {
+    return false;
+  }
+  
+  $y = $x->format('Y') - 1;
+  $days = $y * 365;
+  $z = (int)($y / 4);
+  $days += $z;
+  $z = (int)($y / 100);
+  $days -= $z;
+  $z = (int)($y / 400);
+  $days += $z;
+  $days += $x->format('z');
+  
+  return $days;
+}

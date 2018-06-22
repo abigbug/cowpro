@@ -105,7 +105,17 @@ function cowpro_issuing_schema() {
 							'not null' => TRUE,
 							'default' => 0,
 					),
-					'status' => array(
+			  'repayment_time' => array(
+			    'description' => '还款时间 The Unix timestamp.',
+			    'type' => 'int',
+			    'not null' => TRUE,
+			    'default' => 0,
+			  ),
+			  'description' => array(
+			    'description' => 'Description',
+			    'type' => 'text',
+			  ),
+			  'status' => array(
 							'description' => 'WAITING_FOR等待还款，COMPLETED已还款，IN_PROGRESS部分还款（债权转让的时候逻辑复杂，暂不支持），LOCKED锁定，在债权转让的时候，先设置该标志，这样来保证债权转让交易的原子性，ASSIGNABLE可转让，ASSIGNED已转让.',
 							'type' => 'varchar',
       				'length' => 20,

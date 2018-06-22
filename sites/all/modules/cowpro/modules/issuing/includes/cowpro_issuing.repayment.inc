@@ -53,58 +53,6 @@ function _cowpro_issuing_repayment_form($form, &$form_state) {
 	return $form;
 }
 
-function _cowpro_issuing_repayment_form_submit(&$form, &$form_state) {
-
-	if ($form_state ['values'] ['op'] === $form_state ['values'] ['submit']) {
-		$amount = $form_state ['input'] ['amount'];
-		$nid = $form_state ['nid'];
-		$result = custodian_cowpro_fund_repayment($amount, $nid);
-		$commands = array ();
-		$commands [] = ctools_modal_command_dismiss ();
-		print ajax_render ( $commands );
-		exit ();
-	} else {
-		$commands = array ();
-		$commands [] = ctools_modal_command_dismiss ();
-		print ajax_render ( $commands );
-		exit ();
-	}
-
-}
-
-/**
- * Renders a View for display in some other element.
- *
- * @param $view_key The
- *        	ID of the View to embed.
- * @param $display_id The
- *        	ID of the display of the View that will actually be rendered.
- * @param $arguments An
- *        	array of arguments to pass to the View.
- *
- * @return The rendered output of the chosen View display.
- */
-function _cowpro_issuing_embed_view($view_id, $display_id, $arguments) {
-	// Load the specified View.
-	$view = views_get_view ( $view_id );
-	$view->set_display ( $display_id );
-
-	// Set the specific arguments passed in.
-	$view->set_arguments ( $arguments );
-
-	// Override the view url, if an override was provided.
-	if (! empty ( $override_url )) {
-		$view->override_url = $override_url;
-	}
-
-	// Prepare and execute the View query.
-	$view->pre_execute ();
-	$view->execute ();
-
-	// Return the rendered View.
-	return $view->render ();
-}
-
 function _cowpro_issuing_repayment_action(&$entities, $context = array()) {
 	$repayment_list = array();
 	foreach ($entities as $entity) {
@@ -146,7 +94,16 @@ function _cowpro_issuing_repayment_action(&$entities, $context = array()) {
 	print ajax_render ( $commands );
 	exit ();
 }
-
+function _cowpro_issuing_schedule_action(&$entities, $context = array()) {
+  $message = '重新计算提前还款利息(代码尚未实现！)';
+  drupal_set_message($message);
+  ctools_include ( 'modal' );
+  ctools_include ( 'ajax' );
+  $commands = array ();
+  $commands[] = ctools_ajax_command_reload();
+  print ajax_render ( $commands );
+  exit ();
+}
 function _cowpro_issuing_repayment_finished($success, $repayment_schedules) {
 	if ($success) {
 		_cowpro_issuing_repayment_update($repayment_schedules);
@@ -225,6 +182,7 @@ function _cowpro_issuing_repayment_update($repayment_schedules) {
 			//$schedule->paid_amount = $schedule->paid_amount + $paid_amount;
 			//if ($schedule->payable_amount == $schedule->paid_amount) {
 				$schedule->status = 'COMPLETED';
+				$schedule->repayment_time = now();
 			//}
 			entity_save ( 'cowpro_repayment_schedule', $schedule );
 		}

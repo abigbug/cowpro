@@ -528,6 +528,19 @@ function cowpro_issuing_action_info() {
 					),
 					'aggregate' => TRUE
 			),
+	  'cowpro_issuing_schedule_action' => array (
+	    'type' => 'entity',
+	    'label' => '重新计算提前还款利息',
+	    'behavior' => array (
+	      'views_property'
+	    ),
+	    'configurable' => FALSE,
+	    'vbo_configurable' => FALSE,
+	    'triggers' => array (
+	      'any'
+	    ),
+	    'aggregate' => TRUE
+	  ),
 	);
 }
 
@@ -809,27 +822,49 @@ function cowpro_issuing_views_bulk_operations_form_alter(&$form, &$form_state, $
 				}
 			}
 		} elseif ($form_state ['step'] == 'views_bulk_operations_confirm_form') {
-			$schedules = entity_load ( 'cowpro_repayment_schedule', $form_state ['selection'] );
-			$markup = '';
-			$total = 0;
-			$info = '%s, 第 %d期(共%d期), 金额%.2f元<br/>';
-			foreach ( $schedules as $schedule ) {
-				$issuing = node_load($schedule->issuing_id);
-				$title = $issuing->title;
-				//$u = user_load ( $schedule->receiver_uid );
-				$markup .= sprintf ( $info, $title, $schedule->period, $schedule->period_total, $schedule->payable_amount - $schedule->paid_amount );
-				$total += round ( $schedule->payable_amount - $schedule->paid_amount, 2 );
-			}
-			$form ['description'] = array (
-					'#prefix' => '<p class="context-help help">',
-					'#markup' => $markup,
-					'#suffix' => '</p>'
-			);
-			$form ['total'] = array (
-					'#prefix' => '<p class="context-help help">',
-					'#markup' => "合计还款金额 $total 元",
-					'#suffix' => '</p>'
-			);
+		  if ($form_state['values']['op'] == '重新计算提前还款利息') {
+		    $schedules = entity_load ( 'cowpro_repayment_schedule', $form_state ['selection'] );
+		    $markup = '';
+		    $info = '第 %d期(共%d期), 金额%.2f元<br/>';
+		    foreach ( $schedules as $schedule ) {
+		      //$u = user_load ( $schedule->receiver_uid );
+		      $markup .= sprintf ( $info, $schedule->period, $schedule->period_total, $schedule->payable_amount - $schedule->paid_amount );
+		      
+		      include_once 'includes/cowpro_issuing.repayment_schedule.fun.inc';
+		      $now = new DateTime();
+		      $deadline = new DateTime();
+		      $deadline->setTimestamp($schedule->deadline);
+		      $diff = _cowpro_issuing_days_diff($deadline, $now);
+		      $markup .= "提前 $diff 天 还款(代码尚未实现！)<br/>";
+		    }
+		    $form ['description'] = array (
+		      '#prefix' => '<p class="context-help help">',
+		      '#markup' => $markup,
+		      '#suffix' => '</p>'
+		    );
+		  } else if ($form_state['values']['op'] == '到期还款') {
+  		  $schedules = entity_load ( 'cowpro_repayment_schedule', $form_state ['selection'] );
+  			$markup = '';
+  			$total = 0;
+  			$info = '%s, 第 %d期(共%d期), 金额%.2f元<br/>';
+  			foreach ( $schedules as $schedule ) {
+  				$issuing = node_load($schedule->issuing_id);
+  				$title = $issuing->title;
+  				//$u = user_load ( $schedule->receiver_uid );
+  				$markup .= sprintf ( $info, $title, $schedule->period, $schedule->period_total, $schedule->payable_amount - $schedule->paid_amount );
+  				$total += round ( $schedule->payable_amount - $schedule->paid_amount, 2 );
+  			}
+  			$form ['description'] = array (
+  					'#prefix' => '<p class="context-help help">',
+  					'#markup' => $markup,
+  					'#suffix' => '</p>'
+  			);
+  			$form ['total'] = array (
+  					'#prefix' => '<p class="context-help help">',
+  					'#markup' => "合计还款金额 $total 元",
+  					'#suffix' => '</p>'
+  			);
+		  }
 		}
 	}
 }
@@ -854,6 +889,10 @@ function cowpro_issuing_user_view($account, $view_mode) {
 function cowpro_issuing_repayment_action(&$entities, $context = array()) {
 	require_once 'includes/cowpro_issuing.repayment.inc';
 	_cowpro_issuing_repayment_action ( $entities, $context );
+}
+function cowpro_issuing_schedule_action(&$entities, $context = array()) {
+  require_once 'includes/cowpro_issuing.repayment.inc';
+  _cowpro_issuing_schedule_action ( $entities, $context );
 }
 function cowopro_issuing_access($op, $node, $account = NULL) {
 	require_once 'includes/cowpro_issuing.command.inc';
