@@ -48,8 +48,10 @@ files[] = includes/views/handlers/cowpro_creditor_assignment_handler_field_opera
 files[] = includes/views/handlers/cowpro_issuing_handler_filter_issuing_title.inc
 files[] = includes/views/handlers/cowpro_issuing_handler_filter_issuing_applicant.inc
 files[] = includes/views/handlers/cowpro_repayment_schedule_handler_filter_payer.inc
+files[] = includes/views/handlers/cowpro_issuing_handler_field_issuing_deadline.inc
 
 ; Information added by Drupal.org packaging script on 2015-01-16
 version = "7.x-0.01"
 core = "7.x"
 project = "cowpro"
+

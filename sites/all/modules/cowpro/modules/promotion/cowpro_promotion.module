@@ -58,7 +58,7 @@ function cowpro_promotion_theme() {
  */
 function cowpro_promotion_show() {
   $promotion_info_list = cowpro_promotion_info_list();
-  $coupon_info_list = cowpro_coupon_info_list();
+  $coupon_info_list = cowpro_promotion_coupon_info_list();
   $html = theme('cowpro_promotion_info_list', array(
     'promotion_info_list' => $promotion_info_list,
     'coupon_info_list' => $coupon_info_list

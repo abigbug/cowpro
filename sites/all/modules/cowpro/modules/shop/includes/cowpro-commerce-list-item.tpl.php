@@ -12,25 +12,20 @@
  * 参考 views-view-list.tpl.php
  */
 ?>
-<article class="node node-tops contextual-links-region node-product-type node-tops node-product-type-product-list node-tops-product-list node-published node-not-promoted node-not-sticky self-posted author-admin odd clearfix" id="node-tops-18">
-  <div class="content clearfix">
-    <div class="commerce-product-field commerce-product-field-field-images field-field-images node-18-product-field-images">
-      <figure class="field field-name-field-images field-type-image field-label-hidden">
-	<a href=<?php global $base_url; print $base_url . '/shop/detail/' . $item['nid']?>>
-          <img src=<?php $first_item = reset($item['products']); print $first_item['field_images']['und'][0]['url']?> width="230" height="260" alt="">
-        </a>
-       <br/> 积分：
-       <?php
-       $product = reset($item['products']);
-       $price = intval(floor($product['commerce_price']['und'][0]['amount']/100));
-       print $price;
-       ?>
-      </figure>
+  <div class="jfgoods-img"><img width="257" height="221" src=<?php $first_item = reset($item['products']); print $first_item['field_images']['und'][0]['url']?>></div>
+  <div class="jfgoods-xinxi">
+    <h4 class="jfgoods-name"><a href=<?php global $base_url; print $base_url . '/shop/detail/' . $item['nid']?>><?php print $item['title']?></a></h4>
+    <div class="jfgoods-p">
+      <h6 class="jfgoods-w1">
+        <p>所需积分</p>
+        <p class="jfgoods-pcol1">
+          <?php
+            $product = reset($item['products']);
+            $price = intval(floor($product['commerce_price']['und'][0]['amount']/100));
+            print $price;
+          ?>
+        </p>
+      </h6>
+      <h6 class="jfgoods-w3"><a href=<?php global $base_url; print $base_url . '/shop/detail/' . $item['nid']?> target="_blank" class="jfgoods-btn border-radius5">立即兑换</a></h6>
     </div>
-    <header>
-      <h2 class="field field-name-title-field field-type-text field-label-hidden">
-	<a href=<?php global $base_url; print $base_url . '/shop/detail/' . $item['nid']?>><?php print $item['title']?></a>
-      </h2>
-    </header>
   </div>
-</article>

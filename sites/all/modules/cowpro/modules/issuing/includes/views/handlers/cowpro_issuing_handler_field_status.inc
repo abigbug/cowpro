@@ -12,7 +12,7 @@ class cowpro_issuing_handler_field_status extends views_handler_field {
   	include_once $path . '/includes/cowpro_issuing_status.inc';
 
   	//$issuing_id = $this->get_value($values, 'entity_id');
-  	$issuing_id = $values->nid;
+  	$issuing_id = $this->get_value($values);
   	$node = node_load($issuing_id);
   	$issuing = $node->field_issuing [LANGUAGE_NONE] [0];
   	$status = _cowpro_issuing_get_readable_status($issuing ['status']);

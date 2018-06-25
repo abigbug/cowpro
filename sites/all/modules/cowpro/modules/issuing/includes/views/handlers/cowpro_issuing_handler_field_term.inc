@@ -12,7 +12,7 @@ class cowpro_issuing_handler_field_term extends views_handler_field {
   	include_once $path . '/includes/cowpro_issuing.repayment_schedule.fun.inc';
 
   	//$issuing_id = $this->get_value($values, 'entity_id');
-  	$issuing_id = $values->nid;
+  	$issuing_id = $this->get_value($values);
   	$node = node_load($issuing_id);
   	$issuing = $node->field_issuing [LANGUAGE_NONE] [0];
   	$loan_term_readable = _cowpro_issuing_get_readable_loan_term($issuing ['loan_term']);

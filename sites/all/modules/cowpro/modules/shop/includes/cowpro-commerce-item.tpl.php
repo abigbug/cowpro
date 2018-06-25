@@ -28,11 +28,6 @@
   <div class="Xcontent">
     <ul class="Xcontent01">
       <div class="Xcontent06"><img src="<?php $img = reset($first_product['images']); print $img['url'];?>" id="imgshow"></div>
-      <div class="Xcontent08">
-        <?php  foreach($first_product['images'] as $img) {?>
-	<div class="Xcontent10"><img src="<?php print $img['url']?>" onclick="showimg('<?php print $img['url']?>');" ></div>
-        <?php }?>
-      </div>
       <div class="Xcontent13">
         <div class="Xcontent14"><p><?php print $first_product['title']?></a></div>
 	<div class="Xcontent17">
@@ -59,7 +54,12 @@
     <div class="field field-name-body field-type-text-with-summary field-label-hidden">
       <div class="field-items">
 	<div class="field-item even">
-	  <p><?php print $body?></p>
+           <div style="width:100%;text-align: center;margin: 0px auto; padding-top: 10px;">
+            <p><?php print $body?></p>
+            <?php  foreach($first_product['images'] as $img) {?>
+            <p><img src="<?php print $img['url']?>"></p>
+            <?php }?>
+           </div>
 	</div>
       </div>
     </div>
