@@ -1,6 +1,6 @@
 <?php
 
-function cowpro_report_issusing_balance_query_form($form, &$form_state) {
+function cowpro_report_issuing_balance_query_form($form, &$form_state) {
   $form['description'] = array(
     '#type' => 'markup',
     '#markup' => t('')
@@ -12,13 +12,13 @@ function cowpro_report_issusing_balance_query_form($form, &$form_state) {
   return $form;
 }
 
-function cowpro_report_issusing_balance_query_form_submit($form, &$form_state) {
-  $function = 'cowpro_report_issusing_balance_query_batch';
+function cowpro_report_issuing_balance_query_form_submit($form, &$form_state) {
+  $function = 'cowpro_report_issuing_balance_query_batch';
   $batch = $function();
   batch_set($batch);
 }
 
-function cowpro_report_issusing_balance_query_batch() {
+function cowpro_report_issuing_balance_query_batch() {
   $list = db_query("SELECT issuing_object_accno FROM {jiupaipay_issuing_accno}")->fetchAll();
   $operations = array();
   $i = 0;
@@ -42,7 +42,7 @@ function cowpro_report_issusing_balance_query_batch() {
   $batch = array(
     'operations' => $operations,
     'finished' => 'cowpro_report_issuing_balance_query_finished',
-    'file' => drupal_get_path('module', 'cowpro_report') . '/includes/reprot.get_issuing_balance.inc'
+    'file' => drupal_get_path('module', 'cowpro_report') . '/includes/report.get_issuing_balance.inc'
   );
   return $batch;
 }

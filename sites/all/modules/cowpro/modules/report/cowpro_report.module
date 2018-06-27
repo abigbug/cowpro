@@ -53,7 +53,7 @@ function cowpro_report_menu() {
     'description' => '',
     'page callback' => 'drupal_get_form',
     'page arguments' => array(
-      'cowpro_report_issusing_balance_query_form'
+      'cowpro_report_issuing_balance_query_form'
     ),
     'access arguments' => array(
       'configure p2p'
