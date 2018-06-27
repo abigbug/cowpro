@@ -1,5 +1,6 @@
 <?php
 include_once 'jiupaipay.issuing_publish.inc';
+include_once 'jiupaipay.ledger_account.inc';
 
 /**
  * 按期还款
@@ -16,6 +17,12 @@ function jiupaipay_repayment($repayment_schedules) {
 		$pay_amount = $repayment->payable_amount - $repayment->paid_amount;
 		$pay_total_amount += $pay_amount;
 	}
+  
+    $issuing_account = db_query("SELECT issuing_object_accno FROM {jiupaipay_issuing_accno} WHERE nid=$nid")->fetchField();
+    //查询标地台账余额
+    $issuing_amount = jiupaipay_ledger_account($issuing_account);
+    //标的还款金额，等于总金额减去标的台账余额（防止标的还款的时候钱在标的台账上，没下发到投资人台账上）
+    $pay_total_amount = $pay_total_amount - $issuing_amount;
 
 	// 请求报文头
 	$header = jiupaipay_header ( "T00004" );
