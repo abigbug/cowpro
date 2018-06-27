@@ -8,14 +8,14 @@ include_once ("libs/Common.php");
 /*
  *
  */
-function jiupaipay_ledger_account() {
+function jiupaipay_ledger_account($account = JBZ_PM) {
 	$header = jiupaipay_header ( "C00002" );
 
 	$aes = new AES ( JPP_AES_KEY, JPP_AES_IV );
 	$post_data = array ();
 	$post_data ['checkType'] = "03";
 	$post_data ['customerId'] = "";
-	$post_data ['accountNo'] = JBZ_PM;
+	$post_data ['accountNo'] = $account;
 	$post_data ['beginDate'] = '';
 	$post_data ['endDate'] = "";
 	$post_data ['beginPage'] = "";
@@ -41,11 +41,10 @@ function jiupaipay_ledger_account() {
 	$result = jiupaipay_curl_api ( $curl_post_data );
 	$result = json_decode ( $result, true );
 
-	var_dump ( $result );
-	die ();
 	if ($result ['respHeader'] ['respCode'] == 'P2P0000') {
+            return $result ['outBody']['availableamount'];
 	} else {
-		echo $result ['respHeader'] ['respMsg'];
+		return $result ['respHeader'] ['respMsg'];
 	}
 }
 
