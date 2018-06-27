@@ -129,6 +129,7 @@ function _cowpro_issuing_repayment_update($repayment_schedules) {
 	$period_list = array();//记录 $repayment_schedules 里面是第几期还款，（注意：有可能一次就还了多期）
 	foreach ($repayment_schedules as $repayment) {
 		$repayment->status = 'COMPLETED';
+		$schedule->repayment_time = time();
 		$repayment->paid_amount = $repayment->payable_amount;
 		$repayment->received_amount = $repayment->receivable_amount;
 		entity_save ( 'cowpro_repayment_schedule', $repayment );
@@ -182,7 +183,7 @@ function _cowpro_issuing_repayment_update($repayment_schedules) {
 			//$schedule->paid_amount = $schedule->paid_amount + $paid_amount;
 			//if ($schedule->payable_amount == $schedule->paid_amount) {
 				$schedule->status = 'COMPLETED';
-				$schedule->repayment_time = now();
+				$schedule->repayment_time = time();
 			//}
 			entity_save ( 'cowpro_repayment_schedule', $schedule );
 		}
