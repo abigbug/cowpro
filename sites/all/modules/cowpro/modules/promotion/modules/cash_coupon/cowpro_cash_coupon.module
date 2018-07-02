@@ -18,7 +18,8 @@ function cowpro_cash_coupon_cowpro_coupon_info() {
       10 => '投资金额大于10000可使用10元代金券', // 数组中的每一项都是以面值作为 KEY，以说明作为 VALUE
       30 => '投资金额大于20000可使用30元代金券',
       50 => '投资金额大于30000可使用50元代金券',
-      100 => '投资金额大于50000可使用100元代金券'
+      100 => '投资金额大于50000可使用100元代金券',
+      200 => '投资金额大于40000可使用200元代金券',
     ) // 定义不同的面值
   );
   return $items;
@@ -130,6 +131,29 @@ function cowpro_cash_coupon_bid_validate($txn_id, $points, $bid_amount, $nid) {
          if ($bid_amount < 50000) {
             $result['success'] = FALSE;
             $result['message'] = '投资金额大于50000才能使用50元代金券';
+          }
+        }
+      }
+      else
+       if ($reference == "shop") { // 商城积分换代金券类型
+        if ($points == 50) {
+          if ($bid_amount < 10000) {
+            $result['success'] = FALSE;
+            $result['message'] = '投资金额大于10000才能使用50元代金券';
+          }
+        }
+        
+        if ($points == 100) {
+          if ($bid_amount < 20000) {
+            $result['success'] = FALSE;
+            $result['message'] = '投资金额大于20000才能使用100元代金券';
+          }
+        }
+        
+        if ($points == 200) {
+         if ($bid_amount < 40000) {
+            $result['success'] = FALSE;
+            $result['message'] = '投资金额大于40000才能使用200元代金券';
           }
         }
       }
