@@ -257,7 +257,7 @@ function cowpro_promotion_grant_coupon($params) {
       entity_get_controller('cowpro_coupon_usage')->save($entity);
     }
     
-    watchdog('COWPRO_PROMOTION', "uid:$uid;$desc", NULL, WATCHDOG_DEBUG);
+    watchdog('COWPRO_PROMOTION', "uid:$uid;$description", NULL, WATCHDOG_DEBUG);
   }
   else {
     watchdog('COWPRO_PROMOTION', $result['message'], NULL, WATCHDOG_ERROR);

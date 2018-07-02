@@ -133,7 +133,14 @@ class CowProCustomerProfileEntityController extends DrupalCowProEntityController
     	//https://stackoverflow.com/questions/10152904/unserialize-function-unserialize-error-at-offset
     	//$profile->data = preg_replace_callback('#s:(\d+):"(.*?)";#s',function($match){return 's:'.strlen($match[2]).':"'.$match[2].'";';}, $profile->data);
     	$profile->data = unserialize($profile->data);
-
+    	if($profile->data === null){
+    	  $msg = array(
+    	    '%profile_id' => $profile_id,
+    	    '%uid' => $profile->uid,
+    	    '%profile_type' => $profile->type,
+    	  );
+    	  watchdog('CUSTOMER_PROFILE', '%profile_id, uid:%uid, %profile_type unserialize exception', $msg, WATCHDOG_ERROR);
+    	}
       $hook = 'cowpro_customer_profile_' . $profile->type . '_load';
       foreach (module_implements($hook) as $module) {
       	$profile = module_invoke($module, $hook, $profile);

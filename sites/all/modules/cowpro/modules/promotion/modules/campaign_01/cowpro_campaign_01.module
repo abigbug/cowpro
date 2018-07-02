@@ -1,0 +1,17 @@
+<?php
+
+/*
+ * 实现 hook_cowpro_promotion_info
+ */
+function cowpro_campaign_01_cowpro_promotion_info() {
+  $items = array();
+  $items['cowpro_campaign_01_make_loans_to_finished'] = array(
+    'title' => '满标放款以后，发放收标奖励',
+    'description' => '此模块暂时不用',
+    'duration_begin' => null,//活动开始时间(格式为'Y-m-d H:i:s')，如果未设置，则即时开始
+    'duration_end' => null,//活动开始时间(格式为'Y-m-d H:i:s')，如果未设置，则活动一直有效
+    'event' => 'cowpro_fund_make_loans_to_finished',//由此事件触发
+    'action' => 'cowpro_campaign_01_make_loans_to_finished',//执行这个动作
+  );
+  return $items;
+}

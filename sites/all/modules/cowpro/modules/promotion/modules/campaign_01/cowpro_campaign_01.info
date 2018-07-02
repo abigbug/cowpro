@@ -1,0 +1,11 @@
+; $Id
+name = "cowpro campaign 01"
+description = 收标奖励积分
+dependencies[] = rules
+package = _CowPro
+core = 7.x
+files[]=cowpro_campaign_01.rules.inc
+
+version = "7.x-0.01"
+core = "7.x"
+project = "cowpro_campaign_01"
