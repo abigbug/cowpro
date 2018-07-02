@@ -1,7 +1,7 @@
 <?php
 
 define('COMMERCE_SERVICE_URL', 'https://shop.jinbeizeng.com/service/');
-define('TOTAL_PAGE', '2');
+define('TOTAL_PAGE', '1');
 
 /**
  * Implements hook_menu().
@@ -184,7 +184,7 @@ function cowpro_shop_list($page = 0) {
 	if ( $cache = cache_get('shop_list_cache_'.$page )) {
 		$result = $cache->data;
 	}else {
-		$result = $service->index('commerce_product', $page, 21, 'sticky', 'DESC');
+		$result = $service->index('commerce_product', $page, 24, 'sticky', 'DESC');
 		cache_set('shop_list_cache_'.$page, $result, 'cache', 60 * 60); //1 hour
 	}
 
@@ -307,8 +307,7 @@ function _cowpro_shop_buy_item($nid, $vid, $title, $price, $qty, $mbl = NULL) {
 			//'entity_type' => 'order',
 	);
 	$result = userpoints_userpointsapi($params);
-
-
+        
 	if ($result['status']) {
 		$txn_id = $result['transaction']['txn_id'];
 		$entity_value = array(
@@ -316,6 +315,47 @@ function _cowpro_shop_buy_item($nid, $vid, $title, $price, $qty, $mbl = NULL) {
 		);
 		$entity = entity_create('cowpro_shop_deliver', $entity_value);
 		entity_get_controller('cowpro_shop_deliver')->save($entity);
+                //判断如果商品是积分换代金券，直接扣除积分，发放代金券，更改交易状态
+                $result_detail = _cowpro_shop_retrieve_detail($nid);
+                if( strpos($result_detail['title_original'],"代金券") ) {
+                    $term = current(taxonomy_get_term_by_name("代金券"));
+                    $tid = $term->tid;
+                    $expirydate = strtotime('+6 month');
+                    $voucher = 0;
+                    //积分商品有3种，分别是750积分-》50代金券，1480积分-》100代金券，2900积分-》200代金券
+                    $rule = array(750=>50, 1480=>100, 2900=>200);
+                    foreach( $rule as $key=>$value ){
+                        if( $amount % $key == 0 ) {
+                             $voucher = $value * $qty;
+                             break;
+                        }
+                    }
+
+                    $params_voucher = array (
+                                'uid' => $user->uid,
+                                'points' => $voucher,
+                                'description' => "积分兑换代金券",
+                                'display' => false,
+                                'reference' => 'shop',
+                                'expirydate' => $expirydate,
+                                'tid' => $tid,
+                                'module' => 'cowpro_shop',
+                                'search_field' => '积分兑换代金券',
+                                'data' => array("reason"=>"积分兑换代金券"),
+                    );
+                    $result_voucher = userpoints_userpointsapi($params_voucher);
+                    if( $result_voucher['status'] ) {
+                        $entity_value = array(
+				'status' => 1,
+                    );
+                    $entity = entity_create('cowpro_shop_deliver', $entity_value);
+                    entity_get_controller('cowpro_shop_deliver')->save($entity);
+
+                    drupal_set_message('兑换的代金券已经到您账户！');
+                    }else{
+                        return drupal_set_message($result_voucher['reason'], 'error');
+                    }
+                }
 	}
 
 	if ($result['status']) {
