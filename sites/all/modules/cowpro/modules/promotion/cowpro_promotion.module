@@ -532,7 +532,7 @@ function cowpro_promotion_user_login(&$edit, $account) {
   
   rules_invoke_event('cowpro_fund_repayment_finished', TRUE, $node, $repayment_schedules);
   */
-  
+  /*
   $nid = 2797;
   $conditions = array();
   $conditions['internal_reference_id'] = 'ISSUING-' . $nid;
@@ -544,6 +544,6 @@ function cowpro_promotion_user_login(&$edit, $account) {
   
   $node = node_load ( $nid );
   rules_invoke_event ( 'cowpro_fund_make_loans_to_finished', TRUE, $node, $fund_journals );
-  
+  */
 }
  
