@@ -25,6 +25,7 @@ function cowpro_rewards_menu() {
  */
 function cowpro_rewards_cowpro_promotion_info() {
   $items = array();
+  //注意：$items的 key 是全系统唯一的，模块内以及模块之间都不要冲突
   $items['cowpro_rewards_make_loans_to_finished'] = array(
     'title' => '满标放款以后，发放积分',
     'description' => '满标放款以后，年化投资额的五十分之一，做为投资者的奖励积分',
@@ -33,7 +34,7 @@ function cowpro_rewards_cowpro_promotion_info() {
     'event' => 'cowpro_fund_make_loans_to_finished',//由此事件触发
     'action' => 'cowpro_reward_make_loans_to_finished',//执行这个动作
   );
-  $items['cowpro_rewards_make_loans_to_finished'] = array(
+  $items['cowpro_rewards_repayment_finished'] = array(
     'title' => '到期还款以后，发放奖金',
     'description' => '到期还款以后，年化投资额的千分之三，以现金的形式分期奖励投资人的推荐人；年化投资额的千分之二，以现金的形式分期奖励投资人的推荐人的推荐人',
     'duration_begin' => null,//活动开始时间(格式为'Y-m-d H:i:s')，如果未设置，则即时开始

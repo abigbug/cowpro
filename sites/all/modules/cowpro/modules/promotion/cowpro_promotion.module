@@ -31,8 +31,8 @@ function cowpro_promotion_entity_info() {
     'entity keys' => array(
       'id' => 'coupon_usage_id',
       'label' => 'coupon usage',
-      'bundle' => '',
-    ),
+      'bundle' => ''
+    )
   );
   
   return $entity_info;
@@ -158,7 +158,8 @@ function cowpro_promotion_modules_enabled($modules) {
  *        代金券面值
  * @param string $name
  *        代金券名称，如果未指定，就是指“普通积分”
- * @param UNIX timestamp $expirydate
+ * @param
+ *        UNIX timestamp $expirydate
  *        失效时间，如果未指定，就用 hook_cowpro_coupon_info() 里面定义的 expirydate
  * @param string $description
  *        备注
@@ -172,7 +173,14 @@ function cowpro_promotion_modules_enabled($modules) {
  */
 function cowpro_promotion_grant_coupon($params) {
   // Check if parameters are set.
-  $params_null_check = array('name', 'expirydate', 'description', 'reference', 'entity_id', 'entity_type');
+  $params_null_check = array(
+    'name',
+    'expirydate',
+    'description',
+    'reference',
+    'entity_id',
+    'entity_type'
+  );
   foreach ($params_null_check as $param_null_check) {
     if (!isset($params[$param_null_check])) {
       $params[$param_null_check] = NULL;
@@ -181,10 +189,11 @@ function cowpro_promotion_grant_coupon($params) {
   $uid = $params['uid'];
   $points = $params['points'];
   if (isset($params['name'])) {
-  $name = $params['name'];
-      } else {
-      $name=null;
-      }
+    $name = $params['name'];
+  }
+  else {
+    $name = null;
+  }
   $description = $params['description'];
   $reference = $params['reference'];
   $entity_type = $params['entity_type'];
@@ -242,14 +251,15 @@ function cowpro_promotion_grant_coupon($params) {
         'txn_id' => $txn_id,
         'search_field' => $search_field,
         'module' => $module,
-        'data' => $data,
-      );      
+        'data' => $data
+      );
       $entity = entity_create('cowpro_coupon_usage', $entity_value);
       entity_get_controller('cowpro_coupon_usage')->save($entity);
     }
     
     watchdog('COWPRO_PROMOTION', "uid:$uid;$desc", NULL, WATCHDOG_DEBUG);
-  }else{
+  }
+  else {
     watchdog('COWPRO_PROMOTION', $result['message'], NULL, WATCHDOG_ERROR);
   }
   return $result;
@@ -287,12 +297,12 @@ function cowpro_promotion_use_coupon($params) {
     'expired' => true
   );
   $result = userpoints_userpointsapi($params);
-
+  
   $entity_value = array(
     'txn_id' => $txn_id,
     'search_field' => $search_field,
     'module' => $module,
-    'data' => $data,
+    'data' => $data
   );
   $entity = entity_create('cowpro_coupon_usage', $entity_value);
   entity_get_controller('cowpro_coupon_usage')->save($entity);
@@ -375,11 +385,11 @@ function _cowpro_promotion_valid_coupon_denomination($coupon_info, $denomination
  * @param int $nid
  *        标的编号
  * @return array 返回的数组结构如下：
- * array(
- *  module_name => array(
- *    txn_id => points,
- *  )
- * )
+ *         array(
+ *         module_name => array(
+ *         txn_id => points,
+ *         )
+ *         )
  */
 function cowpro_promotion_get_avaliable_coupon($nid) {
   $args = func_get_args();
@@ -402,28 +412,32 @@ function cowpro_promotion_get_avaliable_coupon($nid) {
  * 获取代金券显示在投资页面
  */
 function cowpro_promotion_cowpro_issuing_bid_form($form, $form_state) {
-  $voucher_opts = array ();
+  $voucher_opts = array();
   $voucher_opts[NO_VOUCHERS] = '不使用代金券';
   $avaliable_coupons = cowpro_promotion_get_avaliable_coupon($form_state['nid']);
   foreach ($avaliable_coupons as $module => $coupons) {
     foreach ($coupons as $txn_id => $points) {
       $function = $module . '_get_brief_intro';
       if (function_exists($function)) {
-        $args = array($txn_id, $points);
+        $args = array(
+          $txn_id,
+          $points
+        );
         $brief_intro = call_user_func_array($function, $args);
-      } else {
+      }
+      else {
         $brief_intro = "($module) $points 元代金券";
       }
       $voucher_opts[$module . '|' . $txn_id . '|' . $points] = $brief_intro;
     }
   }
-
-  $items = array ();
-  $items ['voucher'] = array (
+  
+  $items = array();
+  $items['voucher'] = array(
     '#type' => 'select',
     '#title' => '代金券选项',
     '#options' => $voucher_opts,
-    '#description' => '',
+    '#description' => ''
   );
   return $items;
 }
@@ -432,19 +446,24 @@ function cowpro_promotion_cowpro_issuing_bid_form($form, $form_state) {
  * 代金券使用验证
  */
 function cowpro_promotion_cowpro_issuing_bid_form_validate($form, $form_state) {
-  $voucher = $form_state ['values'] ['voucher'];
+  $voucher = $form_state['values']['voucher'];
   if ($voucher === NO_VOUCHERS) {
     return;
   }
-  $split = explode ( '|', $form_state ['values'] ['voucher'] );
+  $split = explode('|', $form_state['values']['voucher']);
   $module = $split[0];
   $txn_id = $split[1];
   $points = $split[2];
-  $bid_amount = $form_state ['values'] ['amount'];
-  $nid = $form_state ['nid'];
+  $bid_amount = $form_state['values']['amount'];
+  $nid = $form_state['nid'];
   $function = $module . '_bid_validate';
   if (function_exists($function)) {
-    $args = array($txn_id, $points, $bid_amount, $nid);
+    $args = array(
+      $txn_id,
+      $points,
+      $bid_amount,
+      $nid
+    );
     $result = call_user_func_array($function, $args);
     if ($result['success'] === FALSE) {
       form_set_error('bid', $result['message']);
@@ -456,19 +475,24 @@ function cowpro_promotion_cowpro_issuing_bid_form_validate($form, $form_state) {
  * 投资提交
  */
 function cowpro_promotion_cowpro_issuing_bid_form_submit($form, $form_state) {
-  $voucher = $form_state ['values'] ['voucher'];
+  $voucher = $form_state['values']['voucher'];
   if ($voucher === NO_VOUCHERS) {
     return true;
   }
-  $split = explode ( '|', $form_state ['values'] ['voucher'] );
+  $split = explode('|', $form_state['values']['voucher']);
   $module = $split[0];
   $txn_id = $split[1];
   $points = $split[2];
-  $bid_amount = $form_state ['values'] ['amount'];
-  $nid = $form_state ['nid'];
+  $bid_amount = $form_state['values']['amount'];
+  $nid = $form_state['nid'];
   $function = $module . '_bid_submit';
   if (function_exists($function)) {
-    $args = array($txn_id, $points, $bid_amount, $nid);
+    $args = array(
+      $txn_id,
+      $points,
+      $bid_amount,
+      $nid
+    );
     $result = call_user_func_array($function, $args);
     if ($result['success'] === FALSE) {
       form_set_error('bid', $result['message']);
@@ -477,35 +501,49 @@ function cowpro_promotion_cowpro_issuing_bid_form_submit($form, $form_state) {
   return true;
 }
 
-// nction 使用代金券
+// anction 使用代金券
 /*
- 仅用于测试，当用户登录的时候，触发cowpro_fund_bid_finished event
+ * 仅用于测试，当用户登录的时候，触发cowpro_fund_bid_finished event
  */
-/*
- function cowpro_promotion_user_login(&$edit, $account) {
- $uid = $GLOBALS ['user']->uid;
- if ($uid != 70041) {//只有用户 bigbug 登录的时候，才触发后面的逻辑
- return;
- }
+function cowpro_promotion_user_login(&$edit, $account) {
+  $uid = $GLOBALS['user']->uid;
+  if ($uid != 70041) { // 只有用户 bigbug 登录的时候，才触发后面的逻辑
+    return;
+  }
+  
+  /*
+  $issuing_id = 2500;
+  $period = 1;
+  $node = node_load($issuing_id);
+  
+  $repayment_schedules = array();
+  $conditions = array(
+    'issuing_id' => $issuing_id,
+    'period' => $period
+    // 'status' => 'WAITING_FOR',
+  );
+  $reset = FALSE;
+  $schedules = entity_load('cowpro_repayment_schedule', FALSE, $conditions, $reset);
+  foreach ($schedules as $schedule) {
+    if ($schedule->receiver_uid != -1) {
+      $repayment_schedules[] = $schedule;
+    }
+  }
+  
+  rules_invoke_event('cowpro_fund_repayment_finished', TRUE, $node, $repayment_schedules);
+  */
+  
+  $nid = 2797;
+  $conditions = array();
+  $conditions['internal_reference_id'] = 'ISSUING-' . $nid;
+  $conditions['type'] = 'BID';
+  $conditions['status'] = TRUE;
+  $ids = FALSE;
+  $reset = TRUE;
+  $fund_journals = entity_load('cowpro_fund_journal', $ids, $conditions, $reset);
+  
+  $node = node_load ( $nid );
+  rules_invoke_event ( 'cowpro_fund_make_loans_to_finished', TRUE, $node, $fund_journals );
+  
+}
  
- $issuing_id = 2500;
- $period = 1;
- $node = node_load($issuing_id);
- 
- $repayment_schedules = array();
- $conditions = array (
- 'issuing_id' => $issuing_id,
- 'period' => $period,
- //'status' => 'WAITING_FOR',
- );
- $reset = FALSE;
- $schedules = entity_load ( 'cowpro_repayment_schedule', FALSE, $conditions, $reset );
- foreach ($schedules as $schedule) {
- if ($schedule->receiver_uid != -1) {
- $repayment_schedules[] = $schedule;
- }
- }
- 
- rules_invoke_event('cowpro_fund_repayment_finished', TRUE, $node, $repayment_schedules);
- }
- */

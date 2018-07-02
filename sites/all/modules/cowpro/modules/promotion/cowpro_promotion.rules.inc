@@ -10,7 +10,7 @@
  */
 function cowpro_promotion_rules_condition_info() {
   return array(
-    'owpro_promotion_validity' => array(
+    'cowpro_promotion_validity' => array(
       'label' => t('在有效期内'),
       'parameter' => array(
         'action_fired' => array(
