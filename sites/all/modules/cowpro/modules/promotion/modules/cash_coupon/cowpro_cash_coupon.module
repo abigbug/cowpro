@@ -19,7 +19,7 @@ function cowpro_cash_coupon_cowpro_coupon_info() {
       30 => '投资金额大于20000可使用30元代金券',
       50 => '投资金额大于30000可使用50元代金券',
       100 => '投资金额大于50000可使用100元代金券',
-      200 => '投资金额大于40000可使用200元代金券',
+      200 => '投资金额大于40000可使用200元代金券'
     ) // 定义不同的面值
   );
   return $items;
@@ -134,7 +134,7 @@ function cowpro_cash_coupon_bid_validate($txn_id, $points, $bid_amount, $nid) {
           }
         }
       }
-      else
+  	   else
        if ($reference == "shop") { // 商城积分换代金券类型
         if ($points == 50) {
           if ($bid_amount < 10000) {
@@ -235,3 +235,76 @@ function cowpro_cash_coupon_bid_submit($txn_id, $points, $bid_amount, $nid) {
  drupal_exit ();
  }
  */
+
+/**
+ * Implements hook_views_api().
+ */
+function cowpro_cash_coupon_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'cowpro_cash_coupon') . '/includes/views'
+  );
+}
+
+// 代金券使用规则判断显示
+function cowpro_cash_coupon_the_rules_show($points, $reference) {
+    $the_rules="";
+    if($reference=="raffle"){               // 积分抽奖规则
+      if ($points == 10) {
+        $the_rules="单笔投资≥10000元"; 
+      }
+      if ($points == 30) {
+        $the_rules="单笔投资≥20000元"; 
+      }
+      if ($points == 50) {
+        $the_rules="单笔投资≥30000元"; 
+      }
+      if ($points == 100) {
+        $the_rules="单笔投资≥50000元"; 
+      }
+    }else if ($reference == "zongzi") {      // 端午节抽奖  
+      if ($points == 10) {
+        $the_rules="单笔投资≥20000元"; 
+      }
+      if ($points == 20) {
+        $the_rules="单笔投资≥40000元"; 
+      }
+      if ($points == 50) {
+        $the_rules="单笔投资≥100000元"; 
+      }
+    }else if ($reference == "zongzi_online") { // 端午节线上小程序  
+      if ($points == 5) {
+        $the_rules="单笔投资≥5000元"; 
+      }
+      if ($points == 10) {
+        $the_rules="单笔投资≥10000元"; 
+      }
+      if ($points == 20) {
+        $the_rules="单笔投资≥20000元"; 
+      }
+      if ($points == 50) {
+        $the_rules="单笔投资≥50000元"; 
+      }
+    }else if ($reference == "shop") {       // 商城兑换代金券  
+      if ($points == 50) {
+        $the_rules="单笔投资≥10000元"; 
+      }
+      if ($points == 100) {
+        $the_rules="单笔投资≥20000元"; 
+      }
+      if ($points == 200) {
+        $the_rules="单笔投资≥40000元"; 
+      }
+    }else {
+      if ($points == 20) {
+        $the_rules="单笔投资≥10000元"; 
+      }
+      if ($points == 30) {
+        $the_rules="单笔投资≥30000元"; 
+      }
+      if ($points == 50) {
+        $the_rules="单笔投资≥50000元"; 
+      }
+    }
+    return $the_rules;
+}
