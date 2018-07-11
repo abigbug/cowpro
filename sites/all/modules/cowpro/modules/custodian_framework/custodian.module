@@ -201,10 +201,10 @@ function custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comm
 			if ($uid_from != NULL) {
 				$uname_from = user_load($uid_from)->name;
 				$uname_to = user_load($uid_to)->name;
-				$transfer = "($uname_from [$uid_from] -> $uname_to [$uid_to])";
+				//$transfer = "($uname_from [$uid_from] -> $uname_to [$uid_to])";
 			} else {
 				$uname_to = user_load($uid_to)->name;
-				$transfer = "(平台帐户 -> $uname_to [$uid_to])";
+				//$transfer = "(平台帐户 -> $uname_to [$uid_to])";
 			}
 
 			if ($uid_from != NULL) {
