@@ -361,6 +361,6 @@ function cowpro_fund_get_balance($uid) {
 	return custodian_cowpro_fund_balance($uid);
 }
 
-function cowpro_fund_internal_trans_data($uid_from, $uid_to, $amount, $comment='') {
-	return custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comment='');
+function cowpro_fund_internal_trans_data($uid_from, $uid_to, $amount, $comment) {
+	return custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comment);
 }

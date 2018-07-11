@@ -820,13 +820,14 @@ function jiupaipay_result_parser($fund_type, $result) {
         switch ($fund_type) {
             case 'TOPUP' :
             case 'WITHDRAW' :
-                    if( $data ['result'] ['inBody'] ['respCode'] == "P2P0000" ) {
-                        $msg = "-";
-                    }else{
-                        $msg = $data ['result'] ['inBody'] ['respMsg'] . '-' . $data ['result'] ['inBody'] ['respCode'];
-                    }
-
-                    break; 
+                if( array_key_exists("inBody", $data ['result']) ) {
+                  if( $data ['result'] ['inBody'] ['respCode'] == "P2P0000" ) {
+                    $msg = "-";
+                  }else{
+                    $msg = $data ['result'] ['inBody'] ['respMsg'] . '-' . $data ['result'] ['inBody'] ['respCode'];
+                  }
+                }
+             break; 
              case 'INTERNAL_TRANS' :
                  if( $data ['result']['result_code'] == "P2P0000" ) {
                      $msg = $data ['comment'];

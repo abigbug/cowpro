@@ -4,6 +4,8 @@ description = 在用户投标的时候应用代金券
 package = _CowPro
 core = 7.x
 
+; Views handlers
+files[] = includes/views/handlers/userpoints_txn_handler_field_the_rules.inc
 
 version = "7.x-0.01"
 core = "7.x"
