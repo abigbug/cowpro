@@ -184,10 +184,12 @@ function cowpro_cash_coupon_bid_validate($txn_id, $points, $bid_amount, $nid) {
 function cowpro_cash_coupon_bid_submit($txn_id, $points, $bid_amount, $nid) {
     // 调用站内转账功能将代金券兑现
     global $user;
+    $node = node_load($nid);
+    $issuing_title = $node->title;
     $uid_from = NULL;
     $uid_to = $user->uid; // 转入账户ID
     $amount = $points; // 转入金额
-    $comment = '代金券返现';
+    $comment = $issuing_title.'（使用代金券'.$amount."元）";
     
     $trans_result = custodian_cowpro_fund_internal_trans($uid_from, $uid_to, $amount, $comment);
     
