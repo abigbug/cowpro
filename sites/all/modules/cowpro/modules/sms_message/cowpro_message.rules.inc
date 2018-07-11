@@ -54,7 +54,18 @@ function cowpro_message_rules_action_info() {
       ),
     	'base' => '_cowpro_message_cowpro_fund_bid_finished',
     ),
-  	'cowpro_fund_buy_creditor_assignment_finished' => array(
+    'cowpro_fund_waiting_for_make_loans' => array(
+      'label' => '已满标，发送消息',
+      'group' => t('cowpro'),
+      'parameter' => array(
+        'node' => array(
+          'type' => 'node',
+          'label' => 'node object',
+        ),
+      ),
+      'base' => '_cowpro_message_cowpro_fund_waiting_for_make_loans',
+    ),
+    'cowpro_fund_buy_creditor_assignment_finished' => array(
       'label' => '债权转让，发送消息',
       'group' => t('cowpro'),
       'parameter' => array(
@@ -288,7 +299,17 @@ function cowpro_message_rules_event_info() {
     				),
     		),
     ),
-    'cowpro_fund_buy_creditor_assignment_finished' => array(
+	  'cowpro_fund_waiting_for_make_loans' => array(
+	    'label' => '已满标，等待放款',
+	    'group' => t('cowpro'),
+	    'variables' => array(
+	      'node' => array(
+	        'type' => 'node',
+	        'label' => 'node object',
+	      ),
+	    ),
+	  ),
+	  'cowpro_fund_buy_creditor_assignment_finished' => array(
     		'label' => 'cowpro_fund_buy_creditor_assignment_finished',
     		'group' => t('cowpro'),
     		'variables' => array(
@@ -427,6 +448,24 @@ function _cowpro_message_cowpro_fund_bid_finished($success, $node, $journal) {
 		cowpro_message_send($phone_number, $content);
 		*/
 	}
+}
+
+/**
+ * The action function for 'cowpro_fund_waiting_for_make_loans'.
+ */
+function _cowpro_message_cowpro_fund_waiting_for_make_loans($node) {
+  //const COWPRO_SMS_WAITING_FOR_MAKE_LOANS = '尊敬的管理员[user:name]，贷款“[cowpro_issuing:title]”已满标，请尽快安排放款。';
+  $user = user_load(70037);
+  $uid = $user->uid;
+  $profile_mobile = cowpro_customer_profile_load_one_row_with_conditions($uid, 'mobile');
+  $phone_number = $profile_mobile->mobile_number;
+  
+  $data = array();
+  $data['node'] = $node;
+  $data['cowpro_issuing'] = $node;//->field_issuing [LANGUAGE_NONE] [0];
+  $data['user'] = $user;
+  $content = token_replace(variable_get ( 'cowpro_sms_waiting_for_make_loans_message', COWPRO_SMS_WAITING_FOR_MAKE_LOANS ), $data);
+  cowpro_message_send($phone_number, $content);
 }
 
 /**
