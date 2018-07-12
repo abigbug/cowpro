@@ -429,7 +429,7 @@ function mobile_certification_form_user_register_form_alter(&$form, &$form_state
 			'#weight' => 5,
 	);
 
-	$form['account']['name']['#title'] = '昵称(不能全部是数字)';
+	$form['account']['name']['#title'] = '用户名';
 
 	$form['account']['name']['#value_callback'] = '该用户名已被使用';
 	//在部分android手机环境下，如果用户登录过网站，手机会记住用户登录名，并且在用户退出登录状态访问“新手注册”页面的时候
