@@ -44,3 +44,72 @@ function cowpro_rewards_cowpro_promotion_info() {
   );
   return $items;
 }
+
+/**
+ * Implements hook_theme().
+ */
+function cowpro_rewards_theme() {
+	return array (
+			'cowpro_rewards_issuing_list' => array (
+                            'variables' => array (
+                                            'journal_list' => NULL,
+                            ),
+                            'template' => 'cowpro-rewards-issuing-list',
+			),
+	);
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function cowpro_rewards_node_view($node, $view_mode){
+    if ($node->type != 'cowpro_issuing') {
+            return;
+    }
+    global $user;
+     $role = user_role_load_by_name ( 'administrator' );
+     if (user_has_role ( $role->rid, $user )) {
+        if ($view_mode == 'full') {
+            drupal_add_css(drupal_get_path('module', 'cowpro_issuing') . "/theme/cowpro_issuing.theme.css");
+            $node->content['my_field']['stuff'][5] = array(
+                                    '#type' => 'fieldset',
+                                    '#title' => '奖励记录',
+                                    '#collapsible' => TRUE,
+                                    '#collapsed' => TRUE,
+                    );
+
+            $node->content['my_field']['stuff'][5]['issuing_list'] = array (
+                '#markup' => theme ( 'cowpro_rewards_issuing_list', array (
+                            'journal_list' => cowpro_rewards_issuing_list ( $node->nid ),
+                ) ) ,
+            );
+        }
+    }
+}
+
+//userpoints_txn 获取对应标的奖励列表
+function cowpro_rewards_issuing_list($nid){
+    $query = db_select('userpoints_txn', 'p');
+    $query->addField('p', 'uid');
+    $query->addField('p', 'points');
+    $query->addField('p', 'time_stamp');
+    $query->addField('p', 'tid');
+    $query->addField('p', 'description');
+    $query->condition('p.entity_type', 'node', '=');
+    $query->condition('p.entity_id', $nid, '=');
+    $result = $query->execute()->fetchAll();
+    $type = array( 0 => "积分",17 => "奖金");
+    foreach( $result as $key=>$value ){
+       $real_name = cowpro_customer_profile_load_one_row_with_conditions ( $value->uid, 'real_name' );
+       if( $real_name ) {
+          $result[$key]->real_name = $real_name->name; 
+       }else{
+          $result[$key]->real_name = "";
+       }
+       $user = user_load($value->uid);
+       $result[$key]->nick_name = $user->name;
+       $result[$key]->created = date('Y/m/d - H:i', $value->time_stamp);
+       $result[$key]->type = $type[$value->tid];
+    }
+    return $result;
+}

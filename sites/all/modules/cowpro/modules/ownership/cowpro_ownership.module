@@ -91,9 +91,18 @@ function cowpro_ownership_action_form($context)  {
     $result = db_query('SELECT uid FROM {users_roles} WHERE rid ='.$rid);
     foreach ($result as $data) {
       $u_id=$data->uid;
+      $user = user_load($u_id);
+      $nickname=$user->name;        //获得用户昵称
+      
       $profile_real_name = cowpro_customer_profile_load_one_row_with_conditions ($u_id,'real_name');
-      $real_name=$profile_real_name->name;
-      $options[$u_id] =$real_name;
+      if ($profile_real_name) {
+        $real_name = $profile_real_name->name;    //获得用户实名
+      }
+      
+      $profile_mobile = cowpro_customer_profile_load_one_row_with_conditions ($u_id,'mobile');
+      $mobile=$profile_mobile->mobile_number;             //获得用户手机号码
+      
+      $options[$u_id] =$nickname."(".$real_name." ".$mobile.")";
     }
     $form['add_ownership'] = array(
       '#type' => 'select',

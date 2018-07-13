@@ -218,6 +218,9 @@ function _cowpro_issuing_bid_finished($success, $nid, $journal_id) {
 			//how to clear node custom field cache in drupal 7
 			cache_clear_all("field:node:$nid", 'cache_field');
 			entity_get_controller('node')->resetCache(array($nid));
+			
+			$node = node_load ( $nid );
+			rules_invoke_event ( 'cowpro_fund_waiting_for_make_loans', $node );
 		}
 	}
 	$args = array();

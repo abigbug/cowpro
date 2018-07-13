@@ -161,23 +161,24 @@ function cowpro_raffle_ajax() {
         }
         $res = $prize_arr[$prize_id - 1]; // 中奖项
         $expirydate = time() + (7 * 3600 * 24);
-        if ($res['type'] == "voucher") {
-          $params2 = array(
-            'uid' => $user->uid,
-            'points' => $res['amount'],
-            'description' => '积分抽奖代金券奖励',
-            'entity_type' => 'node',
-            'entity_id' => 0,
-            'name' => '代金券',
-            'reference' => "raffle",
-            'expirydate' => $expirydate,
-            'module'     => 'cowpro_raffle',
-            'search_field' => null,
-            'data'       => array(),
-          );
-        }
-        else 
-          if ($res['type'] == "points") {
+        
+        switch ($res['type']) {
+          case 'voucher':
+            $params2 = array(
+              'uid' => $user->uid,
+              'points' => $res['amount'],
+              'description' => '积分抽奖代金券奖励',
+              'entity_type' => 'node',
+              'entity_id' => 0,
+              'name' => '代金券',
+              'reference' => "raffle",
+              'expirydate' => $expirydate,
+              'module' => 'cowpro_raffle',
+              'search_field' => null,
+              'data' => array()
+            );
+            break;
+          case 'points':
             $params2 = array(
               'uid' => $user->uid,
               'points' => 0 + $res['amount'],
@@ -185,13 +186,17 @@ function cowpro_raffle_ajax() {
               'entity_type' => 'node',
               'entity_id' => 0,
               'reference' => "raffle",
-              'module'     => 'cowpro_raffle',
+              'module' => 'cowpro_raffle',
               'search_field' => null,
-              'data'       => array(),
+              'data' => array()
             );
-          }
-          
-        cowpro_promotion_grant_coupon($params2);
+            break;
+          default:
+            $params2 = null;
+        }
+        if ($params2 != null) {
+          cowpro_promotion_grant_coupon($params2);
+        }
         $data['prize_name'] = $res['prize'];
         $data['prize_site'] = $prize_site; // 前端奖项从-1开始
         $data['prize_id'] = $prize_id;

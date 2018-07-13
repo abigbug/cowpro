@@ -1,5 +1,5 @@
   <style type="text/css">
-    #lottery{width:684px;height:684px;margin:20px auto;background:url(/sites/all/modules/cowpro/modules/raffle/images/bg.jpg) no-repeat;padding:50px 55px;}
+    #lottery{width:684px;height:684px;margin:20px auto;background:url(<?php echo $GLOBALS['base_url'] . '/' . drupal_get_path('module', 'cowpro_raffle') . '/images/bg.jpg'; ?>) no-repeat;padding:50px 55px;}
     #lottery table td{width:142px;height:142px;text-align:center;vertical-align:middle;font-size:24px;color:#333;font-index:-999}
     #lottery table td a{width:284px;height:284px;line-height:150px;display:block;text-decoration:none;}
     #lottery table td.active{background-color:#ea0000;}
